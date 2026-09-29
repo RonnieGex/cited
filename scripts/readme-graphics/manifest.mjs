@@ -11,7 +11,7 @@ export const graphics = [
     copy: "No web, no memory, no guess.",
     shows: "Available",
     label: null,
-    alt: "Cited answers only from the documents of the business",
+    alt: "Cited reads only the documents you point it at",
   },
   {
     name: "reason-citations",
@@ -48,7 +48,7 @@ export const graphics = [
     copy: null,
     shows: "Planned",
     label: "Next",
-    alt: "How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer",
+    alt: "How Cited works: documents, passages, libSQL and Reciprocal Rank Fusion, with the answer marked Next",
   },
   {
     name: "demo",

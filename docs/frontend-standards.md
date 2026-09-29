@@ -22,7 +22,7 @@ alwaysApply: true
 ```
 app/
   layout.tsx        # root layout, metadata and language
-  page.tsx          # public page of questions and answers
+  page.tsx          # public page of questions and answers (planned in admin-and-public-ui)
   globals.css       # Tailwind import and the theme of the project
   admin/            # administration panel (change 4)
   api/              # route handlers: ask, voice, upload, health (changes 3, 4 and 5)
@@ -46,6 +46,7 @@ public/             # static assets, no licensed font
 ## 4. Content and safety in the browser
 
 - Answers are rendered from sanitized markdown. Raw HTML from a model or from a document is never injected.
+  **Planned** in `pluggable-models-and-ask`.
 - No API key, no service token and no signed URL with a long life reaches the browser. A signed voice URL is
   requested from the server and lives 15 minutes at most.
 - Every string that the user sees exists in Spanish and in English (change 4). No text is hardcoded in a component.
