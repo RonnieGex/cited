@@ -75,7 +75,13 @@ export async function providerPanelStateOf(
 
   return {
     chat: view(chat.source, chat.provider, chat.model, chatRow),
-    embeddings: view(embeddings.source, embeddings.provider, embeddings.model, embeddingsRow),
+    embeddings: view(
+      embeddings.source,
+      // Keyword mode has no provider and is still a connected state of its own: the panel names it by its mode.
+      embeddings.provider ?? (embeddings.mode === "keyword" ? "keyword" : null),
+      embeddings.model,
+      embeddingsRow,
+    ),
     encryption: encryptionAvailable(environment),
     reindex: { documents, passages },
   };

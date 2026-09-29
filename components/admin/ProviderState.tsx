@@ -40,6 +40,13 @@ export function ProviderState({
   const intro = kind === "chat" ? strings.answersIntro : strings.meaningIntro;
   const entry = entries.find((candidate) => candidate.id === view.provider) ?? null;
   const connected = view.source !== "none" && view.provider !== null;
+  // The provider of the deterministic tests is not in the catalogue, because the owner never chooses it: it is what
+  // whoever installs sets on the server for a first run, and the panel names it in words.
+  const name =
+    view.mode === "keyword"
+      ? strings.keywordActive
+      : (entry?.name ??
+        (view.provider === "fake" ? strings.testProvider : String(view.provider)));
 
   return (
     <section aria-label={title} className="flex flex-col gap-4">
@@ -49,7 +56,7 @@ export function ProviderState({
       {connected ? (
         <ProviderConnected
           kind={kind}
-          name={entry?.name ?? String(view.provider)}
+          name={name}
           reindex={reindex}
           strings={strings}
           view={view}

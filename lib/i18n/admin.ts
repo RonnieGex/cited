@@ -58,6 +58,7 @@ export type AdminStrings = {
   meansNo: string;
   modelLabel: string;
   keywordActive: string;
+  testProvider: string;
   keywordLine: string;
   keywordChoose: string;
   keywordSaved: string;
@@ -176,6 +177,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     meansNo: "Meaning search: no",
     modelLabel: "Model",
     keywordActive: "Search by words",
+    testProvider: "Test provider, no network",
     keywordLine: "Works without a key: it finds passages by the words they share, not by meaning.",
     keywordChoose: "Use search by words",
     keywordSaved: "Saved. The search ranks by words and the documents store no vectors.",
@@ -294,6 +296,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     meansNo: "Búsqueda por significado: no",
     modelLabel: "Modelo",
     keywordActive: "Búsqueda por palabras",
+    testProvider: "Proveedor de prueba, sin red",
     keywordLine: "Funciona sin llave: encuentra pasajes por las palabras que comparten, no por su significado.",
     keywordChoose: "Usar búsqueda por palabras",
     keywordSaved: "Guardado. La búsqueda ordena por palabras y los documentos no guardan vectores.",

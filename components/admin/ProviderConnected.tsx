@@ -73,9 +73,7 @@ export function ProviderConnected({ kind, strings, view, name, reindex }: Provid
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <p className="text-lg font-semibold text-ink">{name}</p>
-          {view.mode === "keyword" ? (
-            <p className="text-ink/80">{strings.keywordActive}</p>
-          ) : (
+          {view.mode === "keyword" ? null : (
             <p className="text-ink/80">
               {strings.modelLabel}: {view.model}
             </p>
