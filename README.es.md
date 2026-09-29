@@ -19,9 +19,9 @@
 
 **Cited está en desarrollo temprano y no sirve todavía para producción.** Lo que puedes correr hoy es el núcleo:
 convierte una carpeta de documentos en pasajes citables y los vuelve a encontrar con una búsqueda híbrida. Lee la
-[tabla de estado](#status) antes de prometerle algo a alguien.
+[tabla de estado](#estado) antes de prometerle algo a alguien.
 
-## Why Cited
+## Por qué Cited
 
 | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited lee solo los documentos que le señalas" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Cada pasaje de Cited lleva su documento, su encabezado y su posición" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voz con ElevenLabs, planeada para el siguiente cambio" width="400"></picture> |
 |---|---|---|
@@ -33,24 +33,24 @@ convierte una carpeta de documentos en pasajes citables y los vuelve a encontrar
 3. **Háblale.** La recuperación y la búsqueda devuelven pasajes en texto hoy; platicar con los mismos documentos con
    ElevenLabs llega en un cambio posterior, y por eso la tarjeta que lo muestra dice `Next`.
 
-## Status
+## Estado
 
 Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio que la entrega.
 
 | Capacidad | Estado | Especificación o cambio |
 |---|---|---|
-| Ingesta de PDF, DOCX, Markdown y texto con límites | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Búsqueda híbrida: texto completo y vectores, fusionados con Reciprocal Rank Fusion | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Embeddings por una API compatible con OpenAI u Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Archivo libSQL local o Turso | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Planned | `pluggable-models-and-ask` |
-| Panel de administración, página pública y widget en español e inglés | Planned | `admin-and-public-ui` |
-| Agente de voz con ElevenLabs, creado en un clic | Planned | `elevenlabs-voice-agent` |
-| Design system compartido | Planned | `design-system-shared` |
-| Endurecimiento de seguridad y pruebas de abuso | Planned | `security-hardening` |
-| Despliegue en un clic, con imagen de Docker y documentación bilingüe | Planned | `docs-deploy-and-launch` |
+| Ingesta de PDF, DOCX, Markdown y texto con límites | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Búsqueda híbrida: texto completo y vectores, fusionados con Reciprocal Rank Fusion | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Embeddings por una API compatible con OpenAI u Ollama | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Archivo libSQL local o Turso | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Siguiente | `pluggable-models-and-ask` |
+| Panel de administración, página pública y widget en español e inglés | Siguiente | `admin-and-public-ui` |
+| Agente de voz con ElevenLabs, creado en un clic | Siguiente | `elevenlabs-voice-agent` |
+| Design system compartido | Siguiente | `design-system-shared` |
+| Endurecimiento de seguridad y pruebas de abuso | Siguiente | `security-hardening` |
+| Despliegue en un clic, con imagen de Docker y documentación bilingüe | Siguiente | `docs-deploy-and-launch` |
 
-## How it works
+## Cómo funciona
 
 **De una carpeta de documentos a un pasaje citado.**
 
@@ -80,7 +80,7 @@ flowchart LR
 La imagen la dibuja `scripts/render-readme-graphics.mjs` con la salida de los comandos del arranque rápido, así que
 no puede mostrar un resultado que el código no produzca.
 
-## Roadmap
+## Hoja de ruta
 
 **Lo que corre hoy y lo que viene después.**
 
@@ -90,7 +90,7 @@ Los cambios del plan llegan en este orden: el design system compartido, luego re
 citas, luego el panel y la página pública, luego la voz con ElevenLabs, luego el endurecimiento, luego los despliegues
 y la documentación.
 
-## Voice
+## Voz
 
 **Háblale a tus documentos.**
 
@@ -98,7 +98,7 @@ y la documentación.
 
 `elevenlabs-voice-agent` está planeado, no construido: lleva `Next` en cada gráfica que lo muestra.
 
-## Quick start
+## Arranque rápido
 
 Un comando ingiere el corpus de ejemplo y otro lo busca. No hace falta ninguna llave: el proveedor determinista corre
 sin conexión.
@@ -161,21 +161,21 @@ ordenamiento.
 - npm 11 o superior
 - gitleaks para el gancho de commit y Chromium de Playwright para las pruebas de navegador, solo si contribuyes
 
-## Configuration
+## Configuración
 
 Las variables que el dueño define, para qué sirve cada una y si el código la lee hoy.
 
 | Variable | Para qué sirve | Se lee hoy |
 |---|---|---|
-| `EMBEDDINGS_PROVIDER` | el proveedor de embeddings: `openai`, `ollama` o `fake` | yes |
-| `EMBEDDINGS_BASE_URL` | URL base de la API de embeddings compatible con OpenAI | yes |
-| `EMBEDDINGS_MODEL` | nombre del modelo de embeddings | yes |
-| `EMBEDDINGS_API_KEY` | llave del proveedor de embeddings | yes |
-| `EMBEDDINGS_DIMENSIONS` | ajuste opcional del tamaño del vector del proveedor | yes |
-| `OLLAMA_BASE_URL` | URL base de un Ollama local, `http://localhost:11434` por defecto | yes |
-| `DATABASE_URL` | ruta del archivo libSQL local, `.data/katalis.sqlite` por defecto | yes |
-| `TURSO_DATABASE_URL` | URL de una base libSQL remota; gana sobre el archivo local | yes |
-| `TURSO_AUTH_TOKEN` | token de la base remota, obligatorio cuando la URL es remota | yes |
+| `EMBEDDINGS_PROVIDER` | el proveedor de embeddings: `openai`, `ollama` o `fake` | sí |
+| `EMBEDDINGS_BASE_URL` | URL base de la API de embeddings compatible con OpenAI | sí |
+| `EMBEDDINGS_MODEL` | nombre del modelo de embeddings | sí |
+| `EMBEDDINGS_API_KEY` | llave del proveedor de embeddings | sí |
+| `EMBEDDINGS_DIMENSIONS` | ajuste opcional del tamaño del vector del proveedor | sí |
+| `OLLAMA_BASE_URL` | URL base de un Ollama local, `http://localhost:11434` por defecto | sí |
+| `DATABASE_URL` | ruta del archivo libSQL local, `.data/katalis.sqlite` por defecto | sí |
+| `TURSO_DATABASE_URL` | URL de una base libSQL remota; gana sobre el archivo local | sí |
+| `TURSO_AUTH_TOKEN` | token de la base remota, obligatorio cuando la URL es remota | sí |
 | `ADMIN_PASSWORD` | contraseña del panel de administración, reservada | no |
 | `ADMIN_SESSION_SECRET` | secreto que firma la sesión del panel, reservado | no |
 | `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, reservado | no |
@@ -189,13 +189,13 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 Una fila marcada `no` es un nombre que el repositorio ya reserva y que ningún código lee todavía. Ninguna llave tiene
 valor en este repositorio, y git ignora `.env`.
 
-## Security
+## Seguridad
 
 Las llaves viven solo en el entorno del servidor. Nunca llegan al navegador y nunca se guardan en la base de datos. El
 modelo de amenazas es `docs/security.md`; una vulnerabilidad se reporta en privado, como dice `SECURITY.md`, nunca en
 un issue público. El repositorio no lleva ningún archivo de fuente con licencia comercial desde su primer commit.
 
-## Contributing
+## Cómo contribuir
 
 Cited se especifica antes de programarse: cada cambio es un cambio de OpenSpec con su propuesta, sus deltas de
 especificación, su diseño y su lista de tareas con evidencia. Lee `docs/katalis-sdd-standard.md` y
@@ -214,7 +214,7 @@ npm run secrets:scan
 npm run openspec:validate
 ```
 
-## License
+## Licencia
 
 Apache-2.0, con un archivo [LICENSE](LICENSE) y un archivo [NOTICE](NOTICE) que lleva la atribución. Un fork conserva
 el aviso.
