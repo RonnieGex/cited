@@ -19,33 +19,33 @@ name that path before this round.
 
 ```
 $ New-Item -ItemType Directory -Force -Path openspec\changes\brand-and-design-system\reports
-$ Get-ChildItem reports -File | ForEach-Object { git mv "reports/$($_.Name)" "reports/$($_.Name)" }
+$ Get-ChildItem reports -File | ForEach-Object { git mv "reports/$($_.Name)" "openspec/changes/brand-and-design-system/reports/$($_.Name)" }
 
 $ git status --short
-R  reports/2026-09-29-step-0-branch.md -> reports/2026-09-29-step-0-branch.md
-R  reports/2026-09-29-step-1-base-before.md -> reports/2026-09-29-step-1-base-before.md
-R  reports/2026-09-29-step-10-flame-size.md -> reports/2026-09-29-step-10-flame-size.md
-R  reports/2026-09-29-step-2-tests-first.md -> reports/2026-09-29-step-2-tests-first.md
-R  reports/2026-09-29-step-3-implementation.md -> reports/2026-09-29-step-3-implementation.md
-R  reports/2026-09-29-step-4-existing-tests.md -> reports/2026-09-29-step-4-existing-tests.md
-R  reports/2026-09-29-step-5-checks.md -> reports/2026-09-29-step-5-checks.md
-R  reports/2026-09-29-step-6-curl.md -> reports/2026-09-29-step-6-curl.md
-R  reports/2026-09-29-step-7-e2e.md -> reports/2026-09-29-step-7-e2e.md
-R  reports/2026-09-29-step-8-base-after.md -> reports/2026-09-29-step-8-base-after.md
-R  reports/2026-09-29-step-9-docs.md -> reports/2026-09-29-step-9-docs.md
+R  reports/2026-09-29-step-0-branch.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-0-branch.md
+R  reports/2026-09-29-step-1-base-before.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-1-base-before.md
+R  reports/2026-09-29-step-10-flame-size.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-10-flame-size.md
+R  reports/2026-09-29-step-2-tests-first.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-2-tests-first.md
+R  reports/2026-09-29-step-3-implementation.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-3-implementation.md
+R  reports/2026-09-29-step-4-existing-tests.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-4-existing-tests.md
+R  reports/2026-09-29-step-5-checks.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-5-checks.md
+R  reports/2026-09-29-step-6-curl.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-6-curl.md
+R  reports/2026-09-29-step-7-e2e.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-7-e2e.md
+R  reports/2026-09-29-step-8-base-after.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-8-base-after.md
+R  reports/2026-09-29-step-9-docs.md -> openspec/changes/brand-and-design-system/reports/2026-09-29-step-9-docs.md
 ```
 
 `R` and not `A` plus `D`: the eleven files are renames, and the history of each one is followed through the move:
 
 ```
-$ git log --follow --oneline -- reports/2026-09-29-step-0-branch.md
+$ git log --follow --oneline -- openspec/changes/brand-and-design-system/reports/2026-09-29-step-0-branch.md
 98ac5ce Move the eleven reports of the change inside the change, with their references
 dd174e9 Take the home directory out of the tracked contract and the first report
 fbf1498 Confirm the branch, the base and the install of the round
 
 $ git show --name-status -M --oneline HEAD      # the eleven lines of the commit, with their similarity
-R096	reports/2026-09-29-step-0-branch.md	reports/2026-09-29-step-0-branch.md
-R100	reports/2026-09-29-step-3-implementation.md	reports/2026-09-29-step-3-implementation.md
+R096	reports/2026-09-29-step-0-branch.md	openspec/changes/brand-and-design-system/reports/2026-09-29-step-0-branch.md
+R100	reports/2026-09-29-step-3-implementation.md	openspec/changes/brand-and-design-system/reports/2026-09-29-step-3-implementation.md
 ...
 ```
 
