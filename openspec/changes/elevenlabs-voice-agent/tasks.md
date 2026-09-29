@@ -25,10 +25,10 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 3. Implementation
 
-- [ ] 3.1 The server tool and the signed URL with the minute cap (decision 5) — report:
+- [x] 3.1 The server tool and the signed URL with the minute cap (decision 5) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.2 The provisioning from the panel (decisions 2, 3 and 4) — report: `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.3 The ported panel and Orb on the public page and the widget, and the build guard (decision 1) — report:
+- [x] 3.2 The provisioning from the panel (decisions 2, 3 and 4) — report: `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.3 The ported panel and Orb on the public page and the widget, and the build guard (decision 1) — report:
       `reports/2026-09-29-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests
