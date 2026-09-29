@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { BuiltByKatalis } from "@/components/admin/BuiltByKatalis";
 import { SignOutButton } from "@/components/admin/SignOutButton";
 import { CitationMark, Wordmark } from "@/components/brand";
@@ -43,10 +44,18 @@ function isCurrent(pathname: string | null, href: string): boolean {
 // The focus is the lime outline of the kit, drawn inside the link: the list scrolls sideways, and an outline outside it
 // would be clipped by the scroller.
 const link =
-  "flex items-center gap-3 rounded-none px-3 py-2 text-sm font-semibold transition-colors duration-[var(--dur-fast)] max-lg:min-h-11 max-lg:whitespace-nowrap focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-lime";
+  "flex items-center gap-3 rounded-none px-3 py-2 text-[15px] font-semibold transition-colors duration-[var(--dur-fast)] max-lg:min-h-11 max-lg:whitespace-nowrap focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-lime";
 
 export function AdminNav({ lang, strings }: AdminNavProps) {
   const pathname = usePathname();
+  const list = useRef<HTMLElement>(null);
+
+  // On a phone the sections scroll sideways: the current one is brought into view, sideways only.
+  useEffect(() => {
+    list.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView?.({ inline: "center", block: "nearest" });
+  }, [pathname]);
 
   return (
     <aside
@@ -55,6 +64,7 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
     >
       <Wordmark size="sm" tone="ink" href="/admin" className="self-start" />
       <nav
+        ref={list}
         aria-label={strings.panelEyebrow}
         className="-mx-6 overflow-x-auto px-6 lg:mx-0 lg:overflow-visible lg:px-0"
       >
@@ -72,7 +82,7 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
                   <CitationMark
                     n={index + 1}
                     state={current ? "open" : "rest"}
-                    className={current ? "ring-1 ring-inset ring-lime" : "bg-transparent! text-paper/60!"}
+                    className={current ? "ring-1 ring-inset ring-lime" : "bg-transparent! text-paper/60! ring-1 ring-inset ring-paper/30"}
                   />
                   {strings[section.name]}
                 </Link>
