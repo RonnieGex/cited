@@ -458,8 +458,13 @@ $ git log --oneline 71f08f0..HEAD | Measure-Object | Select-Object -ExpandProper
 ```
 
 The delivery is corrected with this number in the closing commit of the round: ten commits between `71f08f0` and
-`5404823`, the correction `9a47f41` that the review already asked for, and the seven of this round (the closing one
-included).
+`5404823` (`9a47f41` included) and the seven of this round. The count moves with the commit that writes it — the one
+that carries this line is the eighteenth, and the delivery says nineteen with the correction itself — so the number is
+written with the command that reads it.
+
+The count of the commits of the contract, the number the delivery carries after the two Minors of the review:
+`git log --oneline 71f08f0..HEAD | Measure-Object` answers **19** over the last commit of the round, the correction of
+the delivery included — ten from `e12d34a` to `5404823`, `9a47f41`, and the eight of this round.
 
 **m-2.** The scan runs before every commit, as the hook of the repository does, and it was recorded for each one of
 them. After each commit of this round:
