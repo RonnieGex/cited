@@ -30,6 +30,7 @@ export type VoiceStrings = {
   close: string;
   micError: string;
   limitError: string;
+  limitTooLow: string;
   genericError: string;
   notConfigured: string;
   agentTitle: string;
@@ -71,6 +72,8 @@ export const VOICE_STRINGS: Record<Lang, VoiceStrings> = {
     micError:
       "We could not use your microphone. Check the permission of the browser or type your question below: it works the same.",
     limitError: "The agent reached its daily limit. Type your question below and we answer in writing.",
+    limitTooLow:
+      "The voice is off: the daily limit of minutes of this site is smaller than one session. Type your question below and we answer in writing.",
     genericError: "We could not connect to the voice agent. Type your question below and we answer in writing.",
     notConfigured: "The voice is not configured on this site yet. Meanwhile, type your question below.",
     agentTitle: "Voice agent",
@@ -112,6 +115,8 @@ export const VOICE_STRINGS: Record<Lang, VoiceStrings> = {
       "No pudimos usar tu micrófono. Revisa el permiso del navegador o escribe tu pregunta aquí abajo: funciona igual.",
     limitError:
       "El agente alcanzó su límite diario. Escribe tu pregunta aquí abajo y te contestamos por escrito.",
+    limitTooLow:
+      "La voz está apagada: el límite diario de minutos de este sitio es menor que una sesión. Escribe tu pregunta aquí abajo y te contestamos por escrito.",
     genericError:
       "No pudimos conectar con el agente de voz. Escribe tu pregunta aquí abajo y te contestamos por escrito.",
     notConfigured: "La voz todavía no está configurada en este sitio. Mientras tanto, escribe tu pregunta aquí abajo.",

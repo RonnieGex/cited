@@ -257,6 +257,46 @@ describe("the voice panel", () => {
     expect(fake().startCalls).toHaveLength(0);
   });
 
+  it("says in words that a limit below one session leaves the voice off", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => urlFailure(429, { status: "limited", reason: "below-session", limit: 3 })),
+    );
+
+    render(<VoicePanel lang="en" variant="dialog" />);
+
+    await waitFor(() => {
+      expect(window.__katalisVoiceFake).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByTestId("voice-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("voice-error")).toHaveTextContent(en.limitTooLow);
+    });
+    expect(screen.getByTestId("voice-error")).not.toHaveTextContent(en.limitError);
+    expect(fake().startCalls).toHaveLength(0);
+  });
+
+  it("says the same in Spanish", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => urlFailure(429, { status: "limited", reason: "below-session", limit: 3 })),
+    );
+
+    render(<VoicePanel lang="es" variant="dialog" />);
+
+    await waitFor(() => {
+      expect(window.__katalisVoiceFake).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByTestId("voice-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("voice-error")).toHaveTextContent(es.limitTooLow);
+    });
+  });
+
   it("says in words that the voice is not configured when the server answers 503", async () => {
     vi.stubGlobal(
       "fetch",
