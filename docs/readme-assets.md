@@ -138,7 +138,7 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 | | |
 |---|---|
 | Files in `docs/images/` | 19 PNG and 2 JSON |
-| Weight of the PNGs | 0.675 MB |
+| Weight of the PNGs | 0.671 MB |
 | Weight of the images the README uses | about 0.67 MB |
 | Budget | 3 MB |
 
