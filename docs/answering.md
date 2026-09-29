@@ -173,17 +173,24 @@ The purge runs at most once an hour, on a request: it deletes the conversations 
 comes from its own variable; a missing or empty value stops the request with `503` and a message that names the
 variable, never its value.
 
-| `CHAT_PROVIDER` | Variables | Default model | License of the package |
-|---|---|---|---|
-| `openai` | `OPENAI_API_KEY` | `gpt-4o-mini` | Apache-2.0 |
-| `anthropic` | `ANTHROPIC_API_KEY` | `claude-3-5-haiku-latest` | Apache-2.0 |
-| `gemini` | `GEMINI_API_KEY` | `gemini-2.0-flash` | Apache-2.0 |
-| `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` | Apache-2.0 |
-| `groq` | `GROQ_API_KEY` | `llama-3.3-70b-versatile` | Apache-2.0 |
-| `openrouter` | `OPENROUTER_API_KEY` | `openai/gpt-4o-mini` | Apache-2.0 |
-| `ollama` | `OLLAMA_BASE_URL` (default `http://localhost:11434/v1`) | `llama3.1` | Apache-2.0 |
-| `lmstudio` | `LMSTUDIO_BASE_URL` (default `http://localhost:1234/v1`) | `local-model` | Apache-2.0 |
-| `fake` | none | `fake` | in the repository |
+| `CHAT_PROVIDER` | Variables | Default model | License of the package | Official source | Checked |
+|---|---|---|---|---|---|
+| `openai` | `OPENAI_API_KEY` | `gpt-4o-mini` | Apache-2.0 | https://developers.openai.com/api/docs/models/gpt-4o-mini | 2026-09-29 |
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-haiku-4-5-20251001` | Apache-2.0 | https://platform.claude.com/docs/en/about-claude/model-deprecations | 2026-09-29 |
+| `gemini` | `GEMINI_API_KEY` | `gemini-3.8-flash` | Apache-2.0 | https://ai.google.dev/gemini-api/docs/deprecations | 2026-09-29 |
+| `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-flash` | Apache-2.0 | https://api-docs.deepseek.com/updates/ | 2026-09-29 |
+| `groq` | `GROQ_API_KEY` | `openai/gpt-oss-120b` | Apache-2.0 | https://console.groq.com/docs/models | 2026-09-29 |
+| `openrouter` | `OPENROUTER_API_KEY` | `openai/gpt-4o-mini` | Apache-2.0 | https://openrouter.ai/openai/gpt-4o-mini/overview | 2026-09-29 |
+| `ollama` | `OLLAMA_BASE_URL` (default `http://localhost:11434/v1`) | `llama3.1` | Apache-2.0 | https://ollama.com/library/llama3.1 | 2026-09-29 |
+| `lmstudio` | `LMSTUDIO_BASE_URL` (default `http://localhost:1234/v1`) | `local-model` | Apache-2.0 | https://lmstudio.ai/docs/developer/openai-compat | 2026-09-29 |
+| `fake` | none | `fake` | in the repository | `lib/models/fake.ts` | 2026-09-29 |
+
+Every default of the table is the model its provider still served on 2026-09-29, and every row carries the official
+source and the date it was checked. The defaults of the first version of this change had to move: Anthropic retired
+Claude 3.5 Haiku, Google shut Gemini 2.0 Flash down, DeepSeek discontinued the `deepseek-chat` name and Groq retired
+Llama 3.3 70B for its free and developer plans. DeepSeek serves `deepseek-flash` since 2026-09-10. `local-model` is
+the identifier the local server accepts, not a published model, and `fake` is the deterministic provider of this
+repository.
 
 OpenRouter, Ollama and LM Studio go through their OpenAI-compatible endpoint; the rest use their own package. The
 whole layer is the Vercel AI SDK (`ai`, Apache-2.0) and its provider packages (`@ai-sdk/openai`, `@ai-sdk/anthropic`,

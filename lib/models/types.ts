@@ -16,10 +16,10 @@ export type ChatProviderName = (typeof CHAT_PROVIDER_NAMES)[number];
 
 export const DEFAULT_CHAT_MODELS: Record<ChatProviderName, string> = {
   openai: "gpt-4o-mini",
-  anthropic: "claude-3-5-haiku-latest",
-  gemini: "gemini-2.0-flash",
-  deepseek: "deepseek-chat",
-  groq: "llama-3.3-70b-versatile",
+  anthropic: "claude-haiku-4-5-20251001",
+  gemini: "gemini-3.8-flash",
+  deepseek: "deepseek-flash",
+  groq: "openai/gpt-oss-120b",
   openrouter: "openai/gpt-4o-mini",
   ollama: "llama3.1",
   lmstudio: "local-model",
