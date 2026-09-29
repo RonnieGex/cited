@@ -85,8 +85,13 @@ export function parseSaveBody(
 export const PROVIDER_BODY_ERROR =
   'the body must be {"kind": "chat" | "embeddings", "provider": string, "key"?: string, "model"?: string, "baseUrl"?: string}';
 
+// The requirement "The owner never reads a variable name in an answer of the panel" (task 11.3, the Major M-3 of
+// `katalis-dev/tasks/revision-community-12b.md`): the answer of a route carries the reason code and a sentence in the
+// words of the owner. The name of the variable — `ALLOW_LOCAL_PROVIDERS` — is written only in "For the installer",
+// which is the page this sentence sends whoever reads it to; the page of the panel shows its own translation of the
+// code (`strings.reasonAddressNotAllowed`) next to the link.
 export const PROVIDER_ADDRESS_ERROR =
-  "that address is not allowed: a provider of the catalogue answers on its own address, and a local address needs ALLOW_LOCAL_PROVIDERS=1 on the server";
+  "that address is not allowed: a provider of the list answers on its own address, and a local one needs the permission of whoever installed Cited";
 
 // The requirement "A provider address cannot reach private networks": the rules of `lib/providers/address.ts` run
 // before the route calls anything, so an address that points inside the network of the server is answered as what it

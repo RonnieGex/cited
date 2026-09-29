@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
 import { Button, Input, Panel } from "@/components/ui";
 import type { AdminStrings } from "@/lib/i18n/admin";
@@ -233,6 +234,17 @@ export function ProviderConnect({
       {reason === null ? null : (
         <p className="max-w-[65ch] text-sm text-ink" role="alert">
           {reasonText[reason]}
+          {/* Requirement "The owner never reads a variable name in an answer of the panel" (task 11.3): the sentence
+              is in the words of the owner and a setting only the installer can change sends to the page of whoever
+              installs, which is the only one that names a variable of the environment. */}
+          {reason === "address_not_allowed" ? (
+            <>
+              {" "}
+              <Link className="underline underline-offset-2" href="/admin">
+                {strings.reasonAddressNotAllowedLink}
+              </Link>
+            </>
+          ) : null}
         </p>
       )}
       {failed ? (
