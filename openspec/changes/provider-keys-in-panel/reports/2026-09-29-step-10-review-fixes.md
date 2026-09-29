@@ -102,3 +102,69 @@ npm run typecheck
 npm run lint
 (no output)
 ```
+
+## 10.2 Major M-1: the address of a provider cannot reach the private network
+
+**The finding.** `lib/admin/provider-request.ts` took `baseUrl` straight from the JSON of the browser and
+`lib/providers/test.ts` preferred it over the catalogue without checking scheme, host or resolved address, and without
+`redirect: "manual"`. Codex reproduced an authenticated SSRF: `SSRF_REPRO status=200 internal_requests=1`, with the
+service of loopback receiving `Authorization: Bearer review-only-key-0001`.
+
+### Red before the fix
+
+The rule did not exist: `lib/providers/address.ts` is new in this commit, and the first run of the new suites was the
+missing module itself, which is the red of a rule that is not there yet:
+
+```text
+npx vitest run tests/provider-address.test.ts
+Error: Failed to resolve import "@/lib/providers/address" from "tests/provider-address.test.ts".
+```
+
+The reproduction of the review was repeated through the routes once the guard existed, and it is what the green run
+below covers: the address of the internal double is refused with `400` and `internal.requests` stays empty.
+
+### The fix
+
+- `lib/providers/address.ts` (new): `providerAddress()` decides before anything is called. An address is accepted only
+  for Ollama, LM Studio and a custom OpenAI-compatible endpoint; a cloud provider must name the official host of the
+  catalogue **or** the one whoever installs wrote in `OPENAI_BASE_URL` and its siblings, which is the only address the
+  panel itself offers; the scheme is `https`, and `http` only to a local host with `ALLOW_LOCAL_PROVIDERS=1`; the host
+  is resolved with `node:dns` and every answer is checked against loopback, link-local, RFC 1918, carrier-grade NAT,
+  multicast, documentation and the metadata address, including the IPv4-mapped form; and the caller is told
+  `redirect: "manual"`.
+- `lib/providers/test.ts`: the rule runs first in `testProvider()`, and the call itself now passes
+  `redirect: "manual"` and treats a `3xx` as `unreachable`. `TestReason` gained `address_not_allowed`.
+- `lib/admin/provider-request.ts`: `providerAddressProblem()` and `PROVIDER_ADDRESS_ERROR`, shared by the test and the
+  save routes, which answer `400` with `reason: "address_not_allowed"` **before** the hourly limit is spent and before
+  any key is offered to an address.
+- `components/admin/ProviderConnect.tsx` and `lib/i18n/admin.ts`: the seventh word of the interface, in English and in
+  Spanish, so the owner reads why the address cannot be used.
+- `.env.example`: `ALLOW_LOCAL_PROVIDERS`, with the ranges it lifts; `docs/providers.md`: the section "The address of a
+  provider cannot reach the private network", the new row of the table of answers and the note in the catalogue.
+- `tests/provider-routes.test.ts` and `tests/admin-helpers.ts`: the cases that send the URL of a local double now say
+  in the environment that `OPENAI_BASE_URL` (or the variable of its provider) is that double and that the installation
+  allows local providers — which is what the rule asks of a real installation with a provider on its own machine. The
+  suite is the same; the environment of each case is the honest one.
+
+### Green after the fix
+
+```text
+npx vitest run tests/provider-address.test.ts tests/provider-address-route.test.ts --reporter=verbose
+ ✓ … (18 tests)
+      Tests  18 passed (18)
+```
+
+```text
+npm test
+ Test Files  48 passed (48)
+      Tests  438 passed (438)
+ Duration  16.71s
+```
+
+```text
+npm run typecheck
+✓ Types generated successfully
+
+npm run lint
+(no output)
+```

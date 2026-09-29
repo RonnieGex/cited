@@ -60,6 +60,7 @@ const managed = [
   "RATE_LIMIT_PER_IP_PER_HOUR",
   "DAILY_MODEL_CALL_LIMIT",
   "PROVIDER_TEST_TIMEOUT_MS",
+  "ALLOW_LOCAL_PROVIDERS",
 ];
 
 function setEnvironment(overrides: Record<string, string | undefined>): void {
@@ -96,6 +97,9 @@ async function corpusStore(overrides: Record<string, string | undefined> = {}): 
     DATABASE_URL: path,
     ADMIN_PASSWORD,
     ADMIN_SESSION_SECRET: ADMIN_SECRET,
+    // The doubles of the suite listen on `127.0.0.1`: the flag is the one of an installation that runs its provider
+    // on its own machine, which is what a test does.
+    ALLOW_LOCAL_PROVIDERS: "1",
     ...overrides,
   });
 
@@ -220,7 +224,9 @@ describe("a provider that echoes the saved key", () => {
   it("leaves no part of the key or of the provider text in the answer of the test route", async () => {
     const echoing = await openDouble();
 
-    await corpusStore();
+    // Ollama is one of the providers that may carry an address of its own, so the case is the text of the provider and
+    // not the rule of the address; `ALLOW_LOCAL_PROVIDERS=1` is the flag of an installation with a provider at home.
+    await corpusStore({ OLLAMA_BASE_URL: `${echoing.url}/v1` });
 
     const response = await providersTest(
       adminRequest("http://localhost/api/admin/providers/test", {
@@ -228,7 +234,7 @@ describe("a provider that echoes the saved key", () => {
         headers: sessionHeader(token()),
         body: JSON.stringify({
           kind: "chat",
-          provider: "deepseek",
+          provider: "ollama",
           key: savedKey,
           baseUrl: `${echoing.url}/v1`,
         }),
@@ -248,7 +254,7 @@ describe("a provider that echoes the saved key", () => {
   it("keeps the key and its ciphertext out of the save answer and of the panel state", async () => {
     const echoing = await openDouble();
 
-    await corpusStore();
+    await corpusStore({ OLLAMA_BASE_URL: `${echoing.url}/v1` });
 
     // The double refuses every key, so the save tests first and stores nothing: the answer may say why in words and
     // never the text of the provider.
@@ -258,7 +264,7 @@ describe("a provider that echoes the saved key", () => {
         headers: sessionHeader(token()),
         body: JSON.stringify({
           kind: "chat",
-          provider: "deepseek",
+          provider: "ollama",
           key: savedKey,
           baseUrl: `${echoing.url}/v1`,
         }),

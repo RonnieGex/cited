@@ -49,6 +49,7 @@ export function ProviderConnect({
     model_not_found: strings.reasonModelNotFound,
     unreachable: strings.reasonUnreachable,
     timeout: strings.reasonTimeout,
+    address_not_allowed: strings.reasonAddressNotAllowed,
   };
 
   function payload(): Record<string, unknown> {

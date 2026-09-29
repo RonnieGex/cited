@@ -1,5 +1,10 @@
 import { reserveProviderTest } from "../../../../../lib/admin/provider-panel.ts";
-import { PROVIDER_BODY_ERROR, parseSaveBody } from "../../../../../lib/admin/provider-request.ts";
+import {
+  PROVIDER_ADDRESS_ERROR,
+  PROVIDER_BODY_ERROR,
+  parseSaveBody,
+  providerAddressProblem,
+} from "../../../../../lib/admin/provider-request.ts";
 import { guardRequest } from "../../../../../lib/admin/guard.ts";
 import { bodyOf, guardResponse, json } from "../../../../../lib/admin/respond.ts";
 import { testProvider, testTimeoutMs, withClosedReason } from "../../../../../lib/providers/test.ts";
@@ -22,6 +27,15 @@ export async function POST(request: Request): Promise<Response> {
 
   if (parsed === null) {
     return json({ status: "invalid", error: PROVIDER_BODY_ERROR }, 400);
+  }
+
+  // The same rule as the test route, before the limit is spent and before the provider is called: an address of the
+  // internal network is answered as what it is, whatever kind of setting is being saved.
+  if (parsed.mode === null && (await providerAddressProblem(parsed))) {
+    return json(
+      { status: "address_not_allowed", saved: false, reason: "address_not_allowed", error: PROVIDER_ADDRESS_ERROR },
+      400,
+    );
   }
 
   const store = await sharedStore(process.env);

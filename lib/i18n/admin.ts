@@ -50,6 +50,7 @@ export type AdminStrings = {
   reasonModelNotFound: string;
   reasonUnreachable: string;
   reasonTimeout: string;
+  reasonAddressNotAllowed: string;
   noEncryptionKey: string;
   getKey: string;
   paidLink: string;
@@ -168,6 +169,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     reasonModelNotFound: "The provider does not serve that model.",
     reasonUnreachable: "The provider could not be reached.",
     reasonTimeout: "The provider took too long to answer.",
+    reasonAddressNotAllowed:
+      "That address cannot be used: a provider of the list answers on its own address, and a local one needs the permission of whoever installs Cited.",
     noEncryptionKey:
       "The server has no encryption key yet, so Cited cannot store keys. Whoever installed Cited sets it once.",
     getKey: "Get a key",
@@ -287,6 +290,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     reasonModelNotFound: "El proveedor no ofrece ese modelo.",
     reasonUnreachable: "No se pudo llegar al proveedor.",
     reasonTimeout: "El proveedor tardó demasiado en responder.",
+    reasonAddressNotAllowed:
+      "Esa dirección no se puede usar: un proveedor de la lista responde en su propia dirección, y uno local necesita el permiso de quien instaló Cited.",
     noEncryptionKey:
       "El servidor todavía no tiene una llave de cifrado, así que Cited no puede guardar llaves. Quien instaló Cited la pone una vez.",
     getKey: "Consigue una llave",

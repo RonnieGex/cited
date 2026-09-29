@@ -80,7 +80,7 @@ reproduced.
 
 - [x] 10.1 Blocker: no provider error text leaves the server (requirement "No provider error reaches the browser"), with
       a double that echoes the key — report: the one of this section
-- [ ] 10.2 Major: the provider address rules against private networks (requirement "A provider address cannot reach
+- [x] 10.2 Major: the provider address rules against private networks (requirement "A provider address cannot reach
       private networks"), `ALLOW_LOCAL_PROVIDERS` in `.env.example` and `docs/providers.md` — report: the one of this
       section
 - [ ] 10.3 Major: the atomic test limit (requirement "The test limit holds under concurrency") — report: the one of this

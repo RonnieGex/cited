@@ -85,6 +85,25 @@ A provider may be pointed at a compatible endpoint with `OPENAI_BASE_URL`, `ANTH
 saves keeps the base URL of that moment in `base_url`, so the answers of the pipeline use the same endpoint the test
 used.
 
+## The address of a provider cannot reach the private network
+
+The `baseUrl` of the test and of the save arrives in the JSON of the browser, so `lib/providers/address.ts` decides
+before any call, and `lib/providers/test.ts` follows no redirect: an address nobody checked is not an address the key
+travels to. The rules:
+
+1. An address is accepted **only for the providers that need one**: Ollama, LM Studio and a custom OpenAI-compatible
+   endpoint. A cloud provider of the catalogue (OpenAI, Anthropic, Gemini, DeepSeek, Groq, OpenRouter) answers on its
+   fixed official host: a `baseUrl` that names another host is refused with `400` and `address_not_allowed`, and so is
+   an address with credentials inside or a scheme that is not `http` or `https`.
+2. The scheme is `https`, and `http` only to a local host, which needs `ALLOW_LOCAL_PROVIDERS=1` as well.
+3. The host is resolved in the server, and **no answer may be** loopback (`127.0.0.0/8`, `::1`), link-local
+   (`169.254.0.0/16`, `fe80::/10`), private (`10/8`, `172.16/12`, `192.168/16`, `fc00::/7`), carrier-grade NAT
+   (`100.64/10`), the metadata address of the cloud, multicast or documentation. One internal answer among several is
+   enough to refuse the address, and an IPv4 address written as IPv6 (`::ffff:127.0.0.1`) counts as what it is.
+4. **`ALLOW_LOCAL_PROVIDERS=1`** lifts rule 3, and only rule 3: it is what an installation needs to test and use its
+   own Ollama or LM Studio over `http`. Anything else keeps its own value, and the panel says in words that the address
+   cannot be used.
+
 ## The meaning search and the keyword mode
 
 - OpenAI, Gemini and Ollama offer embeddings: the panel proposes the same key and a default embeddings model.
@@ -109,6 +128,7 @@ an embeddings provider) with a timeout of ten seconds, and answers one of:
 | `model_not_found` | `404` |
 | `unreachable` | the address does not answer, or it answers something unusable |
 | `timeout` | the provider did not answer inside the ten seconds |
+| `address_not_allowed` | the address points inside the private network, is not the official host of a cloud provider, or does not pass the rules of the section above; nothing is called |
 
 The text of the provider is **never** returned: the owner reads a sentence of the interface, and the raw answer of the
 provider stays in the server. `PROVIDER_TEST_TIMEOUT_MS` shortens or lengthens the ten seconds, which is what the suite

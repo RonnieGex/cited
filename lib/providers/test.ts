@@ -1,3 +1,4 @@
+import { providerAddress, ADDRESS_NOT_ALLOWED } from "./address.ts";
 import { providerEntry } from "./catalog.ts";
 import { DEFAULT_CHAT_MODELS } from "../models/types.ts";
 
@@ -5,6 +6,10 @@ import { DEFAULT_CHAT_MODELS } from "../models/types.ts";
 // with a ten-second timeout, and one word for what happened. The raw answer of the provider never travels to the
 // browser and no key is ever written in a log line. Every provider is called here with `fetch`, which is the same
 // shape the test doubles of the suite speak.
+//
+// The requirement "A provider address cannot reach private networks" is applied before the call, in
+// `lib/providers/address.ts`, and the call itself follows no redirect: a provider that answers 302 to an address of
+// the internal network would otherwise take the key there.
 
 export const TEST_TIMEOUT_MS = 10_000;
 export const TEST_TIMEOUT_VARIABLE = "PROVIDER_TEST_TIMEOUT_MS";
@@ -15,7 +20,8 @@ export type TestReason =
   | "rate_limited"
   | "model_not_found"
   | "unreachable"
-  | "timeout";
+  | "timeout"
+  | typeof ADDRESS_NOT_ALLOWED;
 
 export type ProviderTestInput = {
   kind: "chat" | "embeddings";
@@ -221,9 +227,16 @@ async function callProvider(input: ProviderTestInput, call: Call, timeoutMs: num
       headers: call.headers,
       body: JSON.stringify(call.body),
       signal: AbortSignal.timeout(timeoutMs),
+      // Requirement "A provider address cannot reach private networks": a redirect is an address nobody checked, so
+      // the answer of the provider stops here and the caller reads it as an address that does not answer.
+      redirect: "manual",
     });
   } catch (error) {
     throw new ProviderTestError(timeoutReason(error));
+  }
+
+  if (response.status >= 300 && response.status < 400) {
+    throw new ProviderTestError("unreachable");
   }
 
   const body = await response.text();
@@ -251,6 +264,18 @@ async function callProvider(input: ProviderTestInput, call: Call, timeoutMs: num
 export async function testProvider(input: ProviderTestInput): Promise<ProviderTestOutcome> {
   if (providerEntry(input.provider, input.kind) === null) {
     return { ok: false, reason: "unreachable" };
+  }
+
+  // The rule of the address goes first: nothing is called, and no key is offered, before the address passed it.
+  const allowed = await providerAddress({
+    baseUrl: baseUrlFor(input),
+    provider: input.provider,
+    kind: input.kind,
+    environment: process.env,
+  });
+
+  if (allowed.ok === false) {
+    return { ok: false, reason: ADDRESS_NOT_ALLOWED };
   }
 
   const model = modelFor(input);

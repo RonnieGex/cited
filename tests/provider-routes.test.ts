@@ -64,6 +64,26 @@ function test(body: unknown, headers: Record<string, string> = {}): Promise<Resp
   );
 }
 
+// The doubles of this file listen on `127.0.0.1` and the routes send their URL as the `baseUrl` of the body, so the
+// environment of the case has to say the three things an installation with a provider of its own says: the address of
+// the provider is the one of the server (never a value of the browser), and the local address is allowed because this
+// installation runs its provider on its own machine (requirement "A provider address cannot reach private networks").
+function withDouble(
+  baseUrl: string,
+  overrides: Record<string, string | undefined>,
+  provider = "openai",
+): Record<string, string | undefined> {
+  const variable: Record<string, string> = {
+    openai: "OPENAI_BASE_URL",
+    anthropic: "ANTHROPIC_BASE_URL",
+    gemini: "GEMINI_BASE_URL",
+    ollama: "OLLAMA_BASE_URL",
+  };
+  const name = variable[provider] ?? "OPENAI_BASE_URL";
+
+  return { ...overrides, [name]: baseUrl, ALLOW_LOCAL_PROVIDERS: "1" };
+}
+
 function save(body: unknown, headers: Record<string, string> = {}): Promise<Response> {
   return providersSave(
     adminRequest("http://localhost/api/admin/providers/save", {
@@ -103,9 +123,11 @@ type ViewBody = {
 
 describe("POST /api/admin/providers/test", () => {
   it("answers 401 without the session and never calls the provider", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await providersTest(
       adminRequest("http://localhost/api/admin/providers/test", {
         method: "POST",
@@ -123,9 +145,11 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("tests a good key of an OpenAI-compatible provider and answers its model and latency", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await test({
       kind: "chat",
       provider: "openai",
@@ -148,11 +172,13 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("says the provider rejected the key and carries no text of the provider error", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({
       status: 401,
       body: { error: { message: `Incorrect API key provided: ${doubleKey}`, code: "invalid_api_key" } },
+    }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
     }));
     const response = await test({
       kind: "chat",
@@ -169,9 +195,34 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("reads no credit, a missing model and a rate limit apart", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const noCredit = await double(() => ({ status: 402, body: { error: { message: "no credit" } } }));
+    const quota = await double(() => ({
+      status: 429,
+      body: { error: { message: "You exceeded your current quota", code: "insufficient_quota" } },
+    }));
+    const limited = await double(() => ({
+      status: 429,
+      body: { error: { message: "Rate limit reached", code: "rate_limit_exceeded" } },
+    }));
+    const missing = await double(() => ({
+      status: 404,
+      body: { error: { message: "The model does not exist", code: "model_not_found" } },
+    }));
+    // Gemini answers 400 with `API_KEY_INVALID` for a key it refuses, not 401: it is still a rejected key.
+    const gemini = await double(() => ({
+      status: 400,
+      body: { error: { message: "API key not valid. Please pass a valid API key.", status: "INVALID_ARGUMENT" } },
+    }));
+
+    // The address of each provider is the one the server has: `withDouble()` writes it, and the routes send the same
+    // value in the body, which is what a panel does with the address of its own catalogue.
+    await environmentOf({
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+      ALLOW_LOCAL_PROVIDERS: "1",
+      OPENAI_BASE_URL: `${noCredit.url}/v1`,
+      GEMINI_BASE_URL: `${gemini.url}/v1beta`,
+    });
 
     expect(
       (await (
@@ -179,21 +230,11 @@ describe("POST /api/admin/providers/test", () => {
       ).json()) as TestBody,
     ).toEqual({ status: "ok", ok: false, reason: "no_credit" });
 
-    const quota = await double(() => ({
-      status: 429,
-      body: { error: { message: "You exceeded your current quota", code: "insufficient_quota" } },
-    }));
-
     expect(
       (await (
         await test({ kind: "chat", provider: "openai", key: doubleKey, baseUrl: `${quota.url}/v1` })
       ).json()) as TestBody,
     ).toEqual({ status: "ok", ok: false, reason: "no_credit" });
-
-    const limited = await double(() => ({
-      status: 429,
-      body: { error: { message: "Rate limit reached", code: "rate_limit_exceeded" } },
-    }));
 
     expect(
       (await (
@@ -201,22 +242,11 @@ describe("POST /api/admin/providers/test", () => {
       ).json()) as TestBody,
     ).toEqual({ status: "ok", ok: false, reason: "rate_limited" });
 
-    const missing = await double(() => ({
-      status: 404,
-      body: { error: { message: "The model does not exist", code: "model_not_found" } },
-    }));
-
     expect(
       (await (
         await test({ kind: "chat", provider: "openai", key: doubleKey, baseUrl: `${missing.url}/v1` })
       ).json()) as TestBody,
     ).toEqual({ status: "ok", ok: false, reason: "model_not_found" });
-
-    // Gemini answers 400 with `API_KEY_INVALID` for a key it refuses, not 401: it is still a rejected key.
-    const gemini = await double(() => ({
-      status: 400,
-      body: { error: { message: "API key not valid. Please pass a valid API key.", status: "INVALID_ARGUMENT" } },
-    }));
 
     expect(
       (await (
@@ -231,9 +261,18 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("calls Anthropic, Gemini and Ollama with the shape each one expects", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const anthropic = await double(() => ({ status: 200, body: anthropicAnswer() }));
+    const gemini = await double(() => ({ status: 200, body: geminiAnswer() }));
+    const ollama = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+
+    await environmentOf({
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+      ALLOW_LOCAL_PROVIDERS: "1",
+      ANTHROPIC_BASE_URL: `${anthropic.url}/v1`,
+      GEMINI_BASE_URL: `${gemini.url}/v1beta`,
+      OLLAMA_BASE_URL: `${ollama.url}/v1`,
+    });
 
     expect(
       (await (
@@ -249,8 +288,6 @@ describe("POST /api/admin/providers/test", () => {
     expect(anthropic.requests[0]?.path).toBe("/v1/messages");
     expect(anthropic.requests[0]?.headers["x-api-key"]).toBe(doubleKey);
 
-    const gemini = await double(() => ({ status: 200, body: geminiAnswer() }));
-
     expect(
       (await (
         await test({
@@ -264,8 +301,6 @@ describe("POST /api/admin/providers/test", () => {
     ).toMatchObject({ ok: true, model: "gemini-3.8-flash" });
     expect(gemini.requests[0]?.path).toContain("/v1beta/models/gemini-3.8-flash:generateContent");
     expect(gemini.requests[0]?.path).toContain(`key=${doubleKey}`);
-
-    const ollama = await double(() => ({ status: 200, body: openAiChatAnswer() }));
 
     expect(
       (await (
@@ -283,9 +318,11 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("tests an embeddings provider with one short text", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiEmbeddingsAnswer(1536) }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await test({
       kind: "embeddings",
       provider: "openai",
@@ -302,13 +339,12 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("times out on a provider that never answers, and its default is ten seconds", async () => {
-    await environmentOf({
+    const seen = await double(() => ({ status: 200, hang: true }));
+    await environmentOf(withDouble(seen.url, {
       ...configured(),
       ENCRYPTION_KEY: encryptionKey,
       PROVIDER_TEST_TIMEOUT_MS: "200",
-    });
-
-    const seen = await double(() => ({ status: 200, hang: true }));
+    }));
     const started = Date.now();
     const response = await test({
       kind: "chat",
@@ -323,9 +359,11 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("answers unreachable when nothing listens on the address", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const closed = await double(() => ({ status: 200, body: {} }));
+    await environmentOf(withDouble(closed.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const url = closed.url;
 
     await closed.close();
@@ -341,9 +379,11 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("answers 429 after twenty tests in an hour and keeps the panel from spending more", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
 
     for (let attempt = 1; attempt <= 20; attempt += 1) {
       const response = await test({
@@ -370,9 +410,11 @@ describe("POST /api/admin/providers/test", () => {
   });
 
   it("refuses a body that does not name a kind and a provider", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await test({ provider: "openai", key: doubleKey });
 
     expect(response.status).toBe(400);
@@ -382,9 +424,11 @@ describe("POST /api/admin/providers/test", () => {
 
 describe("POST /api/admin/providers/save", () => {
   it("tests first, saves the key encrypted and answers only the last four characters", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await save({
       kind: "chat",
       provider: "openai",
@@ -413,9 +457,11 @@ describe("POST /api/admin/providers/save", () => {
   });
 
   it("saves nothing when the provider rejects the key", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 401, body: { error: { message: "nope" } } }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await save({
       kind: "chat",
       provider: "openai",
@@ -429,9 +475,11 @@ describe("POST /api/admin/providers/save", () => {
   });
 
   it("says the server needs an encryption key when it has none, without naming a variable", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: "" });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: "",
+    }));
     const response = await save({
       kind: "chat",
       provider: "openai",
@@ -449,9 +497,11 @@ describe("POST /api/admin/providers/save", () => {
   });
 
   it("saves keyword search without calling any provider and without a key", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
     const response = await save({ kind: "embeddings", mode: "keyword" });
     const body = (await response.json()) as TestBody;
 
@@ -466,9 +516,11 @@ describe("POST /api/admin/providers/save", () => {
   });
 
   it("removes the panel value and answers the state without it", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
 
     await save({
       kind: "chat",
@@ -492,9 +544,11 @@ describe("POST /api/admin/providers/save", () => {
 
 describe("GET /api/admin/providers", () => {
   it("shows the last four characters and never the key nor its ciphertext", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
-
     const seen = await double(() => ({ status: 200, body: openAiChatAnswer() }));
+    await environmentOf(withDouble(seen.url, {
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+    }));
 
     await save({
       kind: "chat",
@@ -545,7 +599,14 @@ describe("GET /api/admin/providers", () => {
   });
 
   it("carries no variable name in the state of the panel", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
+    await environmentOf({
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+      // The doubles of this file listen on `127.0.0.1`, and the requirement "A provider address cannot reach private
+      // networks" refuses a loopback address unless whoever installs allows it: this is the flag of an installation
+      // that runs its provider on its own machine, which is what this suite does.
+      ALLOW_LOCAL_PROVIDERS: "1",
+    });
 
     const text = await (await state()).text();
 
@@ -555,7 +616,14 @@ describe("GET /api/admin/providers", () => {
   });
 
   it("keeps the same session and origin gate as the rest of the panel", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
+    await environmentOf({
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+      // The doubles of this file listen on `127.0.0.1`, and the requirement "A provider address cannot reach private
+      // networks" refuses a loopback address unless whoever installs allows it: this is the flag of an installation
+      // that runs its provider on its own machine, which is what this suite does.
+      ALLOW_LOCAL_PROVIDERS: "1",
+    });
 
     const withoutSession = await providersGet(
       adminRequest("http://localhost/api/admin/providers", {}),
@@ -574,7 +642,12 @@ describe("GET /api/admin/providers", () => {
 
 describe("POST /api/admin/providers/reindex", () => {
   it("re-embeds nothing and answers zero when the store is empty", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey, EMBEDDINGS_PROVIDER: "fake" });
+    await environmentOf({
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+      EMBEDDINGS_PROVIDER: "fake",
+      ALLOW_LOCAL_PROVIDERS: "1",
+    });
 
     const response = await providersReindex(
       adminRequest("http://localhost/api/admin/providers/reindex", {
@@ -589,7 +662,14 @@ describe("POST /api/admin/providers/reindex", () => {
   });
 
   it("answers 401 without the session", async () => {
-    await environmentOf({ ...configured(), ENCRYPTION_KEY: encryptionKey });
+    await environmentOf({
+      ...configured(),
+      ENCRYPTION_KEY: encryptionKey,
+      // The doubles of this file listen on `127.0.0.1`, and the requirement "A provider address cannot reach private
+      // networks" refuses a loopback address unless whoever installs allows it: this is the flag of an installation
+      // that runs its provider on its own machine, which is what this suite does.
+      ALLOW_LOCAL_PROVIDERS: "1",
+    });
 
     const response = await providersReindex(
       adminRequest("http://localhost/api/admin/providers/reindex", { method: "POST", body: "{}" }),

@@ -1,3 +1,4 @@
+import { providerAddress } from "../providers/address.ts";
 import { providerEntry } from "../providers/catalog.ts";
 import { PROVIDER_KINDS, type ProviderKind } from "../store/types.ts";
 
@@ -83,3 +84,31 @@ export function parseSaveBody(
 
 export const PROVIDER_BODY_ERROR =
   'the body must be {"kind": "chat" | "embeddings", "provider": string, "key"?: string, "model"?: string, "baseUrl"?: string}';
+
+export const PROVIDER_ADDRESS_ERROR =
+  "that address is not allowed: a provider of the catalogue answers on its own address, and a local address needs ALLOW_LOCAL_PROVIDERS=1 on the server";
+
+// The requirement "A provider address cannot reach private networks": the rules of `lib/providers/address.ts` run
+// before the route calls anything, so an address that points inside the network of the server is answered as what it
+// is and no connection is opened. The two routes of the panel — test and save — share this check, and the reason is
+// written in the same closed words for both.
+export async function providerAddressProblem(
+  body: ProviderTestBody,
+  environment: Record<string, string | undefined> = process.env,
+): Promise<boolean> {
+  const asked =
+    body.baseUrl?.trim() ??
+    (body.kind === "chat"
+      ? providerEntry(body.provider, "chat", environment)?.baseUrl
+      : providerEntry(body.provider, "embeddings", environment)?.embeddingsBaseUrl) ??
+    "";
+
+  const allowed = await providerAddress({
+    baseUrl: asked,
+    provider: body.provider,
+    kind: body.kind,
+    environment,
+  });
+
+  return allowed.ok === false;
+}
