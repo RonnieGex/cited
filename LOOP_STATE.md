@@ -56,8 +56,8 @@ merge as one single commit, and the round appended to `katalis-dev/tasks/entrega
   container from a clean clone of `3905078` (v24.21.0, 81.86 s).
 - `npm run test:e2e`: 21 tests green in one run with the two servers up, the six of the panel and the fifteen of the
   public page and the widget, with axe at 0 violations in `/`, `/embed` and the kit. `npm run typecheck`, `npm run
-  lint`, `gitleaks git` (265 commits, no leaks), `openspec validate --all --strict` (10 items) and
-  `git diff --check main...HEAD`: green. The working tree is clean.
+  lint`, `gitleaks git` (265 commits on the merged tree and 267 on the closing commit `602230d`, no leaks),
+  `openspec validate --all --strict` (10 items) and `git diff --check main...HEAD`: green. The working tree is clean.
 - The flakiness seen in the round: the first browser run after the build ended `20 passed` and `1 flaky`
   (`e2e/widget.spec.ts:44`, the answer of the iframe, green on the retry) and the two runs after it ended `21 passed`;
   one run of `npm test` failed one test of the 348 and its output was not kept, so the report cannot name it, and the

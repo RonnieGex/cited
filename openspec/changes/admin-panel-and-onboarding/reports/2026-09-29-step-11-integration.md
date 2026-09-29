@@ -258,6 +258,15 @@ the six of the panel and the fifteen of the public page and the widget, in one r
 servers up: that is the panel and the public page together that 11.4 asks for. The two skips of the container are the
 two the base skips on a machine where the source of the mark is not present.
 
+The closing commit of the round, `602230d`, repeats the secret scan over the whole history as `main` does:
+
+```
+$ npm run secrets:scan
+267 commits scanned.
+no leaks found
+exit=0
+```
+
 ## What the tests of the base changed, and why
 
 - `tests/admin-i18n.test.tsx`: it asserted the stand-in headers of `lib/i18n/language.ts` and
