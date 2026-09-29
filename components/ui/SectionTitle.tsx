@@ -24,7 +24,7 @@ export function SectionTitle({
   return (
     <div {...rest} className={className}>
       {eyebrow === undefined ? null : (
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/70">{eyebrow}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2">{eyebrow}</p>
       )}
       <Heading className={`font-bold tracking-[-0.02em] text-ink ${sizes[level]}`}>
         {children}

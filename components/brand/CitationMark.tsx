@@ -27,13 +27,15 @@ export function citationMarkClass(state: CitationMarkState = "rest"): string {
 
 export type CitationMarkProps = {
   n?: number | string;
+  /** `open` paints the mark ink with a lime number: the source that is open, the place of the panel that is current. */
+  state?: CitationMarkState;
   className?: string;
 };
 
 /** The static mark: a span that looks exactly like the button of `citationMarkClass`. */
-export function CitationMark({ n = 1, className = "" }: CitationMarkProps) {
+export function CitationMark({ n = 1, state = "rest", className = "" }: CitationMarkProps) {
   return (
-    <span data-brand="citation-mark" className={`${shape} ${look.rest} ${className}`}>
+    <span data-brand="citation-mark" className={`${shape} ${look[state]} ${className}`}>
       {n}
     </span>
   );

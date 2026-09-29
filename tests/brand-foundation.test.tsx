@@ -149,6 +149,15 @@ describe("CitationMark and citationMarkClass (decision 3)", () => {
     expect(container.querySelector('[data-brand="citation-mark"]')?.textContent).toBe("–");
   });
 
+  it("paints the static mark ink with a lime number when its state is open", () => {
+    const { container } = render(<CitationMark n={3} state="open" />);
+    const className = container.querySelector('[data-brand="citation-mark"]')?.className ?? "";
+
+    expect(className).toContain("bg-ink");
+    expect(className).toContain("text-lime");
+    expect(className).not.toContain("bg-lime");
+  });
+
   it("is a lime square with ink text and the measures of the design", () => {
     const { container } = render(<CitationMark className="ml-2" />);
     const className = container.querySelector('[data-brand="citation-mark"]')?.className ?? "";
