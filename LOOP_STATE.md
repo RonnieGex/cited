@@ -1,5 +1,34 @@
 # LOOP_STATE · Cited
 
+STATUS: RUNNING
+CHANGE: elevenlabs-voice-agent (OpenSpec)
+ROUND: the section 11 of `openspec/changes/elevenlabs-voice-agent/tasks.md`, amended by Fable after the adversarial
+review `tasks/revision-community-09b.md` (two Major)
+BRANCH: feature/elevenlabs-voice-agent
+BASE OF THE ROUND: e760f9d ("Check the cap before the configuration, and keep the notice of what is copied"), the
+contract amendment; the sections 0 to 10 are untouched
+HEAD AT THE START OF THE ROUND: e760f9d
+AGENT: deepseek-harness
+DATE: 2026-09-29
+
+## What this round has to close
+
+- **11.1**: `GET /api/voice/signed-url` answers `429` for a cap below one session before it looks at the configuration,
+  with the battery of `DAILY_VOICE_MINUTE_LIMIT=1..4` and an empty `ELEVENLABS_API_KEY` as a test, and `503` naming the
+  variable only when the cap of the day admits a session.
+- **11.2**: the license texts of `@alexanderolsen/libsamplerate-js` 2.1.2 (MIT and the BSD 2-clause of the
+  libsamplerate it bundles) sit byte for byte next to the served resampler, and `THIRD_PARTY_NOTICES.md` lists every
+  verbatim copy of a package the repository serves — the resampler, the two worklets of `@elevenlabs/client` and the
+  Outfit font with its OFL — with its name, version, license and origin.
+- **11.3**: the whole battery on Windows and in a `node:24` container, the round appended to
+  `tasks/entrega-community-09.md` with `## Issues`, and the report of the section in the change folder.
+
+Tests first, red before each fix; no test of this round calls ElevenLabs.
+
+---
+
+# Round 10 (closed)
+
 STATUS: DONE
 CHANGE: elevenlabs-voice-agent (OpenSpec)
 ROUND: the section 10 of `openspec/changes/elevenlabs-voice-agent/tasks.md`, amended by Fable after the adversarial
