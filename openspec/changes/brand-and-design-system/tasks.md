@@ -1,6 +1,6 @@
 Contract written by Fable (2026-09-29). DeepSeek executes it and never edits the text of a task. A task is `[x]` only
-with evidence in its report (`openspec/changes/brand-and-design-system/reports/2026-09-29-step-N-<name>.md`, inside
-the change so it travels with it on archive; amended by Fable after the review of Codex): the exact command, the commit and the output.
+with evidence in its report (`reports/2026-09-29-step-N-<name>.md`, relative to the folder
+of this change, so the path holds after archive; amended by Fable after the reviews of Codex): the exact command, the commit and the output.
 Evidence rule: every `[x]` needs a real report that supports it at archive time; a report in a later commit than its
 mark is recorded, not blocking, unless it is missing or contradicts the mark. Commit in small steps on
 `feature/brand-and-design-system`: the commits are part of the implementer's work. The repository will be public: no
@@ -83,9 +83,9 @@ Evidence rule as above. Report: `reports/2026-09-29-step-10-flame-size.md`. Comm
 Fable's rulings on that review: the kit is light only in this change (no requirement asked for a dark scheme of the
 application; the README images keep their two themes), so the dark part of Major 1 is out of scope; the contrast of
 the controls is in scope. Fable accepts the edit of `design.md` in `dd174e9` (a personal path became a relative one).
-Report: `openspec/changes/brand-and-design-system/reports/2026-09-29-step-11-contrast.md`.
+Report: `reports/2026-09-29-step-11-contrast.md`.
 
-- [x] 11.1 Move the eleven reports of `reports/` into `openspec/changes/brand-and-design-system/reports/` with `git mv`,
+- [x] 11.1 Move the eleven reports of `reports/` into `reports/` with `git mv`,
       fix every reference to them, and remove the empty `reports/` — report: the one of this section
 - [x] 11.2 Tests first: a Playwright test that measures the computed colors of `/kit` for the scenario "The controls can
       be seen", red against the 1.53:1 border of `Input` — report: the one of this section

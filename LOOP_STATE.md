@@ -13,7 +13,7 @@ DATE: 2026-09-29
 ## Objective
 
 Execute the section 11 of the contract Fable amended after `revision-community-04`: move the eleven reports of the
-global `reports/` into `openspec/changes/brand-and-design-system/reports/` with `git mv`, fix every reference to them
+global `reports/` into `reports/` with `git mv`, fix every reference to them
 and leave no empty directory; write first, and see red, a Playwright test that measures the computed colors of `/kit`
 for the scenario `The controls can be seen`; darken the border token of the controls (and the focus indicator if it
 fails) until the test is green, keeping the look and leaving `Panel` unchanged; and run the whole battery again. The

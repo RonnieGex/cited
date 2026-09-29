@@ -100,7 +100,7 @@ $ git show --stat dd174e9
 ```
 
 The second line of that output names the report of step 0 at the path it had before the move of section 11; it is
-quoted as the command printed it, and the file lives now in `openspec/changes/brand-and-design-system/reports/`.
+quoted as the command printed it, and the file lives now in `reports/`.
 
 After the correction:
 
@@ -119,4 +119,4 @@ exit=0
 ## Files
 
 - `openspec/changes/brand-and-design-system/design.md` (one line, the source path).
-- `openspec/changes/brand-and-design-system/reports/2026-09-29-step-1-base-before.md` (this file).
+- `reports/2026-09-29-step-1-base-before.md` (this file).

@@ -59,4 +59,4 @@ repaired in `dd174e9` by taking the home directory of the machine out of the con
 ## Files
 
 - `tests/readme.test.ts` (five tests).
-- `openspec/changes/brand-and-design-system/reports/2026-09-29-step-4-existing-tests.md` (this file).
+- `reports/2026-09-29-step-4-existing-tests.md` (this file).
