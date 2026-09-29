@@ -10,16 +10,25 @@ Agent: deepseek-harness. Date: 2026-09-29.
 
 ## Command and output
 
+Every command of this report runs in the worktree `katalis-dev/community-ui`, which is the working directory quoted as
+`.` below (the absolute path of the machine is never written to a tracked file: the test `personal-paths.test.ts`
+refuses it).
+
 ```
-$ git -C C:\Users\Franc\Documents\katalis-dev\community-ui status --short --branch
+$ git status --short --branch
 ## feature/brand-and-design-system
 ```
 
 ```
 $ git worktree list
-C:/Users/Franc/Documents/katalis-dev/community     aa52b7c [feature/pluggable-models-and-ask]
-C:/Users/Franc/Documents/katalis-dev/community-ui  3b3cfbd [feature/brand-and-design-system]
+<home>/katalis-dev/community     aa52b7c [feature/pluggable-models-and-ask]
+<home>/katalis-dev/community-ui  3b3cfbd [feature/brand-and-design-system]
 ```
+
+The first column of `git worktree list` is the absolute path of the checkout; it is redacted here as `<home>` because
+no tracked file of a public repository may carry the home directory of a development machine, which the test
+`tests/personal-paths.test.ts` enforces. The two facts the task asks for are the branch and the base, and they are in
+the second and third columns.
 
 ```
 $ git rev-parse HEAD          -> 3b3cfbdb80e067c7e32367a1cff47a9d6aae4e86
@@ -55,7 +64,7 @@ runs the same suite inside a `node:24` Linux container, where the floor of the i
 
 - The worktree, the branch and the base are confirmed with git itself, not with a note.
 - `node_modules` is installed from `package-lock.json` (`npm ci`), 609 packages, exit 0.
-- Commit of this report: `6a56a1f`.
+- Commit of this report: `fbf1498`.
 
 ## Files
 

@@ -1,7 +1,7 @@
 ## Decisions
 
-1. **The flame files.** Copy `katalis-logo-64.png`, `-192.png` and `-512.png` from
-   `C:\Users\Franc\Documents\Antigravity Projects\finanzas-katalis\web\public\brand\` to `public/brand/` as
+1. **The flame files.** Copy `katalis-logo-64.png`, `-192.png` and `-512.png` from the `public/brand/` directory of
+   the Construye web app (`finanzas-katalis/web/public/brand/`, read only) to `public/brand/` as
    `katalis-flame-64.png`, `-192.png`, `-512.png`, byte for byte. Source hashes (first 16 hex of SHA-256, full values in
    `docs/design-system.md`): 64 px `621b0996414f3576`, 192 px `aa9d25df0342edcc`, 512 px `eb66069b2dc7a346`. The flame is
    silver on a transparent background, made for dark grounds.
