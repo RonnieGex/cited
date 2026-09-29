@@ -18,10 +18,11 @@ Command:
 npm test
 ```
 
-Output (verbatim, the tail):
+Output (verbatim, with the root of the worktree shortened to `<repository root>`, because a tracked file of this
+repository carries no home directory):
 
 ```text
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community-ui
+ RUN  v5.0.2 <repository root>
 
  Test Files  17 passed (17)
       Tests  191 passed (191)

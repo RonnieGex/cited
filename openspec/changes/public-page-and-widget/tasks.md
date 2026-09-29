@@ -18,7 +18,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 2. Tests first
 
-- [ ] 2.1 Red unit tests for the Markdown renderer (with an XSS corpus), the contrast fallback, the widget builder and
+- [x] 2.1 Red unit tests for the Markdown renderer (with an XSS corpus), the contrast fallback, the widget builder and
       the session id — report: `reports/2026-09-29-step-2-tests-first.md`
 - [ ] 2.2 Red E2E for every scenario of `specs/public-chat/spec.md`, including an allowed test origin for the widget,
       and an axe check of `/` and `/embed` — report: `reports/2026-09-29-step-2-tests-first.md`
