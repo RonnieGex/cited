@@ -206,8 +206,8 @@ describe("the purge of what expired", () => {
 
     await store.recordQuestion("a".repeat(64), pastWindow);
     await store.recordQuestion("a".repeat(64), currentWindow);
-    await store.recordModelCall(yesterday);
-    await store.recordModelCall(today);
+    await store.reserveModelCall(yesterday, 10);
+    await store.reserveModelCall(today, 10);
 
     const report = await purgeStore(store, { now, retentionDays: 30, lastPurgeAt: null });
 
@@ -254,10 +254,22 @@ describe("the counters of the store", () => {
       0,
     );
 
-    await expect(store.recordModelCall("2026-09-29")).resolves.toBe(1);
-    await expect(store.recordModelCall("2026-09-29")).resolves.toBe(2);
+    await expect(store.reserveModelCall("2026-09-29", 5)).resolves.toBe(1);
+    await expect(store.reserveModelCall("2026-09-29", 5)).resolves.toBe(2);
     await expect(store.modelCallsOn("2026-09-29")).resolves.toBe(2);
     await expect(store.modelCallsOn("2026-09-28")).resolves.toBe(0);
+  });
+
+  it("reserves the model calls of the day up to the limit and no further", async () => {
+    const store = await emptyStore();
+    const day = "2026-09-29";
+    const reserved = await Promise.all(
+      Array.from({ length: 8 }, () => store.reserveModelCall(day, 1)),
+    );
+
+    expect(reserved.filter((count) => count !== null)).toEqual([1]);
+    await expect(store.modelCallsOn(day)).resolves.toBe(1);
+    await expect(store.reserveModelCall(day, 1)).resolves.toBeNull();
   });
 
   it("numbers the turns of a session and returns the last ones in order", async () => {

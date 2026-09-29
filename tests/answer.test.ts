@@ -378,6 +378,63 @@ describe("answering from the sample corpus", () => {
     await expect(store.turnsOf("hilo", 6)).resolves.toHaveLength(2);
   });
 
+  it("makes exactly one model call when eight questions race at the daily limit", async () => {
+    const store = await corpus([
+      {
+        name: "precios.md",
+        text: "# Precios\n\nAfinación de bicicleta: 380 pesos. Cambio de cámara: 120 pesos.\n",
+      },
+    ]);
+    const calls: FakeCall[] = [];
+    const model = createFakeChatModel({
+      onCall: (call) => {
+        calls.push(call);
+      },
+    });
+    const racers = 8;
+    let arrived = 0;
+    let release = (): void => {};
+    const barrier = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const gated: Store = {
+      ...store,
+      async recordQuestion(ipHash: string, windowStart: string): Promise<number> {
+        arrived += 1;
+
+        if (arrived === racers) {
+          release();
+        }
+
+        await barrier;
+
+        return store.recordQuestion(ipHash, windowStart);
+      },
+    };
+
+    const outcomes = await Promise.all(
+      Array.from({ length: racers }, () =>
+        askQuestion({
+          question: priceQuestion,
+          store: gated,
+          embeddings,
+          model,
+          environment: { DAILY_MODEL_CALL_LIMIT: "1" },
+          ip: "203.0.113.7",
+        }),
+      ),
+    );
+    const answered = outcomes.filter((outcome) => outcome.status === "answered");
+    const limited = outcomes.filter(
+      (outcome) => outcome.status === "unavailable" && outcome.reason === "daily_limit",
+    );
+
+    expect(answered).toHaveLength(1);
+    expect(limited).toHaveLength(racers - 1);
+    expect(calls).toHaveLength(1);
+    await expect(store.modelCallsOn(new Date().toISOString().slice(0, 10))).resolves.toBe(1);
+  });
+
   it("passes MAX_ANSWER_TOKENS and a temperature of 0.2 to the model", async () => {
     const { calls } = await ask(sample, priceQuestion, {
       environment: { MAX_ANSWER_TOKENS: "123" },
