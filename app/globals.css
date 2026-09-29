@@ -1,3 +1,4 @@
+/* Tailwind first, then the tokens, then the motion and the highlighter of the identity. */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./brand.css";
