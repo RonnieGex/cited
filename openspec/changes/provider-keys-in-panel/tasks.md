@@ -72,3 +72,28 @@ interface work.
       table and its twin — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-12.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
+
+## 10. What the review of Codex reproduced (contract amended by Fable after `revision-community-12`)
+
+Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix, reproducing what the review
+reproduced.
+
+- [ ] 10.1 Blocker: no provider error text leaves the server (requirement "No provider error reaches the browser"), with
+      a double that echoes the key — report: the one of this section
+- [ ] 10.2 Major: the provider address rules against private networks (requirement "A provider address cannot reach
+      private networks"), `ALLOW_LOCAL_PROVIDERS` in `.env.example` and `docs/providers.md` — report: the one of this
+      section
+- [ ] 10.3 Major: the atomic test limit (requirement "The test limit holds under concurrency") — report: the one of this
+      section
+- [ ] 10.4 Major: the pages follow the amended proposal (no variable name outside "For the installer"), with a test that
+      reads every panel page — report: the one of this section
+- [ ] 10.5 Major: the E2E with affiliate links on, and the read of every `/api/admin/*` response and of the store for
+      the saved key, as 6.1 asked — report: the one of this section
+- [ ] 10.6 Major (a gap of Fable's contract): the state of the store before and after this change (tables and row
+      counts, the new table empty before and as expected after), with the exact commands — report: the one of this
+      section
+- [ ] 10.7 Minors: the count of commits in the delivery, and gitleaks recorded for every commit of this round —
+      report: the one of this section
+- [ ] 10.8 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+      `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
+      to `katalis-dev/tasks/entrega-community-12.md` with `## Issues` — report: the one of this section

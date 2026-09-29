@@ -22,7 +22,8 @@ of variables; the rest of the guided setup is the next change, `guided-setup-and
   the next changes) the link is an affiliate link labelled "(paid link)"; `AFFILIATE_LINKS=off` shows plain links. Under
   the list, "Prefer not to manage keys? Katalis runs it for you" links to the hosted paid version (Franc, 2026-09-29).
 - **"For the installer"**, a read-only section that lists what the server sets above the panel, replaces the old list
-  of variables; no variable name appears anywhere else in the interface.
+  of variables; no page shows a variable name anywhere else. API error bodies and command-line messages, read by
+  whoever installs, may name a server variable, never a value (amended by Fable after `revision-community-12`).
 
 ## Impact
 

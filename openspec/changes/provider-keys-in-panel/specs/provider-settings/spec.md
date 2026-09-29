@@ -67,3 +67,38 @@ tests per hour, SHALL time out after 10 seconds, and SHALL answer one of `reject
 
 - **WHEN** `/api/admin/providers/test` is called without the admin session
 - **THEN** it answers `401` and makes no call to any provider
+
+### Requirement: No provider error reaches the browser
+
+No route SHALL return, log or render the text of an error raised by a provider or its SDK; each failure SHALL map to one
+of the categories of the test route (or to a generic "the AI could not answer" on the public routes), and any text
+shaped like a key SHALL be removed before a message leaves the server process.
+
+#### Scenario: A provider that echoes the key
+
+- **WHEN** the chat double answers `401` with a message that contains the saved key, during a public question and during
+  a test
+- **THEN** neither `/api/ask` nor the test route returns any part of the key or of the provider's message
+
+### Requirement: A provider address cannot reach private networks
+
+A base URL SHALL be accepted only for the providers that need one (Ollama, LM Studio and a custom OpenAI-compatible
+endpoint); it SHALL use `https`, except `http` to a local host when the server sets `ALLOW_LOCAL_PROVIDERS=1`; the
+resolved address SHALL NOT be loopback, link-local, private, carrier-grade NAT or the metadata address unless
+`ALLOW_LOCAL_PROVIDERS=1`; redirects SHALL NOT be followed; the cloud providers SHALL use their fixed official hosts.
+
+#### Scenario: An address inside the server
+
+- **WHEN** the owner tests Ollama with `http://127.0.0.1:11434`, `http://169.254.169.254` or `http://10.0.0.5` and the
+  server does not set `ALLOW_LOCAL_PROVIDERS`
+- **THEN** the test answers that the address is not allowed and no connection is opened
+
+### Requirement: The test limit holds under concurrency
+
+The limit of 20 provider tests per hour SHALL be reserved atomically before each call, so concurrent tests never
+exceed it.
+
+#### Scenario: Forty tests at once
+
+- **WHEN** forty tests arrive at the same time
+- **THEN** exactly twenty reach the provider double and the others answer `429`
