@@ -2,6 +2,12 @@ import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  assertHonestRecord,
+  capturedOutput,
+  plannedMark,
+  untaggedClaims,
+} from "../scripts/readme-graphics/honesty.mjs";
 import { decodePng, meanLuminance, meanLuminanceIn, transparentShare } from "./png";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
@@ -172,6 +178,7 @@ const fontExtensions = new Set([".woff", ".woff2", ".ttf", ".otf"]);
 
 type TrackedFile = { path: string; text: string | null };
 type Section = { level: number; title: string; lines: string[] };
+type Statement = [string, string];
 
 let trackedCache: TrackedFile[] | null = null;
 
@@ -398,6 +405,108 @@ function prose(text: string): string {
     .replace(newlines("<[^>]+>", "g"), " ");
 }
 
+function docsMarkdown(): string[] {
+  return readdirSync(resolve(repositoryRoot, "docs"), { recursive: true, encoding: "utf8" })
+    .map((entry) => entry.replaceAll("\\", "/"))
+    .filter((entry) => entry.endsWith(".md"))
+    .sort()
+    .map((entry) => `docs/${entry}`);
+}
+
+function markdownStatements(name: string, text: string): Statement[] {
+  const found: Statement[] = [];
+  let block: string[] = [];
+  let opening = 1;
+  let fenced = false;
+
+  const flush = (): void => {
+    if (block.length > 0) {
+      found.push([`${name}:${opening}`, block.join(" ")]);
+      block = [];
+    }
+  };
+
+  lines(text).forEach((line, index) => {
+    if (/^\s*```/.test(line)) {
+      flush();
+      fenced = fenced === false;
+
+      return;
+    }
+
+    if (fenced) {
+      if (line.trim().length > 0) {
+        found.push([`${name}:${index + 1}`, line.trim()]);
+      }
+
+      return;
+    }
+
+    if (line.trim().length === 0) {
+      flush();
+
+      return;
+    }
+
+    if (/^\s*(?:[-*+]|\d+\.)\s/.test(line) || /^\s*\|/.test(line) || /^#{1,6}\s/.test(line)) {
+      flush();
+    }
+
+    if (block.length === 0) {
+      opening = index + 1;
+    }
+
+    block.push(line.trim());
+  });
+
+  flush();
+
+  return found;
+}
+
+function textRoutes(value: unknown, route = ""): string[] {
+  if (
+    route === capturedOutput ||
+    route.startsWith(`${capturedOutput}.`) ||
+    route.startsWith(`${capturedOutput}[`)
+  ) {
+    return [];
+  }
+
+  if (typeof value === "string") {
+    return [route];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => textRoutes(item, `${route}[${index}]`));
+  }
+
+  if (typeof value === "object" && value !== null) {
+    const row = value as Record<string, unknown>;
+
+    if (typeof row["state"] === "string" && typeof row["reference"] === "string") {
+      return [];
+    }
+
+    return Object.entries(row).flatMap(([key, item]) =>
+      textRoutes(item, route.length === 0 ? key : `${route}.${key}`),
+    );
+  }
+
+  return [];
+}
+
+function at(root: Record<string, unknown>, route: string, value: string): void {
+  const keys = route.replaceAll(/\[(\d+)\]/g, ".$1").split(".");
+  let cursor = root;
+
+  for (const key of keys.slice(0, -1)) {
+    cursor = cursor[key] as Record<string, unknown>;
+  }
+
+  cursor[keys.at(-1) ?? ""] = value;
+}
+
 function markdownHeadings(text: string, level: number): string[] {
   const marker = "#".repeat(level);
   const heading = newlines(`^${marker} [^\\n]*$`, "gm");
@@ -526,14 +635,79 @@ describe("README, the status table", () => {
 describe("README, the promise of an answer", () => {
   // Decision 11: nothing outside a `Next` tag says "answer", "respuesta" or "page". The search returns passages with
   // their document, their heading and their position, and that is what the copy promises until the change that drafts
-  // an answer lands.
+  // an answer lands. Amended by Fable after `revision-community-03b.md`: the scenario also reads every text field of
+  // the two records and every Markdown file under `docs/`; in `docs/` a page counts only where the sentence cites it,
+  // because a PDF has pages and the interface is a page, and both of those exist today.
   const answerWords = /\b(answers?|answered|page|pages)\b|respuestas?|p[áa]ginas?/i;
-  const nextTag = /next|siguiente/i;
+  const answerClaims = /\b(answers?|answered)\b|respuestas?/i;
+  const pageWords = /\bpages?\b|\bp[áa]ginas?\b/i;
+  const citationCue =
+    /\b(cite[sd]?|citing|citation|show[sn]?|give[sn]?|return(?:s|ed)?|point(?:s)? to|came from|come[s]? from)\b/i;
+  const records = [graphicsRecordPath, bannerRecordPath];
 
-  function offenders(lines: Array<[string, string]>): string[] {
+  function offenders(
+    lines: Statement[],
+    words: RegExp,
+    cites: (line: string) => boolean = () => false,
+  ): string[] {
     return lines
-      .filter(([, line]) => nextTag.test(line) === false && answerWords.test(line))
+      .filter(([, line]) => plannedMark.test(line) === false && (words.test(line) || cites(line)))
       .map(([where, line]) => `${where}: ${line.trim()}`);
+  }
+
+  function citesAPage(statement: string): boolean {
+    return statement
+      .split(/[.!?]\s+/)
+      .some((sentence) => pageWords.test(sentence) && citationCue.test(sentence));
+  }
+
+  function textFields(record: Record<string, unknown>, name: string): Statement[] {
+    const found: Statement[] = [];
+
+    const visit = (value: unknown, route: string): void => {
+      if (
+        route === capturedOutput ||
+        route.startsWith(`${capturedOutput}.`) ||
+        route.startsWith(`${capturedOutput}[`)
+      ) {
+        return;
+      }
+
+      if (typeof value === "string") {
+        found.push([`${name}: ${route}`, value]);
+
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => visit(item, `${route}[${index}]`));
+
+        return;
+      }
+
+      if (typeof value === "object" && value !== null) {
+        const row = value as Record<string, unknown>;
+
+        if (typeof row["state"] === "string" && typeof row["reference"] === "string") {
+          found.push([
+            `${name}: ${route}`,
+            Object.values(row)
+              .filter((cell): cell is string => typeof cell === "string")
+              .join(" "),
+          ]);
+
+          return;
+        }
+
+        for (const [key, item] of Object.entries(row)) {
+          visit(item, route.length === 0 ? key : `${route}.${key}`);
+        }
+      }
+    };
+
+    visit(record, "");
+
+    return found;
   }
 
   it("speaks of answers only in a line that carries Next", () => {
@@ -541,35 +715,120 @@ describe("README, the promise of an answer", () => {
       Record<string, unknown>
     >;
     const social = recorded(graphicsRecordPath)["social"] as Record<string, unknown>;
-    const spoken: Array<[string, string]> = [
+    const spoken: Statement[] = [
       ["the tagline", String(recorded(bannerRecordPath)["tagline"] ?? "")],
       ["the social preview", String(social["tagline"] ?? "")],
       ...graphics.map(
-        (entry): [string, string] => [
+        (entry): Statement => [
           `the headline of ${String(entry["name"])}`,
           String(entry["headline"] ?? ""),
         ],
       ),
     ];
 
-    for (const file of ["README.md", "README.es.md"]) {
-      const text = readText(file);
+    for (const path of records) {
+      spoken.push(...textFields(recorded(path), path));
+    }
+
+    for (const name of ["README.md", "README.es.md"]) {
+      const text = readText(name);
       const outside = text
         .replace(bodyOf(text, "Status"), " ")
         .replace(bodyOf(text, "Roadmap"), " ");
 
       for (const line of prose(outside).split("\n")) {
         if (line.trim().length > 0) {
-          spoken.push([`${file}`, line]);
+          spoken.push([`${name}`, line]);
         }
       }
 
       for (const picture of pictureBlocks(text)) {
-        spoken.push([`the alt of an image of ${file}`, altOf(picture)]);
+        spoken.push([`the alt of an image of ${name}`, altOf(picture)]);
       }
     }
 
-    expect(offenders(spoken)).toEqual([]);
+    expect([
+      ...offenders(
+        docsMarkdown().flatMap((name) => markdownStatements(name, readText(name))),
+        answerClaims,
+        citesAPage,
+      ),
+      ...offenders(spoken, answerWords),
+    ]).toEqual([]);
+  });
+});
+
+describe("the records of the render", () => {
+  const claim = "Cited answers a question and shows the page it came from.";
+  const paths = [graphicsRecordPath, bannerRecordPath];
+
+  it("holds no claim the guard would refuse", () => {
+    for (const path of paths) {
+      const record = recorded(path);
+
+      expect(untaggedClaims(record), path).toEqual([]);
+      expect(() => assertHonestRecord(record, path), path).not.toThrow();
+    }
+
+    expect(() => assertHonestRecord({ graphics: [{ alt: claim }] }, graphicsRecordPath)).toThrow(
+      /planned answer as a capability of today/,
+    );
+  });
+
+  it("reads every text field but the captured run and the state of a row", () => {
+    for (const path of paths) {
+      const record = recorded(path);
+      const routes = textRoutes(record);
+
+      expect(routes.length, path).toBeGreaterThan(10);
+
+      for (const route of routes) {
+        const mutated = structuredClone(record) as Record<string, unknown>;
+
+        at(mutated, route, claim);
+
+        expect(untaggedClaims(mutated), `${path}: ${route}`).toContain(`${route}: ${claim}`);
+      }
+    }
+  });
+
+  it("keeps the state of a roadmap row and the capture of the demo as the record", () => {
+    const record = recorded(graphicsRecordPath);
+    const rows = record["roadmap"] as Array<Record<string, unknown>>;
+    const available = rows.find((row) => row["state"] === "Available");
+    const planned = rows.find((row) => row["state"] === "Planned");
+
+    expect(available, "a row marked Available").toBeDefined();
+    expect(planned, "a row marked Planned").toBeDefined();
+    expect(
+      untaggedClaims({ roadmap: [{ ...available, capability: claim }] }),
+      "a row marked Available cannot promise an answer",
+    ).not.toEqual([]);
+    expect(
+      untaggedClaims({ roadmap: [{ ...planned, capability: claim }] }),
+      "a row marked Planned carries its own state and the change that delivers it",
+    ).toEqual([]);
+    expect(
+      untaggedClaims({
+        demo: {
+          ingest: { command: claim, output: claim },
+          search: { output: claim },
+          drawn: { search: [claim] },
+        },
+      }),
+      "the subtree of the demo is the verbatim run of the quick start",
+    ).toEqual([]);
+  });
+
+  it("writes no record before the check of the guard", () => {
+    for (const script of ["scripts/render-readme-graphics.mjs", "scripts/render-readme-banner.mjs"]) {
+      const text = readText(script);
+
+      expect(text, script).toContain('from "./readme-graphics/honesty.mjs"');
+      expect(text, script).toMatch(
+        /assertHonestRecord\(record, recordPath\);\nawait writeFile\(absolute\(recordPath\)/,
+      );
+    }
   });
 });
 
@@ -734,6 +993,7 @@ describe("README, its graphics", () => {
 
   it("shows every graphic of the design in both themes, as a picture with its alt", () => {
     const pictures = pictureBlocks(readText("README.md"));
+    const drawn = recorded(graphicsRecordPath)["graphics"] as Array<Record<string, unknown>>;
 
     for (const [dark, light] of themedMappings) {
       const block = pictures.find((picture) => picture.includes(dark));
@@ -742,6 +1002,13 @@ describe("README, its graphics", () => {
       expect(sourceOf(block ?? "", "dark"), dark).toBe(dark);
       expect(sourceOf(block ?? "", "light"), light).toBe(light);
       expect(altOf(block ?? "").length, dark).toBeGreaterThan(5);
+    }
+
+    for (const [name, graphic] of Object.entries(graphics)) {
+      const entry = drawn.find((candidate) => candidate["name"] === name);
+      const block = pictures.find((picture) => picture.includes(graphic.dark));
+
+      expect(entry?.["alt"], name).toBe(altOf(block ?? ""));
     }
   });
 
