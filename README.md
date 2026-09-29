@@ -1,11 +1,11 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png">
-    <img src="docs/images/readme-banner-light.png" alt="Cited, by Katalis: answers from your own documents, with the page they came from" width="1280">
+    <img src="docs/images/readme-banner-light.png" alt="Cited, by Katalis: ask your own documents and get the passage and where it came from" width="1280">
   </picture>
 </h1>
 
-<p align="center">Answers from your own documents, with the page they came from.</p>
+<p align="center">Ask your own documents. Get the passage and where it came from.</p>
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Node 24.15 or newer](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
@@ -23,15 +23,15 @@ before you promise anything to anyone.
 
 ## Why Cited
 
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited answers only from the documents of the business" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Every passage of Cited carries its document, its heading and its position" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voice with ElevenLabs, planned for the next change" width="400"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited reads only the documents you point it at" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Every passage of Cited carries its document, its heading and its position" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voice with ElevenLabs, planned for the next change" width="400"></picture> |
 |---|---|---|
 
-1. **Only your documents.** Ingestion reads the files you point it at, and nothing else: no web, no model memory, no
-   invented page.
-2. **Every answer shows its page.** Document, heading and position travel with the text, so a reader can open the page
-   an answer came from instead of trusting a summary.
-3. **Talk to it.** Retrieval and search answer in text today; talking to the same documents with ElevenLabs arrives in a
-   later change, and the card that shows it says `Next` for that reason.
+1. **Only your documents.** Ingestion reads the files you point it at, and nothing else: no web, no model memory,
+   nothing invented.
+2. **Every passage keeps its source.** Document, heading and position travel with the text, so a reader can open the
+   document and land on the passage instead of trusting a summary.
+3. **Talk to it.** Retrieval and search return passages in text today; talking to the same documents with ElevenLabs
+   arrives in a later change, and the card that shows it says `Next` for that reason.
 
 ## Status
 
@@ -54,7 +54,7 @@ Every row is either available today or planned, and each planned row names the c
 
 **From a folder of documents to a cited passage.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL and Reciprocal Rank Fusion, with the answer marked Next" width="1280"></picture>
 
 <details>
 <summary>The same flow as a text diagram</summary>
@@ -71,7 +71,7 @@ flowchart LR
 
 </details>
 
-## See it answer
+## See it work
 
 **Ask a question. Get the passage and where it came from.**
 
@@ -115,7 +115,7 @@ npm run dev
 
 The template of the environment has every value empty on purpose, so the two commands of the corpus carry the
 deterministic provider in front: `fake` runs offline and needs no key. To keep it for the whole session, write
-`EMBEDDINGS_PROVIDER=fake` in `.env` once and drop it from the commands. The last command serves the page on
+`EMBEDDINGS_PROVIDER=fake` in `.env` once and drop it from the commands. The last command serves the app on
 `http://localhost:3000`.
 
 The output of the two commands, on the sample corpus:
@@ -179,7 +179,7 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `ADMIN_PASSWORD` | password of the administration panel, reserved | no |
 | `ADMIN_SESSION_SECRET` | secret that signs the administration session, reserved | no |
 | `VOICE_TOOL_SECRET` | secret the voice tool expects in its Bearer token, reserved | no |
-| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credentials of the chat providers, reserved for the change that drafts an answer and numbers its citations | no |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credentials of the chat providers, reserved for `pluggable-models-and-ask` | no |
 | `CHAT_MODEL`, `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | model selection of the chat and of the agent, reserved | no |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs, reserved | no |
 | `MAX_QUESTION_CHARS`, `RATE_LIMIT_PER_IP_PER_HOUR`, `DAILY_MODEL_CALL_LIMIT`, `DAILY_VOICE_MINUTE_LIMIT`, `MAX_ANSWER_TOKENS` | spend limits and abuse protection, reserved | no |

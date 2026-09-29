@@ -28,9 +28,11 @@ banner therefore needs network access to `fonts.googleapis.com` and `fonts.gstat
 `.woff`, `.woff2`, `.ttf` or `.otf`, and the test asserts it: Outfit is OFL and the design system change is the one
 that will vendor it with its license.
 
-The tagline of the record (`"Answers from your own documents, with the page they came from."`) is the line under the
+The tagline of the record (`"Ask your own documents. Get the passage and where it came from."`) is the line under the
 banner in both READMEs, and a test compares the two, so changing the tagline means changing the record and the two
-READMEs together.
+READMEs together. It promises passages with their document, their heading and their position, which is what the code
+returns today: the answer with its numbered citations belongs to `pluggable-models-and-ask` and only appears in the
+README carrying a `Next` tag.
 
 ## 2. The graphics
 

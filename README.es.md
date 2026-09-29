@@ -1,11 +1,11 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png">
-    <img src="docs/images/readme-banner-light.png" alt="Cited, by Katalis: respuestas de tus propios documentos, con la página de donde salieron" width="1280">
+    <img src="docs/images/readme-banner-light.png" alt="Cited, by Katalis: pregúntale a tus propios documentos y recibe el pasaje y de dónde salió" width="1280">
   </picture>
 </h1>
 
-<p align="center">Respuestas de tus propios documentos, con la página de donde salieron.</p>
+<p align="center">Pregúntale a tus propios documentos. Recibe el pasaje y de dónde salió.</p>
 
 [![Licencia: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Node 24.15 o superior](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
@@ -23,15 +23,15 @@ convierte una carpeta de documentos en pasajes citables y los vuelve a encontrar
 
 ## Why Cited
 
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited responde solo con los documentos del negocio" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Cada pasaje de Cited lleva su documento, su encabezado y su posición" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voz con ElevenLabs, planeada para el siguiente cambio" width="400"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited lee solo los documentos que le señalas" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Cada pasaje de Cited lleva su documento, su encabezado y su posición" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voz con ElevenLabs, planeada para el siguiente cambio" width="400"></picture> |
 |---|---|---|
 
-1. **Solo tus documentos.** La ingesta lee los archivos que le señalas, y nada más: ni web, ni memoria del modelo, ni
-   página inventada.
-2. **Cada respuesta muestra su página.** Documento, encabezado y posición viajan con el texto, así que quien lee puede
-   abrir la página de donde salió una respuesta en lugar de confiar en un resumen.
-3. **Háblale.** La recuperación y la búsqueda responden en texto hoy; platicar con los mismos documentos con ElevenLabs
-   llega en un cambio posterior, y por eso la tarjeta que lo muestra dice `Next`.
+1. **Solo tus documentos.** La ingesta lee los archivos que le señalas, y nada más: ni web, ni memoria del modelo,
+   nada inventado.
+2. **Cada pasaje conserva su fuente.** Documento, encabezado y posición viajan con el texto, así que quien lee puede
+   abrir el documento y llegar al pasaje en lugar de confiar en un resumen.
+3. **Háblale.** La recuperación y la búsqueda devuelven pasajes en texto hoy; platicar con los mismos documentos con
+   ElevenLabs llega en un cambio posterior, y por eso la tarjeta que lo muestra dice `Next`.
 
 ## Status
 
@@ -54,7 +54,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 
 **De una carpeta de documentos a un pasaje citado.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="Cómo funciona Cited: documentos, pasajes, libSQL, Reciprocal Rank Fusion y la respuesta" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="Cómo funciona Cited: documentos, pasajes, libSQL y Reciprocal Rank Fusion, con la respuesta marcada Next" width="1280"></picture>
 
 <details>
 <summary>El mismo flujo como diagrama de texto</summary>
@@ -71,7 +71,7 @@ flowchart LR
 
 </details>
 
-## See it answer
+## Míralo funcionar
 
 **Haz una pregunta. Recibe el pasaje y de dónde salió.**
 
@@ -115,7 +115,7 @@ npm run dev
 
 La plantilla del entorno trae todos los valores vacíos a propósito, así que los dos comandos del corpus llevan delante
 el proveedor determinista: `fake` corre sin conexión y no necesita llave. Para conservarlo toda la sesión, escribe
-`EMBEDDINGS_PROVIDER=fake` en `.env` una vez y quítalo de los comandos. El último comando sirve la página en
+`EMBEDDINGS_PROVIDER=fake` en `.env` una vez y quítalo de los comandos. El último comando sirve la aplicación en
 `http://localhost:3000`.
 
 La salida de los dos comandos, sobre el corpus de ejemplo:
@@ -179,7 +179,7 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `ADMIN_PASSWORD` | contraseña del panel de administración, reservada | no |
 | `ADMIN_SESSION_SECRET` | secreto que firma la sesión del panel, reservado | no |
 | `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, reservado | no |
-| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credenciales de los proveedores de chat, reservadas para el cambio que redacta una respuesta y numera sus citas | no |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credenciales de los proveedores de chat, reservadas para `pluggable-models-and-ask` | no |
 | `CHAT_MODEL`, `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | selección de modelo del chat y del agente, reservada | no |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs, reservado | no |
 | `MAX_QUESTION_CHARS`, `RATE_LIMIT_PER_IP_PER_HOUR`, `DAILY_MODEL_CALL_LIMIT`, `DAILY_VOICE_MINUTE_LIMIT`, `MAX_ANSWER_TOKENS` | límites de gasto y protección contra abuso, reservados | no |

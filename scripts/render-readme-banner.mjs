@@ -11,7 +11,7 @@ const bannerLightPath = "docs/images/readme-banner-light.png";
 const recordPath = "docs/images/readme-banner.json";
 const wordmark = "Cited";
 const mark = "[1]";
-const tagline = "Answers from your own documents, with the page they came from.";
+const tagline = "Ask your own documents. Get the passage and where it came from.";
 const byline = "by Katalis";
 const font = {
   name: "Outfit",

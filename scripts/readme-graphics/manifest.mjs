@@ -19,7 +19,7 @@ export const graphics = [
     ...reason,
     dark: "docs/images/reason-citations-dark.png",
     light: "docs/images/reason-citations-light.png",
-    headline: "Every answer shows its page.",
+    headline: "Every passage keeps its source.",
     copy: "Document, heading and position.",
     shows: "Available",
     label: null,
@@ -97,7 +97,7 @@ export const social = {
   width: 1280,
   height: 640,
   dark: "docs/images/social-preview.png",
-  alt: "Cited, by Katalis: answers from your own documents",
+  alt: "Cited, by Katalis: ask your own documents and get the passage and where it came from",
 };
 
 export const logo = {
