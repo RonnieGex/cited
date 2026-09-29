@@ -74,7 +74,7 @@ Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before ea
 - [x] 10.2 Major: the resampler and any worklet of the SDK served from the application's own origin, configured in the
       SDK, with a test that fails if a CDN host is requested (requirement "Voice works under the page's own security
       policy") — report: the one of this section
-- [ ] 10.3 Major: the minute cap as amended (requirement "The minute cap never lets a session exceed it"), and the panel
+- [x] 10.3 Major: the minute cap as amended (requirement "The minute cap never lets a session exceed it"), and the panel
       saying that a limit below five allows no session — report: the one of this section
 - [ ] 10.4 Minor: the policy trimmed to what the implemented session uses (`connect-src` and `media-src`), with the
       reason of each directive left — report: the one of this section

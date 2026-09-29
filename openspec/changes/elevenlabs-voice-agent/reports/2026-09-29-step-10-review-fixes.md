@@ -276,3 +276,87 @@ new files are `tests/voice-worklets.test.tsx` and the browser test of `e2e/voice
 **Commit.** `24e5b17` carries the code, the three served files, the tests, the mark and this section. That same commit
 opened with the hash of this line unwritten (a guess, `4f2b0cd`, that no commit ever had); it is corrected here, in the
 commit that follows, and the hash above is the real one.
+
+## 10.3 The minute cap never lets a session exceed it
+
+**Task.** Major of the review: `DAILY_VOICE_MINUTE_LIMIT=1..4` was exceeded by the first session of the day. The
+reservation is five minutes, the route asked for it, and `lib/store/index.ts` carried the cap only in the `ON CONFLICT`
+branch of the insert: the first reservation of a day takes the `INSERT` branch, which had no check at all, so the first
+session stored five minutes whatever the limit said and the browser got a signed URL.
+
+**The red, before the fix.** `tests/voice-minute-cap.test.ts` is new and the two copies of the new panel message are
+tests of `tests/voice-panel.test.tsx`.
+
+```powershell
+npx vitest run tests/voice-minute-cap.test.ts tests/voice-panel.test.tsx
+```
+
+```text
+ ❯ tests/voice-minute-cap.test.ts (3 tests | 3 failed) 272ms
+ ❯ tests/voice-panel.test.tsx (13 tests | 2 failed) 2450ms
+ FAIL  tests/voice-minute-cap.test.ts > a limit below one session > refuses the first reservation of the day and stores
+no minute
+AssertionError: expected 5 to be null
+ FAIL  tests/voice-minute-cap.test.ts > a limit below one session > answers 429 with the reason, and asks ElevenLabs for
+no signed URL
+AssertionError: expected 200 to be 429 // Object.is equality
+ FAIL  tests/voice-minute-cap.test.ts > a limit below one session > keeps the reason of a day that is spent apart from a
+limit that never fits
+AssertionError: expected { status: 'limited', limit: 10, …(1) } to match object { status: 'limited', …(2) }
+ FAIL  tests/voice-panel.test.tsx > the voice panel > says in words that a limit below one session leaves the voice off
+Expected element to have text content: …
+ FAIL  tests/voice-panel.test.tsx > the voice panel > says the same in Spanish
+Expected element to have text content: …
+ Test Files  2 failed (2)
+      Tests  5 failed | 11 passed (16)
+   Duration  4.36s
+```
+
+The first line is the defect of the review, reproduced: the first reservation of a day with a limit of three stores
+five. The second is the consequence: the route answered `200` and would have asked ElevenLabs for a signed URL.
+
+**The fix.**
+
+- `lib/store/index.ts`: the reservation is one statement with the guard in both branches —
+  `INSERT INTO voice_minutes (day, minutes) SELECT ?, ? WHERE ? <= ? ON CONFLICT (day) DO UPDATE SET minutes = minutes +
+  excluded.minutes WHERE minutes + excluded.minutes <= ? RETURNING minutes`. The `SELECT … WHERE` is the guard of the
+  first reservation of the day, and the `ON CONFLICT` one stays for the rest, so no arrival order and no pair of
+  concurrent visitors can leave the day above the limit.
+- `lib/voice/minutes.ts`: the room of a refused session now says why (`spent` or `below-session`), and a limit below
+  the five minutes of a session is refused before the store is asked at all.
+- `app/api/voice/signed-url/route.ts`: `429` with `reason`, and an error line that names
+  `DAILY_VOICE_MINUTE_LIMIT=<n>` and the five minutes of a session when the limit never fits. The stray double space
+  the route carried after `export async function GET(): Promise<Response> {` is gone too.
+- `components/voice/voice-url.ts` and `components/voice/VoicePanel.tsx`: the `429` of a limit that never fits is its
+  own failure, and the panel says so in words — “The voice is off: the daily limit of minutes of this site is smaller
+  than one session. Type your question below and we answer in writing.” — in English and in Spanish
+  (`limitTooLow` of `lib/i18n/voice.ts`).
+
+**The green, after the fix.**
+
+```powershell
+npx vitest run tests/voice-minute-cap.test.ts tests/voice-panel.test.tsx tests/voice-signed-url.test.ts tests/store.test.ts
+```
+
+```text
+ Test Files  4 passed (4)
+      Tests  32 passed (32)
+   Duration  8.50s
+```
+
+And the whole suite, which is the check that the guarded statement did not change the days that do fit:
+
+```powershell
+npm test
+```
+
+```text
+ Test Files  49 passed (49)
+      Tests  438 passed (438)
+   Duration  14.44s
+```
+
+**Verdict.** 10.3 is done: a limit below five allows no session and stores no minute, the reason reaches the browser,
+and the panel says so in the two languages of the product.
+
+**Commit.** `9f002d4` carries the fix; the red tests are in `e7b9d69` and this section travels with the mark.
