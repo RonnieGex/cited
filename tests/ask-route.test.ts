@@ -131,6 +131,12 @@ afterAll(async () => {
         await new Promise((wake) => setTimeout(wake, 200));
       }
     }
+
+    try {
+      rmSync(root, { recursive: true, force: true });
+    } catch {
+      continue;
+    }
   }
 });
 

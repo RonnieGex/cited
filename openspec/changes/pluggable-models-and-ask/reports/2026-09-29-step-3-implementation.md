@@ -230,3 +230,68 @@ Both are test defects, not failures of the implementation; the suite of the chan
 
 PASS. The store carries the counters and the conversations, the guards hold the limits of decision 5 and the core
 `askQuestion` answers, cites and refuses as the spec says.
+
+## 3.4 The route and the CLI (decisions 6 and 7)
+
+### The code
+
+- `app/api/ask/route.ts`: `POST` with `runtime = "nodejs"`. It refuses a body that does not declare
+  `application/json` with `415`, a body that is not JSON with `400`, and a body without a `question` string with
+  `400`; no error message ever carries the body it refused. The provider configuration is resolved before the store
+  is opened, and a failure there answers `503` with the message of the resolver, which names the variable and never a
+  value. The store comes from `sharedStore`, which opens it once per process and per location. The outcome of
+  `askQuestion` maps to `200` (answered or refused), `400` (invalid), `429` with `Retry-After` (rate limited) and
+  `503` (daily limit or configuration).
+- `scripts/ask.ts`: the command line of decision 7. It opens the store of the environment, resolves the embeddings
+  and the model the same way the route does, and calls the same `askQuestion` with the address `cli`. It prints the
+  question, the store, the status and the answer, then every citation with its document, heading and position, then
+  the number of citations, the time and the resident memory. A refused question exits 0; a question the guards refuse
+  (too long, rate limited, unavailable) prints its status and its message to the error output and exits 2.
+- `package.json`: `"ask": "node --env-file-if-exists=.env scripts/ask.ts"`.
+
+### The red that turns green
+
+```
+> npx vitest run tests/ask-route.test.ts tests/ask-cli.test.ts
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Duration  10.04s
+```
+
+The nine tests of the route: an answered question with its citations, a refusal, `400` for 1001 characters without
+echoing them, thirty questions of one address answered and the thirty-first `429` with a `Retry-After` between 1 and
+3600 (and exactly 30 model calls recorded), `503` after `DAILY_MODEL_CALL_LIMIT=1` with a single model call recorded,
+`503` naming `OPENAI_API_KEY` with no value of the environment in the body, `503` naming `EMBEDDINGS_PROVIDER`, no
+address in clear in `rate_limits`, and `415`/`400` for a body that is not JSON, has no question or is not an object.
+
+The three tests of the command line: the quick start answers with `status: answered`, `[1]`, `cafe-la-horquilla.md`
+and the path of the store; an empty store prints `status: refused` and the Spanish message with no marker; and a
+question of 1001 characters exits 2 naming `MAX_QUESTION_CHARS` on the error output.
+
+### The whole change, green
+
+```
+> npm test
+
+ Test Files  16 passed (16)
+      Tests  165 passed (165)
+   Duration  11.49s
+
+> npm run typecheck
+✓ Types generated successfully
+typecheck exit: 0
+
+> npm run lint
+lint exit: 0
+```
+
+The 114 tests of the base are still there and the change adds 51. Two test files (`tests/guards.test.ts`,
+`tests/answer.test.ts`, `tests/ask-route.test.ts`, `tests/ask-cli.test.ts`) retry the removal of their temporary
+folder and, if Windows still holds the file of a closed libSQL client, leave the folder in the temporary directory
+instead of failing the suite: the store of a test never lives in the repository.
+
+## Verdict 3.4
+
+PASS. `POST /api/ask` and `npm run ask` share one function, the guards hold, and the whole suite, the type checker
+and the linter are green.
