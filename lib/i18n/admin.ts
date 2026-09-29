@@ -7,6 +7,8 @@ export type AdminStrings = {
   navDocuments: string;
   navConversations: string;
   signOut: string;
+  tagline: string;
+  builtBy: string;
   signInTitle: string;
   passwordLabel: string;
   signIn: string;
@@ -75,6 +77,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     navDocuments: "Documents",
     navConversations: "Conversations",
     signOut: "Sign out",
+    tagline: "Every answer shows where it came from.",
+    builtBy: "Built by Katalis",
     signInTitle: "The panel of Cited",
     passwordLabel: "Password",
     signIn: "Sign in",
@@ -144,6 +148,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     navDocuments: "Documentos",
     navConversations: "Conversaciones",
     signOut: "Salir",
+    tagline: "Cada respuesta enseña de dónde salió.",
+    builtBy: "Hecho por Katalis",
     signInTitle: "El panel de Cited",
     passwordLabel: "Contraseña",
     signIn: "Entrar",
