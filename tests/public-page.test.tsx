@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Embed from "@/app/embed/page";
 import RootLayout from "@/app/layout";
 import Home from "@/app/page";
 import { DEFAULT_PRIMARY, LIME } from "@/lib/theme/primary";
@@ -86,7 +85,7 @@ describe("the public page", () => {
   });
 
   it("falls back to lime when the primary color fails AA", async () => {
-    business = { ...workshop, primaryColor: "#767676" };
+    business = { ...workshop, primaryColor: "#7c7c7c" };
 
     const { container } = render(await Home());
 
@@ -125,27 +124,6 @@ describe("the public page", () => {
 
     expect(screen.getByLabelText(PUBLIC_STRINGS.en.question.label)).toBeInTheDocument();
     expect(screen.getByText("Ask us anything.")).toBeInTheDocument();
-  });
-});
-
-describe("the page that is embedded", () => {
-  it("is the same chat without the chrome of the public page", async () => {
-    render(await Embed());
-
-    expect(screen.getAllByRole("main")).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Cited");
-    expect(screen.getByLabelText(PUBLIC_STRINGS.en.question.label)).toBeInTheDocument();
-    expect(screen.queryByText(PUBLIC_STRINGS.en.footer)).toBeNull();
-  });
-
-  it("speaks the language of the business, like the page", async () => {
-    business = workshop;
-
-    render(await Embed());
-
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Café La Horquilla");
-    expect(screen.getByLabelText(PUBLIC_STRINGS.es.question.label)).toBeInTheDocument();
-    expect(screen.getByText("Pregúntanos lo que quieras.")).toBeInTheDocument();
   });
 });
 

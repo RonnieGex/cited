@@ -27,7 +27,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 - [x] 3.1 The chat component and the Markdown renderer (decisions 1 and 2) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.2 The public page with the theme from the settings (decision 3) — report:
+- [x] 3.2 The public page with the theme from the settings (decision 3) — report:
       `reports/2026-09-29-step-3-implementation.md`
 - [ ] 3.3 The widget, `/embed` and the headers (decisions 4 and 5), the session (decision 6) — report:
       `reports/2026-09-29-step-3-implementation.md`

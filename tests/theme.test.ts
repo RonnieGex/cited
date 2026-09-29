@@ -26,9 +26,12 @@ describe("the contrast fallback of the primary color", () => {
     expect(DEFAULT_PRIMARY).toBe(LIME);
   });
 
-  it("measures the extremes of the system at 21:1", () => {
-    expect(contrastRatio(INK, PAPER)).toBeCloseTo(21, 1);
-    expect(contrastRatio(PAPER, INK)).toBeCloseTo(21, 1);
+  it("measures the extremes of the system", () => {
+    // The ink of the system is not pure black, so its ratio against the paper is 17.93:1 and not the 21:1 of the
+    // theoretical pair; the pair of the extremes is measured too, to pin the formula.
+    expect(contrastRatio(INK, PAPER)).toBeCloseTo(17.93, 1);
+    expect(contrastRatio(PAPER, INK)).toBeCloseTo(17.93, 1);
+    expect(contrastRatio("#000000", PAPER)).toBeCloseTo(21, 1);
     expect(contrastRatio(LIME, INK)).toBeGreaterThanOrEqual(4.5);
   });
 
@@ -46,7 +49,10 @@ describe("the contrast fallback of the primary color", () => {
   });
 
   it("falls back to lime when the color fails AA against the ink and the paper", () => {
-    const doubtful = "#767676";
+    // The band of the colors that fail both is narrow: it runs from the luminance where the paper stops reaching 4.5
+    // to the one where the ink starts reaching it, and `#7c7c7c` sits inside it (4.30:1 against the ink, 4.17:1
+    // against the paper).
+    const doubtful = "#7c7c7c";
 
     expect(contrastRatio(doubtful, INK)).toBeLessThan(4.5);
     expect(contrastRatio(doubtful, PAPER)).toBeLessThan(4.5);

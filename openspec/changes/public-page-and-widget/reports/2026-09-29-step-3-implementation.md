@@ -73,6 +73,54 @@ component; the write moved to a module function, `chooseLanguage`, and the run a
 
 ### Commit
 
-The commit of this step is the one that carries this report, the sources of the table above, the rename of the two test
-files and the correction of `tests/session.test.ts`; a commit cannot carry its own hash, so the hash is written in the
-report of step 3.2.
+The commit of step 3.1 is `9d83048` ("Build the chat and the sanitized Markdown renderer of the answer"), read from
+`git log` in the report of 3.2.
+
+## 3.2 The public page with the theme from the settings (decision 3)
+
+### What was written
+
+| Path | What it is |
+| --- | --- |
+| `lib/theme/primary.ts` | The contrast of a color against the ink and the paper, `textOn` (the token that is legible on the fill) and `readablePrimary`: the color of the settings when the better of its two contrasts reaches AA (4.5:1), lime when it does not, when it is empty or when it is not a hex color |
+| `lib/public/brand.ts` | The face of the business for both pages: the language of the visitor over the language of the business, the name (the product name when the business has none), the logo flag, the primary color with its fallback and the welcome message |
+| `app/page.tsx` | The public page: one `main` with one `h1`, the logo the panel serves, the chat and the foot with the flame of Katalis. The primary color travels as the CSS variables `--primary` and `--on-primary` |
+| `app/layout.tsx` | The document declares the language of the page, so `lang="en"` holds for the demo and `lang="es"` for a visitor who chose Spanish or for a business that speaks Spanish |
+
+### The commands
+
+```powershell
+npx vitest run tests/theme.test.ts tests/public-page.test.tsx
+```
+
+### The output (verbatim)
+
+```text
+ RUN  v5.0.2 <repository root>
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  10:09:44
+   Duration  2.17s (environment 74%, setup 9%, tests 6%, import 3%, worker 1%)
+```
+
+### The decisions this section had to take, because the story leaves them open
+
+1. **What "checked for contrast against the ink and the paper" means.** The primary color is a fill that carries text,
+   so what has to reach AA is the better of its two contrasts, and `textOn` picks the ink or the paper for the text on
+   it. The alternative reading, both contrasts at once, would refuse lime (1.22:1 against the paper), which is the
+   fallback the same decision names, so it cannot be the one meant. Both are recorded in the head of
+   `lib/theme/primary.ts` and in the Issues of the delivery.
+2. **The band of the colors that fail.** The colors that fail against both tokens are the narrow band between the
+   luminance where the paper stops reaching 4.5:1 and the one where the ink starts: 0.183 to 0.214. The test uses
+   `#7c7c7c` (4.30:1 against the ink, 4.17:1 against the paper), and the first version of the test used `#767676`,
+   which measures 4.54:1 against the paper and therefore passes: the correction of the test is in this commit.
+3. **The ink is not pure black.** `#171717` against the paper is 17.93:1 and not the 21:1 of the theoretical pair; the
+   test pins both numbers now.
+4. **`app/layout.tsx` reads the cookie and the business.** Reading the language of the document needs both, so every
+   route of the app is rendered per request from now on. It is the price of a document whose `lang` tells the truth in
+   both languages, and the alternative (a `lang` that is always `en`) would fail the scenario of the demo.
+
+### Commit
+
+The commit of this step is the one that carries this section, and its hash is written in the report of step 3.3.
