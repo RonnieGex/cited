@@ -133,3 +133,11 @@ SHALL point to the page "For the installer", the only place where the variable m
 - **WHEN** the owner tests Ollama at `127.0.0.1` and the server does not allow local providers
 - **THEN** the response carries the code `address_not_allowed` and no variable name, and the page says in words that the
   installer must allow local providers and links "For the installer"
+
+#### Scenario: An installation that is not finished
+
+- **WHEN** `ADMIN_SESSION_SECRET` is missing, or `ADMIN_PASSWORD` has fewer than 16 characters, and any route of
+  `/api/admin/*` or any page of `/admin` is requested
+- **THEN** the route answers `503` with the code `panel_not_configured` or `admin_password_too_short` and no variable
+  name, the page says in the owner's words that the person who installs Cited has to finish the installation, and the
+  names of the missing variables reach only the server log and the page "For the installer"

@@ -126,3 +126,26 @@ reproduced.
 - [x] 11.6 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks per commit, `openspec validate --all --strict`, `git diff --check main...HEAD`;
       append the round to `katalis-dev/tasks/entrega-community-12.md` with `## Issues` — report: the one of this section
+
+## 12. What the third review of Codex reproduced (contract amended by Fable after `revision-community-12c`)
+
+Report: `reports/2026-09-29-step-12-review-fixes.md`. Tests first, red before each fix, reproducing what the review
+reproduced. The sections 0 to 11 are done: their text does not change.
+
+- [ ] 12.1 Major: the shared answer of an unfinished installation (scenario "An installation that is not finished"):
+      `lib/admin/respond.ts` answers `503` with `panel_not_configured` or `admin_password_too_short` and owner words, and
+      `app/admin/layout.tsx` stops printing `guarded.missing`; the names of the missing variables are written once to the
+      server log (`console.error`) and stay on "For the installer". The test starts the routes and renders the pages with
+      `ADMIN_SESSION_SECRET` missing and, separately, with a 12-character `ADMIN_PASSWORD`, and checks every response of
+      `/api/admin/*` and every page of `/admin` other than "For the installer" against every variable name of
+      `.env.example` — report: the one of this section
+- [ ] 12.2 Major: `npm run store:state -- <path>` exits with code 2 and writes `store not found: <path>` to stderr when
+      the file does not exist, creating nothing; the test that expected code 0 is changed to expect 2 (red first), and a
+      second test proves that an existing file keeps its SHA-256 — report: the one of this section
+- [ ] 12.3 Minor: every `[x]` of this section is marked in the same commit as the evidence it cites, the Linux container
+      run included; the gitleaks table of the report lists every commit of this section up to the final HEAD, computed
+      after the last commit — report: the one of this section
+- [ ] 12.4 `npm test` on Windows and in a `node:24` Linux container (Node 24.15 or newer), `npm run typecheck`,
+      `npm run lint`, `npm run test:e2e`, gitleaks per commit, `openspec validate --all --strict`,
+      `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-12.md` with `## Issues`
+      — report: the one of this section
