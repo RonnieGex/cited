@@ -2,12 +2,14 @@ import { createServer, type Server } from "node:http";
 import { expect, test } from "@playwright/test";
 
 // The two scenarios of the requirement "A widget for the owner's site" of
-// `openspec/changes/public-page-and-widget/specs/public-chat/spec.md`, with the allowed test origin the task asks for:
-// the spec serves its own site from `http://127.0.0.1:3210`, which is the value of ALLOWED_ORIGINS in
-// `playwright.config.ts`, and the app runs on `http://127.0.0.1:3100`. The second site, on 3211, is not in the list.
+// `openspec/changes/public-page-and-widget/specs/public-chat/spec.md`, with the allowed test origins the task asks for:
+// the spec serves its own sites from `http://127.0.0.1:3210` and `http://127.0.0.1:3212`, the two values of
+// ALLOWED_ORIGINS in `playwright.config.ts`, and the app runs on `http://127.0.0.1:3100`. The site on 3211 is not in
+// the list. Each test of this file serves its own port: the file runs in parallel with itself.
 
 const appOrigin = "http://127.0.0.1:3100";
 const allowedSite = "http://127.0.0.1:3210";
+const secondAllowedSite = "http://127.0.0.1:3212";
 const refusedSite = "http://127.0.0.1:3211";
 
 function shop(): string {
@@ -62,10 +64,10 @@ test("an allowed site: the widget loads the chat and the chat answers", async ({
 // inside", and the reproduction of the review: when the focus is on the question box of `/embed`, the key event
 // belongs to the document of the iframe and never reaches the listener of the host document.
 test("Escape inside the iframe closes the widget and returns the focus to its button", async ({ page }) => {
-  const server = await serve(3210);
+  const server = await serve(3212);
 
   try {
-    await page.goto(allowedSite);
+    await page.goto(secondAllowedSite);
 
     const button = page.getByRole("button", { name: "Ask us" });
 

@@ -78,6 +78,6 @@ reproduced.
 - [x] 10.4 A tab opened from another starts its own session (for example an owner mark kept in `window.name`, which a
       new tab does not inherit, next to the id in `sessionStorage`), scenario "A tab opened from the page" — report:
       the one of this section
-- [ ] 10.5 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
+- [x] 10.5 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
       --strict`, `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-08.md` with
       `## Issues` — report: the one of this section

@@ -297,3 +297,45 @@ The three reproductions of the review, measured by Chromium: the variable is dec
 (`rgb(23, 23, 23)` is the ink the button keeps); the tab opened from the page carries the id of its opener, which is
 the `{"first": …, "copied": …}` of the review; and the iframe survives `Escape` (`frames after Escape: 1`). Full log:
 `katalis-dev/tasks/_community-08-step10-red-e2e.log`.
+
+## 10.5 The battery, and the round in the delivery
+
+The whole battery of the branch with the four Major closed, on Windows 11 with Node v24.11.0, against the application
+served by `npm run start` with the deterministic providers:
+
+| Command | Result |
+| --- | --- |
+| `npm test` | 27 files, **277 tests, 0 failures**, exit 0 |
+| `npm run typecheck` | `✓ Types generated successfully`, exit 0 |
+| `npm run lint` | exit 0, no findings |
+| `npm run test:e2e` | **15 tests, 0 failures**; axe 0 violations on `/` (24 rules), `/embed` (23) and `/kit` (21) |
+| `node scripts/build-widget.mjs` | `public/widget.js`, **2466 bytes** (the bound is 5120) |
+| `npm run secrets:scan` | 245 commits, 2.65 MB, `no leaks found` |
+| `openspec validate --all --strict` | 9 passed, 0 failed (9 items) |
+| `git diff --check main...HEAD` | exit 0 |
+
+The three new end-to-end tests are green in the same run as the twelve that already existed, and the axe check of the
+two public pages still reports no violation with the fill of the brand on the ask button. The suite went from 264 to
+277 tests and the browser from 12 to 15.
+
+One thing had to be corrected in the battery itself: the new widget test first served its site from the same port as
+the first test of the file, and the tests of a file run in parallel, so one of them lost the port
+(`EADDRINUSE: address already in use 127.0.0.1:3210`). The test now has its own allowed origin
+(`http://127.0.0.1:3212`, named in `ALLOWED_ORIGINS` of `playwright.config.ts` next to the existing `3210`), which is
+what `e2e/widget.spec.ts` already did for the refused site: one test, one port. With that, the whole file passes.
+
+The round is written in `katalis-dev/tasks/entrega-community-08.md`, in Spanish, with its own `## Issues`, and
+`LOOP_STATE.md` closes in `DONE`.
+
+### The commits of this section
+
+```text
+a40927e Open the round of the review of Codex: LOOP_STATE in RUNNING
+0850f7c Reproduce the four Major of the review with tests that are red at b487ac1
+17a6182 Name the one prop of the language switch current, as the panel calls it
+e3eef0c Paint the ask button and the accents with the primary color of the settings
+8047f31 Close the widget from Escape inside the iframe, and only through its own protocol
+8ab05c6 Give the tab the mark of its own window, so an opened tab starts its own thread
+```
+
+The closing commit carries this section, `LOOP_STATE.md` in `DONE` and the `[x]` of 10.5.
