@@ -7,6 +7,7 @@
  *
  * The classes are the names the screens use:
  *   .hl          lime painted behind the words that matter (paper above, lime below)
+ *   .hl-on-ink   the same highlighter on a ground of ink: a solid lime block with ink text (used with .hl)
  *   .hl-sweep    the highlighter paints itself in, once
  *   .mark-land   the citation marks of an answer that just arrived; `--i` on each mark staggers them
  *   .note-in     a source note that opens
@@ -21,6 +22,16 @@
   padding: 0 0.08em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+}
+
+/*
+ * On ink the half-height marker would put the paper text of the ground over lime (1.1:1), so the whole line is painted
+ * lime and the text is ink (see the contrast list of `tests/brand-static.test.ts`). It only changes the paint; the sweep
+ * of `.hl-sweep` and the final size of the reduced-motion block still apply because the element keeps `.hl`.
+ */
+.hl-on-ink {
+  background-image: linear-gradient(var(--lime), var(--lime));
+  color: var(--ink);
 }
 
 .hl-sweep {

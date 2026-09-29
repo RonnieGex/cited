@@ -8,11 +8,8 @@ import type { AdminStrings } from "@/lib/i18n/admin";
 // the sign-in and the page that says the server is not ready. Two halves from 1024 px (ink with the wordmark, the tagline
 // and the flame; paper with the content), stacked below it with the ink first.
 //
-// The highlighter of the tagline is a solid lime block with ink text: the marker of `.hl` (lime under the lower half of the
-// line) would put the paper text of the ink ground over lime, which is 1.1:1. The `style` wins over `.hl`, which is not in
-// a layer.
-
-const block = { backgroundImage: "linear-gradient(var(--lime), var(--lime))", padding: "0 0.15em" } as const;
+// The highlighter of the tagline is `.hl-on-ink`: a solid lime block with ink text, because the marker of `.hl` alone (lime under
+// the lower half of the line) would put the paper text of the ink ground over lime, which is 1.1:1.
 
 export type AuthShellProps = {
   strings: AdminStrings;
@@ -32,7 +29,7 @@ export function AuthShell({ strings, children }: AuthShellProps) {
         >
           {lead}
           {tail === "" ? null : (
-            <span className="hl hl-sweep text-ink" style={block}>
+            <span className="hl hl-on-ink hl-sweep">
               {tail}
             </span>
           )}
