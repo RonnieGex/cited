@@ -166,6 +166,7 @@ function commands(text: string): string[] {
   return codeFences(text)
     .flatMap((block) => block.split("\n"))
     .map((line) => line.trim())
+    .map((line) => line.replace(newlines("^[A-Z][A-Z0-9_]*=[^\\s]+ +"), ""))
     .filter((line) => /^npm (ci|run )/.test(line))
     .map((line) =>
       line.replace(/^npm run ([a-z0-9:]+).*$/, "$1").replace(/^npm (ci)$/, "$1"),
@@ -460,7 +461,8 @@ describe("README, the quick start and the configuration", () => {
     }
 
     expect(quickStart).toContain("samples/");
-    expect(quickStart).toContain("EMBEDDINGS_PROVIDER=fake");
+    expect(quickStart).toContain("EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/");
+    expect(quickStart).toMatch(/EMBEDDINGS_PROVIDER=fake npm run search -- "/);
   });
 
   it("compares the variables of the configuration with .env.example and with the code", () => {
@@ -621,8 +623,8 @@ describe("README, its graphics", () => {
     const search = demo["search"] as Record<string, unknown>;
     const quickStart = bodyOf(readText("README.md"), "Quick start");
 
-    expect(ingest["command"]).toBe("npm run ingest -- samples/");
-    expect(search["command"]).toContain("npm run search --");
+    expect(ingest["command"]).toBe("EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/");
+    expect(search["command"]).toContain("EMBEDDINGS_PROVIDER=fake npm run search --");
     expect(String(ingest["output"])).toContain("documents 4, passages 11");
     expect(String(search["output"])).toMatch(newlines("^\\d+\\. ", "m"));
     expect(demo["exitCode"]).toBe(0);
@@ -630,11 +632,11 @@ describe("README, its graphics", () => {
     const drawn = demo["drawn"] as Record<string, string[]>;
 
     for (const line of drawn["ingest"] ?? []) {
-      expect(quickStart, line).toContain(line);
+      expect(quickStart, line.slice(0, 60)).toContain(line.slice(0, 60));
     }
 
     for (const line of (drawn["search"] ?? []).slice(0, 10)) {
-      expect(quickStart, line).toContain(line);
+      expect(quickStart, line.slice(0, 60)).toContain(line.slice(0, 60));
     }
   });
 

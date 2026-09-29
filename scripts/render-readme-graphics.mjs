@@ -26,9 +26,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templates = "scripts/readme-graphics";
 const recordPath = "docs/images/readme-graphics.json";
 const bannerRecordPath = "docs/images/readme-banner.json";
-const ingestCommand = "npm run ingest -- samples/";
+const ingestCommand = 'EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/';
 const searchQuestion = "¿Cuánto cuesta una afinación de bicicleta?";
-const searchCommand = `npm run search -- "${searchQuestion}"`;
+const searchCommand = `EMBEDDINGS_PROVIDER=fake npm run search -- "${searchQuestion}"`;
 const maximumLine = 116;
 const font = {
   name: "Outfit",
@@ -633,8 +633,7 @@ const templatesOf = new Map(
   ),
 );
 
-const ingest = withoutNpmNoise(run("npm", ["run", "ingest", "--", "samples/"]));
-const search = withoutNpmNoise(run("npm", ["run", "search", "--", searchQuestion]));
+const ingest = withoutNpmNoise(run("npm", ["run", "ingest", "--", "samples/"]));const search = withoutNpmNoise(run("npm", ["run", "search", "--", searchQuestion]));
 const drawn = {
   ingest: {
     command: ingestCommand,

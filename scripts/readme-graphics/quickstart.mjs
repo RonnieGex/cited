@@ -29,17 +29,17 @@ function block(command, output) {
 export function patchReadmeQuickStart(text, demo) {
   const updated = [];
 
-  for (const [command, output] of [
-    [demo.ingest.command, demo.ingest.readme],
-    [demo.search.command, demo.search.readme],
+  for (const [marker, command, output] of [
+    ["$ npm run ingest -- samples/", demo.ingest.command, demo.ingest.readme],
+    ["$ npm run search -- ", demo.search.command, demo.search.readme],
   ]) {
     const lines = text.split("\n");
-    const head = lines.findIndex((line) => line.trim() === `$ ${command}`);
-    const start = head - 1;
+    const head = lines.findIndex((line) => line.startsWith(marker));
+    const start = lines.lastIndexOf("```", head);
     const end = lines.indexOf("```", head);
 
-    if (head === -1 || start < 0 || end === -1) {
-      throw new Error(`The quick start of the README has no block for "${command}".`);
+    if (head === -1 || start < 0 || end === -1 || end <= start) {
+      throw new Error(`The quick start of the README has no block for "${marker}".`);
     }
 
     lines.splice(start, end - start + 1, block(command, output));

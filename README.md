@@ -102,28 +102,29 @@ git clone https://github.com/RonnieGex/cited.git
 cd cited
 npm ci
 cp .env.example .env
-npm run ingest -- samples/
-npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
+EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/
+EMBEDDINGS_PROVIDER=fake npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
 npm run dev
 ```
 
-The environment file is read when it exists, so the commands work before you fill anything in.
-`EMBEDDINGS_PROVIDER=fake` selects the deterministic provider the repository uses for its own tests. The last command
-serves the page on `http://localhost:3000`.
+The template of the environment has every value empty on purpose, so the two commands of the corpus carry the
+deterministic provider in front: `fake` runs offline and needs no key. To keep it for the whole session, write
+`EMBEDDINGS_PROVIDER=fake` in `.env` once and drop it from the commands. The last command serves the page on
+`http://localhost:3000`.
 
 The output of the two commands, on the sample corpus:
 
 ```
-$ npm run ingest -- samples/
+$ EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/
 ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 26 ms, rss 113 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB
 ```
 
 ```
-$ npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
+$ EMBEDDINGS_PROVIDER=fake npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
 question: ¿Cuánto cuesta una afinación de bicicleta?
 store: .data/katalis.sqlite
 1. cafe-la-horquilla.md [Precios] position 2 score 0.032522
