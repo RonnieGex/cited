@@ -50,7 +50,7 @@ The names the test expects are exactly the names the design fixes: `docs/images/
 ```
 > npx vitest run tests/readme.test.ts
 
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community
+ RUN  v5.0.2 <repository root>
 
  ❯ tests/readme.test.ts (29 tests | 29 failed) 78ms
    ❯ README, the banner (5)
@@ -103,8 +103,8 @@ The first failing assertion of each group names the real gap:
 | Group | First failure |
 |---|---|
 | the banner | `expected [ Array(2) ] to have a length of 1 but got 2`: the current README has two level-one headings (the English one and the Spanish one in the same file) |
-| the banner files | `ENOENT: no such file or directory, open '...\docs\images\readme-banner-dark.png'` |
-| the banner script | `ENOENT: no such file or directory, open '...\scripts\render-readme-banner.mjs'` |
+| the banner files | `ENOENT: no such file or directory, open '<repository root>\docs\images\readme-banner-dark.png'` |
+| the banner script | `ENOENT: no such file or directory, open '<repository root>\scripts\render-readme-banner.mjs'` |
 | the promise | `docs/images/readme-banner.json exists: expected false to be true` |
 | the status table | `the README has one level-two section "Status": expected [] to have a length of 1 but got +0` |
 | the quick start | `expected 3 to be greater than or equal to 4`: the current block carries `npm ci`, `npm run hooks:install` and `npm run dev`, and no `ingest` and no `search` |

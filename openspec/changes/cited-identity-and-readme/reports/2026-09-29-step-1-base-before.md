@@ -25,7 +25,7 @@ Windows 11, Node `v24.11.0`, npm `11.6.1`, tree clean at `35112e6`.
 > katalis-responde-community@0.1.0 test
 > vitest run
 
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community
+ RUN  v5.0.2 <repository root>
 
  Test Files  10 passed (10)
       Tests  72 passed (72)
@@ -162,7 +162,7 @@ The store file exists after the run and git does not see it:
 
 ```
 > Get-ChildItem -Recurse -Force .data
-C:\Users\Franc\Documents\katalis-dev\community\.data\katalis.sqlite [57344]
+.data\katalis.sqlite [57344]
 
 > git status --short -uall
 (no output)
