@@ -18,6 +18,18 @@ SHALL expose them in the kit page with their tokens; no other logo and no other 
 - **THEN** every text reaches 4.5:1 against the ground it sits on (3:1 at 24 px or more), including the number inside a
   citation mark and the words inside the highlighter, and the controls keep their 3:1
 
+### Requirement: Katalis always signs with its flame
+
+Every visible signature of Katalis SHALL show the real flame of Katalis beside the name and SHALL read in the language
+of the page: the line "Built by Katalis" or "Hecho por Katalis", a "by Katalis" credit, a footer, a README banner or
+its closing line, with the silver flame on ink grounds and the ink flame on light grounds.
+
+#### Scenario: Every signature carries the flame
+
+- **WHEN** `/`, `/embed`, `/kit`, `/admin` signed out and every page of the panel are rendered in English and in Spanish
+- **THEN** every element whose text contains `Katalis` has a flame image (`/brand/katalis-flame*.png`) as a sibling or
+  child, and the Spanish pages read `Hecho por Katalis`
+
 ### Requirement: Motion serves the state and respects the reader
 
 Every animation SHALL be CSS of the application, SHALL animate only `transform`, `opacity` or the size of the

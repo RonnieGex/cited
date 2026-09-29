@@ -116,3 +116,11 @@ number of the source) and the highlighter (lime painted behind the words that ma
     button in the DOM at any width, and the `h1` of every page stays unique: the wordmark is never a heading. When no
     business exists the `h1` of the public page ("Cited") is visually hidden and the wordmark, `aria-hidden` there,
     is the visible name.
+18. **Katalis signs with its flame (Franc, 2026-09-29).** Every visible "Katalis" signature carries the real flame
+    beside it: `BuiltByKatalis` on the panel and the sign-in, the footer of the public page (`app/page.tsx`), and any
+    later credit. The Spanish public footer in `lib/i18n/public.ts` reads `Hecho por Katalis` like the panel does. Text
+    that cannot carry an image (the HTML description, the comment of the widget script) is out of scope.
+19. **Dates an owner can read.** The "When" / "Cuándo" column of Conversations stops printing the stored ISO string: it
+    renders `Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" })` in the language of the panel
+    inside a `<time dateTime="<the ISO value>">`, so the machine value stays in the markup and the owner reads
+    "29 sept 2026, 15:49".
