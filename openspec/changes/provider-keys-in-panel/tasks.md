@@ -92,8 +92,8 @@ reproduced.
 - [x] 10.6 Major (a gap of Fable's contract): the state of the store before and after this change (tables and row
       counts, the new table empty before and as expected after), with the exact commands — report: the one of this
       section
-- [ ] 10.7 Minors: the count of commits in the delivery, and gitleaks recorded for every commit of this round —
+- [x] 10.7 Minors: the count of commits in the delivery, and gitleaks recorded for every commit of this round —
       report: the one of this section
-- [ ] 10.8 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 10.8 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
       to `katalis-dev/tasks/entrega-community-12.md` with `## Issues` — report: the one of this section

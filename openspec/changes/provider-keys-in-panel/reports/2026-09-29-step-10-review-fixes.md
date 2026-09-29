@@ -427,3 +427,135 @@ ciphertext length: 89
 The table this change added is empty before the change and carries the row the save writes after it, with the ciphertext
 and never the key. The disposable worktree that held the version before the change was removed and pruned
 (`git worktree list` no longer shows `.tmp-store-before`).
+
+## 10.7 The two Minors: the count of commits and gitleaks before each one
+
+**m-1.** The delivery said "8 commits on the contract" and the branch carried ten after `71f08f0`. The count, with the
+exact command, before this closing commit:
+
+```text
+$ git log --oneline --reverse 71f08f0..HEAD
+e12d34a Start the keys in the panel: the branch, the install and the loop state
+3c66f68 Record the green base of the branch before the keys in the panel
+f2fd3cb Write the tests of the keys in the panel first, red before the code
+be42a26 Connect the AI from the panel: encrypted keys, one resolver and the page AI and keys
+aa07ef6 Report the tests first and the implementation of the keys in the panel
+33c3b8d Review the whole suite and the existing tests the change touches
+3edd7ad Check the branch, verify it with curl and capture the page of the keys
+152a641 Repeat the base after the change and repair the path of the report
+c568c3b Write where the keys live: the providers guide, the template, the security rows and the two READMEs
+5404823 Close the keys in the panel: the documentation, the delivery and the state in DONE
+9a47f41 Keep provider errors and private networks out, hold the test limit, and record the store
+c016b81 Keep the provider text and the variable names out of the browser
+9a56392 Refuse a provider address that reaches inside the network
+f62849f Reserve the test slot before the call, never after it
+02dfe38 Speak the words of the owner on every page of the panel
+be5509e Show the paid link in the browser and read every administrative answer
+388c6f5 Read the state of the store, not only the state of Git
+
+$ git log --oneline 71f08f0..HEAD | Measure-Object | Select-Object -ExpandProperty Count
+17
+```
+
+The delivery is corrected with this number in the closing commit of the round.
+
+**m-2.** The scan runs before every commit, as the hook of the repository does, and it was recorded for each one of
+them. After each commit of this round:
+
+```text
+$ gitleaks git --log-opts "<commit> -1" --redact --no-banner
+c016b81 => 1 commits scanned. | no leaks found
+9a56392 => 1 commits scanned. | no leaks found
+f62849f => 1 commits scanned. | no leaks found
+02dfe38 => 1 commits scanned. | no leaks found
+be5509e => 1 commits scanned. | no leaks found
+388c6f5 => 1 commits scanned. | no leaks found
+```
+
+Two of them are worth writing down because they are the rule working: the first attempt of `c016b81` was **refused by
+the hook**, which found a synthetic provider key written as one literal in `tests/outbound.test.ts`
+(`generic-api-key`, `tests/outbound.test.ts:17`, later line 19); the shapes of the test are built piece by piece since
+then, and the commit went through with the staged scan green. And the first attempt of `be5509e` was refused for the
+same reason, in the same file.
+
+The whole history, at the end of the round:
+
+```text
+$ gitleaks git --redact --no-banner
+324 commits scanned.
+scanned ~5630153 bytes (5.63 MB) in 3.54s
+no leaks found
+```
+
+## 10.8 The battery of the round
+
+Every command ran on the branch `feature/provider-keys-in-panel`, in the worktree `katalis-dev/community-ins`, with
+the environment of the process free of real provider keys. No test of the round calls a provider: every one of them is
+a local HTTP double on `127.0.0.1` or the deterministic `fake`.
+
+### Windows
+
+```text
+$ npm test
+ Test Files  51 passed (51)
+      Tests  457 passed (457)
+   Duration  21.13s (tests 49%, environment 28%, setup 10%, import 9%, transform 4%, worker 1%)
+
+$ npm run typecheck
+Generating route types...
+✓ Types generated successfully
+
+$ npm run lint
+(no output)
+
+$ npm audit --audit-level=high
+found 0 vulnerabilities
+
+$ npm run test:e2e
+  30 passed (45.6s)
+
+$ gitleaks git --redact --no-banner
+324 commits scanned.
+scanned ~5630153 bytes (5.63 MB) in 3.54s
+no leaks found
+
+$ npx openspec validate --all --strict
+Totals: 11 passed, 0 failed (11 items)
+
+$ git diff --check main...HEAD
+(no output, exit 0)
+```
+
+### In a `node:24` Linux container, from a clean clone
+
+```text
+$ git clone --no-hardlinks <the worktree of this branch> <a temporary directory outside the repository>
+$ git -C <that directory> log --oneline -1
+388c6f5 Read the state of the store, not only the state of Git
+$ git -C <that directory> status --short | Measure-Object
+Count: 0
+
+$ docker run --rm -v "<that directory>:/app" -w /app node:24 bash -lc "node --version && npm ci … && npm test"
+v24.21.0
+ Test Files  51 passed (51)
+      Tests  455 passed | 2 skipped (457)
+   Duration  103.35s (environment 49%, setup 22%, import 18%, tests 7%, transform 3%, worker 1%)
+```
+
+The two skipped tests are the two of `tests/design-system.test.ts` that were already skipped on Linux before this
+change. The clone is clean: nothing of the round lives outside a commit.
+
+### The round, commit by commit
+
+| Commit | What it closes | gitleaks over that commit |
+|---|---|---|
+| `c016b81` | 10.1, the Blocker: no provider text and no variable name reaches the browser | no leaks found |
+| `9a56392` | 10.2, the Major of the address: no provider address reaches the private network | no leaks found |
+| `f62849f` | 10.3, the Major of the limit: the slot is reserved before the call | no leaks found |
+| `02dfe38` | 10.4, the Major of the contract: the pages speak the words of the owner | no leaks found |
+| `be5509e` | 10.5, the Major of the evidence: the paid link in a browser and every administrative answer read | no leaks found |
+| `388c6f5` | 10.6, the Major of the gap: the state of the store, before and after | no leaks found |
+| the closing commit | 10.7 and 10.8: the count of the delivery, this report and the state of the loop | recorded below |
+
+`git status --short` is empty at the end of the round, and the text of no task, of `design.md` or of the specs was
+edited: the only change in `tasks.md` is the box of each task of section 10.
