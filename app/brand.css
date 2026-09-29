@@ -1,0 +1,116 @@
+/*
+ * The motion and the highlighter of the identity (decisions 4 and 5 of `openspec/changes/brand-identity-ui/design.md`).
+ *
+ * Every keyframe of the product lives in this file and nowhere else. Only `transform`, `opacity` and the paint size of
+ * the highlighter move; every animation lasts between 150 and 700 ms (the waiting bar excepted) and at most two things
+ * move at once in any view. The last block of the file removes all of it under `prefers-reduced-motion: reduce`.
+ *
+ * The classes are the names the screens use:
+ *   .hl          lime painted behind the words that matter (paper above, lime below)
+ *   .hl-sweep    the highlighter paints itself in, once
+ *   .mark-land   the citation marks of an answer that just arrived; `--i` on each mark staggers them
+ *   .note-in     a source note that opens
+ *   .rise        the welcome headline, once
+ *   .bar         the waiting bar, under a text that says what is being waited for
+ */
+
+.hl {
+  background-image: linear-gradient(transparent 55%, var(--lime) 55%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  padding: 0 0.08em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.hl-sweep {
+  animation: hl-sweep var(--dur-slow) var(--ease-out-expo) both;
+}
+
+.mark-land {
+  animation: mark-land var(--dur-base) var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+.note-in {
+  animation: note-in var(--dur-base) var(--ease-out-expo) both;
+}
+
+.rise {
+  animation: rise 480ms var(--ease-out-expo) both;
+}
+
+.bar {
+  animation: bar 1.6s ease-in-out infinite alternate;
+  transform-origin: left;
+}
+
+@keyframes hl-sweep {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+@keyframes mark-land {
+  from {
+    transform: translateY(0.35em) scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes note-in {
+  from {
+    transform: translateX(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/*
+ * Reduced motion: no animation and no transition anywhere in the product, and the highlighter is painted in its final
+ * state at once. `!important` because a utility or a class of a screen would otherwise win over this block.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hl,
+  .hl-sweep {
+    background-size: 100% 100%;
+  }
+}
