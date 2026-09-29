@@ -1,113 +1,110 @@
 # LOOP_STATE · Katalis Responde Community
 
 STATUS: DONE
-CHANGE: bootstrap (OpenSpec 0)
-BRANCH: feature/bootstrap
+CHANGE: fix-tracked-text-scan (OpenSpec)
+BRANCH: feature/fix-tracked-text-scan
+BASE: 3ff834f (main)
 AGENT: deepseek-harness
-DATE: 2026-09-28
+DATE: 2026-09-29
 
-## Round 2: the fixes of the review 00 (closed)
+## Objective
 
-`revision-community-00.md` returned FAIL with 0 blockers, 5 majors and 3 minors. Fable corrected the contract
-(`openspec/changes/bootstrap/tasks.md`) and amended section 3 of the plan about `SECURITY.md`. The nine open tasks are
-executed and verified, with the command and its real output in
-`openspec/changes/bootstrap/reports/2026-09-28-step-9-review-fixes.md`:
+Execute the contract `openspec/changes/fix-tracked-text-scan/tasks.md`, written by Fable, in order, with the evidence
+of every task in `openspec/changes/fix-tracked-text-scan/reports/`. The defect: the first CI run of `main` (`3ff834f`)
+failed in the job Unit tests with `EISDIR: illegal operation on a directory, read` in `tests/personal-paths.test.ts`,
+because `.claude/agents`, `.codex/agents` and `.cursor/agents` are tracked links (mode `120000`) to the directory
+`ai-specs/agents`, which a Linux checkout materialises as a real link.
 
-- **2.8**: `openspec/specs/.gitkeep` is versioned, so a clean clone carries the canonical tree, and `.claude/agents`,
-  `.codex/agents` and `.cursor/agents` are Git symbolic links, mode `120000`, to `ai-specs/agents`, verified in a
-  clean clone.
-- **2.9**: the personal paths left `docs/base-standards.md` and the two reports that carried them, and
-  `tests/personal-paths.test.ts` fails when a tracked text file carries a home directory of a development machine. The
-  red run found exactly the three files of the review.
-- **5.3**: `SECURITY.md` documents the private vulnerability reporting of GitHub as the channel with its exact
-  address, states that the role address `security@katalis.dev` is added when the mailbox exists and that a personal
-  address is never used. Enabling the repository setting is an owner action.
-- **6.8**: `docs/security.md` presents the local hook as a developer aid that only exists after
-  `npm run hooks:install` and can be skipped, and the pipeline as the enforced scan of the full history.
-- **7.5**: the CI secret scan no longer uses the event range of `gitleaks-action@v3`; it installs the gitleaks command
-  line pinned by version and SHA-256 and scans every commit. A synthetic history with a secret added and removed in
-  older commits turns it red with exit 2, while the range of the action reports no leaks.
-- **7.6**: `engines.node` is `>=24.15.0 <25.0.0`, the intersection of the supported line with the locked
-  dependencies, in `package.json` and in the root entry of `package-lock.json`, and the README in its two languages
-  and the development guide state the floor.
-- **9.6**: the state of the database was measured with exact commands before and after the whole pipeline: no
-  datastore dependency in the eighteen declared packages, no tracked database, dump or migration, and no file created
-  by the suites.
-- **13.1**: 72 tasks, 72 marked `[x]`, every one with its report; the 30 references that were missing were appended
-  after the existing evidence without touching the text of a task.
-- **13.2**: the real commits are listed below. No push, no commit in `main`, no archive.
+## What was delivered
 
-## Round 1: what was delivered
+- **Step 0**: the branch and the base confirmed: `feature/fix-tracked-text-scan` over `3ff834f`, clean tree.
+- **Step 1**: the state of the base. The failing run of `main` on GitHub (`gh run view 36506681705`) is quoted with the
+  two `EISDIR` of `tests/personal-paths.test.ts:23`, and the local suite is measured at `3ff834f`. The measurement
+  corrects the contract: on Windows the base is **red**, not green, because of the second defect (the archived
+  contract). The repository has no database: no datastore dependency among the eighteen declared packages, no tracked
+  data, dump, migration or schema file.
+- **Step 2**: the red. The failure of the CI is reproduced in a disposable `node:24` container over a fresh clone of
+  `main`, with the three real links and the same two `EISDIR`. The four scenarios of the spec delta were added first
+  and run red on both platforms (three failures on Windows, five on Linux).
+- **Step 3**: the fix. `tests/personal-paths.test.ts` reads `git ls-files -s -z` and decides with the mode of each
+  path: a link (`120000`) by its target, a regular file (`100644`, `100755`) by its content, a binary file skipped,
+  anything else skipped.
+- **Step 4**: the three existing assertions still hold; what changed is the helper that obtains the text, the
+  exemption list (active and archived path of the rule-defining contract) and the fixture scaffolding.
+- **Step 5**: every check green in the Linux container and on Windows: `npm test`, `npm run typecheck`,
+  `npm run lint`, gitleaks over the whole history, `openspec validate --all --strict` and `git diff --check`.
+- **Step 6**: no route or server behaviour changed, so `curl` does not apply; the changed-file list is in the report.
+- **Step 7**: `npm run test:e2e` green on Windows and in the Linux container.
+- **Step 8**: the base after the change is the base before it plus one test file and one paragraph of documentation;
+  no datastore appeared and no package changed.
+- **Step 9**: `docs/development-guide.md` explains the symlinks of a Windows checkout (`core.symlinks`) and why the
+  scan follows the git modes. This delivery is `katalis-dev/tasks/entrega-community-00d.md`, in Spanish.
 
-Change `bootstrap` of the plan `tasks/plan-rag-abierto.md` (v2, approved by Franc on 2026-09-28), complete and green:
+All the twelve boxes of the contract are `[x]`, every one with its report; the text of no task and no line of the spec
+delta was edited.
 
-- specboot: `openspec init`, `openspec/config.yaml` with the real context of the plan, and `docs/` and `ai-specs/`
-  adapted from the generic standards only;
-- a Next.js 16 skeleton with React 19, strict TypeScript and Tailwind v4, with one page that names the product;
-- Vitest and Playwright, one smoke test each, both proven able to fail;
-- Apache-2.0 `LICENSE` (official text verified), `NOTICE`, `SECURITY.md`, `CONTRIBUTING.md` and the templates;
-- security from the first commit: `docs/security.md`, `.env.example` with no values, `.gitignore` and a gitleaks
-  hook;
-- a blocking pipeline: types, lint, unit tests, build, end to end, `npm audit --audit-level=high`, gitleaks over the
-  whole history, `openspec validate --all --strict` and CodeQL, plus Dependabot.
+Two findings of the closing battery were corrected before the delivery: `git diff --check 3ff834f..HEAD` flagged the
+blank lines of the diff quoted in the step 3 report (removed in `a845370`), and one of the scenarios that build a
+fixture hit the default timeout of Vitest on a loaded machine (the three now declare `{ timeout: fixtureTimeout }`,
+with `fixtureTimeout = 30_000`, in `14611c3`).
 
-## Commits (all on feature/bootstrap, none in main)
+## Commits (all on feature/fix-tracked-text-scan, none in main)
 
 | SHA | Message |
 |---|---|
-| `6840541374f34037cf6d8320041cca4f624ebec4` | docs(bootstrap): report the review 00 fixes and complete the contract evidence |
-| `7a5ac9791ab8da4b7e914c92f608d87784b89356` | fix(bootstrap): correct the review 00 findings in the tree, the pipeline and security |
-| `ac8007326e0a8f6b320506277f612587cb36bb8e` | chore(bootstrap): version the canonical tree and link the agent folders |
-| `c693c984787ccec117413910172c0f3c4141fd85` | chore(bootstrap): set the state file to running for the review fixes |
-| `51b57f5211e463cd542bf4672ab9c3a430eea941` | Correct the bootstrap tasks contract after review 00 (Fable) |
-| `a175060a35eded44832f519650ed415853fac34e` | docs(bootstrap): keep the state file and the standards in English |
-| `19fae5246eef75bc2843ef7b00aa17b12da3c762` | chore(bootstrap): record the verified closing commit in the state file |
-| `06a967c563a6af954a30dca2a08608c21f364a9a` | docs(bootstrap): report the verification of the change |
-| `9f3770d716ef724ae567bda441232818ab81620c` | ci(bootstrap): add the blocking pipeline, CodeQL and Dependabot |
-| `c429235f89b8cce2af607a377858fd5ce5c3369b` | feat(bootstrap): add secret scanning, the threat model and the environment template |
-| `834a4caf089c76d236624d7bbd612eb4453092ab` | feat(bootstrap): license the project under Apache-2.0 and add the community files |
-| `d3ffc350ec9d654f550e98a46baa793846eac912` | feat(bootstrap): add the Next.js 16 skeleton with its smoke tests |
-| `460dcb80cc88c718137499c8eeba9b1ca8d16119` | chore(bootstrap): initialize the OpenSpec workspace and the adapted Katalis standards |
+| `14611c3` | test(fix-tracked-text-scan): give the fixture scenarios an explicit timeout |
+| `a845370` | docs(fix-tracked-text-scan): drop the trailing whitespace of the step 3 report |
+| `cb0ab96` | chore(fix-tracked-text-scan): close the state file as done |
+| `1f0e541` | docs(fix-tracked-text-scan): report the steps and mark the contract |
+| `9d41fac` | docs(fix-tracked-text-scan): note the symlink modes behind the scan |
+| `5b7fc46` | fix(fix-tracked-text-scan): decide the tracked-path scan from the git mode |
+| `2c3e2ae` | test(fix-tracked-text-scan): add the cross-platform scan scenarios |
+| `c332309` | chore(fix-tracked-text-scan): set the state file to running and report the base state |
 
-The whole verification (`npm ci`, types, lint, unit tests, build, end to end, audit, the secret scan and the strict
-OpenSpec validation) ran green on `7a5ac9791ab8da4b7e914c92f608d87784b89356` with a clean tree, and the unit suite and
-the validation ran again on the tree that carries the report. The last commit adds this list to this file.
+`ecd9bb0` ("Specify the cross-platform fix of the personal-path scan") is the commit of Fable that carries the
+contract, and the branch starts there. The verification of step 5 ran on `9d41fac`, and the whole battery ran again on
+the closing tree: `npm test` 9 passed, `npm run typecheck`, `npm run lint`, gitleaks over every commit, `openspec
+validate --all --strict`, `git diff --check 3ff834f..HEAD`, the end-to-end suite and the disposable Linux container,
+all green. The closing commit, the exact command of every run and its real output are in the delivery
+`katalis-dev/tasks/entrega-community-00d.md`, and the last commit of the branch adds this file.
 
 ## Evidence
 
-The reports of every step live in `openspec/changes/bootstrap/reports/`, ten files with the command, its real output
-and a verdict. Every `[x]` of `tasks.md` names its report.
+`openspec/changes/fix-tracked-text-scan/reports/` holds one report per step, with the exact command, the commit and
+the real output: `2026-09-29-step-0-branch.md`, `-step-1-base-before.md`, `-step-2-tests-first.md`,
+`-step-3-implementation.md`, `-step-4-existing-tests.md`, `-step-5-checks.md`, `-step-6-curl.md`, `-step-7-e2e.md`,
+`-step-8-base-after.md` and `-step-9-docs.md`.
 
 ## Hard rules respected
 
-- No licensed font file: the repository holds no `.woff`, `.woff2`, `.ttf`, `.otf` or `.eot`.
-- No personal path: the documents and the reports that had one were corrected, and a unit test fails when a tracked
-  text file carries a home directory of a development machine.
-- From the private repository only the generic standards travelled, rewritten for this stack.
-- No `.env` file was opened. `.env`, `.env.local` and `.env.production` are ignored, and only `.env.example` with
-  empty values is versioned.
-- No push: `git for-each-ref refs/remotes` is empty, so no reference was ever fetched or uploaded from this clone.
-- No commit in `main`: the branch has no commits and does not even exist as a reference yet.
-- The change was not archived: `openspec/changes/archive/` is empty.
-- UTF-8 with LF in every file that was added or modified.
+- No Lufga source material and no licensed font file: nothing of the sort was downloaded, copied or added.
+- No personal path: the reports and the documents use relative paths, and the scan of the repository passes on the
+  tree that carries them. One draft of the step 1 report quoted the literal home prefix of the rule; the suite caught
+  it and the line was rewritten.
+- No `.env` file was opened; not even `.env.example`.
+- No push: `git for-each-ref refs/remotes` still points at the base only, and the remote was never contacted.
+- No commit in `main`: `main` stays at `3ff834f`, exactly where it was.
+- No archive: `openspec/changes/archive/` keeps the single `2026-09-29-bootstrap` entry.
+- UTF-8 with LF in every file written or modified.
 
 ## Pending and out of scope
 
-- NOT DONE, owner action: the private vulnerability reporting setting of the repository. The channel is documented in
-  `SECURITY.md`, but enabling it is a write against the repository settings and this mission forbids remote
-  operations.
-- RISK: this machine runs Node 24.11.0 and the declared floor is 24.15.0, the version the locked dependencies require,
-  so `npm ci` prints an `EBADENGINE` warning about the root package. The pipeline resolves Node from `.nvmrc` and is
-  not affected.
-- RISK: on a Windows clone without the symlink privilege, the three `agents` entries are plain files with the target
-  path inside, so the canonical definitions do not materialise as a folder there. Linux, macOS and Windows with
-  developer mode are not affected.
-- RISK, deferred by the contract note that Fable wrote: Minor 2 of the review, the authorship metadata of the history
-  and the references to the name of the private repository, belongs to change 7 `docs-deploy-and-launch`.
-- UNKNOWN: CodeQL, the GitHub-side validation of the workflows and the new secret scan on a runner. They cannot run
-  without a push, and the reports mark them UNKNOWN instead of claiming a local run.
-- Changes 1 to 7 of the plan have not started.
+- UNKNOWN, by the rules of this mission: the CI of the branch on GitHub. A push is forbidden here, so the Linux
+  failure and the Linux fix are proven in a disposable container that reproduces the runner (fresh clone, real links,
+  Node 24), not on a GitHub runner.
+- NOT DONE, owner action: the `BROKEN` of the delivery, the parenthesis of task 1.1 that says "green on Windows". The
+  base is red there; the measurement is in the step 1 report and correcting the text of the contract is up to Fable.
+- RISK: this machine runs Node 24.11.0 while the declared floor is 24.15.0, the version the locked dependencies
+  require, so `npm ci` prints `EBADENGINE` warnings about the root package and about jsdom. Inherited from the
+  bootstrap change and not affected by this one.
+- RISK: on a Windows clone without the symlink privilege the three `agents` entries are plain text files, so the
+  canonical definitions do not materialise as a folder there. Inherited, unchanged, and now documented in
+  `docs/development-guide.md`.
+- RISK: the local `node_modules` of this checkout was emptied during the measurement of step 1, when a temporary git
+  worktree that contained a directory junction to it was removed with `git worktree remove --force`. It is untracked
+  build material and `npm ci` restored it (550 packages, exit 0); no tracked file was lost. The detail is in the
+  delivery.
 
 ## Closing
 
-Delivery in `katalis-dev/tasks/entrega-community-00b.md`, in Spanish, with its `## Issues` section.
+Delivery in `katalis-dev/tasks/entrega-community-00d.md`, in Spanish, with its `## Issues` section.
