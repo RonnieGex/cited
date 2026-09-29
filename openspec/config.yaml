@@ -1,0 +1,63 @@
+context: |
+  Katalis Responde Community: the free and forkable edition of Katalis Responde. A business forks the repository,
+  fills in its own information and its own API keys, and answers its customers with citations from its own
+  documents. One business per installation. Deliberately lighter than the paid service: no agency panel, no payment
+  integrations, no measured evaluation. That difference is the business model.
+
+  Tech stack: one Next.js 16 application in strict TypeScript with the App Router and React 19; the page, the route
+  handlers and the agent run in the same process. Tailwind v4 through `@tailwindcss/postcss`, with the theme in CSS
+  and no `tailwind.config.js`. libSQL as the only database: a SQLite file in local or in Docker, Turso in the cloud,
+  with native vectors and full-text search fused with RRF. Vercel AI SDK for the model providers (OpenAI, Anthropic,
+  Gemini, DeepSeek, Groq, OpenRouter, Ollama and LM Studio), chosen with environment variables. Hand-written SQL
+  migrations in `migrations/`. Vitest for unit tests and Playwright for the browser flows. Node 24, pinned in
+  `.nvmrc` and in `engines`.
+
+  Architecture: ports and adapters. The design system is `@katalis/ui-tokens` and the components of the kit, shared
+  with the other applications of the suite. Keys live only in the environment of the server: never in the database,
+  never in the browser. The public ask endpoint carries a per-IP limit, a daily cap of model calls, a cap of tokens
+  per answer and a question of 1000 characters at most.
+
+  Domain: the business information (name, logo, main color, tone, language, forbidden topics, welcome message) lives
+  in the administration panel, never in a file. Documents arrive as PDF, DOCX, MD or TXT. Conversaciones are stored
+  only in the installation, with a configurable retention and no telemetry to Katalis. Every answer carries
+  citations. The currency of the suite is MXN.
+
+  License: Apache-2.0 with a NOTICE file, "Built by Katalis (https://katalis.dev)". The repository is private while
+  it is built and becomes public at launch, with the explicit OK of Franc. Never in this repository: the Lufga font
+  or any other commercially licensed font file, the book of Construye, golden cases, holdout data, prompts of
+  clients, prices or keys.
+
+  Languages: code, specs, tests, commits and reports are in English. `README.md` is bilingual and `LOOP_STATE.md` is
+  in Mexican Spanish.
+
+  Project specs (single source of truth): every artifact and every implementation follows this context. Read and
+  apply:
+  - docs/katalis-sdd-standard.md - the standard of the Katalis suite; it prevails over the specboot templates
+  - docs/base-standards.md - core principles, TDD, language standards and the links to the rest
+  - docs/backend-standards.md - route handlers, libSQL, providers, configuration, limits and tests
+  - docs/frontend-standards.md - App Router, React 19, Tailwind v4 and the shared design system
+  - docs/security.md - the threat model, as a living document
+  - docs/development-guide.md - local commands, ports and environment files
+  - docs/documentation-standards.md - structure and maintenance of the documentation
+  - docs/openspec-tasks-mandatory-steps.md - the mandatory steps of every tasks.md
+  For implementation: adopt ai-specs/agents/backend-developer.md and ai-specs/agents/frontend-developer.md
+  according to the work. Use the skills of `.claude/skills` when they apply.
+
+rules:
+  _global:
+    - Before creating any artifact, read and apply docs/base-standards.md and docs/katalis-sdd-standard.md
+    - For server work, read docs/backend-standards.md and adopt ai-specs/agents/backend-developer.md
+    - For interface work, read docs/frontend-standards.md and adopt ai-specs/agents/frontend-developer.md
+    - Anything that touches a control named in docs/security.md updates the row it owns in the same change
+  tasks:
+    - Step 0 is always creating the branch feature/<change> from main; nothing is born in main
+    - Tests first, so every behavior starts as a failing test written before the implementation
+    - Include the mandatory steps of docs/openspec-tasks-mandatory-steps.md, in order, at the end of the file
+    - Reports go to openspec/changes/<change>/reports/YYYY-MM-DD-step-N-<name>.md, never to specs/<change>/reports/
+    - The agent executes every validation itself with npm scripts, curl.exe and Playwright
+    - Close with the documentation step, updating docs/ in English and the bilingual README when the project changes
+  spec:
+    - Requirements use WHEN/THEN scenarios and reject every open decision such as "if applicable", "or" or "may"
+    - Every scenario that cannot be verified locally is listed in the change report as NOT DONE or UNKNOWN with its reason
+  design:
+    - Every decision the story leaves open is written under "Decisions taken by the implementer" and copied to the Issues section of the delivery
