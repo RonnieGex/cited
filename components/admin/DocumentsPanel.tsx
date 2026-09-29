@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Button, Input, Panel, SectionTitle } from "@/components/ui";
+import { Button, Input, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { DocumentSummary } from "@/lib/admin/documents";
 import type { AdminStrings } from "@/lib/i18n/admin";
 
@@ -12,8 +12,10 @@ export type DocumentsPanelProps = {
 
 type Answer = { status?: string; error?: string; documents?: DocumentSummary[] };
 
-const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
-const head = "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
+// Tighter sides on a phone, so the name, its actions and the passages fit a 320 px screen without scrolling the box.
+const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink max-sm:px-2";
+const head =
+  "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2 max-sm:px-2";
 
 export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
   const [list, setList] = useState(documents);
@@ -97,7 +99,14 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
         </p>
       )}
 
-      <Panel className="overflow-x-auto">
+      {/* A very long name can still make the box scroll on a phone: a scrolling region has to be reachable by keyboard (axe:
+          scrollable-region-focusable), as in Conversations. */}
+      <Panel
+        aria-label={strings.documentsTitle}
+        className={`overflow-x-auto ${focusRing}`}
+        role="region"
+        tabIndex={0}
+      >
         {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
         <SectionTitle className="sr-only" level="h2">
           {strings.documentsTitle}
@@ -115,20 +124,18 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
                 <th className={head} scope="col">
                   {strings.passages}
                 </th>
-                <th className={head} scope="col">
-                  {strings.actions}
-                </th>
               </tr>
             </thead>
             <tbody>
               {list.map((document) => (
                 <tr key={document.name}>
-                  <td className={cell}>{document.name}</td>
-                  <td className={`${cell} tabular-nums`}>{document.passages}</td>
-                  <td className={cell}>
-                    <div className="flex flex-wrap gap-3">
+                  {/* The actions sit under the name of their document, so a phone never cuts them at the edge of the box. */}
+                  <td className={`${cell} align-top`}>
+                    <span className="block [overflow-wrap:anywhere]">{document.name}</span>
+                    <div aria-label={strings.actions} className="mt-3 flex flex-wrap gap-3" role="group">
                       <Button
                         aria-label={`${strings.reingestDocument} ${document.name}`}
+                        className="whitespace-nowrap"
                         onClick={() => void reingest(document.name)}
                         size="sm"
                         variant="secondary"
@@ -137,6 +144,7 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
                       </Button>
                       <Button
                         aria-label={`${strings.deleteDocument} ${document.name}`}
+                        className="whitespace-nowrap"
                         onClick={() => void remove(document.name)}
                         size="sm"
                         variant="secondary"
@@ -145,6 +153,7 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
                       </Button>
                     </div>
                   </td>
+                  <td className={`${cell} align-top tabular-nums`}>{document.passages}</td>
                 </tr>
               ))}
             </tbody>

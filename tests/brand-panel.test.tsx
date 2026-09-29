@@ -8,6 +8,7 @@ import AdminLayout from "@/app/admin/layout";
 import AdminSetup from "@/app/admin/page";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ConversationsPanel } from "@/components/admin/ConversationsPanel";
+import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
 import { adminStrings, formatWhen } from "@/lib/i18n/admin";
 
 // Task 3.3 of `openspec/changes/brand-identity-ui` (decisions 7 and 8 of `design.md`, the hooks of decision 17): the panel
@@ -365,7 +366,7 @@ describe("the dates of the conversations (decision 19)", () => {
 // and the mount must not call `scrollIntoView`, which in Chromium moves the starting point of the sequential focus to the
 // current link and makes the first Tab skip the wordmark and the sections before it (WCAG 2.4.3).
 describe("the keyboard in the bar that scrolls sideways", () => {
-  const measures = ["scrollWidth", "clientWidth", "offsetLeft", "offsetWidth"] as const;
+  const measures = ["scrollWidth", "clientWidth"] as const;
   const saved = measures.map((key) => [key, Object.getOwnPropertyDescriptor(HTMLElement.prototype, key)] as const);
   const scrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, "scrollIntoView");
 
@@ -402,17 +403,36 @@ describe("the keyboard in the bar that scrolls sideways", () => {
     expect(scrolled).not.toHaveBeenCalled();
   });
 
-  it("scrolls only the list, and only when it overflows, to center the current section", () => {
-    measure({ scrollWidth: 600, clientWidth: 375, offsetLeft: 300, offsetWidth: 150 });
-    render(<AdminNav lang="en" strings={english} />);
+  // The list is 375 px wide with 24 px of padding; the boxes are those of Spanish at 375 px: Configuración 24 to 172, Negocio
+  // 176 to 284, Documentos 288 to 426.
+  function place(current: { left: number; right: number }): void {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const box = this.tagName === "NAV" ? { left: 0, right: 375 } : this.getAttribute("aria-current") === "page" ? current : { left: 0, right: 0 };
 
-    const nav = within(sidebar()).getByRole("navigation");
+      return { ...box, top: 0, bottom: 44, x: box.left, y: 0, width: box.right - box.left, height: 44, toJSON: () => box } as DOMRect;
+    });
+  }
 
-    expect(nav.scrollLeft).toBe(300 - (375 - 150) / 2);
+  it("scrolls only the list, and only as far as the current section needs to be whole and clear of the edge", () => {
+    measure({ scrollWidth: 600, clientWidth: 375 });
+    place({ left: 288, right: 426 });
+    render(<AdminNav lang="es" strings={spanish} />);
+
+    expect(within(sidebar()).getByRole("navigation").scrollLeft).toBe(426 + 24 - 375);
+  });
+
+  it("stays at the start when the current section already fits there", () => {
+    pathname = "/admin/business";
+    measure({ scrollWidth: 600, clientWidth: 375 });
+    place({ left: 176, right: 284 });
+    render(<AdminNav lang="es" strings={spanish} />);
+
+    expect(within(sidebar()).getByRole("navigation").scrollLeft).toBe(0);
   });
 
   it("leaves the list where it is when every section fits", () => {
-    measure({ scrollWidth: 192, clientWidth: 192, offsetLeft: 0, offsetWidth: 150 });
+    measure({ scrollWidth: 192, clientWidth: 192 });
+    place({ left: 288, right: 426 });
     render(<AdminNav lang="en" strings={english} />);
 
     expect(within(sidebar()).getByRole("navigation").scrollLeft).toBe(0);
@@ -529,5 +549,48 @@ describe("the language, the chips and the headings of the panel", () => {
       expect(inner.parentElement?.className).toContain("sr-only");
       unmount();
     }
+  });
+});
+
+// Finding of the review of step 12: at 375 px the actions column of Documents was cut at the edge of the box and its buttons
+// broke at the hyphen ("RE-/INGEST"). The actions now sit under the name of their document, on one line each, and the box is
+// a labelled region reachable by keyboard like the one of Conversations, in case a long name still makes it scroll.
+describe("the documents table on a phone", () => {
+  const listed = [
+    { name: "bike-workshop-policies.md", type: "md", pages: null, ingestedAt: "2026-09-29T10:00:00.000Z", passages: 7 },
+  ];
+
+  it("puts the two actions under the name of their document, in the same cell, as a named group", () => {
+    render(<DocumentsPanel documents={listed} strings={spanish} />);
+
+    const cell = screen.getByText("bike-workshop-policies.md").closest("td") as HTMLElement;
+    const group = within(cell).getByRole("group", { name: spanish.actions });
+
+    expect(within(group).getByRole("button", { name: `${spanish.reingestDocument} bike-workshop-policies.md` })).toBeInTheDocument();
+    expect(within(group).getByRole("button", { name: `${spanish.deleteDocument} bike-workshop-policies.md` })).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader").map((head) => head.textContent)).toEqual([
+      spanish.documentName,
+      spanish.passages,
+    ]);
+  });
+
+  it("keeps each action on one line and lets a long name wrap anywhere", () => {
+    render(<DocumentsPanel documents={listed} strings={english} />);
+
+    for (const button of within(screen.getByRole("table")).getAllByRole("button")) {
+      expect(button.className, button.textContent ?? "").toContain("whitespace-nowrap");
+    }
+
+    expect(screen.getByText("bike-workshop-policies.md").className).toContain("[overflow-wrap:anywhere]");
+  });
+
+  it("makes the box a labelled region reachable by keyboard, like the one of Conversations", () => {
+    render(<DocumentsPanel documents={listed} strings={english} />);
+
+    const region = screen.getByRole("region", { name: english.documentsTitle });
+
+    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(region.className).toContain("overflow-x-auto");
+    expect(region.className).toContain("focus-visible:outline-lime");
   });
 });

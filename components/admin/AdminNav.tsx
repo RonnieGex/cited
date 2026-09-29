@@ -46,19 +46,35 @@ function isCurrent(pathname: string | null, href: string): boolean {
 const link =
   "flex items-center gap-3 rounded-none px-3 py-2 text-[15px] font-semibold transition-colors duration-[var(--dur-fast)] max-lg:min-h-11 max-lg:whitespace-nowrap focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-lime";
 
+// The side padding of the list on a phone (`px-6`), its scroll padding (`scroll-px-6`) and the width of its faded edges.
+const EDGE = 24;
+
 export function AdminNav({ lang, strings }: AdminNavProps) {
   const pathname = usePathname();
   const list = useRef<HTMLElement>(null);
 
-  // On a phone the sections scroll sideways: the current one is centered by scrolling the list itself, and only when it
-  // overflows. `scrollIntoView` is not used here: in Chromium it moves the starting point of the sequential focus to the
-  // current link, and the first Tab would skip the wordmark and every section before it.
+  // On a phone the sections scroll sideways. The list stays at its start when the current section fits there; otherwise it
+  // scrolls only as far as the current one needs to be whole and 24 px clear of the faded edge, so as many sections as
+  // possible stay in view. The list itself is scrolled: `scrollIntoView` is not used here, because in Chromium it moves the
+  // starting point of the sequential focus to the current link and the first Tab would skip the wordmark and every
+  // section before it.
   useEffect(() => {
     const nav = list.current;
     const current = nav?.querySelector<HTMLElement>('[aria-current="page"]');
 
-    if (nav && current && nav.scrollWidth > nav.clientWidth) {
-      nav.scrollLeft = current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2;
+    if (!nav || !current || nav.scrollWidth <= nav.clientWidth) {
+      return;
+    }
+
+    const edge = nav.getBoundingClientRect();
+    const place = current.getBoundingClientRect();
+    const after = place.right + EDGE - edge.right;
+    const before = edge.left + EDGE - place.left;
+
+    if (after > 0) {
+      nav.scrollLeft += after;
+    } else if (before > 0) {
+      nav.scrollLeft -= before;
     }
   }, [pathname]);
 

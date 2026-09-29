@@ -373,6 +373,72 @@ test("the keyboard starts at the wordmark at 1440 px and walks the bar whole at 
   ).toBe(true);
 });
 
+// Finding of the review of step 12: on a phone the actions of a document were cut at the edge of the box and broke at the
+// hyphen. The spec uploads a document of its own with a long name, so it never touches the one of `admin.spec.ts`.
+test("the documents at 375 and 320 px keep every action whole, on one line, inside the box and the screen", async ({
+  page,
+  context,
+}) => {
+  await context.addCookies([{ name: "cited-lang", value: "es", url: E2E_BASE_URL }]);
+  await signInThroughTheApi(page);
+
+  const name = "e2e-politicas-del-taller-de-bicicletas.md";
+  const uploaded = await page.request.post("/api/admin/documents", {
+    headers: { origin: E2E_BASE_URL },
+    multipart: {
+      document: {
+        name,
+        mimeType: "text/markdown",
+        buffer: Buffer.from("# Politicas del taller\n\nLas reparaciones se entregan en tres dias habiles.\n"),
+      },
+    },
+  });
+
+  expect(uploaded.status(), "the document of this spec is ingested").toBe(200);
+
+  for (const width of [375, 320]) {
+    await page.setViewportSize({ width, height: 812 });
+    await page.goto("/admin/documents");
+
+    const region = page.getByRole("region", { name: spanish.documentsTitle });
+    const row = page.getByRole("row").filter({ hasText: name });
+
+    await expect(row).toBeVisible();
+
+    const box = await region.boundingBox();
+    const buttons = row.getByRole("button");
+
+    await expect(buttons).toHaveCount(2);
+
+    for (const button of await buttons.all()) {
+      const target = await button.boundingBox();
+      const label = `${width}: ${(await button.textContent()) ?? ""}`;
+
+      console.log(`${label} at ${JSON.stringify(target)} inside ${JSON.stringify(box)}`);
+      expect(target?.height ?? 0, `${label}: 44 px, one line`).toBeGreaterThanOrEqual(43.5);
+      expect(target?.height ?? 0, `${label}: one line, not broken at the hyphen`).toBeLessThan(50);
+      expect((target?.x ?? 0) + (target?.width ?? 0), `${label}: inside the box`).toBeLessThanOrEqual(
+        (box?.x ?? 0) + (box?.width ?? 0),
+      );
+      expect((target?.x ?? 0) + (target?.width ?? 0), `${label}: inside the screen`).toBeLessThanOrEqual(width);
+    }
+
+    expect(
+      await region.evaluate((element) => element.scrollWidth <= element.clientWidth),
+      `${width}: the box does not scroll sideways`,
+    ).toBe(true);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      `${width}: the page does not scroll sideways`,
+    ).toBe(true);
+  }
+
+  await axe(page, "/admin/documents at 320 in Spanish");
+
+  await page.getByRole("button", { name: `${spanish.deleteDocument} ${name}` }).click();
+  await expect(page.getByText(name)).toHaveCount(0);
+});
+
 // Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,
 // so it never touches the document that `admin.spec.ts` uploads and deletes; the two files run in parallel against the same
 // store, and the delete-all of `admin.spec.ts` may clear the turn between the question and the page, so the pair is retried.
