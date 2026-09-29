@@ -4,7 +4,7 @@
 - Change: bootstrap (OpenSpec change 0 of `tasks/plan-rag-abierto.md` v2)
 - Branch: `feature/bootstrap`
 - Agent: deepseek-harness
-- Repository: `C:\Users\Franc\Documents\katalis-dev\community`, remote `RonnieGex/katalis-responde-community` (private)
+- Repository: the community repository of the Katalis suite, remote `RonnieGex/katalis-responde-community` (private)
 
 ## Commands executed
 

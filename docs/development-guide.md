@@ -6,7 +6,7 @@ Local commands, ports and environment files of Katalis Responde Community.
 
 | Tool | Version | Why |
 |---|---|---|
-| Node | 24 (`.nvmrc`, `engines` of `package.json`) | the runtime of the application |
+| Node | 24, never older than 24.15 (`.nvmrc`, `engines` of `package.json`) | the runtime of the application, and the floor the locked dependencies require |
 | npm | 11 or newer | installs from the committed `package-lock.json` |
 | gitleaks | 8.30 or newer | the pre-commit hook refuses a commit that carries a secret |
 | Playwright Chromium | installed by `npx playwright install chromium` | the end-to-end suite |

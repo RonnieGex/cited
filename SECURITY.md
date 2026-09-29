@@ -2,7 +2,13 @@
 
 ## Reporting a vulnerability
 
-Report it privately through **Security → Report a vulnerability** on this repository, never in a public issue.
+Report it privately through **Security → Report a vulnerability** on this repository
+(`https://github.com/RonnieGex/katalis-responde-community/security/advisories/new`), which is the private
+vulnerability reporting channel of GitHub. Never in a public issue.
+
+There is no reporting email address yet. The role address `security@katalis.dev` is added to this file when the
+mailbox exists, and it will never be a personal address. Until then, the private advisory of GitHub is the only
+channel.
 
 Include the revision, your configuration, the impact and the steps to reproduce it. If real data is involved,
 describe its shape instead of pasting it.
@@ -41,4 +47,5 @@ flaw in the request path do not deserve the same urgency.
 ## Never in this repository
 
 No key, no customer data and no commercially licensed font file. A commit that carries a secret is refused by the
-local hook and by the pipeline.
+blocking secret scan of the pipeline; the local hook of `.githooks/pre-commit` is a developer aid, only present after
+`npm run hooks:install`, and it can be skipped.

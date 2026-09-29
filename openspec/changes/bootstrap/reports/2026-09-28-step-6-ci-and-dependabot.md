@@ -85,6 +85,13 @@ finding is recorded because an invalid YAML file in the repository is a defect e
 - **Every command of the other seven jobs** was executed locally and is green; the evidence is in
   `2026-09-28-step-7-local-verification.md`.
 
+## Correction after `revision-community-00.md` (2026-09-28)
+
+The Secret scan row above describes the job as it was built. The review proved that `gitleaks/gitleaks-action@v3`
+builds an incremental range for `push` and `pull_request` events, so a secret older than that range stayed invisible.
+Task 7.5 replaced the action with the gitleaks command line over every commit, pinned by version and SHA-256; the
+change and its synthetic proof are in `2026-09-28-step-9-review-fixes.md`.
+
 ## Verdict
 
 PASS for what can be verified without a remote: the pipeline is complete, blocking, syntactically valid and its

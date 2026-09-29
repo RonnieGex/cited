@@ -11,7 +11,7 @@ the API balance of the owner.
 
 | Control | State | Where |
 |---|---|---|
-| No secret can be committed by accident | Done | `.githooks/pre-commit`, `.gitleaks.toml`, `docs/development-guide.md` |
+| No secret is committed | Enforced by the pipeline | the blocking `secrets` job of `.github/workflows/ci.yml` scans every commit of the history with the gitleaks command line over the rules of `.gitleaks.toml` |
 | Environment files never enter the history | Done | `.gitignore` (`.env*` except `.env.example`) |
 | No key has a value in the repository | Done | `.env.example` with empty values |
 | Dependency vulnerabilities above the high level stop the pipeline | Done | `.github/workflows/ci.yml`, `npm run audit:high` |
@@ -22,6 +22,11 @@ the API balance of the owner.
 
 Everything else in this document is planned, and each row names the change that builds it. Nothing below is claimed
 as working today.
+
+The local hook of `.githooks/pre-commit` is a developer aid, not a control: it only exists after
+`npm run hooks:install`, it needs gitleaks on the `PATH` and it can be skipped with `git commit --no-verify`. The
+enforced scan is the pipeline, which scans the full history on every push and every pull request and blocks the job
+when it finds a secret. A fork that never installs the hook is still covered by its own pipeline.
 
 ## 1. The public endpoint
 
@@ -95,7 +100,9 @@ The API key belongs to the person who forks the project, so an abuse spends thei
 - Dependabot for npm and for GitHub Actions. **Done** in this change.
 - A published Docker image built from the pipeline, pinned by digest and never by `latest`. **Planned** in
   `docs-deploy-and-launch`.
-- `SECURITY.md` with the reporting address. **Done** in this change.
+- `SECURITY.md` with the reporting channel: the private vulnerability reporting of GitHub. The role address
+  `security@katalis.dev` is added when the mailbox exists, and a personal address is never used. **Done** in this
+  change.
 
 ## 9. What is out of the model
 

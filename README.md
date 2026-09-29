@@ -20,7 +20,7 @@ is the business model.
 
 ## Requirements
 
-- Node 24 (`.nvmrc`)
+- Node 24, never older than 24.15 (`.nvmrc`, `engines`)
 - npm 11 or newer
 - gitleaks, for the commit hook
 - Playwright Chromium, for the browser tests
@@ -97,7 +97,7 @@ de negocio.
 
 ## Requisitos
 
-- Node 24 (`.nvmrc`)
+- Node 24, nunca anterior a 24.15 (`.nvmrc`, `engines`)
 - npm 11 o superior
 - gitleaks, para el gancho de commit
 - Chromium de Playwright, para las pruebas de navegador
