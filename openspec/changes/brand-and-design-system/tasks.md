@@ -1,5 +1,6 @@
 Contract written by Fable (2026-09-29). DeepSeek executes it and never edits the text of a task. A task is `[x]` only
-with evidence in its report (`reports/2026-09-29-step-N-<name>.md`): the exact command, the commit and the output.
+with evidence in its report (`openspec/changes/brand-and-design-system/reports/2026-09-29-step-N-<name>.md`, inside
+the change so it travels with it on archive; amended by Fable after the review of Codex): the exact command, the commit and the output.
 Evidence rule: every `[x]` needs a real report that supports it at archive time; a report in a later commit than its
 mark is recorded, not blocking, unless it is missing or contradicts the mark. Commit in small steps on
 `feature/brand-and-design-system`: the commits are part of the implementer's work. The repository will be public: no
@@ -76,3 +77,20 @@ Evidence rule as above. Report: `reports/2026-09-29-step-10-flame-size.md`. Comm
       `git diff --check main...HEAD` exits 0; show both
 - [x] 10.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`; append the
       round to `katalis-dev/tasks/entrega-community-04.md` with the new images and `## Issues`
+
+## 11. Contrast of the controls and the place of the reports (contract amended by Fable after `revision-community-04`)
+
+Fable's rulings on that review: the kit is light only in this change (no requirement asked for a dark scheme of the
+application; the README images keep their two themes), so the dark part of Major 1 is out of scope; the contrast of
+the controls is in scope. Fable accepts the edit of `design.md` in `dd174e9` (a personal path became a relative one).
+Report: `openspec/changes/brand-and-design-system/reports/2026-09-29-step-11-contrast.md`.
+
+- [ ] 11.1 Move the eleven reports of `reports/` into `openspec/changes/brand-and-design-system/reports/` with `git mv`,
+      fix every reference to them, and remove the empty `reports/` — report: the one of this section
+- [ ] 11.2 Tests first: a Playwright test that measures the computed colors of `/kit` for the scenario "The controls can
+      be seen", red against the 1.53:1 border of `Input` — report: the one of this section
+- [ ] 11.3 Darken the border token of the controls (and the focus indicator if it fails) until the test is green,
+      keeping the look; `Panel` unchanged — report: the one of this section
+- [ ] 11.4 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
+      --strict`, `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-04.md` with
+      `## Issues` — report: the one of this section

@@ -62,3 +62,11 @@ the tokens, accessible by keyboard with a visible focus, and the public page `/k
 - **WHEN** `GET /kit` is served
 - **THEN** it answers 200 and renders one example of each component, and an axe check of the page reports no
   violation of level A or AA
+
+#### Scenario: The controls can be seen
+
+- **WHEN** the rendered `/kit` is measured in Chromium with the computed colors of each component
+- **THEN** the border of `Input`, the border of the secondary `Button` and the focus indicator reach at least 3:1
+  against the ground they sit on (WCAG 2.2, 1.4.11), and every text reaches 4.5:1 (3:1 at 24 px or more)
+- **AND** the border and the fill of `Panel` are decorative and exempt, because the content of the panel does not
+  depend on seeing its edge
