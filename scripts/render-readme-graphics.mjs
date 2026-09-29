@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { roadmap, states, statusRows, tokens } from "./readme-graphics/data.mjs";
+import { assertHonestRecord } from "./readme-graphics/honesty.mjs";
 import { graphics, logo, social } from "./readme-graphics/manifest.mjs";
 import { patchReadmeQuickStart, terminalLines, withoutNpmNoise } from "./readme-graphics/quickstart.mjs";
 
@@ -1101,60 +1102,56 @@ try {
 if (asked.length > 0) {
   console.log(`rendered only ${asked.join(", ")}: the record is left as it is.`);
 } else {
-  await writeFile(
-    absolute(recordPath),
-    `${JSON.stringify(
-      {
-        width: social.width,
-        height: social.height,
-        states,
-        planned: roadmap.filter((row) => row.state === "Planned").map((row) => row.reference),
-        roadmap,
-        graphics: written,
-        social: {
-          name: "Cited",
-          tagline: banner.tagline,
-          byline: "by Katalis",
-          file: social.dark,
-          width: social.width,
-          height: social.height,
-        },
-        logo: { file: logo.light, dark: logo.dark, alt: logo.alt },
-        font,
-        tokens,
-        artDirection: {
-          decision: 10,
-          amendedBy: 11,
-          darkMaximum: 0.3,
-          lightMinimum: 0.8,
-          terminalMaximum,
-          maximumRoadmapHeight,
-          minimumFontSize,
-          minimumHeadline,
-          minimumArtShare,
-          maximumEmptyBand,
-          minimumContrast,
-        },
-        commands: {
-          ingest: ingestCommand,
-          search: searchCommand,
-          provider: "EMBEDDINGS_PROVIDER=fake",
-        },
-        demo: {
-          exitCode: 0,
-          terminal: terminalBox,
-          ingest: { command: ingestCommand, output: ingest },
-          search: { command: searchCommand, output: search },
-          drawn: {
-            ingest: drawn.ingest.drawn.split("\n"),
-            search: drawn.search.drawn.split("\n"),
-          },
-        },
+  const record = {
+    width: social.width,
+    height: social.height,
+    states,
+    planned: roadmap.filter((row) => row.state === "Planned").map((row) => row.reference),
+    roadmap,
+    graphics: written,
+    social: {
+      name: "Cited",
+      tagline: banner.tagline,
+      byline: "by Katalis",
+      file: social.dark,
+      width: social.width,
+      height: social.height,
+    },
+    logo: { file: logo.light, dark: logo.dark, alt: logo.alt },
+    font,
+    tokens,
+    artDirection: {
+      decision: 10,
+      amendedBy: 11,
+      darkMaximum: 0.3,
+      lightMinimum: 0.8,
+      terminalMaximum,
+      maximumRoadmapHeight,
+      minimumFontSize,
+      minimumHeadline,
+      minimumArtShare,
+      maximumEmptyBand,
+      minimumContrast,
+    },
+    commands: {
+      ingest: ingestCommand,
+      search: searchCommand,
+      provider: "EMBEDDINGS_PROVIDER=fake",
+    },
+    demo: {
+      exitCode: 0,
+      terminal: terminalBox,
+      ingest: { command: ingestCommand, output: ingest },
+      search: { command: searchCommand, output: search },
+      drawn: {
+        ingest: drawn.ingest.drawn.split("\n"),
+        search: drawn.search.drawn.split("\n"),
       },
-      null,
-      2,
-    )}\n`,
-  );
+    },
+  };
+
+  assertHonestRecord(record, recordPath);
+  await writeFile(absolute(recordPath), `${JSON.stringify(record, null, 2)}\n`);
 
   console.log(`wrote ${recordPath}`);
 }

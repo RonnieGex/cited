@@ -826,8 +826,23 @@ describe("the records of the render", () => {
 
       expect(text, script).toContain('from "./readme-graphics/honesty.mjs"');
       expect(text, script).toMatch(
-        /assertHonestRecord\(record, recordPath\);\nawait writeFile\(absolute\(recordPath\)/,
+        /assertHonestRecord\(record, recordPath\);\n\s*await writeFile\(absolute\(recordPath\)/,
       );
+    }
+  });
+
+  it("keeps the manifest of the graphics in step with the record it writes", () => {
+    const manifest = readText("scripts/readme-graphics/manifest.mjs");
+    const drawn = recorded(graphicsRecordPath)["graphics"] as Array<Record<string, unknown>>;
+
+    for (const entry of drawn) {
+      const name = String(entry["name"]);
+
+      expect(manifest, name).toContain(String(entry["alt"]));
+
+      if (typeof entry["copy"] === "string") {
+        expect(manifest, name).toContain(entry["copy"]);
+      }
     }
   });
 });

@@ -3,6 +3,7 @@ import { writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
+import { assertHonestRecord } from "./readme-graphics/honesty.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templatePath = "scripts/readme-banner.html";
@@ -83,27 +84,23 @@ try {
   await browser.close();
 }
 
-await writeFile(
-  absolute(recordPath),
-  `${JSON.stringify(
-    {
-      wordmark,
-      mark,
-      tagline,
-      byline,
-      width: 1280,
-      height: 320,
-      dark: bannerPath,
-      light: bannerLightPath,
-      darkBackground: tokens.ink,
-      lightBackground: tokens.offWhite,
-      lightMarkOutline: tokens.ink,
-      font,
-      tokens,
-    },
-    null,
-    2,
-  )}\n`,
-);
+const record = {
+  wordmark,
+  mark,
+  tagline,
+  byline,
+  width: 1280,
+  height: 320,
+  dark: bannerPath,
+  light: bannerLightPath,
+  darkBackground: tokens.ink,
+  lightBackground: tokens.offWhite,
+  lightMarkOutline: tokens.ink,
+  font,
+  tokens,
+};
+
+assertHonestRecord(record, recordPath);
+await writeFile(absolute(recordPath), `${JSON.stringify(record, null, 2)}\n`);
 
 console.log(`wrote ${recordPath}`);
