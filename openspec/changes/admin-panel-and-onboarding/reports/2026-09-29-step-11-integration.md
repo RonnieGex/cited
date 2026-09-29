@@ -307,7 +307,8 @@ Both are recorded as issues below.
 - 11.3: `9b50210` and `2a3a11a`.
 - 11.1: `3905078`, the single commit of the merge.
 - 11.4: this report, the four marks, the round of the delivery and `LOOP_STATE.md` travel together in the closing
-  commit of the round.
+  commit of the round, `602230d`. After it, `242dfec` records the secret scan of that commit, and the commit that
+  carries this sentence keeps the absolute path of the machine out of this report.
 
 ## Issues
 
