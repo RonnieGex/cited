@@ -454,10 +454,12 @@ be5509e Show the paid link in the browser and read every administrative answer
 388c6f5 Read the state of the store, not only the state of Git
 
 $ git log --oneline 71f08f0..HEAD | Measure-Object | Select-Object -ExpandProperty Count
-17
+18
 ```
 
-The delivery is corrected with this number in the closing commit of the round.
+The delivery is corrected with this number in the closing commit of the round: ten commits between `71f08f0` and
+`5404823`, the correction `9a47f41` that the review already asked for, and the seven of this round (the closing one
+included).
 
 **m-2.** The scan runs before every commit, as the hook of the repository does, and it was recorded for each one of
 them. After each commit of this round:
@@ -555,7 +557,11 @@ change. The clone is clean: nothing of the round lives outside a commit.
 | `02dfe38` | 10.4, the Major of the contract: the pages speak the words of the owner | no leaks found |
 | `be5509e` | 10.5, the Major of the evidence: the paid link in a browser and every administrative answer read | no leaks found |
 | `388c6f5` | 10.6, the Major of the gap: the state of the store, before and after | no leaks found |
-| the closing commit | 10.7 and 10.8: the count of the delivery, this report and the state of the loop | recorded below |
+| the closing commit | 10.7 and 10.8: the count of the delivery, this report and the state of the loop | no leaks found (`HEAD -1`) |
 
 `git status --short` is empty at the end of the round, and the text of no task, of `design.md` or of the specs was
 edited: the only change in `tasks.md` is the box of each task of section 10.
+
+The count of the commits of the contract, the number the delivery carries after the two Minors of the review:
+`git log --oneline 71f08f0..HEAD | Measure-Object` answers **18** — ten from `e12d34a` to `5404823`, the correction
+`9a47f41`, and the seven of this round, the closing commit included.
