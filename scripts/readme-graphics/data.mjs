@@ -45,8 +45,8 @@ export const statusRows = [
   },
   {
     capability: "Answers with citations from any model provider, spend limits",
-    state: "Planned",
-    reference: "pluggable-models-and-ask",
+    state: "Available",
+    reference: "openspec/specs/answering/spec.md",
   },
   {
     capability: "Admin panel, public page and widget in Spanish and English",

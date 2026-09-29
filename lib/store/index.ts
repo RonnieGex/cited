@@ -31,6 +31,25 @@ const schemaStatements = [
   )`,
   `CREATE INDEX IF NOT EXISTS passages_document ON passages (document_id)`,
   `CREATE VIRTUAL TABLE IF NOT EXISTS passages_fts USING fts5(text)`,
+  `CREATE TABLE IF NOT EXISTS rate_limits (
+    ip_hash TEXT NOT NULL,
+    window_start TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (ip_hash, window_start)
+  )`,
+  `CREATE TABLE IF NOT EXISTS model_calls (
+    day TEXT PRIMARY KEY,
+    count INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE TABLE IF NOT EXISTS conversations (
+    session_id TEXT NOT NULL,
+    turn INTEGER NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    PRIMARY KEY (session_id, turn)
+  )`,
+  `CREATE INDEX IF NOT EXISTS conversations_created ON conversations (created_at)`,
 ];
 
 const searchableToken = /[\p{L}\p{N}]+/gu;
@@ -103,6 +122,21 @@ function toPassage(row: Row): StoredPassage {
   };
 }
 
+export type StoredTurn = {
+  sessionId: string;
+  turn: number;
+  question: string;
+  answer: string;
+  createdAt: string;
+};
+
+export type TurnInput = {
+  sessionId: string;
+  question: string;
+  answer: string;
+  createdAt?: string;
+};
+
 export type Store = {
   readonly path: string;
   replaceDocument(document: DocumentInput, passages: PassageInput[]): Promise<void>;
@@ -116,6 +150,15 @@ export type Store = {
   countIndexed(): Promise<number>;
   keywordSearch(question: string, limit: number, documentName?: string): Promise<KeywordMatch[]>;
   vectorSearch(embedding: number[], limit: number, documentName?: string): Promise<VectorMatch[]>;
+  recordQuestion(ipHash: string, windowStart: string): Promise<number>;
+  questionsInWindow(ipHash: string, windowStart: string): Promise<number>;
+  reserveModelCall(day: string, limit: number): Promise<number | null>;
+  modelCallsOn(day: string): Promise<number>;
+  appendTurn(turn: TurnInput): Promise<number>;
+  turnsOf(sessionId: string, limit: number): Promise<StoredTurn[]>;
+  deleteConversationsBefore(iso: string): Promise<number>;
+  deleteRateLimitsBefore(iso: string): Promise<number>;
+  deleteModelCallsBefore(day: string): Promise<number>;
   close(): void;
 };
 
@@ -350,6 +393,102 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
         rank: index + 1,
         distance: Number(row["distance"]),
       }));
+    },
+
+    async recordQuestion(ipHash: string, windowStart: string): Promise<number> {
+      const counted = await client.execute({
+        sql: `INSERT INTO rate_limits (ip_hash, window_start, count) VALUES (?, ?, 1)
+          ON CONFLICT (ip_hash, window_start) DO UPDATE SET count = count + 1
+          RETURNING count`,
+        args: [ipHash, windowStart],
+      });
+
+      return Number(counted.rows[0]?.["count"] ?? 0);
+    },
+
+    async questionsInWindow(ipHash: string, windowStart: string): Promise<number> {
+      const found = await client.execute({
+        sql: "SELECT count FROM rate_limits WHERE ip_hash = ? AND window_start = ?",
+        args: [ipHash, windowStart],
+      });
+
+      return Number(found.rows[0]?.["count"] ?? 0);
+    },
+
+    async reserveModelCall(day: string, limit: number): Promise<number | null> {
+      const counted = await client.execute({
+        sql: `INSERT INTO model_calls (day, count) VALUES (?, 1)
+          ON CONFLICT (day) DO UPDATE SET count = count + 1 WHERE count < ?
+          RETURNING count`,
+        args: [day, limit],
+      });
+      const row = counted.rows[0];
+
+      return row === undefined ? null : Number(row["count"]);
+    },
+
+    async modelCallsOn(day: string): Promise<number> {
+      const found = await client.execute({
+        sql: "SELECT count FROM model_calls WHERE day = ?",
+        args: [day],
+      });
+
+      return Number(found.rows[0]?.["count"] ?? 0);
+    },
+
+    async appendTurn(turn: TurnInput): Promise<number> {
+      const stored = await client.execute({
+        sql: `INSERT INTO conversations (session_id, turn, question, answer, created_at)
+          VALUES (?, (SELECT COALESCE(MAX(turn), 0) + 1 FROM conversations WHERE session_id = ?), ?, ?, COALESCE(?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now')))
+          RETURNING turn`,
+        args: [turn.sessionId, turn.sessionId, turn.question, turn.answer, turn.createdAt ?? null],
+      });
+
+      return Number(stored.rows[0]?.["turn"] ?? 0);
+    },
+
+    async turnsOf(sessionId: string, limit: number): Promise<StoredTurn[]> {
+      const found = await client.execute({
+        sql: "SELECT session_id, turn, question, answer, created_at FROM conversations WHERE session_id = ? ORDER BY turn DESC LIMIT ?",
+        args: [sessionId, limit],
+      });
+
+      return found.rows
+        .map((row) => ({
+          sessionId: String(row["session_id"]),
+          turn: Number(row["turn"]),
+          question: String(row["question"]),
+          answer: String(row["answer"]),
+          createdAt: String(row["created_at"]),
+        }))
+        .reverse();
+    },
+
+    async deleteConversationsBefore(iso: string): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM conversations WHERE created_at < ?",
+        args: [iso],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async deleteRateLimitsBefore(iso: string): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM rate_limits WHERE window_start < ?",
+        args: [iso],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async deleteModelCallsBefore(day: string): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM model_calls WHERE day < ?",
+        args: [day],
+      });
+
+      return Number(deleted.rowsAffected);
     },
 
     close(): void {

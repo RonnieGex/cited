@@ -6,7 +6,9 @@ import {
   assertHonestRecord,
   capturedOutput,
   isCapturedOutput,
+  pageWords,
   plannedMark,
+  plannedWords,
   untaggedClaims,
 } from "../scripts/readme-graphics/honesty.mjs";
 import { decodePng, meanLuminance, meanLuminanceIn, transparentShare } from "./png";
@@ -46,12 +48,7 @@ const plannedChanges = [
   "security-hardening",
   "docs-deploy-and-launch",
 ];
-const activeSpecs = [
-  "openspec/specs/app-skeleton/spec.md",
-  "openspec/specs/knowledge-search/spec.md",
-  "openspec/specs/repository-bootstrap/spec.md",
-  "openspec/specs/supply-chain-security/spec.md",
-];
+
 
 const banner = {
   dark: `${imagesDirectory}/readme-banner-dark.png`,
@@ -76,7 +73,7 @@ const graphics = {
   "how-it-works": {
     dark: `${imagesDirectory}/how-it-works-dark.png`,
     light: `${imagesDirectory}/how-it-works-light.png`,
-    planned: true,
+    planned: false,
   },
   demo: {
     dark: `${imagesDirectory}/demo-dark.png`,
@@ -216,6 +213,35 @@ function trackedFiles(): TrackedFile[] {
   return trackedCache;
 }
 
+// Amended by Fable in `pluggable-models-and-ask`, scenario "Available means specified and merged": a row marked
+// `Available` links the spec of its capability, and that spec either exists in `openspec/specs/` or is added by an
+// open change under `openspec/changes/` as `specs/<capability>/spec.md`. The file of the spec in force appears when
+// that change is archived, and is never written by hand before.
+const specLink = /^openspec\/specs\/([^/]+)\/spec\.md$/;
+
+function capabilityOf(link: string): string | null {
+  return specLink.exec(link)?.[1] ?? null;
+}
+
+function openChangeSpecs(capability: string): string[] {
+  const root = resolve(repositoryRoot, "openspec/changes");
+
+  return readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== "archive")
+    .map((entry) => `openspec/changes/${entry.name}/specs/${capability}/spec.md`)
+    .filter((path) => existsSync(resolve(repositoryRoot, path)));
+}
+
+function specIsDelivered(link: string): boolean {
+  const capability = capabilityOf(link);
+
+  if (capability === null) {
+    return false;
+  }
+
+  return existsSync(resolve(repositoryRoot, link)) || openChangeSpecs(capability).length > 0;
+}
+
 function slug(title: string): string {
   return `# ${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
 }
@@ -249,7 +275,7 @@ function commands(text: string): string[] {
   return codeFences(text)
     .flatMap((block) => block.split("\n"))
     .map((line) => line.trim())
-    .map((line) => line.replace(newlines("^[A-Z][A-Z0-9_]*=[^\\s]+ +"), ""))
+    .map((line) => line.replace(newlines("^([A-Z][A-Z0-9_]*=[^\\s]+ +)+"), ""))
     .filter((line) => /^npm (ci|run )/.test(line))
     .map((line) =>
       line.replace(/^npm run ([a-z0-9:]+).*$/, "$1").replace(/^npm (ci)$/, "$1"),
@@ -616,9 +642,16 @@ describe("README, the status table", () => {
     for (const row of rows) {
       if (row.state === "Available") {
         const linked = newlines("\\]\\(([^)]+)\\)").exec(row.reference)?.[1] ?? row.reference;
+        const capability = capabilityOf(linked);
+        const delivering = openChangeSpecs(capability ?? "");
+        const inForce = existsSync(resolve(repositoryRoot, linked));
 
-        expect(activeSpecs, row.capability).toContain(linked);
-        expect(existsSync(resolve(repositoryRoot, linked)), row.capability).toBe(true);
+        expect(capability, row.capability).not.toBeNull();
+        expect(inForce || delivering.length > 0, row.capability).toBe(true);
+        expect(
+          inForce && delivering.length > 0,
+          `${row.capability}: a spec an open change still adds is never written by hand`,
+        ).toBe(false);
       } else {
         expect(plannedChanges, row.capability).toContain(row.reference.replaceAll("`", "").trim());
       }
@@ -630,33 +663,41 @@ describe("README, the status table", () => {
     const outside = text
       .replace(bodyOf(text, "Status"), " ")
       .replace(bodyOf(text, "Roadmap"), " ");
+    const untagged = prose(outside)
+      .split("\n")
+      .filter((line) => plannedMark.test(line) === false)
+      .join("\n");
 
-    for (const phrase of ["answers with citations", "voice agent", "admin panel", "one-click deploy"]) {
-      expect(prose(outside).toLowerCase(), phrase).not.toContain(phrase);
+    for (const phrase of ["voice agent", "admin panel", "one-click deploy"]) {
+      expect(untagged.toLowerCase(), phrase).not.toContain(phrase);
     }
+
+    expect(prose(outside).toLowerCase()).toContain("answers");
   });
 });
 
 describe("README, the promise of an answer", () => {
-  // Decision 11: nothing outside a `Next` tag says "answer", "respuesta" or "page". The search returns passages with
-  // their document, their heading and their position, and that is what the copy promises until the change that drafts
-  // an answer lands. Amended by Fable after `revision-community-03b.md`: the scenario also reads every text field of
-  // the two records and every Markdown file under `docs/`; in `docs/` a page counts only where the sentence cites it,
-  // because a PDF has pages and the interface is a page, and both of those exist today.
-  const answerWords = /\b(answers?|answered|page|pages)\b|respuestas?|p[áa]ginas?/i;
-  const answerClaims = /\b(answers?|answered)\b|respuestas?/i;
-  const pageWords = /\bpages?\b|\bp[áa]ginas?\b/i;
+  // Decision 11, amended by Fable in `pluggable-models-and-ask`: the answer with citations is available from this
+  // change on, so "answer" and "respuesta" stopped being words that need a `Next` tag. What still needs one is a
+  // capability the status table marks Planned (the voice agent, the panel, the widget, the deploy), and what is
+  // refused everywhere is a page: a passage of Cited keeps its document, its heading and its position, never a page.
+  // The scenario reads every text field of the two records and every Markdown file under `docs/`; in `docs/` a page
+  // counts only where the sentence cites it, because a PDF has pages and the interface is a page, and both exist.
   const citationCue =
     /\b(cite[sd]?|citing|citation|show[sn]?|give[sn]?|return(?:s|ed)?|point(?:s)? to|came from|come[s]? from)\b/i;
   const records = [graphicsRecordPath, bannerRecordPath];
 
   function offenders(
     lines: Statement[],
-    words: RegExp,
+    words: RegExp | null,
     cites: (line: string) => boolean = () => false,
   ): string[] {
     return lines
-      .filter(([, line]) => plannedMark.test(line) === false && (words.test(line) || cites(line)))
+      .filter(
+        ([, line]) =>
+          plannedMark.test(line) === false &&
+          ((words !== null && words.test(line)) || cites(line)),
+      )
       .map(([where, line]) => `${where}: ${line.trim()}`);
   }
 
@@ -709,7 +750,7 @@ describe("README, the promise of an answer", () => {
     return found;
   }
 
-  it("speaks of answers only in a line that carries Next", () => {
+  it("claims no page and no planned capability without its tag", () => {
     const graphics = (recorded(graphicsRecordPath)["graphics"] ?? []) as Array<
       Record<string, unknown>
     >;
@@ -749,10 +790,11 @@ describe("README, the promise of an answer", () => {
     expect([
       ...offenders(
         docsMarkdown().flatMap((name) => markdownStatements(name, readText(name))),
-        answerClaims,
+        plannedWords,
         citesAPage,
       ),
-      ...offenders(spoken, answerWords),
+      ...offenders(spoken, pageWords),
+      ...offenders(spoken, plannedWords),
     ]).toEqual([]);
   });
 
@@ -804,7 +846,7 @@ describe("the records of the render", () => {
     }
 
     expect(() => assertHonestRecord({ graphics: [{ alt: claim }] }, graphicsRecordPath)).toThrow(
-      /planned answer as a capability of today/,
+      /planned capability as a capability of today/,
     );
   });
 
@@ -895,10 +937,11 @@ describe("README, the quick start and the configuration", () => {
     const manifest = JSON.parse(readText("package.json")) as { scripts: Record<string, string> };
     const quickStart = bodyOf(readText("README.md"), "Quick start");
 
-    expect(commands(quickStart).length).toBeGreaterThanOrEqual(4);
+    expect(commands(quickStart).length).toBeGreaterThanOrEqual(5);
     expect(commands(quickStart)).toContain("ci");
     expect(commands(quickStart)).toContain("ingest");
     expect(commands(quickStart)).toContain("search");
+    expect(commands(quickStart)).toContain("ask");
 
     for (const command of commands(quickStart)) {
       if (command !== "ci") {
@@ -909,6 +952,7 @@ describe("README, the quick start and the configuration", () => {
     expect(quickStart).toContain("samples/");
     expect(quickStart).toContain("EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/");
     expect(quickStart).toMatch(/EMBEDDINGS_PROVIDER=fake npm run search -- "/);
+    expect(quickStart).toMatch(/EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- "/);
   });
 
   it("compares the variables of the configuration with .env.example and with the code", () => {
@@ -1022,7 +1066,9 @@ describe("README, its links and its images", () => {
     for (const path of ["README.md", "README.es.md"]) {
       for (const target of [...linksOf(readText(path)), ...imagesOf(readText(path))]) {
         if (!/^(https?:|mailto:|#)/.test(target)) {
-          expect(existsSync(resolve(repositoryRoot, target)), `${path} -> ${target}`).toBe(true);
+          expect(specIsDelivered(target) || existsSync(resolve(repositoryRoot, target)), `${path} -> ${target}`).toBe(
+            true,
+          );
         }
       }
     }
@@ -1107,17 +1153,21 @@ describe("README, its graphics", () => {
     const demo = recorded(graphicsRecordPath)["demo"] as Record<string, unknown>;
     const ingest = demo["ingest"] as Record<string, unknown>;
     const search = demo["search"] as Record<string, unknown>;
+    const ask = demo["ask"] as Record<string, unknown>;
     const quickStart = bodyOf(readText("README.md"), "Quick start");
 
     expect(ingest["command"]).toBe("EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/");
     expect(search["command"]).toContain("EMBEDDINGS_PROVIDER=fake npm run search --");
+    expect(ask["command"]).toContain("EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask --");
     expect(String(ingest["output"])).toContain("documents 4, passages 11");
     expect(String(search["output"])).toMatch(newlines("^\\d+\\. ", "m"));
+    expect(String(ask["output"])).toContain("status: answered");
+    expect(String(ask["output"])).toContain("[1]");
     expect(demo["exitCode"]).toBe(0);
 
     const drawn = demo["drawn"] as Record<string, string[]>;
 
-    for (const step of ["ingest", "search"]) {
+    for (const step of ["ingest", "search", "ask"]) {
       const output = String((demo[step] as Record<string, unknown>)["output"]);
       const printed = output.split("\n");
 

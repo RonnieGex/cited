@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { resolveEmbeddingsProvider } from "../lib/embeddings/providers.ts";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestFolder } from "../lib/ingest/index.ts";
 import { openStore } from "../lib/store/index.ts";
-import { prepareStorePath, storeLocation } from "./lib/store-path.ts";
+import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
 
 const targets = process.argv.slice(2);
 

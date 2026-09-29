@@ -18,8 +18,9 @@
 [English](README.md) · [Español](README.es.md)
 
 **Cited está en desarrollo temprano y no sirve todavía para producción.** Lo que puedes correr hoy es el núcleo:
-convierte una carpeta de documentos en pasajes citables y los vuelve a encontrar con una búsqueda híbrida. Lee la
-[tabla de estado](#estado) antes de prometerle algo a alguien.
+convierte una carpeta de documentos en pasajes citables, los vuelve a encontrar con una búsqueda híbrida y responde
+con los pasajes que encontró, cada afirmación numerada como cita. Lee la [tabla de estado](#estado) antes de
+prometerle algo a alguien.
 
 ## Por qué Cited
 
@@ -30,8 +31,8 @@ convierte una carpeta de documentos en pasajes citables y los vuelve a encontrar
    nada inventado.
 2. **Cada pasaje conserva su fuente.** Documento, encabezado y posición viajan con el texto, así que quien lee puede
    abrir el documento y llegar al pasaje en lugar de confiar en un resumen.
-3. **Háblale.** La recuperación y la búsqueda devuelven pasajes en texto hoy; platicar con los mismos documentos con
-   ElevenLabs llega en un cambio posterior, y por eso la tarjeta que lo muestra dice `Next`.
+3. **Háblale.** Cited ya responde con los pasajes que encontró y numera cada afirmación; platicar con los mismos
+   documentos con ElevenLabs llega en un cambio posterior, y por eso la tarjeta que lo muestra dice `Next`.
 
 ## Estado
 
@@ -43,7 +44,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 | Búsqueda híbrida: texto completo y vectores, fusionados con Reciprocal Rank Fusion | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Embeddings por una API compatible con OpenAI u Ollama | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Archivo libSQL local o Turso | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Siguiente | `pluggable-models-and-ask` |
+| Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Disponible | [answering](openspec/specs/answering/spec.md) |
 | Panel de administración, página pública y widget en español e inglés | Siguiente | `admin-and-public-ui` |
 | Agente de voz con ElevenLabs, creado en un clic | Siguiente | `elevenlabs-voice-agent` |
 | Design system compartido | Siguiente | `design-system-shared` |
@@ -54,7 +55,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 
 **De una carpeta de documentos a un pasaje citado.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="Cómo funciona Cited: documentos, pasajes, libSQL y Reciprocal Rank Fusion, con la respuesta marcada Next" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="Cómo funciona Cited: documentos, pasajes, libSQL, Reciprocal Rank Fusion y la respuesta con sus citas numeradas, con el widget y la voz marcados Next" width="1280"></picture>
 
 <details>
 <summary>El mismo flujo como diagrama de texto</summary>
@@ -64,7 +65,7 @@ flowchart LR
   A[Ingesta: PDF, DOCX, MD, TXT] --> B[Pasajes con su encabezado]
   B --> C[libSQL: FTS5 y vectores nativos]
   C --> D[Reciprocal Rank Fusion]
-  D --> E[Respuesta con citas numeradas (next)]
+  D --> E[Respuesta con citas numeradas]
   D --> F[Widget para el sitio (next)]
   D --> G[Agente de voz (next)]
 ```
@@ -75,10 +76,11 @@ flowchart LR
 
 **Haz una pregunta. Recibe el pasaje y de dónde salió.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/demo-dark.png"><img src="docs/images/demo-light.png" alt="Una corrida real del arranque rápido de Cited: la ingesta y una búsqueda" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/demo-dark.png"><img src="docs/images/demo-light.png" alt="Una corrida real del arranque rápido de Cited: la ingesta, una búsqueda y una respuesta con su cita" width="1280"></picture>
 
 La imagen la dibuja `scripts/render-readme-graphics.mjs` con la salida de los comandos del arranque rápido, así que
-no puede mostrar un resultado que el código no produzca.
+no puede mostrar un resultado que el código no produzca: el mismo corpus, la misma búsqueda y la misma respuesta con
+su cita.
 
 ## Hoja de ruta
 
@@ -100,8 +102,8 @@ y la documentación.
 
 ## Arranque rápido
 
-Un comando ingiere el corpus de ejemplo y otro lo busca. No hace falta ninguna llave: el proveedor determinista corre
-sin conexión.
+Dos comandos preparan el corpus y uno pide una respuesta. No hace falta ninguna llave: los proveedores deterministas
+corren sin conexión.
 
 ```
 git clone https://github.com/RonnieGex/cited.git
@@ -110,15 +112,17 @@ npm ci
 cp .env.example .env
 EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/
 EMBEDDINGS_PROVIDER=fake npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
+EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- "¿Cuánto cuesta una afinación de bicicleta?"
 npm run dev
 ```
 
-La plantilla del entorno trae todos los valores vacíos a propósito, así que los dos comandos del corpus llevan delante
-el proveedor determinista: `fake` corre sin conexión y no necesita llave. Para conservarlo toda la sesión, escribe
-`EMBEDDINGS_PROVIDER=fake` en `.env` una vez y quítalo de los comandos. El último comando sirve la aplicación en
-`http://localhost:3000`.
+La plantilla del entorno trae todos los valores vacíos a propósito, así que los tres comandos del corpus llevan delante
+los proveedores deterministas: `fake` corre sin conexión y no necesita llave, ni para los embeddings ni para el chat.
+Para conservarlo toda la sesión, escribe `EMBEDDINGS_PROVIDER=fake` y `CHAT_PROVIDER=fake` en `.env` una vez y
+quítalos de los comandos. El último comando sirve la aplicación en `http://localhost:3000`, y `POST /api/ask` es la
+misma respuesta por HTTP.
 
-La salida de los dos comandos, sobre el corpus de ejemplo:
+La salida de los tres comandos, sobre el corpus de ejemplo:
 
 ```
 $ EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/
@@ -126,7 +130,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 47 ms, rss 108 MB
 ```
 
 ```
@@ -149,11 +153,23 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 77 MB
+8 results, 6 ms, rss 74 MB
+```
+
+```
+$ EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- "¿Cuánto cuesta una afinación de bicicleta?"
+question: ¿Cuánto cuesta una afinación de bicicleta?
+store: .data/katalis.sqlite
+status: answered
+answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]
+citations:
+  [1] cafe-la-horquilla.md [Precios] position 2
+      Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
+citations 1, 36 ms, rss 95 MB
 ```
 
 El almacén vive en `.data/katalis.sqlite`, que git ignora. `docs/search.md` explica el esquema, el troceado y el
-ordenamiento.
+ordenamiento, y `docs/answering.md` el prompt, las citas, los proveedores y los guardas.
 
 ### Requisitos
 
@@ -176,15 +192,23 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `DATABASE_URL` | ruta del archivo libSQL local, `.data/katalis.sqlite` por defecto | sí |
 | `TURSO_DATABASE_URL` | URL de una base libSQL remota; gana sobre el archivo local | sí |
 | `TURSO_AUTH_TOKEN` | token de la base remota, obligatorio cuando la URL es remota | sí |
-| `ADMIN_PASSWORD` | contraseña del panel de administración, reservada | no |
-| `ADMIN_SESSION_SECRET` | secreto que firma la sesión del panel, reservado | no |
-| `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, reservado | no |
-| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credenciales de los proveedores de chat, reservadas para `pluggable-models-and-ask` | no |
-| `CHAT_MODEL`, `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | selección de modelo del chat y del agente, reservada | no |
-| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs, reservado | no |
-| `MAX_QUESTION_CHARS`, `RATE_LIMIT_PER_IP_PER_HOUR`, `DAILY_MODEL_CALL_LIMIT`, `DAILY_VOICE_MINUTE_LIMIT`, `MAX_ANSWER_TOKENS` | límites de gasto y protección contra abuso, reservados | no |
-| `CONVERSATION_RETENTION_DAYS` | días que se guarda una conversación, reservado | no |
-| `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, reservado | no |
+| `CHAT_PROVIDER` | el proveedor de chat de las respuestas: `openai`, `anthropic`, `gemini`, `deepseek`, `groq`, `openrouter`, `ollama`, `lmstudio` o `fake` | sí |
+| `CHAT_MODEL` | modelo opcional del proveedor de chat; sin él cada uno usa su default | sí |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` | la llave del proveedor de chat elegido, y de ningún otro | sí |
+| `LMSTUDIO_BASE_URL` | URL base de un LM Studio local, `http://localhost:1234/v1` por defecto | sí |
+| `MAX_QUESTION_CHARS` | la pregunta más larga que acepta la ruta, 1000 caracteres por defecto | sí |
+| `RATE_LIMIT_PER_IP_PER_HOUR` | las preguntas que una dirección puede hacer en una hora, 30 por defecto | sí |
+| `DAILY_MODEL_CALL_LIMIT` | las llamadas al modelo de un día UTC, 500 por defecto | sí |
+| `MAX_ANSWER_TOKENS` | el techo de tokens de una respuesta, 600 por defecto | sí |
+| `CONVERSATION_RETENTION_DAYS` | los días que se guarda una conversación, 30 por defecto | sí |
+| `TRUST_PROXY` | `1` lee la dirección del visitante de `x-forwarded-for`; sin él la cabecera no se confía | sí |
+| `ADMIN_SESSION_SECRET` | secreto que sala el hash de la dirección del visitante, y que firmará la sesión del panel | sí |
+| `ADMIN_PASSWORD` | contraseña del panel de administración, planificada en `admin-and-public-ui` | no |
+| `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, planificado en `elevenlabs-voice-agent` | no |
+| `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | modelo del agente de voz, planificado en `elevenlabs-voice-agent` | no |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs, planificada en `elevenlabs-voice-agent` | no |
+| `DAILY_VOICE_MINUTE_LIMIT` | los minutos de voz de un día, planificado en `elevenlabs-voice-agent` | no |
+| `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, planificado en `admin-and-public-ui` | no |
 
 Una fila marcada `no` es un nombre que el repositorio ya reserva y que ningún código lee todavía. Ninguna llave tiene
 valor en este repositorio, y git ignora `.env`.

@@ -1,0 +1,93 @@
+Contract written by Fable (2026-09-29). DeepSeek executes it and never edits the text of a task. A task is `[x]` only
+with evidence in its report (`reports/2026-09-29-step-N-<name>.md`): the exact command, the commit and the output.
+Evidence rule: every `[x]` needs a real report that supports it at archive time; a report in a later commit than its
+mark is recorded, not blocking, unless it is missing or contradicts the mark. Commit in small steps on
+`feature/pluggable-models-and-ask`: the commits are part of the implementer's work. The repository will be public: no
+secret, no customer data. No network call to a real provider in any test.
+
+## 0. Step 0: the branch
+
+- [x] 0.1 Work on `feature/pluggable-models-and-ask` in `katalis-dev/community`, created by Fable from `main`
+      `aa52b7c`; confirm branch and base; `npm ci` — report: `reports/2026-09-29-step-0-branch.md`
+
+## 1. The state of the base before
+
+- [x] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status` — report:
+      `reports/2026-09-29-step-1-base-before.md`
+- [x] 1.2 The state of the store: the tables that exist before, and proof that tests leave no store file behind —
+      report: `reports/2026-09-29-step-1-base-before.md`
+
+## 2. Tests first
+
+- [x] 2.1 Red tests for every scenario of `specs/answering/spec.md` with the fake provider — report:
+      `reports/2026-09-29-step-2-tests-first.md`
+
+## 3. Implementation in small steps
+
+- [x] 3.1 Providers and their licenses (decision 1) — report: `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.2 Prompt, citations and refusal (decisions 2 to 4) — report: `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.3 Guards, counters and conversations in the store (decision 5) — report:
+      `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.4 The route and the CLI (decisions 6 and 7) — report: `reports/2026-09-29-step-3-implementation.md`
+
+## 4. Review and update of the existing tests
+
+- [x] 4.1 The whole suite, including the README contract; say which test changed and why — report:
+      `reports/2026-09-29-step-4-existing-tests.md`
+
+## 5. Run the checks and the state of the store
+
+- [x] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+      `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD` —
+      report: `reports/2026-09-29-step-5-checks.md`
+- [x] 5.2 The tables of the store after the tests, their row counts, and no IP in clear — report:
+      `reports/2026-09-29-step-5-checks.md`
+
+## 6. Manual verification with curl
+
+- [x] 6.1 `npm run build && npm run start` with the fake providers and the sample corpus; `curl.exe` of `/api/ask` for:
+      an answered question with its citations, a refused one, 1001 characters (400), the 31st question of an IP (429 with
+      `Retry-After`), a missing key with `CHAT_PROVIDER=openai` (503 naming the variable) — report:
+      `reports/2026-09-29-step-6-curl.md`
+
+## 7. End-to-end
+
+- [x] 7.1 No page changes the behavior in this change; the existing E2E stays green — report:
+      `reports/2026-09-29-step-7-e2e.md`
+
+## 8. The state of the base after
+
+- [x] 8.1 Repeat 1.1 and 1.2 — report: `reports/2026-09-29-step-8-base-after.md`
+
+## 9. Documentation and the README
+
+- [x] 9.1 `docs/answering.md`: the flow, the prompt, the citations, the refusal, the providers and their variables and
+      licenses, the guards and their defaults, the IP hash; `.env.example` with `CHAT_PROVIDER`, `TRUST_PROXY` and the
+      defaults in comments — report: `reports/2026-09-29-step-9-docs.md`
+- [x] 9.2 The README, its Spanish twin and the graphics as design decision 8, with the modified requirement of
+      `project-readme` green — report: `reports/2026-09-29-step-9-docs.md`
+- [x] 9.3 The delivery `katalis-dev/tasks/entrega-community-05.md` in Spanish with `## Issues` — report:
+      `reports/2026-09-29-step-9-docs.md`
+
+## 10. What the review of Codex reproduced (contract amended by Fable after `revision-community-05`)
+
+The report of this section lives inside the change:
+`openspec/changes/pluggable-models-and-ask/reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix.
+
+- [x] 10.1 Blocker: remove `openspec/specs/answering/spec.md` and restore `openspec/specs/project-readme/spec.md` to its
+      text on `main`; the README test follows the amended scenario "Available means specified and merged"; show
+      `openspec archive pluggable-models-and-ask -y` succeeding on a throwaway clone of the branch (never on the
+      worktree) — report: the one of this section
+- [x] 10.2 Major 1: the last address of `X-Forwarded-For` with `TRUST_PROXY=1`, scenario "A forged forwarding header" —
+      report: the one of this section
+- [x] 10.3 Major 2: the atomic reservation of the daily limit, scenario "Concurrent questions at the daily limit" with a
+      barrier like the one of the review — report: the one of this section
+- [x] 10.4 Major 3: the escaped passages, scenario "A passage that closes its own delimiter", with the forged document
+      of the review as a fixture — report: the one of this section
+- [x] 10.5 Major 4: current defaults from the official pages the review cites (DeepSeek `deepseek-flash`), the table of
+      `docs/answering.md` with source and date, scenario "The defaults are current" — report: the one of this section
+- [x] 10.6 Minor 1: the `afterAll` of `tests/answer.test.ts` closes every client before it deletes, and `npm test` passes
+      five times in a row — report: the one of this section
+- [x] 10.7 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`, `npm run
+      test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round to
+      `katalis-dev/tasks/entrega-community-05.md` with `## Issues` — report: the one of this section
