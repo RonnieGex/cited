@@ -1,7 +1,8 @@
 # Knowledge search
 
-How Katalis Responde Community turns the documents of a business into passages and answers a question with the
-passages that come closest to it. This is change 2 of the approved plan: the core, before any chat, voice or page.
+How Cited turns the documents of a business into passages and finds the passages that come closest to a question.
+The answer that quotes them is **planned** in `pluggable-models-and-ask`; this is change 2 of the approved plan: the
+core, before any chat, voice or page.
 
 The module is deliberately lighter than the paid service: keyword ranking and vector similarity fused with Reciprocal
 Rank Fusion, with no reranker and no measured evaluation. Section 8 says what quality to expect.
@@ -93,7 +94,7 @@ The openai embeddings provider needs EMBEDDINGS_API_KEY. Fill it in the environm
 ```
 
 No test calls a real provider. The suite uses the fake provider and one HTTP double that listens on `127.0.0.1` and
-answers a recorded response, so the OpenAI-compatible path is exercised without leaving the machine.
+returns a recorded response, so the OpenAI-compatible path is exercised without leaving the machine.
 
 ## 4. Hybrid search
 
@@ -160,10 +161,10 @@ measured evaluation. What that means in practice:
 
 - A **keyword-only match always ranks**: a rare exact term pulls its passage into the results even when no other
   passage shares its meaning.
-- A **meaning-only match ranks when the embeddings are good**: the sample corpus answers a paraphrase with the
+- A **meaning-only match ranks when the embeddings are good**: the sample corpus responds to a paraphrase with the
   synthetic provider that ships for tests, but the real quality depends on the embeddings model of the installation.
   Bigger is usually better, and the paid service is better at this.
-- A small or one-topic corpus answers well; a large corpus with many similar documents needs an embeddings model of
+- A small or one-topic corpus works well; a large corpus with many similar documents needs an embeddings model of
   real quality. Choosing it is part of the installation, not of this code.
 
 ## 9. Tests

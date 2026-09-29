@@ -1,8 +1,8 @@
 {
-  "name": "katalis-responde-community",
+  "name": "cited",
   "version": "0.1.0",
   "private": true,
-  "description": "Free and forkable edition of Katalis Responde: a business answers with its own documents.",
+  "description": "Cited, by Katalis: a business answers with its own documents.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.15.0 <25.0.0"

@@ -1,4 +1,4 @@
-Sample corpus of Katalis Responde Community
+Sample corpus of Cited
 ===========================================
 
 These documents describe a fictional small business, Café La Horquilla, a café and bicycle

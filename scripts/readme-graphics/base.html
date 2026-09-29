@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cited graphic, {{THEME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" />
+    <style>
+      :root {
+        --background: {{BACKGROUND}};
+        --text: {{TEXT}};
+        --muted: {{MUTED}};
+        --muted-soft: {{MUTED_SOFT}};
+        --hairline: {{HAIRLINE}};
+        --panel: {{PANEL}};
+        --panel-strong: {{PANEL_STRONG}};
+        --card-fill: {{CARD_FILL}};
+        --card-border: {{CARD_BORDER}};
+        --card-shadow: {{CARD_SHADOW}};
+        --bar-background: {{BAR_BACKGROUND}};
+        --bar-text: {{BAR_TEXT}};
+        --bar-dot: {{BAR_DOT}};
+        --terminal-fill: {{TERMINAL_FILL}};
+        --terminal-border: {{TERMINAL_BORDER}};
+        --screen-text: {{SCREEN_TEXT}};
+        --hit-background: {{HIT_BACKGROUND}};
+        --hit-text: {{HIT_TEXT}};
+        --next-background: {{NEXT_BACKGROUND}};
+        --next-text: {{NEXT_TEXT}};
+        --next-border: {{NEXT_BORDER}};
+        --lime: {{LIME}};
+        --mark: {{MARK}};
+        --lime-edge: {{LIME_EDGE}};
+        --on-lime: {{ON_LIME}};
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: {{WIDTH}}px;
+        height: {{HEIGHT}}px;
+      }
+      body {
+        position: relative;
+        overflow: hidden;
+        background: {{BACKGROUND}};
+        color: {{TEXT}};
+        font-family: Outfit, "Segoe UI", Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .tone {
+        position: absolute;
+        inset: 0;
+        background: {{GLOW}};
+      }
+      .frame {
+        position: absolute;
+        inset: 0;
+        border: 1px solid {{HAIRLINE}};
+      }
+      {{STYLES}}
+    </style>
+  </head>
+  <body data-theme="{{THEME}}">
+    <div class="tone"></div>
+    <div class="frame"></div>
+    {{CONTENT}}
+  </body>
+</html>

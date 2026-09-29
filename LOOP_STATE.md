@@ -1,86 +1,69 @@
-# LOOP_STATE · Katalis Responde Community
+# LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: core-hybrid-search (OpenSpec)
-BRANCH: feature/core-hybrid-search
-BASE: 2e1e580 (main)
+CHANGE: cited-identity-and-readme (OpenSpec)
+ROUND: section 14, third review round (tasks 14.1 to 14.3)
+BRANCH: feature/cited-identity-and-readme
+BASE: 5dec3af (main)
+HEAD AT THE START OF THE ROUND: 387e2df
+HEAD AT THE END OF THE ROUND: 623a06a
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
 ## Objective
 
-Execute the review round of the contract `openspec/changes/core-hybrid-search/tasks.md`, section 10, written by Fable
-after the adversarial review `katalis-dev/tasks/revision-community-02.md` (0 Blockers, 3 Majors). The three Majors were
-reproduced first and corrected tests first, in small commits, each `[x]` with its report.
+Execute section 14 of `openspec/changes/cited-identity-and-readme/tasks.md`, the contract Fable wrote after
+`katalis-dev/tasks/revision-community-03c.md`: one Major (the test and the guard exclude the whole `demo` subtree of the
+records, so a present-tense promise in a demo field passes). Fable narrowed the exemption in the amended scenario: only
+the output lines captured verbatim from the real run of the quick start, the command lines and the lines they printed,
+are exempt; every other demo field is checked. Tests first and red, small commits, section 10 stays reserved for Fable.
 
-## What was delivered
+## What the round delivered
 
-- **10.1, Major 1**: `tests/ingest.test.ts` spies on `PDFParse#getText()` and proves zero calls for a PDF refused by
-  its page count. `parsePdf` asks `getInfo()` for the count first and only then extracts the text; `parseFile` passes
-  `limits.maxPages` down, so the check no longer runs after the extraction.
-- **10.2, Major 2**: `tests/store-remote.test.ts` doubles the libSQL client and covers both scenarios of the new
-  requirement: a remote URL with an empty `TURSO_AUTH_TOKEN` stops before a client exists, a remote URL with a token
-  creates the client with it as `authToken`, and a local `file:` URL needs none. `.env.example` and `docs/search.md`
-  name the variable and say when it is required.
-- **10.3, Major 3**: the keyword-only test uses `mantenimiento` (the keyword ranking puts its passage first and the
-  vector ranking does not) and the meaning-only test uses `¿Aceptan reprogramaciones gratuitas avisando
-  anticipadamente?` (the keyword ranking is empty). With the vector branch disabled only the meaning-only test fails;
-  with the keyword branch disabled only the keyword-only test fails; both pass with the real search. The step 3 and
-  step 4 reports whose figures contradicted the real corpus are corrected.
-- **10.4**: the battery is green on Windows and in a `node:24` Linux container with `--network none`; the round is
-  appended to `katalis-dev/tasks/entrega-community-02.md` under its own heading with `## Issues`.
+- **14.1** (`9853148`): the new scenario `reads every field of the demo but the lines the run printed` and the amended
+  assertion `keeps the state of a roadmap row and the captured run of the demo as the evidence`, both red. The whole
+  file printed `2 failed | 40 passed (42)` and named the fields. The guard, with the record mutated in memory, answered
+  `demo.caption: accepted` and `demo.drawn.ingest[0]: accepted` with exit 0: that was the defect.
+- **14.2** (`c7e7491`): the prefix exclusion of `demo` is gone from `honesty.mjs` and from `tests/readme.test.ts`. The
+  exemption is exact: the two command lines, the two captured outputs, and each drawn line only while it is a line of
+  its own capture. Every other text field of the record is read, `demo` included. `isCapturedOutput` is the single
+  predicate, `honesty.d.mts` declares it and the test imports it for `textRoutes` and `textFields`. The guard now
+  refuses both mutants and names the route, exit 1; the file is `42 passed (42)`, exit 0.
+- **14.3**: `npm test` 11 files and **114 tests** (113 before), `npm run typecheck` exit 0, `npm run lint` exit 0,
+  gitleaks 121 commits with no leaks, `openspec validate --all --strict` 5 passed and 0 failed,
+  `git diff --check main...HEAD` exit 0. Two file mutants (`demo.caption` and `demo.drawn.ingest[0]`) gave red and the
+  guard gave exit 1; the record was restored with `git checkout --` and the tree stayed clean. The round is appended to
+  `katalis-dev/tasks/entrega-community-03.md` under its own heading with `## Issues`, and the report is
+  `reports/2026-09-29-step-14-review-round.md`.
 
-The report with every command, commit and real output is
-`openspec/changes/core-hybrid-search/reports/2026-09-29-step-10-review-round.md`. The four boxes 10.1 to 10.4 are `[x]`
-and the diff of `tasks.md` is four `[ ]` converted into `[x]`: the text of no task was edited.
+## The boundary that stays exempt
+
+The capture fields are the evidence, so a promise inserted inside `demo.ingest.output` still passes the guard: it is
+accepted, exit 0. What refuses it is the test `draws the demo from the real run of the quick start`, red with exit 1,
+because the line is not in the quick start block of `README.md`. The exemption is closed over exact routes and over the
+published run for the output, and over exact routes and the content of its own capture for every drawn line. It is
+recorded as a RISK in the report and in the delivery: the guard alone cannot tell a captured line from a fabricated
+one.
 
 ## State of the tree
 
-The tree is clean on `feature/core-hybrid-search`. `main` still points at `2e1e580`, no remote was contacted, nothing
-was pushed and nothing was archived.
-
-## Commits of the round (all on feature/core-hybrid-search, none in main)
-
-| SHA | Message |
-|---|---|
-| `e033c8b` | chore(core-hybrid-search): open the review round of the contract |
-| `ee7f411` | test(core-hybrid-search): spy the pdf text extraction before the page limit |
-| `dc81a18` | fix(core-hybrid-search): refuse a pdf by its page count before extracting text |
-| `5eaed5f` | test(core-hybrid-search): prove a remote store needs and uses its token |
-| `ce205c5` | feat(core-hybrid-search): authenticate a remote libSQL store with its token |
-| `17a2989` | docs(core-hybrid-search): document the page count check and the store token |
-| `2435664` | test(core-hybrid-search): isolate the keyword-only and meaning-only rankings |
-| `c66d71a` | docs(core-hybrid-search): correct the corpus figures of the search reports |
-| `f119d0c` | docs(core-hybrid-search): report the review round of the contract |
-| `f79d62c` | chore(core-hybrid-search): mark the review round of the contract |
-
-The closing commit carries this state file; a commit cannot list its own hash, so the table stops at the ten commits of
-the work itself.
-
-## Closing battery
-
-Windows 11, Node `v24.11.0`, clean tree: `npm test` 10 files and 72 tests passed, `npm run typecheck`, `npm run lint`,
-`npm audit --audit-level=high` (0 vulnerabilities), `npm run secrets:scan` (62 commits, no leaks found),
-`openspec validate --all --strict` (4 passed) and `git diff --check main...HEAD` all exit 0. Linux x64, image
-`node@sha256:64af3819f9275802414d7cdc38c27e9d82bd564dec4d4da87d008255d36c63b4`, Node `v24.21.0`, native clone of the
-closing tree outside the repository: `npm ci` installed 496 packages with 0 vulnerabilities and `npm test` passed 10
-files and 72 tests with `--network none`.
+The tree is clean on `feature/cited-identity-and-readme`. `main` still points at `5dec3af`, no remote was contacted,
+nothing was pushed and nothing was archived. Section 14 carries its three boxes marked with the report of the round;
+section 10 stays untouched because it is Fable's.
 
 ## Hard rules respected
 
-- No `.env` file was opened: only the tracked template with empty values, which the task asks to keep updated.
+- No `.env` file was opened.
 - No push, no remote, no commit in `main`, no archive.
-- No call to a real provider and no call to Turso: the suite uses the deterministic fake provider, one HTTP double on
-  `127.0.0.1` and a doubled libSQL client module.
-- No secret, no client data and no text of the Construye book in any file; no personal path in any tracked file.
-- No `MEMORY.md` in any commit.
-- UTF-8 with LF in every file written or modified; `git ls-files --eol` reports no CRLF and no mixed ending.
+- No call to a real provider and no call to Turso: the deterministic `fake` provider ran every command.
+- No secret, no customer data and no text of the Construye book in any commit.
+- `MEMORY.md` is in no commit.
+- UTF-8 with LF in every file written or modified.
 
 ## Pending and out of scope
 
-- **NOT DONE**: the GitHub pipeline, because a push is forbidden here; the equivalent battery ran locally on Windows
-  and in the disposable `node:24` container.
-- **NOT DONE, reserved for Fable and Codex**: the independent confirmation of the three Majors, the archive of the
-  change and its merge. Archiving needs the explicit OK of Franc.
-- **UNKNOWN**: the behaviour of a real Turso database (the contract of the client is proved with a double, never the
-  network) and the quality of a real embeddings provider on a real corpus, which the plan already names as a risk.
+- **NOT DONE, reserved for Fable**: section 10 of the contract (rename the GitHub repository to `cited`, update the
+  remote and prove that the old URL redirects), the adversarial review of this round, the merge and the archive.
+- **NOT DONE**: the GitHub pipeline itself, because a push is forbidden here.
+- **UNKNOWN**: the verdict of the next review on the exact exemption, the state of the badge and of the redirect after
+  10.1, and how GitHub renders the documentation that changed.

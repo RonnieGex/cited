@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Katalis Responde Community",
+  title: "Cited",
   description:
-    "Free and forkable edition of Katalis Responde: a business answers with its own documents.",
+    "Cited, by Katalis: ask your own documents and get the passage and where it came from.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

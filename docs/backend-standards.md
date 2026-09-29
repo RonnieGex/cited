@@ -1,5 +1,5 @@
 ---
-description: Backend standards for Katalis Responde Community. Next.js route handlers, libSQL, Vercel AI SDK, server-only configuration.
+description: Backend standards for Cited. Next.js route handlers, libSQL, Vercel AI SDK, server-only configuration.
 alwaysApply: true
 ---
 
@@ -33,11 +33,12 @@ alwaysApply: true
 - A route handler validates its input before it uses it: body, query and headers are parsed with a schema, never read
   from `unknown` with a cast.
 - The public answer route is the only endpoint a stranger can call. It carries a per-IP limit, a daily cap of model
-  calls, a cap of tokens per answer and a maximum question length of 1000 characters.
+  calls, a cap of tokens per answer and a maximum question length of 1000 characters. **Planned** in
+  `pluggable-models-and-ask`.
 - The administration session is an `httpOnly`, `secure` and `sameSite` cookie, with a limit on access attempts.
 - The voice tool route requires its own Bearer secret of the installation; a signed URL is requested from the server
   and expires in 15 minutes.
-- Errors answer with a status and a short message. A stack trace, a key or an internal path never reaches the client.
+- Errors return a status and a short message. A stack trace, a key or an internal path never reaches the client.
 
 ## 4. Data
 

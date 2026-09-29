@@ -1,120 +1,207 @@
-# Katalis Responde Community
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/readme-banner-dark.png">
+    <img src="docs/images/readme-banner-light.png" alt="Cited, by Katalis: ask your own documents and get the passage and where it came from" width="1280">
+  </picture>
+</h1>
 
-Free and forkable edition of Katalis Responde. A business forks this repository, fills in its own information and its
-own API keys, and answers its customers with citations from its own documents: a page of questions, a widget for its
-site and a voice agent.
+<p align="center">Ask your own documents. Get the passage and where it came from.</p>
 
-**Under construction.** This repository carries the bootstrap only: the OpenSpec workspace, the standards, a Next.js
-16 application with one page, the license, the threat model and a blocking pipeline. The knowledge store, the model
-providers, the administration panel, the public page, the widget and the voice agent arrive in the next changes.
-Nothing in this repository is a finished product yet.
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Node 24.15 or newer](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](package.json)
+[![TypeScript in strict mode](https://img.shields.io/badge/TypeScript-strict-3178c6)](https://www.typescriptlang.org/)
+[![libSQL as the store](https://img.shields.io/badge/store-libSQL-4b8bbe)](https://github.com/tursodatabase/libsql)
+![Status: early development](https://img.shields.io/badge/status-early%20development-orange)
+[![Continuous integration](https://github.com/RonnieGex/cited/actions/workflows/ci.yml/badge.svg)](https://github.com/RonnieGex/cited/actions/workflows/ci.yml)
 
-## What it is and what it is not
+[English](README.md) · [Español](README.es.md)
 
-**It is** the light edition. One business per installation, its own keys, its own documents. Easy to fork, easy to
-run, easy to deploy.
+**Cited is in early development and not ready for production.** What you can run today is the core: it turns a
+folder of documents into citable passages and finds them again with a hybrid search. Read the [status table](#status)
+before you promise anything to anyone.
 
-**It is not** the paid service. It carries no several businesses per installation, no agency panel, no payment
-integrations and no measured evaluation. It is deliberately lighter than the production service, and that difference
-is the business model.
+## Why Cited
 
-## Requirements
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited reads only the documents you point it at" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Every passage of Cited carries its document, its heading and its position" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voice with ElevenLabs, planned for the next change" width="400"></picture> |
+|---|---|---|
 
-- Node 24, never older than 24.15 (`.nvmrc`, `engines`)
-- npm 11 or newer
-- gitleaks, for the commit hook
-- Playwright Chromium, for the browser tests
+1. **Only your documents.** Ingestion reads the files you point it at, and nothing else: no web, no model memory,
+   nothing invented.
+2. **Every passage keeps its source.** Document, heading and position travel with the text, so a reader can open the
+   document and land on the passage instead of trusting a summary.
+3. **Talk to it.** Retrieval and search return passages in text today; talking to the same documents with ElevenLabs
+   arrives in a later change, and the card that shows it says `Next` for that reason.
+
+## Status
+
+Every row is either available today or planned, and each planned row names the change that delivers it.
+
+| Capability | State | Spec or change |
+|---|---|---|
+| Ingestion of PDF, DOCX, Markdown and text with limits | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Hybrid search: full text and vectors, fused with Reciprocal Rank Fusion | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Embeddings through an OpenAI-compatible API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Local libSQL file or Turso | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Answers with citations from any model provider, spend limits | Planned | `pluggable-models-and-ask` |
+| Admin panel, public page and widget in Spanish and English | Planned | `admin-and-public-ui` |
+| Voice agent with ElevenLabs, created in one click | Planned | `elevenlabs-voice-agent` |
+| Shared design system | Planned | `design-system-shared` |
+| Security hardening and abuse tests | Planned | `security-hardening` |
+| Deployed in one click, with a Docker image and bilingual docs | Planned | `docs-deploy-and-launch` |
+
+## How it works
+
+**From a folder of documents to a cited passage.**
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL and Reciprocal Rank Fusion, with the answer marked Next" width="1280"></picture>
+
+<details>
+<summary>The same flow as a text diagram</summary>
+
+```mermaid
+flowchart LR
+  A[Ingest: PDF, DOCX, MD, TXT] --> B[Passages with their heading]
+  B --> C[libSQL: FTS5 and native vectors]
+  C --> D[Reciprocal Rank Fusion]
+  D --> E[Answer with numbered citations (next)]
+  D --> F[Web widget (next)]
+  D --> G[Voice agent (next)]
+```
+
+</details>
+
+## See it work
+
+**Ask a question. Get the passage and where it came from.**
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/demo-dark.png"><img src="docs/images/demo-light.png" alt="A real run of the quick start of Cited: ingestion and one search" width="1280"></picture>
+
+The image is drawn by `scripts/render-readme-graphics.mjs` from the output of the commands in the quick start, so it
+cannot show a result the code does not produce.
+
+## Roadmap
+
+**What runs today, and what comes next.**
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/roadmap-dark.png"><img src="docs/images/roadmap-light.png" alt="The roadmap of Cited: what is available today and what each next change adds" width="1280"></picture>
+
+The changes of the plan arrive in this order: the shared design system, then drafting an answer and numbering its
+citations, then the panel and the public page, then the voice with ElevenLabs, then the hardening, then the deploys
+and the docs.
+
+## Voice
+
+**Talk to your documents.**
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/voice-teaser-dark.png"><img src="docs/images/voice-teaser-light.png" alt="Voice agent of Cited, planned for the ElevenLabs change" width="1280"></picture>
+
+`elevenlabs-voice-agent` is planned, not built: it is marked `Next` in every graphic that shows it.
 
 ## Quick start
 
+One command ingests the sample corpus and one command searches it. No key is needed: the deterministic provider runs
+offline.
+
 ```
+git clone https://github.com/RonnieGex/cited.git
+cd cited
 npm ci
-npm run hooks:install
-npx playwright install chromium
+cp .env.example .env
+EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/
+EMBEDDINGS_PROVIDER=fake npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
 npm run dev
 ```
 
-The application answers on `http://localhost:3000`. The commands, the ports and the environment files are in
-`docs/development-guide.md`.
+The template of the environment has every value empty on purpose, so the two commands of the corpus carry the
+deterministic provider in front: `fake` runs offline and needs no key. To keep it for the whole session, write
+`EMBEDDINGS_PROVIDER=fake` in `.env` once and drop it from the commands. The last command serves the app on
+`http://localhost:3000`.
 
-## Checks
+The output of the two commands, on the sample corpus:
 
 ```
-npm run typecheck
-npm run lint
-npm test
-npm run build
-npm run test:e2e
-npm run audit:high
-npm run secrets:scan
-npm run openspec:validate
+$ EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/
+ingested README.txt (txt, no pages, 1 passages)
+ingested bike-workshop-policies.md (md, no pages, 5 passages)
+ingested cafe-la-horquilla.md (md, no pages, 4 passages)
+ingested notas-del-negocio.txt (txt, no pages, 1 passages)
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB
 ```
 
-Every one of them is blocking in `.github/workflows/ci.yml`. CodeQL, Dependabot and the secret scan over the full
-history run in the pipeline too.
+```
+$ EMBEDDINGS_PROVIDER=fake npm run search -- "¿Cuánto cuesta una afinación de bicicleta?"
+question: ¿Cuánto cuesta una afinación de bicicleta?
+store: .data/katalis.sqlite
+1. cafe-la-horquilla.md [Precios] position 2 score 0.032522
+   Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
+2. cafe-la-horquilla.md [Políticas] position 3 score 0.032522
+   Políticas Aceptamos efectivo y tarjeta. El taller recibe bicicletas hasta una hora antes del cierre. Si una reparación necesita refacciones, avisamos por teléfono antes de empezar.
+3. notas-del-negocio.txt [no heading] position 0 score 0.031746
+   Café La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferenci
+4. cafe-la-horquilla.md [Café La Horquilla] position 0 score 0.030331
+   Café La Horquilla Somos un café y taller de bicicletas en el centro de la ciudad. Abrimos de martes a domingo.
+5. bike-workshop-policies.md [Guarantee] position 4 score 0.015625
+   Guarantee Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number.
+6. bike-workshop-policies.md [Bookings and cancellations] position 1 score 0.015385
+   Bookings and cancellations A repair booking is free. Cancel or move your appointment at least 24 hours before the agreed time and there is no charge. A late cancellation costs 50 pesos, and a dropped appointment costs the full estimate.
+7. bike-workshop-policies.md [Groups and events] position 3 score 0.015152
+   Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
+8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
+   Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
+8 results, 6 ms, rss 77 MB
+```
 
-## How the work is done
+The store lives in `.data/katalis.sqlite`, which git ignores. `docs/search.md` explains the schema, the chunking and
+the ranking.
 
-The specification comes before the code. Every change is an OpenSpec change with `proposal.md`,
-`specs/<capability>/spec.md`, `design.md` and `tasks.md`, and its evidence in
-`openspec/changes/<change>/reports/`. The rules are in `docs/katalis-sdd-standard.md` and
-`docs/openspec-tasks-mandatory-steps.md`.
+### Requirements
+
+- Node 24, never older than 24.15 (`.nvmrc`, `engines`)
+- npm 11 or newer
+- gitleaks for the commit hook, and Playwright Chromium for the browser tests, only if you contribute
+
+## Configuration
+
+The variables the owner sets, what each one is for, and whether the code reads it today.
+
+| Variable | What it is for | Read today |
+|---|---|---|
+| `EMBEDDINGS_PROVIDER` | the embeddings provider: `openai`, `ollama` or `fake` | yes |
+| `EMBEDDINGS_BASE_URL` | base URL of the OpenAI-compatible embeddings API | yes |
+| `EMBEDDINGS_MODEL` | name of the embeddings model | yes |
+| `EMBEDDINGS_API_KEY` | key of the embeddings provider | yes |
+| `EMBEDDINGS_DIMENSIONS` | optional override of the vector size of the provider | yes |
+| `OLLAMA_BASE_URL` | base URL of a local Ollama, `http://localhost:11434` by default | yes |
+| `DATABASE_URL` | path of the local libSQL file, `.data/katalis.sqlite` by default | yes |
+| `TURSO_DATABASE_URL` | URL of a remote libSQL database; it wins over the local file | yes |
+| `TURSO_AUTH_TOKEN` | token of the remote database, required when the URL is remote | yes |
+| `ADMIN_PASSWORD` | password of the administration panel, reserved | no |
+| `ADMIN_SESSION_SECRET` | secret that signs the administration session, reserved | no |
+| `VOICE_TOOL_SECRET` | secret the voice tool expects in its Bearer token, reserved | no |
+| `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credentials of the chat providers, reserved for `pluggable-models-and-ask` | no |
+| `CHAT_MODEL`, `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | model selection of the chat and of the agent, reserved | no |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs, reserved | no |
+| `MAX_QUESTION_CHARS`, `RATE_LIMIT_PER_IP_PER_HOUR`, `DAILY_MODEL_CALL_LIMIT`, `DAILY_VOICE_MINUTE_LIMIT`, `MAX_ANSWER_TOKENS` | spend limits and abuse protection, reserved | no |
+| `CONVERSATION_RETENTION_DAYS` | days a conversation is kept, reserved | no |
+| `ALLOWED_ORIGINS` | origins allowed to embed the widget, reserved | no |
+
+A row marked `no` is a name the repository already reserves and no code reads yet. No key has a value in this
+repository, and `.env` is ignored by git.
 
 ## Security
 
-The threat model is `docs/security.md`, a living document. A vulnerability is reported privately, as `SECURITY.md`
-says, never in a public issue.
+Keys live only in the environment of the server. They never reach the browser and they are never stored in the
+database. The threat model is `docs/security.md`; a vulnerability is reported privately, as `SECURITY.md` says, never
+in a public issue. The repository has carried no commercially licensed font file since its first commit.
 
-## License
+## Contributing
 
-Apache License 2.0, with a `NOTICE` file that carries the attribution: **Built by Katalis (https://katalis.dev)**.
-A fork keeps that notice, which is how the license works and how the project travels.
+Cited is specified before it is coded: every change is an OpenSpec change with a proposal, its spec deltas, a design
+and a task list with its evidence. Read `docs/katalis-sdd-standard.md` and
+`docs/openspec-tasks-mandatory-steps.md`, then `CONTRIBUTING.md`.
 
-No commercially licensed font file is part of this repository. The design system arrives in change 1 with a free
-font.
-
----
-
-# Katalis Responde Community (español)
-
-Edición gratuita y forkeable de Katalis Responde. Un negocio hace fork de este repositorio, mete su propia
-información y sus propias llaves de API, y responde a sus clientes con citas de sus propios documentos: una página de
-preguntas, un widget para su sitio y un agente de voz.
-
-**En construcción.** Este repositorio trae solamente el arranque: el espacio de OpenSpec, los estándares, una
-aplicación Next.js 16 con una página, la licencia, el modelo de amenazas y una pipeline bloqueante. El almacén de
-conocimiento, los proveedores de modelo, el panel de administración, la página pública, el widget y el agente de voz
-llegan en los siguientes cambios. Nada de este repositorio es todavía un producto terminado.
-
-## Qué es y qué no es
-
-**Es** la edición ligera. Un negocio por instalación, sus llaves, sus documentos. Fácil de forkear, de correr y de
-desplegar.
-
-**No es** el servicio de pago. No lleva varios negocios por instalación, ni panel de agencia, ni integraciones de
-pago, ni evaluación medida. Es a propósito más liviana que el servicio de producción, y esa diferencia es el modelo
-de negocio.
-
-## Requisitos
-
-- Node 24, nunca anterior a 24.15 (`.nvmrc`, `engines`)
-- npm 11 o superior
-- gitleaks, para el gancho de commit
-- Chromium de Playwright, para las pruebas de navegador
-
-## Arranque rápido
-
-```
-npm ci
-npm run hooks:install
-npx playwright install chromium
-npm run dev
-```
-
-La aplicación responde en `http://localhost:3000`. Los comandos, los puertos y los archivos de entorno están en
-`docs/development-guide.md`.
-
-## Comprobaciones
+Before a pull request, run the same checks the pipeline runs:
 
 ```
 npm run typecheck
@@ -127,24 +214,15 @@ npm run secrets:scan
 npm run openspec:validate
 ```
 
-Todas son bloqueantes en `.github/workflows/ci.yml`. CodeQL, Dependabot y el escaneo de secretos sobre todo el
-historial también corren en la pipeline.
+## License
 
-## Cómo se trabaja
+Apache-2.0, with a [LICENSE](LICENSE) file and a [NOTICE](NOTICE) file that carries the attribution. A fork keeps the
+notice.
 
-La especificación va antes que el código. Cada cambio es un cambio de OpenSpec con `proposal.md`,
-`specs/<capacidad>/spec.md`, `design.md` y `tasks.md`, y su evidencia en `openspec/changes/<cambio>/reports/`. Las
-reglas están en `docs/katalis-sdd-standard.md` y `docs/openspec-tasks-mandatory-steps.md`.
+<br>
 
-## Seguridad
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/katalis-logo-dark.png"><img src="docs/images/katalis-logo.png" alt="Katalis" height="64"></picture>
+</p>
 
-El modelo de amenazas es `docs/security.md`, un documento vivo. Una vulnerabilidad se reporta en privado, como dice
-`SECURITY.md`, nunca en un issue público.
-
-## Licencia
-
-Apache License 2.0, con un archivo `NOTICE` que lleva la atribución: **Built by Katalis (https://katalis.dev)**. Un
-fork conserva ese aviso, así funciona la licencia y así viaja el proyecto.
-
-Ningún archivo de fuente con licencia comercial es parte de este repositorio. El design system llega en el cambio 1
-con una fuente libre.
+<p align="center"><a href="https://katalis.dev">Built by Katalis</a></p>

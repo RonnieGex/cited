@@ -1,6 +1,6 @@
 # Security
 
-Living document. It describes the threat model of Katalis Responde Community and the state of each control. The
+Living document. It describes the threat model of Cited and the state of each control. The
 hardening change (`security-hardening`) reviews this document; every change that touches one of these areas updates
 the row it owns, and no row is written as done before it is verified.
 

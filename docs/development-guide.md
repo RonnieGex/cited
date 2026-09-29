@@ -1,6 +1,6 @@
 # Development guide
 
-Local commands, ports and environment files of Katalis Responde Community.
+Local commands, ports and environment files of Cited.
 
 ## 1. Requirements
 
@@ -41,6 +41,17 @@ is missing. Without it, a commit with a secret is not scanned.
 | `npm run openspec:validate` | `openspec validate --all --strict` |
 
 Every one of these commands is blocking in the pipeline, except `dev`, `test:watch` and `hooks:install`.
+
+Three more commands are only needed when the README or its corpus changes:
+
+| Command | What it does |
+|---|---|
+| `npm run ingest -- samples/` | fills the local store with the sample corpus (needs `EMBEDDINGS_PROVIDER`) |
+| `node scripts/render-readme-banner.mjs` | renders the two banners and their record |
+| `node scripts/render-readme-graphics.mjs` | renders the nine graphics, their record and the quick start of both READMEs |
+
+The two render scripts need Chromium, and the banner needs network access to Google Fonts for the Outfit family.
+`docs/readme-assets.md` explains them, their templates and the size budget of `docs/images/`.
 
 ## 4. Ports
 
