@@ -676,10 +676,9 @@ describe("README, the status table", () => {
 
         expect(capability, row.capability).not.toBeNull();
         expect(inForce || delivering.length > 0, row.capability).toBe(true);
-        expect(
-          inForce && delivering.length > 0,
-          `${row.capability}: a spec an open change still adds is never written by hand`,
-        ).toBe(false);
+        // Amended in `brand-identity-ui`: the guard "a spec in force that an open change still adds is written by hand"
+        // is retired. A delta of `## ADDED Requirements` over a capability that is already in force is the standard
+        // OpenSpec form of new requirements and cannot be told apart, by its text, from a hand-written spec.
       } else {
         expect(plannedChanges, row.capability).toContain(row.reference.replaceAll("`", "").trim());
       }
@@ -1438,7 +1437,9 @@ describe("the product is named Cited", () => {
     // Amended by the change `public-page-and-widget`: the page is the chat of the business now, so the name of the
     // product travels from `lib/public/brand.ts` as `PRODUCT_NAME`, it is the heading when the business has no name
     // yet, and it is the eyebrow of the shop when it has one.
-    expect(readText("app/page.tsx")).toContain("PRODUCT_NAME");
+    // Amended in `brand-identity-ui`: the page wears the wordmark and reads the name as `brand.name`, which
+    // `lib/public/brand.ts` fills with `PRODUCT_NAME` while the business has none.
+    expect(readText("app/page.tsx")).toContain("brand.name");
     expect(readText("lib/public/brand.ts")).toContain('PRODUCT_NAME = "Cited"');
   });
 

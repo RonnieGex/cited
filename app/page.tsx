@@ -50,17 +50,19 @@ export default async function Home() {
                 className="h-12 w-auto shrink-0"
               />
             ) : null}
-            {brand.branded ? (
-              <h1 className="min-w-0 break-words text-[32px] font-bold leading-[1.1] tracking-[-0.02em] lg:text-[40px]">
-                {brand.name}
-              </h1>
-            ) : (
-              <>
-                <h1 className="sr-only">{brand.name}</h1>
-                <span aria-hidden="true">
-                  <Wordmark size="lg" tone="ink" />
-                </span>
-              </>
+            <h1
+              className={
+                brand.branded
+                  ? "min-w-0 break-words text-[32px] font-bold leading-[1.1] tracking-[-0.02em] lg:text-[40px]"
+                  : "sr-only"
+              }
+            >
+              {brand.name}
+            </h1>
+            {brand.branded ? null : (
+              <span aria-hidden="true">
+                <Wordmark size="lg" tone="ink" />
+              </span>
             )}
           </div>
           <LanguageSwitch current={brand.lang} tone={brand.branded ? "brand" : "ink"} />
