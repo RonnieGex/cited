@@ -61,3 +61,24 @@ SDK used by the E2E SHALL never be part of a production build.
 
 - **WHEN** `npm run build` runs after an E2E build
 - **THEN** no marker of the test SDK is present in the output, checked by a script that fails the build
+
+### Requirement: Voice works under the page's own security policy
+
+Every script, worklet and audio processor the voice panel needs SHALL be served from the application's own origin, so
+the Content Security Policy never needs a third-party script host; the policy SHALL allow only the ElevenLabs
+connections the implemented session actually uses.
+
+#### Scenario: A device that needs sample-rate conversion
+
+- **WHEN** the voice session starts on a device whose audio sample rate differs from the agent's
+- **THEN** the resampler loads from the application's own origin and no request goes to a CDN
+
+### Requirement: The minute cap never lets a session exceed it
+
+A voice session SHALL start only when its reservation of five minutes keeps the reserved total of the UTC day within
+`DAILY_VOICE_MINUTE_LIMIT`; a limit below five SHALL allow no session and the panel SHALL say so.
+
+#### Scenario: A limit of three minutes
+
+- **WHEN** `DAILY_VOICE_MINUTE_LIMIT=3` and a visitor starts a voice session
+- **THEN** `/api/voice/signed-url` answers `429` and no signed URL is requested

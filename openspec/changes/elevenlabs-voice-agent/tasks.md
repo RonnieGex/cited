@@ -63,3 +63,21 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
       the README status row, a capture and a short section; the Spanish twin — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-09.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
+
+## 10. What the review of Codex reproduced (contract amended by Fable after `revision-community-09`)
+
+Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix.
+
+- [ ] 10.1 Major (a gap of Fable's contract): the state of the store before and after this change, recorded as the
+      standard requires (the tables and their row counts, and the new voice tables empty before and as expected after),
+      with the exact commands — report: the one of this section
+- [ ] 10.2 Major: the resampler and any worklet of the SDK served from the application's own origin, configured in the
+      SDK, with a test that fails if a CDN host is requested (requirement "Voice works under the page's own security
+      policy") — report: the one of this section
+- [ ] 10.3 Major: the minute cap as amended (requirement "The minute cap never lets a session exceed it"), and the panel
+      saying that a limit below five allows no session — report: the one of this section
+- [ ] 10.4 Minor: the policy trimmed to what the implemented session uses (`connect-src` and `media-src`), with the
+      reason of each directive left — report: the one of this section
+- [ ] 10.5 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+      `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
+      to `katalis-dev/tasks/entrega-community-09.md` with `## Issues` — report: the one of this section
