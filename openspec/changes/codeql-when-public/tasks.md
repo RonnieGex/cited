@@ -16,13 +16,13 @@ blocking, unless the evidence is missing or contradicts the mark. Reports: `repo
 
 ## 2. Tests first
 
-- [ ] 2.1 The workflow contract test for `codeql.yml` written or extended first and run red: it requires the condition
+- [x] 2.1 The workflow contract test for `codeql.yml` written or extended first and run red: it requires the condition
       of the design on the analysis job and unchanged languages, queries, triggers and permissions — report:
       `reports/2026-09-29-step-2-tests-first.md`
 
 ## 3. Implementation
 
-- [ ] 3.1 The one-line condition in `codeql.yml`; the test green — report: `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.1 The one-line condition in `codeql.yml`; the test green — report: `reports/2026-09-29-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests
 
