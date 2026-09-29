@@ -52,7 +52,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 7. End-to-end
 
-- [ ] 7.1 No page changes the behavior in this change; the existing E2E stays green — report:
+- [x] 7.1 No page changes the behavior in this change; the existing E2E stays green — report:
       `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
