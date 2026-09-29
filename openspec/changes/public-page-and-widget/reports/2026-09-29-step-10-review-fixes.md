@@ -310,7 +310,7 @@ served by `npm run start` with the deterministic providers:
 | `npm run lint` | exit 0, no findings |
 | `npm run test:e2e` | **15 tests, 0 failures**; axe 0 violations on `/` (24 rules), `/embed` (23) and `/kit` (21) |
 | `node scripts/build-widget.mjs` | `public/widget.js`, **2466 bytes** (the bound is 5120) |
-| `npm run secrets:scan` | 245 commits, 2.65 MB, `no leaks found` |
+| `npm run secrets:scan` | 246 commits, 2.66 MB, `no leaks found` |
 | `openspec validate --all --strict` | 9 passed, 0 failed (9 items) |
 | `git diff --check main...HEAD` | exit 0 |
 

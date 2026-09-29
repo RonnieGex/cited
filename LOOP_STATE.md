@@ -46,7 +46,7 @@ each fix, reproducing exactly what the review reproduced, and only then repeat t
 - `npm run test:e2e`: 15 tests green (12 before), axe 0 violations on `/` (24 rules), `/embed` (23) and `/kit` (21).
 - `npm run typecheck`, `npm run lint`, `openspec validate --all --strict` (9 items), `git diff --check main...HEAD` and
   `node scripts/build-widget.mjs` (2466 bytes), all clean.
-- gitleaks: 245 commits, 2.65 MB, `no leaks found`.
+- gitleaks: 246 commits, 2.66 MB, `no leaks found`.
 
 ## The issues that stay open
 
