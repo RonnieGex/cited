@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { afterAll, describe, expect, it } from "vitest";
+import { NextRequest } from "next/server";
 import { proxy } from "@/proxy";
 import { guardRequest, guardSession, missingAdminVariables } from "@/lib/admin/guard";
 import { SESSION_COOKIE, sessionToken } from "@/lib/admin/session";
@@ -162,7 +163,7 @@ describe("the guard of the panel", () => {
 
     setEnvironment({ ...short });
 
-    const page = proxy();
+    const page = proxy(new NextRequest("http://localhost/admin"));
 
     expect(page.status).toBe(503);
 
@@ -171,5 +172,10 @@ describe("the guard of the panel", () => {
     expect(text).toContain("ADMIN_PASSWORD");
     expect(text).toContain("16");
     expect(text).not.toContain(short.ADMIN_PASSWORD);
+
+    const home = proxy(new NextRequest("http://localhost/"));
+
+    expect(home.status).toBe(200);
+    expect(home.headers.get("content-security-policy")).toContain("frame-ancestors 'self'");
   });
 });

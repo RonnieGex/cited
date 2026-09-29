@@ -120,6 +120,7 @@ const artDirection = {
   canvases: [
     "readme-banner-dark.png",
     "readme-banner-light.png",
+    "chat-page.png",
     "reason-sources-dark.png",
     "reason-sources-light.png",
     "reason-citations-dark.png",
@@ -149,6 +150,7 @@ const artDirection = {
   ],
   lightCanvases: [
     "readme-banner-light.png",
+    "chat-page.png",
     "reason-sources-light.png",
     "reason-citations-light.png",
     "reason-voice-light.png",
@@ -661,7 +663,9 @@ describe("README, the status table", () => {
 
     expect(rows.length).toBeGreaterThanOrEqual(4);
     expect(rows.filter((row) => row.state === "Available").length).toBeGreaterThanOrEqual(4);
-    expect(rows.filter((row) => row.state === "Planned").length).toBeGreaterThanOrEqual(5);
+    // The integration of `public-page-and-widget` with `admin-panel-and-onboarding` moved the two rows of those lanes
+    // from Planned to Available, so the floor of the planned rows follows the table that is left.
+    expect(rows.filter((row) => row.state === "Planned").length).toBeGreaterThanOrEqual(4);
 
     for (const row of rows) {
       if (row.state === "Available") {
@@ -1431,15 +1435,19 @@ describe("the product is named Cited", () => {
     expect(manifest.name).toBe("cited");
     expect((readText("NOTICE").split("\n")[0] ?? "").trim()).toBe("Cited");
     expect(readText("app/layout.tsx")).toContain("Cited");
-    expect(readText("app/page.tsx")).toContain("Cited");
+    // Amended by the change `public-page-and-widget`: the page is the chat of the business now, so the name of the
+    // product travels from `lib/public/brand.ts` as `PRODUCT_NAME`, it is the heading when the business has no name
+    // yet, and it is the eyebrow of the shop when it has one.
+    expect(readText("app/page.tsx")).toContain("PRODUCT_NAME");
+    expect(readText("lib/public/brand.ts")).toContain('PRODUCT_NAME = "Cited"');
   });
 
-  it("keeps the home page as one main element with one heading that names Cited and nothing else", () => {
+  it("keeps the home page as one main element with one heading and the chat of the business", () => {
     const page = readText("app/page.tsx");
 
     expect(times(page, "<main")).toBe(1);
     expect(times(page, "<h1")).toBe(1);
-    expect(page).toContain("<h1>Cited</h1>");
-    expect(page).not.toMatch(/className|<p|<section|<div/);
+    expect(page).toContain("<Chat");
+    expect(page).toContain("bg-paper");
   });
 });

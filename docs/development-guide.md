@@ -34,7 +34,7 @@ is missing. Without it, a commit with a secret is not scanned.
 | `npm run lint` | ESLint over the repository |
 | `npm test` | Vitest in run mode |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright; it builds and starts the app on port 3100 by itself |
+| `npm run test:e2e` | Playwright; it builds the application and starts it twice, the public page on port 3100 and the panel on port 3213 |
 | `npm run audit:high` | `npm audit --audit-level=high` |
 | `npm run secrets:scan` | gitleaks over the whole history |
 | `npm run hooks:install` | installs the local git hooks |

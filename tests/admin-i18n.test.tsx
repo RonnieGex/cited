@@ -6,29 +6,27 @@ import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
-const header =
-  "// Stand-in until public-page-and-widget merges; Fable replaces it with the owner's file";
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("the stand-in of the shared language module", () => {
-  it("carries the head and the interface of the decision of design.md", () => {
+describe("the shared language module", () => {
+  it("is the owner's module of the public page, with the interface the panel uses", () => {
     const language = readFileSync(resolve(repositoryRoot, "lib/i18n/language.ts"), "utf8");
     const switchFile = readFileSync(
       resolve(repositoryRoot, "components/i18n/LanguageSwitch.tsx"),
       "utf8",
     );
 
-    expect(language.split("\n")[0]).toBe(header);
-    expect(switchFile.split("\n")[0]).toBe(header);
+    expect(language).not.toContain("Stand-in until");
+    expect(switchFile).not.toContain("Stand-in until");
     expect(language).toContain('export const LANG_COOKIE = "cited-lang"');
     expect(language).toContain("export function resolveLang(");
     expect(switchFile).toContain("aria-pressed");
     expect(switchFile).toContain("English");
     expect(switchFile).toContain("Español");
-    expect(switchFile).toContain("samesite=lax");
+    expect(switchFile).toContain("langCookie");
   });
 
   it("answers the language of the cookie with the fallback of the panel", () => {
@@ -38,7 +36,7 @@ describe("the stand-in of the shared language module", () => {
     expect(resolveLang("en", "es")).toBe("en");
     expect(resolveLang("fr", "en")).toBe("en");
     expect(resolveLang("", "en")).toBe("en");
-    expect(resolveLang("ES", "en")).toBe("en");
+    expect(resolveLang("ES", "en")).toBe("es");
   });
 
   it("renders English first and writes the cookie of the choice", () => {

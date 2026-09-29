@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
-import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
+import { LANG_COOKIE } from "@/lib/i18n/language";
+import { readPublicBrand } from "@/lib/public/brand";
 
 export const metadata: Metadata = {
   title: "Cited",
@@ -10,11 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const stored = await cookies();
-  const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
+  // The document declares the language of the page: the cookie of the visitor first, the language of the business
+  // after it, and English when there are no settings yet.
+  const cookie = (await cookies()).get(LANG_COOKIE)?.value;
+  const brand = await readPublicBrand(cookie);
 
   return (
-    <html lang={lang} className="font-sans">
+    <html lang={brand.lang} className="font-sans">
       <body>{children}</body>
     </html>
   );

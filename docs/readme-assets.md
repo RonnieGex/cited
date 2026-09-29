@@ -31,8 +31,7 @@ written in a fallback font by accident. Outfit is OFL: its origin, its two subse
 The tagline of the record (`"Ask your own documents. Get the passage and where it came from."`) is the line under the
 banner in both READMEs, and a test compares the two, so changing the tagline means changing the record and the two
 READMEs together. It promises passages with their document, their heading and their position, which is what the code
-returns today: the answer with its numbered citations belongs to `pluggable-models-and-ask` and only appears in the
-README carrying a `Next` tag.
+returns today, and the answer with its numbered citations has been available since `pluggable-models-and-ask`.
 
 ## 2. The graphics
 
@@ -69,11 +68,23 @@ five dark variants once came out painted white.
 | `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited`, with its benefit headline |
 | `reason-citations-{dark,light}.png` | 400 × 300 | the second reason |
 | `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with `Next` |
-| `how-it-works-{dark,light}.png` | 1280 × 480 | the flow, with `Next` only on the answer and its two branches |
+| `how-it-works-{dark,light}.png` | 1280 × 480 | the flow, with `Next` only on the voice branch |
 | `demo-{dark,light}.png` | 1280 × 560 | the real run of the quick start, with the first result in lime |
 | `roadmap-{dark,light}.png` | 1280 × 700 | the status table as a board, `Next` on the planned column |
 | `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice teaser, with `Next · ElevenLabs` |
 | `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` with the flame of the maker to its left |
+
+One image of the README is not drawn by that script: the real capture of the public chat with an answer and its open
+citation, written by
+
+```
+node scripts/render-readme-captures.mjs [http://127.0.0.1:3200]
+```
+
+The file is `docs/images/chat-page.png`. It comes from the application served by `npm run start` with the corpus of
+`samples/` ingested and the deterministic providers. It has no dark variant, because the public chat is painted on the
+paper of the brand and declares no dark scheme, so it is one file of the light canvases of the test instead of a themed
+pair.
 
 The foot of the two READMEs does not appear in that table because it is not a graphic of this script: it is the flame
 of `public/brand/`, the mark every Katalis product uses, copied byte for byte from Construye and rendered in ink for
@@ -148,9 +159,9 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 
 | | |
 |---|---|
-| Files in `docs/images/` | 17 PNG and 2 JSON |
-| Weight of the PNGs | 0.636 MB |
-| Weight of the images the README uses | about 0.64 MB |
+| Files in `docs/images/` | 18 PNG and 2 JSON |
+| Weight of the PNGs | 0.70 MB |
+| Weight of the images the README uses | about 0.70 MB |
 | Budget | 3 MB |
 
 The banner is the heaviest single file at about 100 KB. When a graphic is added, keep it under the budget and prefer
