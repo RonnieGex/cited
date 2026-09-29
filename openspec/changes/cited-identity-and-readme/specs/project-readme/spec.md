@@ -92,9 +92,12 @@ the same commands and the same variables, and each file SHALL link the other at 
 
 #### Scenario: Only planned text speaks of answers
 
-- **WHEN** the tagline, the headlines of the graphics and the sentences of both READMEs outside the status table and
-  the roadmap are read
-- **THEN** none of them says that Cited answers, gives an answer or cites a page today, unless it carries `Next`
+- **WHEN** the tagline, every text field of `docs/images/readme-graphics.json` and `docs/images/readme-banner.json`
+  (headlines, copy, alt text), the sentences of both READMEs outside the status table and the roadmap, and every
+  Markdown file under `docs/` are read
+- **THEN** none of them says that Cited answers, gives an answer or cites a page today; a sentence about the planned
+  answer carries `Next`, `planned` or the name of the change that delivers it (amended by Fable after
+  `revision-community-03b.md`: `docs/` and the fields of the records were outside the first scope)
 
 ### Requirement: Every link and image of the README resolves
 
