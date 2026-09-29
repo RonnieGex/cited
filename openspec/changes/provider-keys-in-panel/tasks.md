@@ -78,7 +78,7 @@ interface work.
 Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix, reproducing what the review
 reproduced.
 
-- [ ] 10.1 Blocker: no provider error text leaves the server (requirement "No provider error reaches the browser"), with
+- [x] 10.1 Blocker: no provider error text leaves the server (requirement "No provider error reaches the browser"), with
       a double that echoes the key — report: the one of this section
 - [ ] 10.2 Major: the provider address rules against private networks (requirement "A provider address cannot reach
       private networks"), `ALLOW_LOCAL_PROVIDERS` in `.env.example` and `docs/providers.md` — report: the one of this

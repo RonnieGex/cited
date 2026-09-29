@@ -2,13 +2,14 @@ import { documentSummaries, ingestUpload } from "../../../../lib/admin/documents
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
 import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
+import { sanitizeOutbound } from "../../../../lib/guards/outbound.ts";
 import { embeddingsSignature, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
 
 function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : "the document could not be read";
+  return sanitizeOutbound(error instanceof Error ? error.message : "the document could not be read");
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -63,7 +64,7 @@ export async function POST(request: Request): Promise<Response> {
     return json(
       {
         status: "invalid",
-        error: report.failed[0]?.reason ?? "the file carried no readable text",
+        error: sanitizeOutbound(report.failed[0]?.reason ?? "the file carried no readable text"),
       },
       400,
     );

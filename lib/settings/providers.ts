@@ -242,6 +242,14 @@ export function chatConfigured(resolution: ChatResolution): boolean {
   return resolution.provider !== null && chatProblem(resolution) === null;
 }
 
+// Whether the search of this installation can look for meaning right now: keyword mode always can, and vectors need a
+// provider with everything it asks for. The public route of the answers asks this and answers its own sentence when it
+// is false, because the message of `embeddingsProblem()` names the variables of the server and it is meant for whoever
+// installs (the command line), never for the browser of a visitor.
+export function embeddingsConfigured(resolution: EmbeddingsResolution): boolean {
+  return resolution.mode === "keyword" || (resolution.mode === "vectors" && embeddingsProblem(resolution) === null);
+}
+
 // The message the panel and `/api/ask` give: it names what is missing and never a value of a variable.
 export function chatProblem(resolution: ChatResolution): string | null {
   if (resolution.provider === null) {

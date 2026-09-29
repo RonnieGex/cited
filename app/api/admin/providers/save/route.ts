@@ -2,7 +2,7 @@ import { reserveProviderTest } from "../../../../../lib/admin/provider-panel.ts"
 import { PROVIDER_BODY_ERROR, parseSaveBody } from "../../../../../lib/admin/provider-request.ts";
 import { guardRequest } from "../../../../../lib/admin/guard.ts";
 import { bodyOf, guardResponse, json } from "../../../../../lib/admin/respond.ts";
-import { testProvider, testTimeoutMs } from "../../../../../lib/providers/test.ts";
+import { testProvider, testTimeoutMs, withClosedReason } from "../../../../../lib/providers/test.ts";
 import { encryptionAvailable, lastFour, sealSecret } from "../../../../../lib/secrets/index.ts";
 import { sharedStore } from "../../../../../lib/store/instance.ts";
 
@@ -64,7 +64,9 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const outcome = await testProvider({ ...parsed, timeoutMs: testTimeoutMs(process.env) });
+  const outcome = await withClosedReason(() =>
+    testProvider({ ...parsed, timeoutMs: testTimeoutMs(process.env) }),
+  );
 
   if (outcome.ok === false) {
     return json({ status: "ok", saved: false, reason: outcome.reason });

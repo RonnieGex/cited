@@ -1,6 +1,7 @@
 import { guardRequest } from "../../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../../lib/admin/respond.ts";
 import { embeddingsFrom } from "../../../../../lib/embeddings/providers.ts";
+import { sanitizeOutbound } from "../../../../../lib/guards/outbound.ts";
 import { reindexStore } from "../../../../../lib/settings/indexing.ts";
 import { embeddingsSignature, resolveEmbeddings } from "../../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../../lib/store/instance.ts";
@@ -45,7 +46,9 @@ export async function POST(request: Request): Promise<Response> {
     return json(
       {
         status: "invalid",
-        error: error instanceof Error ? error.message : "the documents could not be re-indexed",
+        error: sanitizeOutbound(
+          error instanceof Error ? error.message : "the documents could not be re-indexed",
+        ),
       },
       400,
     );

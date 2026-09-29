@@ -203,7 +203,7 @@ describe("POST /api/ask with the provider saved in the panel", () => {
     expect(text.toLowerCase()).toContain("panel");
   });
 
-  it("names the missing variable of the server and never its value", async () => {
+  it("keeps the name of the missing variable of the server out of the answer and never its value", async () => {
     await corpusStore();
     setEnvironment({
       DATABASE_URL: process.env["DATABASE_URL"],
@@ -216,7 +216,10 @@ describe("POST /api/ask with the provider saved in the panel", () => {
     const text = await response.text();
 
     expect(response.status).toBe(503);
-    expect(text).toContain("OPENAI_API_KEY");
+    // Whoever installs reads the name of the variable in the command line (`npm run ask`), which is where
+    // `chatProblem()` is read; the public route answers its own sentence (task 10.4 of the contract).
+    expect(text).not.toContain("OPENAI_API_KEY");
     expect(text).not.toContain(panelKey);
+    expect(text.toLowerCase()).toContain("panel");
   });
 });

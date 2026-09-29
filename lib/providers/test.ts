@@ -271,3 +271,16 @@ export async function testProvider(input: ProviderTestInput): Promise<ProviderTe
 
   return { ok: true, model, latencyMs: Date.now() - started };
 }
+
+// The routes of the panel call this one: whatever `testProvider()` throws, and whatever the resolution of the address
+// throws before it, becomes one of the six closed reasons of the requirement "Testing a provider is bounded". The text
+// of the exception never reaches the caller (requirement "No provider error reaches the browser").
+export async function withClosedReason(
+  call: () => Promise<ProviderTestOutcome>,
+): Promise<ProviderTestOutcome> {
+  try {
+    return await call();
+  } catch {
+    return { ok: false, reason: "unreachable" };
+  }
+}
