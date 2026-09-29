@@ -143,7 +143,7 @@ $ git status --short --branch
 ```
 $ git diff --check main...HEAD
 public/fonts/outfit/OFL.txt:21: trailing whitespace.
-+fonts, including any derivative works, can be bundled, embedded, 
++fonts, including any derivative works, can be bundled, embedded,
 exit=2
 ```
 
