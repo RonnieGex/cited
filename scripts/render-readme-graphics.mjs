@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { roadmap, states, statusRows, tokens } from "./readme-graphics/data.mjs";
 import { graphics, logo, social } from "./readme-graphics/manifest.mjs";
+import { patchReadmeQuickStart, terminalLines, withoutNpmNoise } from "./readme-graphics/quickstart.mjs";
 
 const loadOptimizer = async () => {
   try {
@@ -478,10 +479,29 @@ const styles = `
   width: 64px;
   height: 64px;
 }
+.logo-plate {
+  fill: ${tokens.ink};
+}
+.logo-stroke {
+  stroke: ${tokens.offWhite};
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .logo-word {
   font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: ${tokens.ink};
+}
+body[data-theme="dark"] .logo-plate {
+  fill: ${tokens.offWhite};
+}
+body[data-theme="dark"] .logo-stroke {
+  stroke: ${tokens.ink};
+}
+body[data-theme="dark"] .logo-word {
+  color: ${tokens.offWhite};
 }
 `;
 
@@ -563,23 +583,6 @@ function run(command, args) {
   return `${result.stdout ?? ""}${result.stderr ?? ""}`.replaceAll("\r\n", "\n").trim();
 }
 
-function withoutNpmNoise(output) {
-  return output
-    .split("\n")
-    .filter((line) => !/^>/.test(line))
-    .filter((line) => !/^$/.test(line))
-    .filter((line) => !/\.env not found/.test(line))
-    .filter((line) => !/MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module|To eliminate this warning|trace-warnings/.test(line))
-    .join("\n")
-    .trim();
-}
-
-function terminalLines(output, maximum) {
-  const lines = output.split("\n").filter((line) => line.trim().length > 0);
-
-  return (lines.length > maximum ? lines.slice(0, maximum) : lines).join("\n");
-}
-
 function rowsOf(state) {
   return statusRows
     .filter((row) => row.state === state)
@@ -632,14 +635,28 @@ const templatesOf = new Map(
 
 const ingest = withoutNpmNoise(run("npm", ["run", "ingest", "--", "samples/"]));
 const search = withoutNpmNoise(run("npm", ["run", "search", "--", searchQuestion]));
+const drawn = {
+  ingest: {
+    command: ingestCommand,
+    output: ingest,
+    drawn: terminalLines(ingest, 8),
+    readme: ingest,
+  },
+  search: {
+    command: searchCommand,
+    output: search,
+    drawn: terminalLines(search, 15),
+    readme: search,
+  },
+};
 const contents = new Map(
   [...graphics, social].map((graphic) => [
     graphic.name,
     fill(templatesOf.get(graphic.name), {
       INGEST_COMMAND: escapeHtml(ingestCommand),
-      INGEST_OUTPUT: escapeLines(terminalLines(ingest, 8)),
+      INGEST_OUTPUT: escapeLines(drawn.ingest.drawn),
       SEARCH_COMMAND: escapeHtml(searchCommand),
-      SEARCH_OUTPUT: escapeLines(terminalLines(search, 15)),
+      SEARCH_OUTPUT: escapeLines(drawn.search.drawn),
       AVAILABLE_ROWS: rowsOf("Available"),
       PLANNED_ROWS: rowsOf("Planned"),
       TAGLINE: escapeHtml(banner.tagline),
@@ -670,20 +687,29 @@ try {
 
   await render(browser, social, contents.get(social.name), "dark", social.dark);
 
-  const logoPage = await browser.newPage({ viewport: { width: 340, height: 170 }, deviceScaleFactor: 1 });
+  for (const theme of ["light", "dark"]) {
+    const logoPage = await browser.newPage({
+      viewport: { width: 340, height: 170 },
+      deviceScaleFactor: 1,
+    });
+    const target = theme === "dark" ? logo.dark : logo.light;
 
-  await logoPage.setContent(html(templatesOf.get(logo.name), "light", 340, 170), { waitUntil: "load" });
-  await logoPage.evaluate(() => document.fonts.ready);
+    await logoPage.setContent(html(templatesOf.get(logo.name), theme, 340, 170), { waitUntil: "load" });
+    await logoPage.evaluate(() => document.fonts.ready);
+    await logoPage.evaluate((value) => {
+      document.body.dataset["theme"] = value;
+    }, theme);
 
-  const logoPng = await logoPage.locator(".logo").screenshot({ type: "png" });
-  const logoOptimized =
-    sharp === null
-      ? logoPng
-      : await sharp(logoPng).png({ palette: true, colors: 64, compressionLevel: 9 }).toBuffer();
+    const logoPng = await logoPage.locator(".logo").screenshot({ type: "png" });
+    const logoOptimized =
+      sharp === null
+        ? logoPng
+        : await sharp(logoPng).png({ palette: true, colors: 64, compressionLevel: 9 }).toBuffer();
 
-  await writeFile(absolute(logo.dark), logoOptimized);
-  await logoPage.close();
-  console.log(`rendered ${logo.dark} (${logoOptimized.length} bytes)`);
+    await writeFile(absolute(target), logoOptimized);
+    await logoPage.close();
+    console.log(`rendered ${target} (${logoOptimized.length} bytes)`);
+  }
 } finally {
   await browser.close();
 }
@@ -706,7 +732,7 @@ await writeFile(
         width: social.width,
         height: social.height,
       },
-      logo: { file: logo.dark, alt: logo.alt },
+      logo: { file: logo.light, dark: logo.dark, alt: logo.alt },
       font,
       tokens,
       commands: {
@@ -719,8 +745,8 @@ await writeFile(
         ingest: { command: ingestCommand, output: ingest },
         search: { command: searchCommand, output: search },
         drawn: {
-          ingest: terminalLines(ingest, 8).split("\n"),
-          search: terminalLines(search, 15).split("\n"),
+          ingest: drawn.ingest.drawn.split("\n"),
+          search: drawn.search.drawn.split("\n"),
         },
       },
     },
@@ -731,6 +757,12 @@ await writeFile(
 
 console.log(`wrote ${recordPath}`);
 
+for (const readme of ["README.md", "README.es.md"]) {
+  const patched = patchReadmeQuickStart(readFileSync(absolute(readme), "utf8"), drawn);
+
+  await writeFile(absolute(readme), patched.text);
+  console.log(`updated the quick start of ${readme}`);
+}
 if (existsSync(absolute(".data/katalis.sqlite"))) {
   console.log("the store of the run lives in .data/katalis.sqlite, which git ignores");
 }

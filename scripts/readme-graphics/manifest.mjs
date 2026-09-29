@@ -89,6 +89,7 @@ export const social = {
 export const logo = {
   name: "katalis-logo",
   template: "logo.html",
-  dark: "docs/images/katalis-logo.png",
+  light: "docs/images/katalis-logo.png",
+  dark: "docs/images/katalis-logo-dark.png",
   alt: "Katalis",
 };

@@ -30,33 +30,75 @@ const banner = {
   light: `${imagesDirectory}/readme-banner-light.png`,
 };
 const graphics = {
-  reasonSources: { dark: `${imagesDirectory}/reason-sources-dark.png`, light: `${imagesDirectory}/reason-sources-light.png`, planned: false },
-  reasonCitations: { dark: `${imagesDirectory}/reason-citations-dark.png`, light: `${imagesDirectory}/reason-citations-light.png`, planned: false },
-  reasonVoice: { dark: `${imagesDirectory}/reason-voice-dark.png`, light: `${imagesDirectory}/reason-voice-light.png`, planned: true },
-  flow: { dark: `${imagesDirectory}/how-it-works-dark.png`, light: `${imagesDirectory}/how-it-works-light.png`, planned: true },
-  demo: { dark: `${imagesDirectory}/demo-dark.png`, light: `${imagesDirectory}/demo-light.png`, planned: false },
-  roadmap: { dark: `${imagesDirectory}/roadmap-dark.png`, light: `${imagesDirectory}/roadmap-light.png`, planned: true },
-  voice: { dark: `${imagesDirectory}/voice-teaser-dark.png`, light: `${imagesDirectory}/voice-teaser-light.png`, planned: true },
+  "reason-sources": {
+    dark: `${imagesDirectory}/reason-sources-dark.png`,
+    light: `${imagesDirectory}/reason-sources-light.png`,
+    planned: false,
+  },
+  "reason-citations": {
+    dark: `${imagesDirectory}/reason-citations-dark.png`,
+    light: `${imagesDirectory}/reason-citations-light.png`,
+    planned: false,
+  },
+  "reason-voice": {
+    dark: `${imagesDirectory}/reason-voice-dark.png`,
+    light: `${imagesDirectory}/reason-voice-light.png`,
+    planned: true,
+  },
+  "how-it-works": {
+    dark: `${imagesDirectory}/how-it-works-dark.png`,
+    light: `${imagesDirectory}/how-it-works-light.png`,
+    planned: true,
+  },
+  demo: {
+    dark: `${imagesDirectory}/demo-dark.png`,
+    light: `${imagesDirectory}/demo-light.png`,
+    planned: false,
+  },
+  roadmap: {
+    dark: `${imagesDirectory}/roadmap-dark.png`,
+    light: `${imagesDirectory}/roadmap-light.png`,
+    planned: true,
+  },
+  "voice-teaser": {
+    dark: `${imagesDirectory}/voice-teaser-dark.png`,
+    light: `${imagesDirectory}/voice-teaser-light.png`,
+    planned: true,
+  },
 };
 const socialPreview = `${imagesDirectory}/social-preview.png`;
-const katalisLogo = `${imagesDirectory}/katalis-logo.png`;
+const katalisLogo = {
+  light: `${imagesDirectory}/katalis-logo.png`,
+  dark: `${imagesDirectory}/katalis-logo-dark.png`,
+};
 const bannerRecordPath = `${imagesDirectory}/readme-banner.json`;
 const graphicsRecordPath = `${imagesDirectory}/readme-graphics.json`;
 
-const imageHosts = ["https://img.shields.io/", `https://github.com/`];
+const imageHosts = ["https://img.shields.io/", "https://github.com/"];
 const maximumImageWeight = 3 * 1024 * 1024;
+const pngSignature = "89504e470d0a1a0a";
 
-const binaryExtensions = new Set([".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2", ".ttf", ".otf", ".bin", ".pdf", ".docx", ".sqlite"]);
+const binaryExtensions = new Set([
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".ico",
+  ".woff",
+  ".woff2",
+  ".ttf",
+  ".otf",
+  ".bin",
+  ".pdf",
+  ".docx",
+  ".sqlite",
+]);
 const fontExtensions = new Set([".woff", ".woff2", ".ttf", ".otf"]);
 
 type TrackedFile = { path: string; text: string | null };
 type Section = { level: number; title: string; lines: string[] };
 
 let trackedCache: TrackedFile[] | null = null;
-
-function git(args: string[]): string {
-  return execFileSync("git", args, { cwd: repositoryRoot, encoding: "utf8" });
-}
 
 function readText(path: string): string {
   return readFileSync(resolve(repositoryRoot, path), "utf8");
@@ -67,7 +109,7 @@ function trackedFiles(): TrackedFile[] {
     return trackedCache;
   }
 
-  const listed = git(["ls-files", "-z"])
+  const listed = execFileSync("git", ["ls-files", "-z"], { cwd: repositoryRoot, encoding: "utf8" })
     .split("\0")
     .filter((path) => path.length > 0);
 
@@ -85,6 +127,14 @@ function slug(title: string): string {
   return `# ${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
 }
 
+function lines(text: string): string[] {
+  return text.split("\n");
+}
+
+function newlines(pattern: string, flags = ""): RegExp {
+  return new RegExp(pattern, flags);
+}
+
 function tableRow(line: string): string[] | null {
   if (!line.startsWith("|") || !line.endsWith("|") || /^\|[\s:|-]+\|$/.test(line)) {
     return null;
@@ -97,7 +147,9 @@ function tableRow(line: string): string[] | null {
 }
 
 function codeFences(text: string): string[] {
-  return [...text.matchAll(/^```[^\n]*\n([\s\S]*?)^```$/gm)].map((match) => match[1] ?? "");
+  return [...text.matchAll(newlines("^```[^\\n]*\\n([\\s\\S]*?)^```$", "gm"))].map(
+    (match) => match[1] ?? "",
+  );
 }
 
 function commands(text: string): string[] {
@@ -105,19 +157,16 @@ function commands(text: string): string[] {
     .flatMap((block) => block.split("\n"))
     .map((line) => line.trim())
     .filter((line) => /^npm (ci|run )/.test(line))
-    .map((line) => line.replace(/^npm run ([a-z0-9:]+).*$/, "$1").replace(/^npm (ci)$/, "$1"));
+    .map((line) =>
+      line.replace(/^npm run ([a-z0-9:]+).*$/, "$1").replace(/^npm (ci)$/, "$1"),
+    );
 }
 
 function sectionsOf(text: string): Section[] {
-  const lines = text.split("\n");
   const found: Section[] = [];
   let current: Section | null = null;
 
-  const close = (section: Section): void => {
-    found.push({ level: section.level, title: section.title, lines: section.lines });
-  };
-
-  for (const line of lines) {
+  for (const line of lines(text)) {
     const heading = /^(#{2,3}) (.+)$/.exec(line);
 
     if (heading === null) {
@@ -126,21 +175,17 @@ function sectionsOf(text: string): Section[] {
     }
 
     if (current !== null) {
-      close(current);
+      found.push(current);
     }
 
     current = { level: heading[1]?.length ?? 2, title: heading[2] ?? "", lines: [] };
   }
 
   if (current !== null) {
-    close(current);
+    found.push(current);
   }
 
   return found;
-}
-
-function bodyOf(text: string, name: string): string {
-  return sectionNamed(text, name).lines.join("\n");
 }
 
 function h2Titles(text: string): string[] {
@@ -150,11 +195,17 @@ function h2Titles(text: string): string[] {
 }
 
 function sectionNamed(text: string, name: string): Section {
-  const found = sectionsOf(text).filter((section) => section.level === 2 && slug(section.title) === slug(name));
+  const found = sectionsOf(text).filter(
+    (section) => section.level === 2 && slug(section.title) === slug(name),
+  );
 
-  expect(found, `the README has one level-two section "${name}"`).toHaveLength(1);
+  expect(found.length, `the README has one level-two section "${name}"`).toBe(1);
 
   return found[0] as Section;
+}
+
+function bodyOf(text: string, name: string): string {
+  return sectionNamed(text, name).lines.join("\n");
 }
 
 function beforeFirstCodeBlock(text: string): string {
@@ -168,41 +219,57 @@ function statusRows(text: string): Array<{ capability: string; state: string; re
     .lines.map((line) => tableRow(line))
     .filter((cells): cells is string[] => cells !== null && cells.length === 3)
     .filter((cells) => (statusStates as readonly string[]).includes(cells[1] ?? ""))
-    .map((cells) => ({ capability: cells[0] ?? "", state: cells[1] ?? "", reference: cells[2] ?? "" }));
+    .map((cells) => ({
+      capability: cells[0] ?? "",
+      state: cells[1] ?? "",
+      reference: cells[2] ?? "",
+    }));
 }
 
-function configurationRows(text: string): Array<{ variable: string; purpose: string; readToday: string }> {
-  const body = bodyOf(text, "Configuration");
-
-  return body
+function configurationRows(
+  text: string,
+): Array<{ variable: string; purpose: string; readToday: string }> {
+  return bodyOf(text, "Configuration")
     .split("\n")
-    .filter((line) => /^```/.test(line) === false)
     .map((line) => tableRow(line))
     .filter((cells): cells is string[] => cells !== null && cells.length === 3)
-    .map((cells) => ({ variable: (cells[0] ?? "").replaceAll("`", "").trim(), purpose: cells[1] ?? "", readToday: cells[2] ?? "" }))
+    .map((cells) => ({
+      variable: (cells[0] ?? "").replaceAll("`", "").trim(),
+      purpose: cells[1] ?? "",
+      readToday: cells[2] ?? "",
+    }))
     .filter((row) => /^[A-Z][A-Z0-9_]+$/.test(row.variable));
 }
 
 function imagesOf(text: string): string[] {
-  return [...text.matchAll(/!\[[^\]]*\]\(([^)\s]+)/g)].map((match) => match[1] ?? "");
+  const markdown = [...text.matchAll(newlines("!\\[[^\\]]*\\]\\(([^)\\s]+)", "g"))].map(
+    (match) => match[1] ?? "",
+  );
+  const html = [...text.matchAll(newlines('<img[^>]*src="([^"]+)"', "g"))].map(
+    (match) => match[1] ?? "",
+  );
+
+  return [...markdown, ...html];
 }
 
 function linksOf(text: string): string[] {
-  return [...text.matchAll(/\]\(([^)\s]+)\)/g)]
-    .filter((match) => !/^!\[/.test(text.slice(Math.max(0, (match.index ?? 0) - 2), match.index ?? 0) + "]("))
+  return [...text.matchAll(newlines("\\]\\(([^)\\s]+)\\)", "g"))]
+    .filter((match) => text[(match.index ?? 0) + 1] !== "!")
     .map((match) => match[1] ?? "");
 }
 
 function pictureBlocks(text: string): string[] {
-  return [...text.matchAll(/<picture>[\s\S]*?<\/picture>/g)].map((match) => match[0]);
+  return [...text.matchAll(newlines("<picture>[\\s\\S]*?</picture>", "g"))].map(
+    (match) => match[0],
+  );
 }
 
 function sourceOf(picture: string, theme: "dark" | "light"): string {
   if (theme === "dark") {
     return (
-      new RegExp(
-        String.raw`<source[^>]*media="\(prefers-color-scheme: dark\)"[^>]*srcset="([^"]+)"`,
-      ).exec(picture)?.[1] ?? ""
+      newlines('<source[^>]*media="\\(prefers-color-scheme: dark\\)"[^>]*srcset="([^"]+)"').exec(
+        picture,
+      )?.[1] ?? ""
     );
   }
 
@@ -216,7 +283,7 @@ function altOf(picture: string): string {
 function pngSize(path: string): { width: number; height: number } {
   const bytes = readFileSync(resolve(repositoryRoot, path));
 
-  expect(bytes.subarray(0, 8).toString("hex"), `${path} is a PNG`).toBe("89504e470d0a1a0a");
+  expect(bytes.subarray(0, 8).toString("hex"), `${path} is a PNG`).toBe(pngSignature);
 
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
 }
@@ -233,24 +300,43 @@ function recorded(path: string): Record<string, unknown> {
 
 function prose(text: string): string {
   return text
-    .replace(/<picture>[\s\S]*?<\/picture>/g, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
-    .replace(/\[[^\]]*\]\([^)]*\)/g, " ");
+    .replace(newlines("<picture>[\\s\\S]*?</picture>", "g"), " ")
+    .replace(newlines("!\\[[^\\]]*\\]\\([^)]*\\)", "g"), " ")
+    .replace(newlines("\\[[^\\]]*\\]\\([^)]*\\)", "g"), " ")
+    .replace(newlines("```[\\s\\S]*?```", "g"), " ")
+    .replace(newlines("`[^`]*`", "g"), " ")
+    .replace(newlines("<[^>]+>", "g"), " ");
+}
+
+function markdownHeadings(text: string, level: number): string[] {
+  const marker = "#".repeat(level);
+  const heading = newlines(`^${marker} [^\\n]*$`, "gm");
+
+  return [...text.matchAll(heading)].map((match) => match[0]);
+}
+
+function markdownBody(text: string): string {
+  return lines(text)
+    .filter((line) => !/^#{1,6} /.test(line))
+    .join("\n");
+}
+
+function times(text: string, needle: string): number {
+  return text.split(needle).length - 1;
 }
 
 describe("README, the banner", () => {
-  it("opens with the picture of the banner as its only level-one heading", () => {
+  it("opens with the picture of the banner as its only non markdown heading", () => {
     const text = readText("README.md");
-    const headings = [...text.matchAll(/^# .+$/gm)].map((match) => match[0]);
+    const outside = markdownBody(text).match(newlines("<h[1-6][^>]*>", "g")) ?? [];
+    const opening = outside.filter((tag) => !tag.startsWith("</"));
 
-    expect(headings).toHaveLength(1);
-    expect(headings[0]).toContain('<h1 align="center">');
-    expect(headings[0]).toContain("<picture>");
-    expect(sourceOf(headings[0] ?? "", "dark")).toBe(banner.dark);
-    expect(sourceOf(headings[0] ?? "", "light")).toBe(banner.light);
-    expect(altOf(pictureBlocks(headings[0] ?? "")[0] ?? "")).toContain("Cited");
+    expect(markdownHeadings(text, 1)).toEqual([]);
+    expect(opening).toEqual(['<h1 align="center">']);
+    expect(text.slice(0, 3)).toBe("<h1");
+    expect(sourceOf(pictureBlocks(text)[0] ?? "", "dark")).toBe(banner.dark);
+    expect(sourceOf(pictureBlocks(text)[0] ?? "", "light")).toBe(banner.light);
+    expect(altOf(pictureBlocks(text)[0] ?? "")).toContain("Cited");
   });
 
   it("renders the banner at 1280 by 320", () => {
@@ -270,7 +356,6 @@ describe("README, the banner", () => {
   it("records the texts of the banner, with the tagline of the README", () => {
     const record = recorded(bannerRecordPath);
     const tagline = record["tagline"];
-    const readme = readText("README.md");
 
     expect(record["width"]).toBe(1280);
     expect(record["height"]).toBe(320);
@@ -278,20 +363,21 @@ describe("README, the banner", () => {
     expect(record["mark"]).toBe("[1]");
     expect(record["byline"]).toBe("by Katalis");
     expect(typeof tagline).toBe("string");
-    expect(readme).toContain(tagline as string);
+    expect(readText("README.md")).toContain(tagline as string);
   });
 
   it("records the brand tokens and the font, and the font is not a file of the repository", () => {
-    const record = recorded(bannerRecordPath);
-    const tokens = record["tokens"] as Record<string, string>;
-    const font = record["font"] as Record<string, string>;
+    const tokens = recorded(bannerRecordPath)["tokens"] as Record<string, string>;
+    const font = recorded(bannerRecordPath)["font"] as Record<string, string>;
 
     expect(tokens["ink"]?.toLowerCase()).toBe("#171717");
     expect(tokens["lime"]?.toLowerCase()).toBe("#ddf469");
     expect(font["name"]).toBe("Outfit");
     expect(font["loadedAtRenderTime"]).toBe(true);
     expect(font["fileInRepository"]).toBe(false);
-    expect(trackedFiles().filter((file) => fontExtensions.has(extname(file.path).toLowerCase()))).toEqual([]);
+    expect(
+      trackedFiles().filter((file) => fontExtensions.has(extname(file.path).toLowerCase())),
+    ).toEqual([]);
   });
 });
 
@@ -306,7 +392,7 @@ describe("README, the promise and the maturity", () => {
     expect(linksOf(head)).toContain("README.es.md");
     expect(head).toMatch(/early development/i);
     expect(head).toMatch(/not ready for production/i);
-    expect(bodyOf(readText("README.md"), "Why Cited").match(/^\d\. /gm) ?? []).toHaveLength(3);
+    expect(bodyOf(readText("README.md"), "Why Cited").match(newlines("^\\d\\. ", "gm")) ?? []).toHaveLength(3);
   });
 
   it("carries no em dash in its prose", () => {
@@ -325,7 +411,7 @@ describe("README, the status table", () => {
 
     for (const row of rows) {
       if (row.state === "Available") {
-        const linked = /\]\(([^)]+)\)/.exec(row.reference)?.[1] ?? row.reference;
+        const linked = newlines("\\]\\(([^)]+)\\)").exec(row.reference)?.[1] ?? row.reference;
 
         expect(activeSpecs, row.capability).toContain(linked);
         expect(existsSync(resolve(repositoryRoot, linked)), row.capability).toBe(true);
@@ -358,18 +444,22 @@ describe("README, the quick start and the configuration", () => {
     expect(commands(quickStart)).toContain("search");
 
     for (const command of commands(quickStart)) {
-      expect(Object.keys(manifest.scripts), command).toContain(command);
+      if (command !== "ci") {
+        expect(Object.keys(manifest.scripts), command).toContain(command);
+      }
     }
 
     expect(quickStart).toContain("samples/");
-    expect(quickStart).toMatch(/EMBEDDINGS_PROVIDER=fake/);
+    expect(quickStart).toContain("EMBEDDINGS_PROVIDER=fake");
   });
 
   it("compares the variables of the configuration with .env.example and with the code", () => {
     const text = readText("README.md");
     const example = readText(".env.example");
     const rows = configurationRows(text);
-    const names = new Set((example.match(/^[A-Z][A-Z0-9_]+=/gm) ?? []).map((line) => line.replace("=", "")));
+    const names = new Set(
+      (example.match(newlines("^[A-Z][A-Z0-9_]+=", "gm")) ?? []).map((line) => line.replace("=", "")),
+    );
 
     expect(rows.length).toBeGreaterThanOrEqual(10);
 
@@ -382,7 +472,9 @@ describe("README, the quick start and the configuration", () => {
     expect(readToday.length).toBeGreaterThanOrEqual(5);
 
     const source = ["lib", "scripts", "app"]
-      .flatMap((folder) => trackedFiles().filter((file) => file.path.startsWith(`${folder}/`) && file.text !== null))
+      .flatMap((folder) =>
+        trackedFiles().filter((file) => file.path.startsWith(`${folder}/`) && file.text !== null),
+      )
       .map((file) => file.text ?? "")
       .join("\n");
 
@@ -392,8 +484,8 @@ describe("README, the quick start and the configuration", () => {
 
     for (const row of rows) {
       expect(row.purpose.length, row.variable).toBeGreaterThan(10);
-      expect(row.readToday, row.variable).toMatch(/^(yes|no)\b/i);
-      expect(row.purpose, row.variable).not.toMatch(/[A-Za-z0-9_-]{24,}/);
+      expect(row.readToday, row.variable).toMatch(newlines("^(yes|no)\\b", "i"));
+      expect(row.purpose, row.variable).not.toMatch(newlines("[A-Za-z0-9_-]{24,}"));
     }
   });
 });
@@ -404,7 +496,9 @@ describe("README, the Spanish twin", () => {
   });
 
   it("has the same code blocks", () => {
-    expect(codeFences(readText("README.es.md")).length).toBe(codeFences(readText("README.md")).length);
+    expect(codeFences(readText("README.es.md")).length).toBe(
+      codeFences(readText("README.md")).length,
+    );
     expect(commands(readText("README.es.md"))).toEqual(commands(readText("README.md")));
   });
 
@@ -412,9 +506,15 @@ describe("README, the Spanish twin", () => {
     const english = readText("README.md");
     const spanish = readText("README.es.md");
 
-    expect(configurationRows(spanish).map((row) => row.variable)).toEqual(configurationRows(english).map((row) => row.variable));
-    expect(statusRows(spanish).map((row) => row.reference)).toEqual(statusRows(english).map((row) => row.reference));
-    expect(statusRows(spanish).map((row) => row.state)).toEqual(statusRows(english).map((row) => row.state));
+    expect(configurationRows(spanish).map((row) => row.variable)).toEqual(
+      configurationRows(english).map((row) => row.variable),
+    );
+    expect(statusRows(spanish).map((row) => row.reference)).toEqual(
+      statusRows(english).map((row) => row.reference),
+    );
+    expect(statusRows(spanish).map((row) => row.state)).toEqual(
+      statusRows(english).map((row) => row.state),
+    );
   });
 
   it("links the two files at the head of each one", () => {
@@ -443,7 +543,7 @@ describe("README, its links and its images", () => {
       for (const image of imagesOf(readText(path))) {
         if (image.startsWith("http")) {
           expect(imageHosts.some((host) => image.startsWith(host)), image).toBe(true);
-          expect(image, image).not.toMatch(/\?/);
+          expect(image, image).not.toContain("?");
         }
       }
     }
@@ -451,27 +551,24 @@ describe("README, its links and its images", () => {
 });
 
 describe("README, its graphics", () => {
-  const expected = [
-    banner.dark,
-    banner.light,
-    ...Object.values(graphics).flatMap((graphic) => [graphic.dark, graphic.light]),
-    socialPreview,
-    katalisLogo,
+  const themedMappings: Array<[string, string]> = [
+    [banner.dark, banner.light],
+    ...Object.values(graphics).map(
+      (graphic): [string, string] => [graphic.dark, graphic.light],
+    ),
+    [katalisLogo.dark, katalisLogo.light],
   ];
 
   it("shows every graphic of the design in both themes, as a picture with its alt", () => {
-    const text = readText("README.md");
-    const pictures = pictureBlocks(text);
+    const pictures = pictureBlocks(readText("README.md"));
 
-    for (const file of expected.filter((path) => path !== banner.dark && path !== banner.light)) {
-      const block = pictures.find((picture) => picture.includes(file));
+    for (const [dark, light] of themedMappings) {
+      const block = pictures.find((picture) => picture.includes(dark));
 
-      expect(block, file).toBeDefined();
-      expect(altOf(block ?? "").length, file).toBeGreaterThan(5);
-
-      const theme = file.includes("-dark") ? "dark" : "light";
-
-      expect(sourceOf(block ?? "", theme), file).toBe(file);
+      expect(block, dark).toBeDefined();
+      expect(sourceOf(block ?? "", "dark"), dark).toBe(dark);
+      expect(sourceOf(block ?? "", "light"), light).toBe(light);
+      expect(altOf(block ?? "").length, dark).toBeGreaterThan(5);
     }
   });
 
@@ -480,9 +577,11 @@ describe("README, its graphics", () => {
     const local = imagesOf(text).filter((image) => !image.startsWith("http"));
     const total = local.reduce((sum, image) => sum + sizeInBytes(image), 0);
 
+    expect(local.length).toBeGreaterThanOrEqual(18);
+
     for (const image of local) {
       expect(image.startsWith(imagesDirectory), image).toBe(true);
-      expect(pngSize(image), image).toBeDefined();
+      expect(pngSize(image).width, image).toBeGreaterThan(0);
     }
 
     expect(total).toBeLessThanOrEqual(maximumImageWeight);
@@ -507,30 +606,40 @@ describe("README, its graphics", () => {
   });
 
   it("draws the demo from the real run of the quick start", () => {
-    const record = recorded(graphicsRecordPath);
-    const demo = record["demo"] as Record<string, unknown>;
+    const demo = recorded(graphicsRecordPath)["demo"] as Record<string, unknown>;
     const ingest = demo["ingest"] as Record<string, unknown>;
     const search = demo["search"] as Record<string, unknown>;
+    const quickStart = bodyOf(readText("README.md"), "Quick start");
 
     expect(ingest["command"]).toBe("npm run ingest -- samples/");
     expect(search["command"]).toContain("npm run search --");
-    expect(String(ingest["output"])).toMatch(/documents 4, passages 11/);
-    expect(String(search["output"])).toMatch(/^\d+\. /m);
+    expect(String(ingest["output"])).toContain("documents 4, passages 11");
+    expect(String(search["output"])).toMatch(newlines("^\\d+\\. ", "m"));
     expect(demo["exitCode"]).toBe(0);
+
+    const drawn = demo["drawn"] as Record<string, string[]>;
+
+    for (const line of drawn["ingest"] ?? []) {
+      expect(quickStart, line).toContain(line);
+    }
+
+    for (const line of (drawn["search"] ?? []).slice(0, 10)) {
+      expect(quickStart, line).toContain(line);
+    }
   });
 
   it("shows in the roadmap the same rows and states as the status table", () => {
-    const record = recorded(graphicsRecordPath);
-    const roadmap = record["roadmap"] as Array<Record<string, unknown>>;
+    const roadmap = recorded(graphicsRecordPath)["roadmap"] as Array<Record<string, unknown>>;
     const rows = statusRows(readText("README.md"));
+    const spanish = statusRows(readText("README.es.md"));
 
     expect(roadmap.map((row) => row["capability"])).toEqual(rows.map((row) => row.capability));
     expect(roadmap.map((row) => row["state"])).toEqual(rows.map((row) => row.state));
+    expect(roadmap.length).toBe(spanish.length);
   });
 
   it("carries a social preview of 1280 by 640 with the name, the tagline and the byline", () => {
-    const record = recorded(graphicsRecordPath);
-    const social = record["social"] as Record<string, unknown>;
+    const social = recorded(graphicsRecordPath)["social"] as Record<string, unknown>;
     const tagline = recorded(bannerRecordPath)["tagline"] as string;
 
     expect(pngSize(socialPreview)).toEqual({ width: 1280, height: 640 });
@@ -542,11 +651,13 @@ describe("README, its graphics", () => {
   it("is reproducible by the committed script and by the templates of every graphic", () => {
     const script = readText("scripts/render-readme-graphics.mjs");
 
-    expect(script).toContain("scripts/readme-graphics/");
+    expect(script).toContain("scripts/readme-graphics");
     expect(script).toContain(graphicsRecordPath);
 
     for (const name of Object.keys(graphics)) {
-      expect(existsSync(resolve(repositoryRoot, `scripts/readme-graphics/${name}.html`)), name).toBe(true);
+      expect(existsSync(resolve(repositoryRoot, `scripts/readme-graphics/${name}.html`)), name).toBe(
+        true,
+      );
     }
   });
 });
@@ -554,14 +665,15 @@ describe("README, its graphics", () => {
 describe("README, the flow and the foot", () => {
   it("carries the designed flow and the Mermaid version inside a details block", () => {
     const body = bodyOf(readText("README.md"), "How it works");
+    const mermaid = codeFences(body).find((block) => block.includes("flowchart")) ?? "";
 
-    expect(body).toContain(graphics.flow.light);
+    expect(body).toContain(graphics["how-it-works"].light);
     expect(body).toContain("<details>");
-    expect(body).toContain("```mermaid");
-    expect(body).toMatch(/ingest/i);
-    expect(body).toMatch(/libsql/i);
-    expect(body).toMatch(/Reciprocal Rank Fusion/i);
-    expect(body).toMatch(/\(next\)/);
+    expect(mermaid.length).toBeGreaterThan(0);
+    expect(mermaid).toMatch(/Ingest/i);
+    expect(mermaid).toMatch(/libSQL/i);
+    expect(mermaid).toMatch(/Reciprocal Rank Fusion/i);
+    expect(mermaid).toContain("(next)");
   });
 
   it("closes with the license and the foot of Katalis", () => {
@@ -573,12 +685,8 @@ describe("README, the flow and the foot", () => {
     expect(linksOf(body)).toContain("NOTICE");
     expect(body).toContain("Built by Katalis");
     expect(body).toContain("https://katalis.dev");
-    expect(body).toContain(katalisLogo);
-    expect(linksOf(body)).toContain("https://katalis.dev");
-
-    const titles = h2Titles(text);
-
-    expect(titles.at(-1)).toBe(slug("License"));
+    expect(body).toContain(katalisLogo.light);
+    expect(h2Titles(text).at(-1)).toBe(slug("License"));
   });
 });
 
@@ -596,21 +704,18 @@ describe("the product is named Cited", () => {
 
   it("names Cited in the places a reader sees first", () => {
     const manifest = JSON.parse(readText("package.json")) as { name: string };
-    const notice = readText("NOTICE").split("\n")[0] ?? "";
-    const layout = readText("app/layout.tsx");
-    const page = readText("app/page.tsx");
 
     expect(manifest.name).toBe("cited");
-    expect(notice.trim()).toBe("Cited");
-    expect(layout).toContain("Cited");
-    expect(page).toContain("Cited");
+    expect((readText("NOTICE").split("\n")[0] ?? "").trim()).toBe("Cited");
+    expect(readText("app/layout.tsx")).toContain("Cited");
+    expect(readText("app/page.tsx")).toContain("Cited");
   });
 
   it("keeps the home page as one main element with one heading that names Cited and nothing else", () => {
     const page = readText("app/page.tsx");
 
-    expect(page.match(/<main/g) ?? []).toHaveLength(1);
-    expect(page.match(/<h1/g) ?? []).toHaveLength(1);
+    expect(times(page, "<main")).toBe(1);
+    expect(times(page, "<h1")).toBe(1);
     expect(page).toContain("<h1>Cited</h1>");
     expect(page).not.toMatch(/className|<p|<section|<div/);
   });

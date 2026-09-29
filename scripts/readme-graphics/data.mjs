@@ -69,7 +69,7 @@ export const statusRows = [
     reference: "security-hardening",
   },
   {
-    capability: "One-click deploys, Docker image and bilingual docs",
+    capability: "Deployed in one click, with a Docker image and bilingual docs",
     state: "Planned",
     reference: "docs-deploy-and-launch",
   },
