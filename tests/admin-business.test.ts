@@ -1,4 +1,4 @@
-﻿// @vitest-environment node
+// @vitest-environment node
 import { afterAll, describe, expect, it } from "vitest";
 import { GET as business, PUT as businessWrite } from "@/app/api/admin/business/route";
 import { POST as logo } from "@/app/api/admin/business/logo/route";
@@ -259,5 +259,13 @@ describe("the prompt of the answers reads the business", () => {
     expect(system).toContain("cercano y breve");
     expect(system).toContain("precios de la competencia");
     expect(system).toMatch(/Answer in Spanish/);
+  });
+});
+
+describe("readBusiness with a store that cannot be opened", () => {
+  it("lets a failure that is not a missing table through", async () => {
+    await expect(
+      readBusiness({ DATABASE_URL: "libsql://not-contacted.invalid", TURSO_AUTH_TOKEN: "" }),
+    ).rejects.toThrow("TURSO_AUTH_TOKEN");
   });
 });
