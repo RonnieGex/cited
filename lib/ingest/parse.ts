@@ -79,13 +79,21 @@ function docxToMarkdown(html: string): string {
     .trim();
 }
 
-async function parsePdf(data: Uint8Array): Promise<ParsedDocument> {
+async function parsePdf(data: Uint8Array, maxPages: number, name: string): Promise<ParsedDocument> {
   const parser = new PDFParse({ data });
 
   try {
+    const information = await parser.getInfo();
+
+    if (information.total > maxPages) {
+      throw new Error(
+        `${name} crosses the page limit: ${information.total} pages is above the maximum of ${maxPages}.`,
+      );
+    }
+
     const result = await parser.getText();
 
-    return { type: "pdf", text: result.text, pages: result.total };
+    return { type: "pdf", text: result.text, pages: information.total };
   } finally {
     await parser.destroy();
   }
@@ -97,7 +105,11 @@ async function parseDocx(data: Buffer): Promise<ParsedDocument> {
   return { type: "docx", text: docxToMarkdown(converted.value), pages: null };
 }
 
-export async function parseBuffer(data: Uint8Array, name: string): Promise<ParsedDocument> {
+export async function parseBuffer(
+  data: Uint8Array,
+  name: string,
+  maxPages: number = MAX_PAGES,
+): Promise<ParsedDocument> {
   const type = detectType(data.subarray(0, 8), name);
 
   if (type === null) {
@@ -107,7 +119,7 @@ export async function parseBuffer(data: Uint8Array, name: string): Promise<Parse
   }
 
   if (type === "pdf") {
-    return parsePdf(data);
+    return parsePdf(data, maxPages, name);
   }
 
   if (type === "docx") {
@@ -132,15 +144,7 @@ export async function parseFile(
     );
   }
 
-  const parsed = await parseBuffer(await readFile(path), path);
-
-  if (parsed.pages !== null && parsed.pages > limits.maxPages) {
-    throw new Error(
-      `${path} crosses the page limit: ${parsed.pages} pages is above the maximum of ${limits.maxPages}.`,
-    );
-  }
-
-  return parsed;
+  return parseBuffer(await readFile(path), path, limits.maxPages);
 }
 
 export function acceptedExtensions(): string[] {
