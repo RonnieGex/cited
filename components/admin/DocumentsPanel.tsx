@@ -13,6 +13,7 @@ export type DocumentsPanelProps = {
 type Answer = { status?: string; error?: string; documents?: DocumentSummary[] };
 
 const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
+const head = "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
 
 export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
   const [list, setList] = useState(documents);
@@ -105,13 +106,13 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
             <caption className="sr-only">{strings.documentsIntro}</caption>
             <thead>
               <tr>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.documentName}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.passages}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.actions}
                 </th>
               </tr>
@@ -120,12 +121,13 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
               {list.map((document) => (
                 <tr key={document.name}>
                   <td className={cell}>{document.name}</td>
-                  <td className={cell}>{document.passages}</td>
+                  <td className={`${cell} tabular-nums`}>{document.passages}</td>
                   <td className={cell}>
                     <div className="flex flex-wrap gap-3">
                       <Button
                         aria-label={`${strings.reingestDocument} ${document.name}`}
                         onClick={() => void reingest(document.name)}
+                        size="sm"
                         variant="secondary"
                       >
                         {strings.reingestDocument}
@@ -133,6 +135,7 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
                       <Button
                         aria-label={`${strings.deleteDocument} ${document.name}`}
                         onClick={() => void remove(document.name)}
+                        size="sm"
                         variant="secondary"
                       >
                         {strings.deleteDocument}

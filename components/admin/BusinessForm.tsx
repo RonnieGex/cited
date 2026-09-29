@@ -14,7 +14,7 @@ export type BusinessFormProps = {
 type Answer = { status?: string; error?: string; business?: Business };
 
 const label = "text-sm font-semibold text-ink";
-const field = "flex max-w-[520px] flex-col gap-2";
+const field = "flex max-w-[560px] flex-col gap-2";
 
 export function BusinessForm({ strings, business }: BusinessFormProps) {
   const [name, setName] = useState(business?.name ?? "");
@@ -177,7 +177,9 @@ export function BusinessForm({ strings, business }: BusinessFormProps) {
           />
         </div>
 
-        <Button type="submit">{strings.saveBusiness}</Button>
+        <Button className="self-start" type="submit">
+          {strings.saveBusiness}
+        </Button>
 
         {message === null ? null : (
           <p className="text-sm font-semibold text-ink" role="status">
@@ -192,9 +194,9 @@ export function BusinessForm({ strings, business }: BusinessFormProps) {
       </form>
 
       <form onSubmit={uploadLogo}>
-        <Panel className="flex flex-col gap-4">
+        <Panel className="flex max-w-[640px] flex-col gap-4">
           <SectionTitle level="h2">{strings.logoLabel}</SectionTitle>
-          <Chip>{stored ? strings.logoSet : strings.logoMissing}</Chip>
+          <Chip className="self-start">{stored ? strings.logoSet : strings.logoMissing}</Chip>
           <p className="max-w-[65ch] text-sm text-ink/80">{strings.logoHint}</p>
           <div className={field}>
             <label className={label} htmlFor="business-logo">
@@ -208,7 +210,7 @@ export function BusinessForm({ strings, business }: BusinessFormProps) {
               type="file"
             />
           </div>
-          <Button type="submit" variant="secondary">
+          <Button className="self-start" type="submit" variant="secondary">
             {strings.uploadLogo}
           </Button>
         </Panel>

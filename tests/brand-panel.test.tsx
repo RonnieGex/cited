@@ -38,7 +38,7 @@ beforeEach(() => {
 });
 
 async function layout(children: ReactNode = <p>the page</p>) {
-  return render(await AdminLayout({ children }));
+  return render(await AdminLayout({ children, params: Promise.resolve({}) }));
 }
 
 function sidebar(): HTMLElement {

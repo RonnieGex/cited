@@ -34,7 +34,9 @@ export default async function AdminSetup() {
             {group.variables.map((variable) => (
               <li className={row} key={variable.name}>
                 <span className="font-mono text-sm text-ink">{variable.name}</span>
-                <Chip>{variable.configured ? strings.configured : strings.missing}</Chip>
+                <Chip className={variable.configured ? "border-ink! bg-lime!" : "text-ink-2!"}>
+                  {variable.configured ? strings.configured : strings.missing}
+                </Chip>
               </li>
             ))}
           </ul>

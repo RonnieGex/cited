@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Panel, SectionTitle } from "@/components/ui";
+import { Button, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { ConversationSummary } from "@/lib/admin/conversations";
 import type { AdminStrings } from "@/lib/i18n/admin";
 
@@ -13,6 +13,7 @@ export type ConversationsPanelProps = {
 type Answer = { status?: string; error?: string; conversations?: ConversationSummary[] };
 
 const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
+const head = "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
 
 export function ConversationsPanel({ strings, conversations }: ConversationsPanelProps) {
   const [list, setList] = useState(conversations);
@@ -40,7 +41,13 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
 
   return (
     <div className="flex flex-col gap-8">
-      <Panel className="overflow-x-auto">
+      {/* The panel scrolls sideways on a phone: a scrolling region has to be reachable by keyboard (axe: scrollable-region-focusable). */}
+      <Panel
+        aria-label={strings.conversationsTitle}
+        className={`overflow-x-auto ${focusRing}`}
+        role="region"
+        tabIndex={0}
+      >
         <SectionTitle level="h2">{strings.conversationsTitle}</SectionTitle>
         {list.length === 0 ? (
           <p className="mt-4 text-sm text-ink/80">{strings.noConversations}</p>
@@ -49,16 +56,16 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
             <caption className="sr-only">{strings.conversationsIntro}</caption>
             <thead>
               <tr>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.question}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.status}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.citations}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.when}
                 </th>
               </tr>
@@ -73,7 +80,7 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
                   <td className={cell}>
                     {turn.citations.length === 0 ? "—" : turn.citations.join(", ")}
                   </td>
-                  <td className={cell}>{turn.createdAt}</td>
+                  <td className={`${cell} whitespace-nowrap tabular-nums`}>{turn.createdAt}</td>
                 </tr>
               ))}
             </tbody>
@@ -81,7 +88,7 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
         )}
       </Panel>
 
-      <Button onClick={() => void removeAll()} variant="secondary">
+      <Button className="self-start" onClick={() => void removeAll()} variant="secondary">
         {strings.deleteAll}
       </Button>
 
