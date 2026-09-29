@@ -73,7 +73,7 @@ reproduced.
 - [x] 10.1 `LanguageSwitch` takes the prop `current` (design decision 8 as amended) — report: the one of this section
 - [x] 10.2 The primary color paints the ask button and the accents, scenario "The color reaches the page" — report: the
       one of this section
-- [ ] 10.3 `/embed` posts a message to its parent on `Escape`, and `widget.js` closes only for a message from its own
+- [x] 10.3 `/embed` posts a message to its parent on `Escape`, and `widget.js` closes only for a message from its own
       origin, scenario "Escape inside the iframe" — report: the one of this section
 - [ ] 10.4 A tab opened from another starts its own session (for example an owner mark kept in `window.name`, which a
       new tab does not inherit, next to the id in `sessionStorage`), scenario "A tab opened from the page" — report:

@@ -9,6 +9,7 @@
   var text = strings[spanish ? "es" : "en"];
   var open = false;
   var frame = null;
+  var asked = {"source":"cited-embed","type":"close"};
   var fixed = "position:fixed;right:20px;z-index:2147483000";
   var button = document.createElement("button");
   button.type = "button";
@@ -35,5 +36,11 @@
   }
   button.addEventListener("click", function () { if (open) { close(); } else { show(); } });
   document.addEventListener("keydown", function (event) { if (event.key === "Escape" && open) close(); });
+  window.addEventListener("message", function (event) {
+    if (event.origin !== origin) return;
+    var data = event.data;
+    if (!data || data.source !== asked.source || data.type !== asked.type) return;
+    if (open) close();
+  });
   if (document.body) { document.body.appendChild(button); } else { document.addEventListener("DOMContentLoaded", function () { document.body.appendChild(button); }); }
 })();

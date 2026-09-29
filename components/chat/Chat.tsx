@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { Button, Input, Panel } from "@/components/ui";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import type { Lang } from "@/lib/settings/business";
@@ -8,6 +8,7 @@ import type { Citation } from "@/lib/answer/types";
 import { askCited, type AskResult } from "@/lib/chat/client";
 import { sessionId, type TabStorage } from "@/lib/chat/session";
 import { PUBLIC_STRINGS, type PublicStrings } from "@/lib/i18n/public";
+import { CLOSE_MESSAGE } from "@/lib/widget/messages";
 import { CitationPanel } from "./CitationPanel";
 import { Markdown } from "./Markdown";
 
@@ -116,6 +117,29 @@ export function Chat({ lang, welcome, variant = "page", ask, storage }: ChatProp
   const [turns, setTurns] = useState<Turn[]>([]);
   const [loading, setLoading] = useState(false);
   const asked = ask ?? ((input: { question: string; sessionId: string }) => askCited(input));
+
+  // `Escape` inside the iframe belongs to this document and never reaches the page that carries the widget, so the
+  // embed asks its parent to close (design decision 4 and the scenario "Escape inside the iframe"). The widget
+  // believes only a message from its own origin. The public page posts nothing.
+  useEffect(() => {
+    if (variant !== "embed") {
+      return;
+    }
+
+    const onEscape = (event: KeyboardEvent): void => {
+      if (event.key !== "Escape" || window.parent === window) {
+        return;
+      }
+
+      window.parent.postMessage(CLOSE_MESSAGE, "*");
+    };
+
+    document.addEventListener("keydown", onEscape);
+
+    return () => {
+      document.removeEventListener("keydown", onEscape);
+    };
+  }, [variant]);
 
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();

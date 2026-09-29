@@ -169,6 +169,41 @@ AssertionError: expected [] to deeply equal [ { data: { …(2) }, target: '*' } 
 
 The E2E red, with the focus inside the iframe, is in the section "The red run of the browser" below.
 
+### The fix
+
+- `lib/widget/messages.ts` carries the one protocol of the two halves: `EMBED_SOURCE = "cited-embed"`,
+  `CLOSE_TYPE = "close"` and `CLOSE_MESSAGE`.
+- `components/chat/Chat.tsx` listens to `keydown` while it is the chat of `/embed` and, when the key is `Escape` and
+  the document is framed, posts `CLOSE_MESSAGE` to its parent. The public page posts nothing.
+- `lib/widget/script.ts` inlines the same object (the built file has no imports) and closes when a `message` arrives
+  from its own origin and with that shape. Any other origin or any other shape is ignored; the focus returns to the
+  button through the `close()` it already had.
+- `public/widget.js` is rebuilt: 2466 bytes of the 5120 the decision allows.
+- `docs/widget.md` says that `Escape` closes the widget from the page and from inside the chat.
+
+```powershell
+npm run build:widget
+npx vitest run tests/widget.test.ts tests/chat.test.tsx
+npx playwright test e2e/widget.spec.ts -g "Escape inside the iframe"
+```
+
+```text
+wrote public/widget.js (2466 bytes)
+```
+
+```text
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+```
+
+```text
+1 passed (1.9s)
+```
+
+Chromium opens the widget on the allowed origin, puts the focus on the question box inside the iframe, presses
+`Escape`, finds no iframe and finds the focus back on the button. Full logs:
+`katalis-dev/tasks/_community-08-step10-103-green.log` and `_community-08-step10-103-e2e-green.log`.
+
 ## The red run of the browser, for 10.2, 10.3 and 10.4
 
 One build of the branch with the fix of 10.1 only (the build type checks the tests, and the red tests of 10.1 do not

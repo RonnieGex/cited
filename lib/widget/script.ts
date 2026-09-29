@@ -1,4 +1,5 @@
 import { PUBLIC_STRINGS } from "../i18n/public.ts";
+import { CLOSE_MESSAGE } from "./messages.ts";
 
 // Design decision 4 of `openspec/changes/public-page-and-widget/design.md`: a dependency-free `public/widget.js`,
 // built from here and committed, under 5 KB. It adds a floating button to the page that loads it and opens `/embed` in
@@ -17,6 +18,8 @@ const widgetStrings = JSON.stringify({
   es: PUBLIC_STRINGS.es.widget,
 });
 
+const closeMessage = JSON.stringify(CLOSE_MESSAGE);
+
 export function widgetSource(): string {
   return `${WIDGET_BANNER}
 (function () {
@@ -29,6 +32,7 @@ export function widgetSource(): string {
   var text = strings[spanish ? "es" : "en"];
   var open = false;
   var frame = null;
+  var asked = ${closeMessage};
   var fixed = "position:fixed;right:20px;z-index:2147483000";
   var button = document.createElement("button");
   button.type = "button";
@@ -55,6 +59,12 @@ export function widgetSource(): string {
   }
   button.addEventListener("click", function () { if (open) { close(); } else { show(); } });
   document.addEventListener("keydown", function (event) { if (event.key === "Escape" && open) close(); });
+  window.addEventListener("message", function (event) {
+    if (event.origin !== origin) return;
+    var data = event.data;
+    if (!data || data.source !== asked.source || data.type !== asked.type) return;
+    if (open) close();
+  });
   if (document.body) { document.body.appendChild(button); } else { document.addEventListener("DOMContentLoaded", function () { document.body.appendChild(button); }); }
 })();
 `;

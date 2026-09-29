@@ -12,7 +12,9 @@ the chat of the business inside it. `ALLOWED_ORIGINS` decides which sites may ca
 That line is all the owner pastes. The script is a static file of the installation, `public/widget.js`, built from
 `lib/widget/script.ts`, and it adds one floating button with the accessible name `Ask us` (or `Pregúntanos` when the
 site declares Spanish in `<html lang>`). A click opens `/embed` in an iframe of the same origin as the script, and
-`Escape` closes it. The script does nothing if it is loaded twice and it carries no dependency.
+`Escape` closes it, from the page that carries the widget and from inside the chat: the document of `/embed` posts the
+order to close to its parent, and the widget obeys only a message from its own origin and of that shape
+(`lib/widget/messages.ts`). The script does nothing if it is loaded twice and it carries no dependency.
 
 ## 2. `ALLOWED_ORIGINS`
 
