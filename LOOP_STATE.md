@@ -2,23 +2,65 @@
 
 STATUS: DONE
 CHANGE: elevenlabs-voice-agent (OpenSpec)
-ROUND: the whole contract, tasks 0.1 to 9.2, with 7.2 left `[BLOCKED]` because it is Fable's
+ROUND: the section 10 of `openspec/changes/elevenlabs-voice-agent/tasks.md`, amended by Fable after the adversarial
+review `tasks/revision-community-09.md` (three Major and one Minor)
 BRANCH: feature/elevenlabs-voice-agent
+BASE OF THE ROUND: 1119236 ("Serve the voice from our own origin, keep the cap whole, and record the store before and
+after"), the contract amendment; the sections 0 to 9 are untouched
+HEAD AT THE END OF THE ROUND: 0ca911c, plus the closing commit that carries this file
+AGENT: deepseek-harness
+DATE: 2026-09-29
+
+## What the round delivered
+
+- **10.1**: `scripts/store-state.ts` prints every table of a store and the row count of each one, and can read the
+  schema of another revision; the round ran it over the base `21ad3b9` (13 tables, neither `voice_minutes` nor
+  `voice_agent`) and over this branch (15 tables, the two of the voice empty before the flows and one row each after
+  them), and `tests/voice-store-state.test.ts` asserts both pictures.
+- **10.2**: the two processors of `@elevenlabs/client` 1.26.0 and the resampler of `@alexanderolsen/libsamplerate-js`
+  2.1.2 (MIT, exact `devDependency`) are served from `public/voice/worklets/`, refreshed by `npm run worklets:voice`,
+  and `components/voice/voice-session.ts` hands `startSession` their paths (`workletPaths`, `libsampleratePath`), which
+  is the route the README of the installed SDK documents for a strict policy. The jsDelivr fallback the review
+  reproduced is gone, and both a unit test and a browser test fail if it comes back.
+- **10.3**: the reservation of a session is one statement with the cap in the first insert too
+  (`SELECT … WHERE ? <= ?`), so a limit below five minutes allows no session and stores no minute; the route answers
+  `429` with `reason`, and the panel says so in English and in Spanish.
+- **10.4**: the policy keeps `connect-src 'self' wss://api.elevenlabs.io`, `worker-src 'self'` and no `media-src`, with
+  the reason of each directive written in `lib/headers/csp.ts` and the test demanding no third-party host at all.
+- **10.5**: 49 files and 438 tests green on Windows, 49 files with 436 green and 2 skipped in a `node:24` container
+  after `npm ci`, `typecheck`, `lint`, 29 browser tests green, gitleaks with no leak, OpenSpec 11 of 11 and
+  `git diff --check main...HEAD` clean; the round 10 was appended to `tasks/entrega-community-09.md` with its
+  `## Issues`.
+
+## Evidence
+
+- The report of the round: `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-10-review-fixes.md`, one
+  section per task with the exact commands, the red before each fix and the output.
+- Every `[x]` of the section 10 carries its report in the same commit as its mark.
+- The delivery in Spanish: `tasks/entrega-community-09.md`, round 10.
+
+## The issues that stay open
+
+- **7.2 is still `[BLOCKED]`**: one real session against a real agent is Fable's task, and nothing of this round called
+  ElevenLabs or a model provider.
+- One browser test of the suite (`e2e/widget.spec.ts:44`) failed once on its 5 s timeout during the first whole run of
+  the round and passed alone and in the next whole run with the same build: recorded as a flake under load, not as a
+  defect of this round.
+- The vendored resampler weighs 2 MB, the price of not asking a CDN for it; the alternative (generating it at build
+  time) is written in the report and in the delivery.
+- The lock file had to be regenerated inside `node:24` again, the trap the round 9 already recorded.
+- The minute cap is still a reservation of five minutes per session and not a measurement of the call.
+
+---
+
+# Round 9 (closed)
+
+STATUS: DONE
+ROUND: the whole contract, tasks 0.1 to 9.2, with 7.2 left `[BLOCKED]` because it is Fable's
 BASE: 21ad3b9 (main, "Merge admin-panel-and-onboarding"), which already carries the panel and the public page
 HEAD AT THE START OF THE ROUND: d7a276e ("Specify the ElevenLabs voice agent, English first")
 HEAD AT THE END OF THE ROUND: 31f0db7, plus the closing commit that carries this file, the report of step 9.2 and the
 marks of section 9
-AGENT: deepseek-harness
-DATE: 2026-09-29
-
-## Objective
-
-Execute `openspec/changes/elevenlabs-voice-agent/tasks.md`, written by Fable, in order and complete except 7.2: the
-server tool behind a Bearer secret, the signed URL with the daily cap of voice minutes, the one-click provisioning of
-the agent from the panel, the ported panel and Orb on the public page and in the widget, the build guard that keeps the
-test SDK out of a production build, the battery of checks, the manual `curl.exe` verification, the end-to-end run with
-its captures, the documentation and the delivery. Tests first and red before the code, one real report per `[x]` inside
-the change folder, small commits on the branch, and no push, no remote, no archive and no commit in `main`.
 
 ## What was delivered
 
@@ -52,25 +94,27 @@ the change folder, small commits on the branch, and no push, no remote, no archi
   violations, and the captures of the panel at 1440 and 375 px.
 - **9.1 and 9.2**: `docs/voice-agent.md`, the two READMEs with the voice row available and a real capture, the
   graphics of the README moved with the row, five documents that claimed the voice was planned, and the delivery
-  `katalis-dev/tasks/entrega-community-09.md`.
+  `tasks/entrega-community-09.md`.
 
 ## Evidence
 
-- One report per task inside the change: `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-{0,1,2,3,4,5,6,7,8,9}-*.md`,
-  each one with the exact command, the commit it was verified against and the real output.
+- One report per task inside the change:
+  `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-{0,1,2,3,4,5,6,7,8,9}-*.md`, each one with the
+  exact command, the commit it was verified against and the real output.
 - `npm test`: 46 files and 429 tests green on Windows (13.56 s); 46 files, 427 green and 2 skipped in a `node:24` Linux
   container from a clean clone (v24.21.0).
 - `npm run test:e2e`: 28 tests green in one run with the two servers, the voice panel at 0 violations of axe, and the
   build guard of the test SDK passed before the suite started.
-- `curl.exe`: the eight verifications of task 6.1, in `katalis-dev/tasks/_community-09-step6-curl.log`.
-- The captures: `katalis-dev/tasks/capturas-community-09/` and `docs/images/voice/panel.png`.
+- `curl.exe`: the eight verifications of task 6.1, in `tasks/_community-09-step6-curl.log`.
+- The captures: `tasks/capturas-community-09/` and `docs/images/voice/panel.png`.
 
-## The issues that stay open
+## The issues that stayed open at the end of round 9
 
-- **7.2 is `[BLOCKED]`**: one real session against a real agent is Fable's task. No test, capture or script of this
+- **7.2 is `[BLOCKED]`**: one real session against a real agent is Fable's task. No test, capture or script of that
   round called ElevenLabs or a model provider.
-- The worklet of audio of the SDK loads from a `blob:`, which is why the policy of the public documents gained
-  `worker-src 'self' blob:` and `media-src 'self' blob:`; that it loads under that policy is what a real session proves.
+- The worklet of audio of the SDK loads from a `blob:`, which was why the policy gained `worker-src 'self' blob:` and
+  `media-src 'self' blob:`; whether it loads under that policy is what a real session proves. The review of Codex
+  reproduced that the resampler falls back to a CDN the policy blocks, and section 10 fixed it.
 - The cap of voice minutes is a reservation of five minutes per session and not a measurement of the call.
 - Turbopack keeps its scratch space in `.next/cache`, and a production build after an end-to-end one leaves the marker
   of the test SDK there. The guard reads the emitted output and not the compiler cache, on purpose and in writing.
@@ -82,17 +126,3 @@ the change folder, small commits on the branch, and no push, no remote, no archi
   navigation and the README, so the merge of the two branches will need a hand on the README and the graphics.
 - `EMBEDDING_MODEL` and `EMBEDDING_API_KEY` stay in the template with no reader; the README now says so.
 - The change is not archived (that needs the explicit OK of Franc), nothing was pushed and nothing was deployed.
-
-## Hard rules respected
-
-- No `.env` file was opened (the repository has none: `Test-Path .env` is `False`); `.env.example` is the public
-  template and the only environment file edited.
-- No push, no remote, no commit in `main`, no archive in this worktree, no deploy. Another session moved `main` to
-  `c07640b` while this round ran; this branch never wrote to it and still sits on its declared base `21ad3b9`.
-- The other worktrees (`community-ins`, of the feedback lane, and `community-ui`, of Fable) were not touched.
-- No test calls ElevenLabs or a model provider: the double of the API, the test SDK and the deterministic providers ran
-  the suite, the two servers of the browser flows and the captures.
-- `MEMORY.md` is in no commit.
-- UTF-8 with LF in every file written or modified.
-- No personal path in a versioned file.
-- The text of no task, of `design.md` or of a spec was edited: only the checkboxes of `tasks.md`.
