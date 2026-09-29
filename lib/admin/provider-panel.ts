@@ -89,16 +89,15 @@ export async function providerPanelStateOf(
 
 export type TestSlot = { allowed: true } | { allowed: false; retryAfterSeconds: number };
 
-// Decision 4: the test, the save and the remove routes share a limit of twenty tests per hour.
+// Decision 4: the test, the save and the remove routes share a limit of twenty tests per hour. The requirement "The
+// test limit holds under concurrency" makes the reservation itself the atomic operation: the store writes the attempt
+// and answers how many the window holds, and this reads that count. Reading it first and incrementing it after left a
+// window in which forty simultaneous tests all saw the same value (Major M-2 of `revision-community-12.md`).
 export async function reserveProviderTest(store: Store, now: Date = new Date()): Promise<TestSlot> {
   const windowStart = hourWindowStart(now);
-  const used = await store.providerTestsInWindow(windowStart);
+  const used = await store.reserveProviderTest(windowStart);
 
-  if (used >= PROVIDER_TESTS_PER_HOUR) {
-    return { allowed: false, retryAfterSeconds: retryAfterSeconds(now) };
-  }
-
-  await store.recordProviderTest(windowStart);
-
-  return { allowed: true };
+  return used > PROVIDER_TESTS_PER_HOUR
+    ? { allowed: false, retryAfterSeconds: retryAfterSeconds(now) }
+    : { allowed: true };
 }

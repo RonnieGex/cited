@@ -168,3 +168,70 @@ npm run typecheck
 npm run lint
 (no output)
 ```
+
+## 10.3 Major M-2: the limit of twenty tests holds under concurrency
+
+**The finding.** `lib/admin/provider-panel.ts` read the counter with `providerTestsInWindow()` and incremented it with
+`recordProviderTest()` in two separate operations, so several requests observed the same value before any of them
+reserved its slot. Codex reproduced it with forty authenticated requests: `RATE_REPRO allowed=40 limited=0
+provider_calls=40`.
+
+### Red before the fix
+
+Command:
+
+```text
+npx vitest run tests/provider-limit.test.ts --reporter=verbose
+```
+
+Output (HEAD `9a56392`, before this fix):
+
+```text
+ ✓ … reserves the twentieth slot and refuses the twenty-first 112ms
+ × … reserves exactly twenty slots when forty arrive at the same time 157ms
+   → expected 40 to be 20 // Object.is equality
+ × … lets exactly twenty of forty concurrent requests reach the provider 248ms
+   → expected 40 to be 20 // Object.is equality
+ × … keeps the twentieth slot when the requests arrive in bursts of one window 132ms
+   → expected [ { allowed: true }, …(24) ] to have a length of 20 but got 25
+      Tests  3 failed | 1 passed (4)
+```
+
+The second failure is the reproduction of the review, with the same numbers: `allowed` 40, `provider_calls` 40. The
+provider of the case is the local HTTP double of the suite.
+
+### The fix
+
+- `lib/store/index.ts`: `reserveProviderTest(windowStart)` replaces `recordProviderTest()` and
+  `providerTestsInWindow()`. It **writes first and counts after**, and the two statements (`DELETE` of the windows that
+  are not the current one, and the `INSERT ... ON CONFLICT ... RETURNING count`) travel as one `batch(..., "write")`,
+  which is one atomic transaction: the row the twentieth request leaves behind is the wall the twenty-first one finds.
+  The cleanup of the old windows rides in the same batch, so the table cannot grow for ever.
+- `lib/admin/provider-panel.ts`: `reserveProviderTest()` reads the count that operation returns, so the decision is
+  taken inside the atomic operation and never before it.
+
+### Green after the fix
+
+```text
+npx vitest run tests/provider-limit.test.ts --reporter=verbose
+ ✓ … (4 tests)
+      Tests  4 passed (4)
+```
+
+```text
+npm test
+ Test Files  49 passed (49)
+      Tests  442 passed (442)
+ Duration  24.02s
+```
+
+```text
+npm run typecheck
+✓ Types generated successfully
+
+npm run lint
+(no output)
+```
+
+The exact numbers of the reproduction are the ones the suite checks: `allowed` 20, `limited` 20 and
+`seen.requests` 20.

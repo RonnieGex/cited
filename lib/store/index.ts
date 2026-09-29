@@ -266,8 +266,7 @@ export type Store = {
   readProviderSetting(kind: ProviderKind): Promise<StoredProviderSetting | null>;
   saveProviderSetting(row: ProviderSettingInput): Promise<void>;
   deleteProviderSetting(kind: ProviderKind): Promise<number>;
-  recordProviderTest(windowStart: string): Promise<number>;
-  providerTestsInWindow(windowStart: string): Promise<number>;
+  reserveProviderTest(windowStart: string): Promise<number>;
   saveIndexSignature(documentName: string, signature: string): Promise<void>;
   countPassagesNeedingIndex(signature: string): Promise<number>;
   listDocumentsNeedingIndex(signature: string): Promise<StoredDocument[]>;
@@ -784,24 +783,27 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
       return Number(deleted.rowsAffected);
     },
 
-    async recordProviderTest(windowStart: string): Promise<number> {
-      const counted = await client.execute({
-        sql: `INSERT INTO provider_tests (window_start, count) VALUES (?, 1)
-          ON CONFLICT (window_start) DO UPDATE SET count = count + 1
-          RETURNING count`,
-        args: [windowStart],
-      });
+    // The requirement "The test limit holds under concurrency": reading the counter and incrementing it in two
+    // operations let forty simultaneous tests observe the same value before any of them reserved its slot (Major M-2
+    // of `revision-community-12.md`). This writes first and counts after, and the two statements travel as one batch in
+    // write mode, which is one atomic transaction: the row that the twentieth request leaves behind is the wall the
+    // twenty-first one finds. The rows of the windows that are not the current one are removed in the same batch,
+    // which is what keeps the table from growing for ever.
+    async reserveProviderTest(windowStart: string): Promise<number> {
+      const answers = await client.batch(
+        [
+          { sql: "DELETE FROM provider_tests WHERE window_start <> ?", args: [windowStart] },
+          {
+            sql: `INSERT INTO provider_tests (window_start, count) VALUES (?, 1)
+              ON CONFLICT (window_start) DO UPDATE SET count = count + 1
+              RETURNING count`,
+            args: [windowStart],
+          },
+        ],
+        "write",
+      );
 
-      return Number(counted.rows[0]?.["count"] ?? 0);
-    },
-
-    async providerTestsInWindow(windowStart: string): Promise<number> {
-      const found = await client.execute({
-        sql: "SELECT count FROM provider_tests WHERE window_start = ?",
-        args: [windowStart],
-      });
-
-      return Number(found.rows[0]?.["count"] ?? 0);
+      return Number(answers[1]?.rows[0]?.["count"] ?? 0);
     },
 
     async saveIndexSignature(documentName: string, signature: string): Promise<void> {

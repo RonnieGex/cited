@@ -83,7 +83,7 @@ reproduced.
 - [x] 10.2 Major: the provider address rules against private networks (requirement "A provider address cannot reach
       private networks"), `ALLOW_LOCAL_PROVIDERS` in `.env.example` and `docs/providers.md` — report: the one of this
       section
-- [ ] 10.3 Major: the atomic test limit (requirement "The test limit holds under concurrency") — report: the one of this
+- [x] 10.3 Major: the atomic test limit (requirement "The test limit holds under concurrency") — report: the one of this
       section
 - [ ] 10.4 Major: the pages follow the amended proposal (no variable name outside "For the installer"), with a test that
       reads every panel page — report: the one of this section
