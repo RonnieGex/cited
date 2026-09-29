@@ -1,6 +1,6 @@
 # Step 11: the contrast of the controls and the place of the reports
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, section 11, written by Fable after
+Contract: `tasks.md`, section 11, written by Fable after
 `katalis-dev/tasks/revision-community-04.md`. Branch `feature/brand-and-design-system` in the worktree
 `katalis-dev/community-ui`; base `aa52b7c` of `main`; the round opens at `e3c003d`.
 
@@ -278,6 +278,6 @@ the loop is in `LOOP_STATE.md`.
 - `e2e/design-system.spec.ts` (the test of the scenario and its helpers).
 - `tests/design-system.test.ts` (the case of the token and of the document).
 - `docs/design-system.md` (the hairline, its ratios and the correction of the lime on paper).
-- `openspec/changes/brand-and-design-system/tasks.md` (the four boxes of the section 11 and nothing else).
+- `tasks.md` (the four boxes of the section 11 and nothing else).
 - `katalis-dev/tasks/entrega-community-04.md` (the round and its `## Issues`, outside the repository).
 - `reports/2026-09-29-step-11-contrast.md` (this file).

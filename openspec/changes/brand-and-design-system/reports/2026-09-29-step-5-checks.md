@@ -1,6 +1,6 @@
 # Step 5 · the checks
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, task 5.1.
+Contract: `tasks.md`, task 5.1.
 Agent: deepseek-harness. Date: 2026-09-29.
 
 Every command runs in the worktree `katalis-dev/community-ui`, quoted below as the working directory `.`; the absolute

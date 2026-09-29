@@ -1,6 +1,6 @@
 # Step 0.1 · the branch
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, task 0.1.
+Contract: `tasks.md`, task 0.1.
 Agent: deepseek-harness. Date: 2026-09-29.
 
 ## What the task asks

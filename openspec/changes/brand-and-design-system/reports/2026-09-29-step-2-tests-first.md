@@ -1,6 +1,6 @@
 # Step 2 Â· tests first, in red
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, tasks 2.1 and 2.2.
+Contract: `tasks.md`, tasks 2.1 and 2.2.
 Agent: deepseek-harness. Date: 2026-09-29.
 
 Every command of this report runs in the worktree `katalis-dev/community-ui`, quoted below as the working directory
@@ -10,7 +10,7 @@ refuses it.
 ## 2.1 Red tests for every scenario a unit test can read
 
 `tests/design-system.test.ts` is new and reads the four requirements of
-`openspec/changes/brand-and-design-system/specs/design-system/spec.md` that a unit test can read:
+`specs/design-system/spec.md` that a unit test can read:
 
 | Scenario of the spec | Test |
 |---|---|

@@ -1,6 +1,6 @@
 # Step 8 · the state of the base after
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, task 8.1: repeat 1.1.
+Contract: `tasks.md`, task 8.1: repeat 1.1.
 Agent: deepseek-harness. Date: 2026-09-29.
 
 Every command runs in the worktree `katalis-dev/community-ui`, quoted below as the working directory `.`.
@@ -58,7 +58,7 @@ exit=0   (and `git status --porcelain` returns 0 lines)
 | `git status` | clean | clean |
 
 The two failures of the base were the home directory of the machine in
-`openspec/changes/brand-and-design-system/design.md`, the contract of this very change; they were repaired in
+`design.md`, the contract of this very change; they were repaired in
 `dd174e9` without touching a decision or a requirement, and step 5 proved the same suite green on Linux as well.
 
 ## The change adds no persistence

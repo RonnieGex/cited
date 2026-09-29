@@ -1,6 +1,6 @@
 # Step 1.1 Â· the state of the base before
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, task 1.1.
+Contract: `tasks.md`, task 1.1.
 Agent: deepseek-harness. Date: 2026-09-29.
 
 ## What the task asks
@@ -29,7 +29,7 @@ exit=1
 ```
 
 The two failures are not caused by this round's code: both name
-`openspec/changes/brand-and-design-system/design.md`, the contract of this change, which carries the absolute path of
+`design.md`, the contract of this change, which carries the absolute path of
 the source directory of the flame. The rule the test defends is that no tracked file carries the home directory of a
 development machine, and the only exempt files are the two paths of the bootstrap contract that states the rule. The
 repository will be public, so a home directory in a tracked file is a defect of the base, present at `3b3cfbd`, before
@@ -118,5 +118,5 @@ exit=0
 
 ## Files
 
-- `openspec/changes/brand-and-design-system/design.md` (one line, the source path).
+- `design.md` (one line, the source path).
 - `reports/2026-09-29-step-1-base-before.md` (this file).

@@ -1,6 +1,6 @@
 # Step 10 · the flame has to be seen
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, tasks 10.1 to 10.4. The four share this report, as the
+Contract: `tasks.md`, tasks 10.1 to 10.4. The four share this report, as the
 contract asks.
 Agent: deepseek-harness. Date: 2026-09-29.
 

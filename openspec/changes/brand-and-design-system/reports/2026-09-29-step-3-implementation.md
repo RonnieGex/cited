@@ -1,6 +1,6 @@
 # Step 3 · the implementation
 
-Contract: `openspec/changes/brand-and-design-system/tasks.md`, tasks 3.1, 3.2 and 3.3. The three tasks share this
+Contract: `tasks.md`, tasks 3.1, 3.2 and 3.3. The three tasks share this
 report, as the contract asks.
 Agent: deepseek-harness. Date: 2026-09-29.
 
