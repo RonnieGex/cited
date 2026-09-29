@@ -1,6 +1,6 @@
 # LOOP_STATE · Cited
 
-STATUS: RUNNING
+STATUS: DONE
 CHANGE: elevenlabs-voice-agent (OpenSpec)
 ROUND: the section 11 of `openspec/changes/elevenlabs-voice-agent/tasks.md`, amended by Fable after the adversarial
 review `tasks/revision-community-09b.md` (two Major)
@@ -8,22 +8,53 @@ BRANCH: feature/elevenlabs-voice-agent
 BASE OF THE ROUND: e760f9d ("Check the cap before the configuration, and keep the notice of what is copied"), the
 contract amendment; the sections 0 to 10 are untouched
 HEAD AT THE START OF THE ROUND: e760f9d
+HEAD AT THE END OF THE ROUND: 7876988, plus the closing commit that carries this file, the report of the section and the
+marks of section 11
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
-## What this round has to close
+## What the round delivered
 
-- **11.1**: `GET /api/voice/signed-url` answers `429` for a cap below one session before it looks at the configuration,
-  with the battery of `DAILY_VOICE_MINUTE_LIMIT=1..4` and an empty `ELEVENLABS_API_KEY` as a test, and `503` naming the
-  variable only when the cap of the day admits a session.
-- **11.2**: the license texts of `@alexanderolsen/libsamplerate-js` 2.1.2 (MIT and the BSD 2-clause of the
-  libsamplerate it bundles) sit byte for byte next to the served resampler, and `THIRD_PARTY_NOTICES.md` lists every
-  verbatim copy of a package the repository serves — the resampler, the two worklets of `@elevenlabs/client` and the
-  Outfit font with its OFL — with its name, version, license and origin.
-- **11.3**: the whole battery on Windows and in a `node:24` container, the round appended to
-  `tasks/entrega-community-09.md` with `## Issues`, and the report of the section in the change folder.
+- **11.1**: the defect of the review is closed. `lib/voice/minutes.ts` exposes `capRefusal(limit)`, the rule of the cap
+  that needs no store, and `app/api/voice/signed-url/route.ts` evaluates it **before** it reads `ELEVENLABS_API_KEY`, so
+  a cap below the five minutes of one session answers `429` with `reason: "below-session"` whether or not the key and
+  the agent are configured. The battery of the review (`DAILY_VOICE_MINUTE_LIMIT=1..4` with the key empty), the case
+  of the missing agent and the `503` that must stay when the cap admits a session are tests in
+  `tests/voice-minute-cap.test.ts`; the new tests hand the route a virgin store path and assert that the store file was
+  never created. The "spent" half of the cap stays in the atomic reservation after the configuration, on purpose: an
+  unconfigured installation must not consume five minutes of the day on every `503`.
+- **11.2**: `public/voice/worklets/LICENSE-libsamplerate-js.md` is the `LICENSE.md` of
+  `@alexanderolsen/libsamplerate-js` 2.1.2 byte for byte (MIT plus the 2-clause BSD of the libsamplerate it bundles,
+  both in the single file the package publishes), and `LICENSE-elevenlabs-client.md` is the MIT `LICENSE` of
+  `@elevenlabs/client` 1.26.0, which covers the two processors copied next to it. `THIRD_PARTY_NOTICES.md` lists every
+  verbatim copy of a package the repository serves — the three worklets, their two license texts and the Outfit font
+  with its OFL — with its name, version, license, origin and the official sources, and `npm run worklets:voice` now
+  copies the five files. `tests/third-party-notices.test.ts` reads the installed packages and compares byte by byte.
+- **11.3**: 50 files and 448 tests green on Windows, 50 files with 446 green and 2 skipped in a `node:24` container
+  after `npm ci`, `typecheck`, `lint`, 29 browser tests green, gitleaks over 349 commits with no leak, OpenSpec 11 of 11
+  and `git diff --check main...HEAD` clean; the round 11 was appended to `tasks/entrega-community-09.md` with its
+  `## Issues`.
 
-Tests first, red before each fix; no test of this round calls ElevenLabs.
+## Evidence
+
+- The report of the round: `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-11-review-fixes.md`, one
+  section per task with the exact commands, the red before each fix, the commits and the output.
+- Every `[x]` of the section 11 carries its report inside the change; the red and the fix travel in separate small
+  commits (`c7250e4` and `e67a4e2` for the cap, `18b7dea` and `7876988` for the notices).
+- The delivery in Spanish: `tasks/entrega-community-09.md`, round 11.
+
+## The issues that stay open
+
+- **7.2 is still `[BLOCKED]`**: one real session against a real agent is Fable's task, and nothing of this round called
+  ElevenLabs or a model provider.
+- The "spent" half of the cap is still evaluated after the configuration, which is deliberate and recorded in the
+  report and in the delivery: making the whole cap first would need a read of the day before the key check.
+- On Windows the file of a just-closed store stays locked a moment and `fs.rmSync` does not retry that `EPERM`; the new
+  tests avoid opening a store at all, and the ones that do keep the tolerant cleanup they already had.
+- The vendored resampler weighs 2 MB, the price of not asking a CDN for it; it now travels with its two licenses.
+- The name and the path of the license file of each package are a resolve of `npm run worklets:voice`; a future version
+  that renames it fails the script loudly.
+- The minute cap is still a reservation of five minutes per session and not a measurement of the call.
 
 ---
 
