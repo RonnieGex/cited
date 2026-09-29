@@ -622,6 +622,33 @@ describe("one set of tokens, the ones of Construye", () => {
     expect(exposed).toContain("--ease-out-expo");
     expect(exposed).toContain("--font-sans");
   });
+
+  // The scenario `The controls can be seen` of the delta asks 3:1 of the border of a control (WCAG 2.2, 1.4.11): the
+  // hairline of the reference is 1.19:1 on paper and cannot carry one, so the system declares its own, derived from
+  // the two colours of Construye, and the rendered contrast is measured in `e2e/design-system.spec.ts`.
+  it("gives the controls a hairline of the system, recorded in the document", () => {
+    const document = readText(designDocument);
+    const tokens = declarations(block(readText(tokensSheet), ":root"));
+    const theme = declarations(block(readText(tokensSheet), "@theme"));
+    const row = rowWith(document, "--border");
+
+    expect(row.length, "--border: the row carries the four cells").toBe(4);
+    expect(cssValue(row[1] ?? ""), "--border: the value the document records").toBe(
+      cssValue(tokens.get("--border") ?? ""),
+    );
+    expect(theme.get("--color-border"), "--border: the token reaches Tailwind").toBe("var(--border)");
+
+    for (const name of ["Input", "Button"]) {
+      expect(readText(`components/ui/${name}.tsx`), `${name}: the hairline of the controls`).toContain(
+        "border-border",
+      );
+    }
+
+    expect(
+      readText("components/ui/Panel.tsx"),
+      "Panel: the hairline the scenario exempts stays as light as the look of the reference",
+    ).toContain("border-ink/10");
+  });
 });
 
 describe("Outfit is the font, self-hosted and licensed", () => {
