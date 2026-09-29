@@ -871,6 +871,8 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
   mkdirSync(dirname(absolute(target)), { recursive: true });
 
   const png = await page.screenshot({ type: "png" });
+  const allowed = Math.floor(graphic.height * maximumEmptyBand);
+  let band = { length: 0, start: 0 };
 
   if (sharp !== null) {
     if (backgrounds.has(background) === false) {
@@ -886,8 +888,7 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
       await plain.close();
     }
 
-    const band = await emptyBand(png, backgrounds.get(background), graphic.width, graphic.height);
-    const allowed = Math.floor(graphic.height * maximumEmptyBand);
+    band = await emptyBand(png, backgrounds.get(background), graphic.width, graphic.height);
 
     if (band.length > allowed) {
       throw new Error(
@@ -900,12 +901,20 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
     sharp === null
       ? png
       : await sharp(png).png({ palette: true, colors: 256, compressionLevel: 9 }).toBuffer();
+  const facts = [
+    `${optimized.length} bytes`,
+    `smallest text ${audit_.smallest}px`,
+    `${audit_.headlines.length} headlines`,
+    `empty band ${band.length}px of ${allowed}px`,
+  ];
+
+  if (audit_.art.length > 0) {
+    facts.push(`illustration ${Math.round(Math.min(...audit_.art) * 100)}% of the card`);
+  }
 
   await writeFile(absolute(target), optimized);
   await page.close();
-  console.log(
-    `rendered ${target} (${optimized.length} bytes, smallest text ${audit_.smallest}px, ${audit_.headlines.length} headlines)`,
-  );
+  console.log(`rendered ${target} (${facts.join(", ")})`);
 }
 
 const asked = process.argv.slice(2);
