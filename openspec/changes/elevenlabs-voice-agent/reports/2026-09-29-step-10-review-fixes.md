@@ -554,6 +554,20 @@ the two the round 9 already saw skipped on Linux (the ones of the case-insensiti
 
 **The delivery.** `katalis-dev/tasks/entrega-community-09.md` gained the round 10, in Spanish, with its `## Issues`.
 
+**One check the task does not ask for, run anyway.** The copies of the worklets and the session module are new to the
+build, so the second order of the guard of round 9 was repeated over a production build made after the end-to-end one:
+
+```powershell
+npm run build
+npm run verify:no-test-sdk
+```
+
+```text
+verify-no-test-sdk: mode=production roots=.next, .next\static, .next\server
+OK: no marker of the test SDK in the output; the real package is in 1 file(s).
+guard exit=0
+```
+
 **Verdict.** 10.5 is done: the whole battery is green on Windows and in the container, the round is delivered, and the
 four findings of `revision-community-09.md` are closed with their evidence.
 
