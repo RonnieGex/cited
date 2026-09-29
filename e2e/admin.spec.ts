@@ -155,9 +155,13 @@ test("the conversations are listed and deleted", async ({ page }) => {
 
   expect(answered.status()).toBe(200);
 
+  // `e2e/admin-brand.spec.ts` asks its own question against the same store in parallel, so the status is read in the
+  // row of this question and not anywhere on the page.
+  const row = page.getByRole("row").filter({ hasText: "¿Cuánto cuesta una afinación de bicicleta?" }).first();
+
   await page.goto("/admin/conversations");
-  await expect(page.getByText("¿Cuánto cuesta una afinación de bicicleta?")).toBeVisible();
-  await expect(page.getByText(english.answered)).toBeVisible();
+  await expect(row).toBeVisible();
+  await expect(row.getByRole("cell", { name: english.answered, exact: true })).toBeVisible();
 
   await axe(page);
 

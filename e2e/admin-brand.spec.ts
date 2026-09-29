@@ -16,7 +16,8 @@ const english = adminStrings("en");
 const spanish = adminStrings("es");
 const ink = "rgb(23, 23, 23)";
 const lime = "rgb(221, 244, 105)";
-const address = `198.51.100.${212 + Math.floor(Math.random() * 40)}`;
+// 212 to 231: away from the 11 to 210 of `E2E_ADDRESS` and from the 198.51.100.240 of the lockout scenario.
+const address = `198.51.100.${212 + Math.floor(Math.random() * 20)}`;
 const sidebar = '[data-admin="sidebar"]';
 
 test.use({ extraHTTPHeaders: { "x-forwarded-for": address } });
