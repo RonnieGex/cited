@@ -20,15 +20,17 @@ git merge-base HEAD main
 git worktree list
 ```
 
-Output (verbatim):
+Output (verbatim, with the home directory of the machine shortened to `<home>` in the two paths of `git worktree
+list`, because a tracked file of this repository carries no home directory and `tests/personal-paths.test.ts` fails
+when one appears outside the contract that states the rule; nothing else is edited):
 
 ```text
 feature/public-page-and-widget
 86c459896cf541d72af7d08a519594e61efcf72b
 7c4f4ff
 7c4f4ff16a03598c149fa025edfff5135378fd7c
-C:/Users/Franc/Documents/katalis-dev/community     8c054c1 [feature/admin-panel-and-onboarding]
-C:/Users/Franc/Documents/katalis-dev/community-ui  86c4598 [feature/public-page-and-widget]
+<home>/katalis-dev/community     8c054c1 [feature/admin-panel-and-onboarding]
+<home>/katalis-dev/community-ui  86c4598 [feature/public-page-and-widget]
 ```
 
 Read: the branch is the one the contract asks for, `HEAD` is `86c4598` (the commit that wrote the delta specs and the
