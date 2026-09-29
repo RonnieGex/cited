@@ -39,7 +39,19 @@ it overrides `specs/<change>/reports/` of the specboot template).
       `Prisma|Express|FastAPI|katalis-dev` returns no match; `reports/2026-09-28-step-1-specboot.md`
 - [x] 2.7 Report: `reports/2026-09-28-step-1-specboot.md`
 
+- [ ] 2.8 Version the empty canonical tree (`openspec/specs/.gitkeep`) so a clean clone carries it, and link
+      `.claude/`, `.codex/` and `.cursor/` to `ai-specs/` as the SDD standard requires (git symlinks, mode `120000`,
+      verified in a fresh clone) - report: `reports/2026-09-28-step-9-review-fixes.md`
+- [ ] 2.9 Remove every personal path of the author's machine from normative documents and reports (`docs/base-standards.md`
+      points to `docs/katalis-sdd-standard.md` inside the repository) and add a test that fails on `C:\Users\` in
+      tracked text files - report: `reports/2026-09-28-step-9-review-fixes.md`
+
 ## 3. Tests first (TDD)
+
+> **Contract correction (Fable, after `revision-community-00.md` Major 3):** in this change the page was written
+> before its test. Strict test-first was not met; it is recorded as a visible exception pending Franc's signature. The
+> mutation run below proves the tests can fail, not that they led the code.
+
 
 - [x] 3.1 Write the failing Vitest smoke test for the home page - `tests/home.test.tsx`; the red run found a real
       defect (missing `globals: true`); `reports/2026-09-28-step-3-tests.md`
@@ -68,8 +80,9 @@ it overrides `specs/<change>/reports/` of the specboot template).
 - [x] 5.1 `LICENSE` with the full Apache License 2.0 text - it matches `https://www.apache.org/licenses/LICENSE-2.0.txt`
       line by line, without the leading blank line of the published file; `reports/2026-09-28-step-4-license-and-community.md`
 - [x] 5.2 `NOTICE` with the Katalis attribution - `Built by Katalis (https://katalis.dev)`
-- [x] 5.3 `SECURITY.md` with the reporting address and the supported version - GitHub private advisories; `main` is
-      the only supported branch
+- [ ] 5.3 `SECURITY.md` per the amended plan (section 3.7): GitHub private vulnerability reporting enabled and
+      documented as the channel, and a role address (`security@katalis.dev`) added only when it exists; no personal
+      address - report: `reports/2026-09-28-step-9-review-fixes.md`
 - [x] 5.4 `CONTRIBUTING.md` with the local steps and the hook installation - commit `834a4ca`
 - [x] 5.5 `.github/ISSUE_TEMPLATE/bug_report.md`, `.github/ISSUE_TEMPLATE/feature_request.md` and
       `.github/pull_request_template.md` - commit `834a4ca`
@@ -90,6 +103,9 @@ it overrides `specs/<change>/reports/` of the specboot template).
       commit created; the five commits of the change passed with `no leaks found`
 - [x] 6.7 Report: `reports/2026-09-28-step-5-security-day-one.md`
 
+- [ ] 6.8 `docs/security.md` states the local hook as a developer aid that can be skipped, and CI as the enforced
+      scan (Minor 3) - report: `reports/2026-09-28-step-9-review-fixes.md`
+
 ## 7. Continuous integration and dependency updates
 
 - [x] 7.1 `.github/workflows/ci.yml` with one blocking job per check - types, lint, unit tests, build, end to end,
@@ -98,6 +114,12 @@ it overrides `specs/<change>/reports/` of the specboot template).
       weekly schedule; commits `9f3770d`
 - [x] 7.3 `.github/dependabot.yml` for npm and GitHub Actions - weekly, five open pull requests per ecosystem
 - [x] 7.4 Report: `reports/2026-09-28-step-6-ci-and-dependabot.md`
+
+- [ ] 7.5 The CI gitleaks job scans the **full history** on every event (the gitleaks CLI over all commits, not the
+      action's event range), proved with the synthetic history of the review: a secret added and removed in older
+      commits turns the job red - report: `reports/2026-09-28-step-9-review-fixes.md`
+- [ ] 7.6 `engines.node` admits only the Node versions the locked dependencies accept (Minor 1) - report:
+      `reports/2026-09-28-step-9-review-fixes.md`
 
 ## 8. Review and update existing tests (MANDATORY)
 
@@ -118,6 +140,10 @@ it overrides `specs/<change>/reports/` of the specboot template).
 - [x] 9.4 Run gitleaks over the full history and prove a planted secret turns it red - `no leaks found` over the five
       commits, exit 0; the planted credential of step 6 turned it red with exit 1
 - [x] 9.5 Write the evidence in `reports/2026-09-28-step-7-local-verification.md`
+
+- [ ] 9.6 The state of the database before and after: this change has no database; prove it with the exact commands
+      (no datastore dependency in `package.json`, no database file or migration tracked) - report:
+      `reports/2026-09-28-step-9-review-fixes.md`
 
 ## 10. Manual verification of the running application (MANDATORY - AGENT MUST EXECUTE)
 
@@ -144,10 +170,16 @@ it overrides `specs/<change>/reports/` of the specboot template).
 
 ## 13. Close the change
 
-- [x] 13.1 Every task of this file marked `[x]` with its evidence in a report - this file
-- [x] 13.2 Commits in English on `feature/bootstrap`, with no push, no commit in `main` and no archive - six commits;
-      `git rev-parse --verify main` fails and `git log origin/main` fails, so nothing exists in `main` and nothing was
-      pushed
+- [ ] 13.1 Every task of this file marked `[x]` with its evidence in a report - this file
+- [ ] 13.2 Commits in English on `feature/bootstrap`, with no push, no commit in `main` and no archive; the state file and
+      the delivery list the real commits (`git log --oneline main..feature/bootstrap` pasted, no hand count)
 - [x] 13.3 `tasks/entrega-community-00.md` in Spanish with `## Issues` - written outside the repository, in
       `katalis-dev/tasks/`
 - [x] 13.4 `LOOP_STATE.md` with the final status - `STATUS: DONE` with the commits and the pending items
+
+## Contract note (Fable, 2026-09-28)
+
+Fable owns this contract from `revision-community-00.md` on and DeepSeek executes it. Every `[x]` must name its
+report. The authorship of the first round (the implementer wrote its own tasks) is a visible exception pending
+Franc's signature. Minor 2 (personal metadata in commit history) is deferred to change 7 `docs-deploy-and-launch`,
+which rewrites authorship to a no-reply identity before the repository becomes public.
