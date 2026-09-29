@@ -65,7 +65,7 @@ exit=0
 ## In a `node:24` Linux container, from a clean clone
 
 ```
-$ git clone --no-hardlinks C:\Users\Franc\Documents\katalis-dev\community-ins <a temporary directory outside the repository>
+$ git clone --no-hardlinks <the worktree of this branch> <a temporary directory outside the repository>
 clone exit=0
 $ git -C <that directory> log --oneline -1
 33c3b8d Review the whole suite and the existing tests the change touches
