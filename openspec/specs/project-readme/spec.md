@@ -32,7 +32,8 @@ different and how mature it is, so that a reader who arrives from a post or an i
 ### Requirement: The README says exactly what works today
 
 `README.md` SHALL carry a status table whose rows are the capabilities of the product, each one marked `Available`
-or `Planned`, so that nothing is presented as working before it works.
+or `Planned`, so that nothing is presented as working before it works. After `pluggable-models-and-ask`, the row of the
+answers with citations is `Available` and links `openspec/specs/answering/spec.md`.
 
 #### Scenario: Available means specified and merged
 
@@ -45,6 +46,12 @@ or `Planned`, so that nothing is presented as working before it works.
 - **THEN** it names the change of the plan that delivers it (`design-system-shared`, `pluggable-models-and-ask`,
   `admin-and-public-ui`, `elevenlabs-voice-agent`, `security-hardening` or `docs-deploy-and-launch`)
 - **AND** no sentence outside the status table and the roadmap presents a planned capability as available
+
+#### Scenario: The answer is shown working
+
+- **WHEN** the demo of the README is read
+- **THEN** it shows the real output of `npm run ask` on the sample corpus with the fake providers, next to the search,
+  and the graphics no longer mark the answer as `Next`
 
 ### Requirement: The README runs the product in minutes
 
@@ -94,17 +101,17 @@ the same commands and the same variables, and each file SHALL link the other at 
   and every yes/no reads `sí` or `no`; only code, commands, variable names, paths and product and change names stay in
   English
 
-#### Scenario: Only planned text speaks of answers
+#### Scenario: Only available capabilities are claimed
 
 - **WHEN** the tagline, every text field of `docs/images/readme-graphics.json` and `docs/images/readme-banner.json`
   (headlines, copy, alt text), the sentences of both READMEs outside the status table and the roadmap, and every
   Markdown file under `docs/` are read
-- **THEN** none of them says that Cited answers, gives an answer or cites a page today; a sentence about the planned
-  answer carries `Next`, `planned` or the name of the change that delivers it (amended by Fable after
-  `revision-community-03b.md`: `docs/` and the fields of the records were outside the first scope)
-- **AND** the only text exempt from this check is the verbatim output the render script captured from the real run of
-  the quick start (the command lines and the lines they printed), because it is evidence and not copy; every other
-  field under `demo`, and anywhere else, is checked
+- **THEN** none of them presents as working today a capability that the status table marks `Planned`, and none says
+  that Cited cites a page (passages keep their document, heading and position, not a page); a sentence about a planned
+  capability carries `Next`, `planned` or the name of the change that delivers it (amended by Fable in
+  `pluggable-models-and-ask`: the answer with citations is available from this change on)
+- **AND** the only text exempt from this check is the verbatim output the render scripts captured from real runs (the
+  command lines and the lines they printed), because it is evidence and not copy; every other field is checked
 
 ### Requirement: Every link and image of the README resolves
 

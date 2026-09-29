@@ -22,7 +22,7 @@ export const plannedMark = new RegExp(
 
 export const capturedOutput = "demo";
 
-const capturedSteps = ["ingest", "search"];
+const capturedSteps = ["ingest", "search", "ask"];
 
 function capturedEvidence(record) {
   const demo = record?.[capturedOutput];

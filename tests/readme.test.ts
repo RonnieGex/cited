@@ -49,6 +49,7 @@ const plannedChanges = [
   "docs-deploy-and-launch",
 ];
 const activeSpecs = [
+  "openspec/specs/answering/spec.md",
   "openspec/specs/app-skeleton/spec.md",
   "openspec/specs/knowledge-search/spec.md",
   "openspec/specs/repository-bootstrap/spec.md",
@@ -78,7 +79,7 @@ const graphics = {
   "how-it-works": {
     dark: `${imagesDirectory}/how-it-works-dark.png`,
     light: `${imagesDirectory}/how-it-works-light.png`,
-    planned: true,
+    planned: false,
   },
   demo: {
     dark: `${imagesDirectory}/demo-dark.png`,
@@ -251,7 +252,7 @@ function commands(text: string): string[] {
   return codeFences(text)
     .flatMap((block) => block.split("\n"))
     .map((line) => line.trim())
-    .map((line) => line.replace(newlines("^[A-Z][A-Z0-9_]*=[^\\s]+ +"), ""))
+    .map((line) => line.replace(newlines("^([A-Z][A-Z0-9_]*=[^\\s]+ +)+"), ""))
     .filter((line) => /^npm (ci|run )/.test(line))
     .map((line) =>
       line.replace(/^npm run ([a-z0-9:]+).*$/, "$1").replace(/^npm (ci)$/, "$1"),
@@ -632,10 +633,16 @@ describe("README, the status table", () => {
     const outside = text
       .replace(bodyOf(text, "Status"), " ")
       .replace(bodyOf(text, "Roadmap"), " ");
+    const untagged = prose(outside)
+      .split("\n")
+      .filter((line) => plannedMark.test(line) === false)
+      .join("\n");
 
-    for (const phrase of ["answers with citations", "voice agent", "admin panel", "one-click deploy"]) {
-      expect(prose(outside).toLowerCase(), phrase).not.toContain(phrase);
+    for (const phrase of ["voice agent", "admin panel", "one-click deploy"]) {
+      expect(untagged.toLowerCase(), phrase).not.toContain(phrase);
     }
+
+    expect(prose(outside).toLowerCase()).toContain("answers");
   });
 });
 
@@ -900,10 +907,11 @@ describe("README, the quick start and the configuration", () => {
     const manifest = JSON.parse(readText("package.json")) as { scripts: Record<string, string> };
     const quickStart = bodyOf(readText("README.md"), "Quick start");
 
-    expect(commands(quickStart).length).toBeGreaterThanOrEqual(4);
+    expect(commands(quickStart).length).toBeGreaterThanOrEqual(5);
     expect(commands(quickStart)).toContain("ci");
     expect(commands(quickStart)).toContain("ingest");
     expect(commands(quickStart)).toContain("search");
+    expect(commands(quickStart)).toContain("ask");
 
     for (const command of commands(quickStart)) {
       if (command !== "ci") {
@@ -914,6 +922,7 @@ describe("README, the quick start and the configuration", () => {
     expect(quickStart).toContain("samples/");
     expect(quickStart).toContain("EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/");
     expect(quickStart).toMatch(/EMBEDDINGS_PROVIDER=fake npm run search -- "/);
+    expect(quickStart).toMatch(/EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- "/);
   });
 
   it("compares the variables of the configuration with .env.example and with the code", () => {
@@ -1112,17 +1121,21 @@ describe("README, its graphics", () => {
     const demo = recorded(graphicsRecordPath)["demo"] as Record<string, unknown>;
     const ingest = demo["ingest"] as Record<string, unknown>;
     const search = demo["search"] as Record<string, unknown>;
+    const ask = demo["ask"] as Record<string, unknown>;
     const quickStart = bodyOf(readText("README.md"), "Quick start");
 
     expect(ingest["command"]).toBe("EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/");
     expect(search["command"]).toContain("EMBEDDINGS_PROVIDER=fake npm run search --");
+    expect(ask["command"]).toContain("EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask --");
     expect(String(ingest["output"])).toContain("documents 4, passages 11");
     expect(String(search["output"])).toMatch(newlines("^\\d+\\. ", "m"));
+    expect(String(ask["output"])).toContain("status: answered");
+    expect(String(ask["output"])).toContain("[1]");
     expect(demo["exitCode"]).toBe(0);
 
     const drawn = demo["drawn"] as Record<string, string[]>;
 
-    for (const step of ["ingest", "search"]) {
+    for (const step of ["ingest", "search", "ask"]) {
       const output = String((demo[step] as Record<string, unknown>)["output"]);
       const printed = output.split("\n");
 

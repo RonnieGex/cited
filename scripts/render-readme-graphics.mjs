@@ -30,6 +30,7 @@ const bannerRecordPath = "docs/images/readme-banner.json";
 const ingestCommand = 'EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/';
 const searchQuestion = "¿Cuánto cuesta una afinación de bicicleta?";
 const searchCommand = `EMBEDDINGS_PROVIDER=fake npm run search -- "${searchQuestion}"`;
+const askCommand = `EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- "${searchQuestion}"`;
 const maximumLine = 112;
 const minimumFontSize = 16;
 const minimumHeadline = { wide: 44, card: 30 };
@@ -708,6 +709,7 @@ function run(command, args) {
     env: {
       ...process.env,
       EMBEDDINGS_PROVIDER: "fake",
+      CHAT_PROVIDER: "fake",
       DATABASE_URL: "",
       TURSO_DATABASE_URL: "",
       NO_COLOR: "1",
@@ -993,6 +995,11 @@ reportContrast();
 
 const ingest = withoutNpmNoise(run("npm", ["run", "ingest", "--", "samples/"]));
 const search = withoutNpmNoise(run("npm", ["run", "search", "--", searchQuestion]));
+const ask = withoutNpmNoise(run("npm", ["run", "ask", "--", searchQuestion]));
+const askLines = ask.split("\n");
+const askStatus = askLines.find((line) => line.startsWith("status:")) ?? "";
+const askAnswer = askLines.find((line) => line.startsWith("answer:")) ?? "";
+const askCitation = askLines.find((line) => /^\s*\[1\] /.test(line)) ?? "";
 const drawn = {
   ingest: {
     command: ingestCommand,
@@ -1005,6 +1012,12 @@ const drawn = {
     output: search,
     drawn: terminalLines(search, 4),
     readme: search,
+  },
+  ask: {
+    command: askCommand,
+    output: ask,
+    drawn: [askStatus, askAnswer, askCitation].join("\n"),
+    readme: ask,
   },
 };
 const searchLines = drawn.search.drawn.split("\n");
@@ -1021,6 +1034,10 @@ const contents = new Map(
       SEARCH_BEFORE: escapeLines(before.join("\n")),
       SEARCH_HIT: escapeLines(searchLines[hit] ?? ""),
       SEARCH_AFTER: escapeLines(after.join("\n")),
+      ASK_COMMAND: escapeHtml(askCommand),
+      ASK_STATUS: escapeLines(askStatus),
+      ASK_ANSWER: escapeLines(askAnswer),
+      ASK_CITATION: escapeLines(askCitation),
       AVAILABLE_ROWS: rowsOf("Available"),
       PLANNED_ROWS: rowsOf("Planned"),
       TAGLINE: escapeHtml(banner.tagline),
@@ -1136,6 +1153,7 @@ if (asked.length > 0) {
     commands: {
       ingest: ingestCommand,
       search: searchCommand,
+      ask: askCommand,
       provider: "EMBEDDINGS_PROVIDER=fake",
     },
     demo: {
@@ -1143,9 +1161,11 @@ if (asked.length > 0) {
       terminal: terminalBox,
       ingest: { command: ingestCommand, output: ingest },
       search: { command: searchCommand, output: search },
+      ask: { command: askCommand, output: ask },
       drawn: {
         ingest: drawn.ingest.drawn.split("\n"),
         search: drawn.search.drawn.split("\n"),
+        ask: drawn.ask.drawn.split("\n"),
       },
     },
   };

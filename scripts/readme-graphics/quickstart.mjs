@@ -32,6 +32,7 @@ export function patchReadmeQuickStart(text, demo) {
   for (const [runs, command, output] of [
     ["npm run ingest", demo.ingest.command, demo.ingest.readme],
     ["npm run search", demo.search.command, demo.search.readme],
+    ["npm run ask", demo.ask.command, demo.ask.readme],
   ]) {
     const lines = text.split("\n");
     const head = lines.findIndex((line) => line.startsWith("$ ") && line.includes(runs));
