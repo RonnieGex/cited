@@ -1,7 +1,8 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterAll, describe, expect, it } from "vitest";
+import { PDFParse } from "pdf-parse";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { createFakeEmbeddings } from "@/lib/embeddings/fake";
 import { resolveEmbeddingsProvider } from "@/lib/embeddings/providers";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestPaths, parseFile } from "@/lib/ingest";
@@ -118,18 +119,31 @@ describe("the limits", () => {
     await expect(opened.countPassages()).resolves.toBe(0);
   });
 
-  it("refuses a file above the page limit before parsing it", async () => {
-    const path = document("largo.pdf", buildPdf([["Uno"], ["Dos"], ["Tres"]]));
-    const opened = await store();
-    const report = await ingestPaths([path], {
-      store: opened,
-      embeddings: createFakeEmbeddings(),
-      limits: { maxBytes: MAX_FILE_BYTES, maxPages: 2 },
-    });
+  it("refuses a file above the page limit before extracting any text", async () => {
+    const extract = vi.spyOn(PDFParse.prototype, "getText");
 
-    expect(report.failed).toHaveLength(1);
-    expect(report.failed[0]?.reason).toMatch(/pages/i);
-    await expect(opened.countPassages()).resolves.toBe(0);
+    try {
+      const path = document("largo.pdf", buildPdf([["Uno"], ["Dos"], ["Tres"]]));
+      const opened = await store();
+      const report = await ingestPaths([path], {
+        store: opened,
+        embeddings: createFakeEmbeddings(),
+        limits: { maxBytes: MAX_FILE_BYTES, maxPages: 2 },
+      });
+
+      expect(report.failed).toHaveLength(1);
+      expect(report.failed[0]?.reason).toMatch(/pages/i);
+      await expect(opened.countPassages()).resolves.toBe(0);
+      expect(extract).not.toHaveBeenCalled();
+
+      const inside = document("corto.pdf", buildPdf([["Uno"], ["Dos"]]));
+      const parsed = await parseFile(inside, { maxBytes: MAX_FILE_BYTES, maxPages: 2 });
+
+      expect(parsed.pages).toBe(2);
+      expect(extract).toHaveBeenCalledTimes(1);
+    } finally {
+      extract.mockRestore();
+    }
   });
 });
 
