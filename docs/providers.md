@@ -140,11 +140,16 @@ repeats the test and stores the key only when the provider answered.
 
 ## The disclosure of the links
 
-- Each provider carries a "Get a key" link to its own site. `signupLink()` uses `affiliateUrl` **only when the
-  catalogue carries one and `AFFILIATE_LINKS` is not `off`**, and then the interface writes "(paid link)" or "(enlace
+- Each provider carries a "Get a key" link to its own site. `signupLink()` uses the affiliate link of the provider
+  **only when there is one and `AFFILIATE_LINKS` is not `off`**, and then the interface writes "(paid link)" or "(enlace
   pagado)" next to the link, in the language of the interface and before any click.
-- **No affiliate URL is committed in this change**: the field is empty for every provider and every link is the plain
-  one. The mechanism is what will carry the link of ElevenLabs for the voice when Franc joins a programme.
+- **No affiliate URL is committed in this change**: the field of the catalogue is empty for every provider and every
+  link is the plain one. The address of a programme is written in the environment, with the name of the provider in
+  capitals — `DEEPSEEK_AFFILIATE_URL`, `OPENAI_AFFILIATE_URL`, `ANTHROPIC_AFFILIATE_URL`, `GEMINI_AFFILIATE_URL`,
+  `GROQ_AFFILIATE_URL`, `OPENROUTER_AFFILIATE_URL`, `OLLAMA_AFFILIATE_URL`, `LMSTUDIO_AFFILIATE_URL` — and
+  `lib/providers/catalog.ts` (`affiliateUrlOf()`) is the only reader. That door is also what the browser suite of
+  `e2e/affiliate.spec.ts` uses to prove the switched-on path with a virtual link of the documentation, which is the
+  only way to see the label in a browser without committing a real one.
 - `AFFILIATE_LINKS=off` is the single option that turns every affiliate link into its plain link, for whoever forks
   the project.
 - `HOSTED_OFFER_URL` is the address of the hosted version of Katalis and shows the offer under the list; an empty value

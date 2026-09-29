@@ -3,8 +3,15 @@ import {
   E2E_ADDRESS,
   E2E_ADMIN_PASSWORD,
   E2E_ADMIN_SECRET,
+  E2E_AFFILIATE_BASE_URL,
+  E2E_AFFILIATE_DATABASE_URL,
+  E2E_AFFILIATE_PORT,
+  E2E_AFFILIATE_URL,
   E2E_BASE_URL,
   E2E_DATABASE_URL,
+  E2E_KEYS_BASE_URL,
+  E2E_KEYS_DATABASE_URL,
+  E2E_KEYS_PORT,
   E2E_PORT,
 } from "./e2e/admin-fixtures";
 
@@ -49,12 +56,22 @@ const keysDatabaseURL = ".data/e2e-keys.sqlite";
 const keysEncryptionKey = Buffer.alloc(32, 7).toString("base64");
 const providerDoubleBaseURL = "http://127.0.0.1:3216/v1";
 
+// The third service is the same panel with the affiliate switch **on** (`e2e/affiliate.spec.ts`): it is the only way
+// to see the label "(paid link)" in a browser, because no link of a programme is committed in this change. The
+// virtual store is the address a provider would publish, and `DEEPSEEK_AFFILIATE_URL` is the door the catalogue
+// opens for whoever joins a programme.
+const affiliateEncryptionKey = Buffer.alloc(32, 9).toString("base64");
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
+  // The suite of the panel and the suite of the keys serve their own provider double on the same port (3216), because
+  // the environment of the three services of the panel points at it. One worker at a time keeps them from taking the
+  // port from each other; the specs inside a file still run in parallel.
+  workers: 1,
   projects: [
     {
       name: "panel",
@@ -68,7 +85,7 @@ export default defineConfig({
     },
     {
       name: "public",
-      testIgnore: ["**/admin.spec.ts", "**/providers.spec.ts"],
+      testIgnore: ["**/admin.spec.ts", "**/providers.spec.ts", "**/affiliate.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: publicBaseURL,
@@ -81,6 +98,16 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         baseURL: keysBaseURL,
+        trace: "on-first-retry",
+        extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
+      },
+    },
+    {
+      name: "affiliate",
+      testMatch: "**/affiliate.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: E2E_AFFILIATE_BASE_URL,
         trace: "on-first-retry",
         extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
       },
@@ -131,7 +158,29 @@ export default defineConfig({
         TRUST_PROXY: "1",
         ENCRYPTION_KEY: keysEncryptionKey,
         OPENAI_BASE_URL: providerDoubleBaseURL,
+        // The double of `e2e/providers.spec.ts` listens on `127.0.0.1`, and the requirement "A provider address
+        // cannot reach private networks" refuses a loopback address unless whoever installs allows it: this is the
+        // flag of an installation that runs its provider on its own machine.
+        ALLOW_LOCAL_PROVIDERS: "1",
         AFFILIATE_LINKS: "off",
+        HOSTED_OFFER_URL: "https://katalis.dev/cited",
+      },
+    },
+    {
+      command: `${reset(E2E_AFFILIATE_DATABASE_URL)} && npm start -- --port ${E2E_AFFILIATE_PORT}`,
+      url: E2E_AFFILIATE_BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000,
+      env: {
+        ADMIN_PASSWORD: E2E_ADMIN_PASSWORD,
+        ADMIN_SESSION_SECRET: E2E_ADMIN_SECRET,
+        DATABASE_URL: E2E_AFFILIATE_DATABASE_URL,
+        TRUST_PROXY: "1",
+        ENCRYPTION_KEY: affiliateEncryptionKey,
+        DEEPSEEK_BASE_URL: providerDoubleBaseURL,
+        ALLOW_LOCAL_PROVIDERS: "1",
+        DEEPSEEK_AFFILIATE_URL: E2E_AFFILIATE_URL,
+        AFFILIATE_LINKS: "on",
         HOSTED_OFFER_URL: "https://katalis.dev/cited",
       },
     },

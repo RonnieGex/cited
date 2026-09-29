@@ -217,6 +217,20 @@ export function affiliateLinks(environment: CatalogueEnvironment = process.env):
   return environment[AFFILIATE_LINKS_VARIABLE]?.trim().toLowerCase() !== "off";
 }
 
+// The affiliate URL of a provider, when the server has one. No link of a programme is committed in this change
+// (decision 6 of `design.md`), so the field of the catalogue is empty and the mechanism is what carries it: whoever
+// joins a programme writes `<PROVIDER>_AFFILIATE_URL` in the environment and the panel labels the link "(paid link)".
+// The suite uses the same door to prove the switched-on path end to end without committing a real link.
+export function affiliateUrlOf(
+  entry: ProviderEntry,
+  environment: CatalogueEnvironment = process.env,
+): string {
+  const name = `${entry.id.toUpperCase()}_AFFILIATE_URL`;
+  const declared = environment[name]?.trim() ?? "";
+
+  return declared.length > 0 ? declared : (entry.affiliateUrl?.trim() ?? "");
+}
+
 export function hostedOfferOf(environment: CatalogueEnvironment = process.env): string {
   return environment[HOSTED_OFFER_VARIABLE]?.trim() ?? "";
 }
@@ -225,7 +239,7 @@ export function signupLink(
   entry: ProviderEntry,
   options: { affiliateLinks: boolean },
 ): { href: string; paid: boolean } {
-  const affiliate = entry.affiliateUrl?.trim() ?? "";
+  const affiliate = affiliateUrlOf(entry);
 
   return affiliate.length > 0 && options.affiliateLinks
     ? { href: affiliate, paid: true }
