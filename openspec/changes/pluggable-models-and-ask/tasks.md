@@ -37,10 +37,10 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 5. Run the checks and the state of the store
 
-- [ ] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD` —
       report: `reports/2026-09-29-step-5-checks.md`
-- [ ] 5.2 The tables of the store after the tests, their row counts, and no IP in clear — report:
+- [x] 5.2 The tables of the store after the tests, their row counts, and no IP in clear — report:
       `reports/2026-09-29-step-5-checks.md`
 
 ## 6. Manual verification with curl

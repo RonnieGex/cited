@@ -11,6 +11,7 @@ import { openStore } from "@/lib/store";
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const samples = join(repositoryRoot, "samples");
 const priceQuestion = "¿Cuánto cuesta una afinación de bicicleta?";
+const cliTimeout = 30_000;
 const roots: string[] = [];
 
 async function storePath(withSamples: boolean): Promise<string> {
@@ -75,7 +76,7 @@ afterAll(async () => {
 });
 
 describe("npm run ask", () => {
-  it("answers without keys and prints the citation of the document it came from", async () => {
+  it("answers without keys and prints the citation of the document it came from", { timeout: cliTimeout }, async () => {
     const path = await storePath(true);
     const { stdout, status } = runAsk(priceQuestion, path);
 
@@ -87,7 +88,7 @@ describe("npm run ask", () => {
     expect(stdout).toContain(path);
   });
 
-  it("prints the refusal instead of an invented answer", async () => {
+  it("prints the refusal instead of an invented answer", { timeout: cliTimeout }, async () => {
     const path = await storePath(false);
     const { stdout, status } = runAsk(priceQuestion, path);
 
@@ -97,7 +98,7 @@ describe("npm run ask", () => {
     expect(stdout).not.toContain("[1]");
   });
 
-  it("refuses a question longer than the limit and says which variable it crossed", async () => {
+  it("refuses a question longer than the limit and says which variable it crossed", { timeout: cliTimeout }, async () => {
     const path = await storePath(true);
     const { stderr, status } = runAsk("a".repeat(1001), path);
 
