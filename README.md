@@ -84,9 +84,10 @@ citation.
 
 **The public chat, as it looks today.** This one is not drawn: it is a real capture of `/` with a question answered and
 the citation open, taken by `scripts/render-readme-captures.mjs` from the application served by `npm run start` with
-the sample corpus and the deterministic providers.
+the sample corpus, the deterministic providers and the sample business (Café La Horquilla, color `#1F5F4A`) saved in the
+panel, so the chat wears its band.
 
-<img src="docs/images/chat-page.png" alt="The public chat of Cited: a question answered in Spanish with its numbered citation, the excerpt of the passage with its document and its heading, the switch English | Español and the question box" width="1280">
+<img src="docs/images/chat-page.png" alt="The public chat of Cited under the band of a sample business: a question answered in Spanish with its numbered citation, the excerpt of the passage in the highlighter with its document and its heading, the switch English | Español and the question box" width="1280">
 
 **And the owner manages it from the browser.** The panel of `/admin` shows what is configured, stores the business
 and its logo, uploads the documents and lists the questions with the passages they used. It opens in English, with
