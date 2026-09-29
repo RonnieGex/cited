@@ -71,7 +71,7 @@ Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before ea
 - [x] 10.1 Major (a gap of Fable's contract): the state of the store before and after this change, recorded as the
       standard requires (the tables and their row counts, and the new voice tables empty before and as expected after),
       with the exact commands — report: the one of this section
-- [ ] 10.2 Major: the resampler and any worklet of the SDK served from the application's own origin, configured in the
+- [x] 10.2 Major: the resampler and any worklet of the SDK served from the application's own origin, configured in the
       SDK, with a test that fails if a CDN host is requested (requirement "Voice works under the page's own security
       policy") — report: the one of this section
 - [ ] 10.3 Major: the minute cap as amended (requirement "The minute cap never lets a session exceed it"), and the panel

@@ -22,11 +22,20 @@ export interface FakeMessagePayload {
   source: "user" | "ai";
 }
 
+export interface FakeWorkletPaths {
+  rawAudioProcessor?: string;
+  audioConcatProcessor?: string;
+}
+
 export interface FakeStartSessionOptions {
   signedUrl?: string;
   agentId?: string;
   connectionType?: "webrtc" | "websocket";
   textOnly?: boolean;
+  /** The paths of the audio worklets, which the real SDK accepts both in the hook and in `startSession`. */
+  workletPaths?: FakeWorkletPaths;
+  /** The path of the resampler: the real SDK asks a CDN for it when the session gives no path. */
+  libsampleratePath?: string;
 }
 
 export interface FakeHookOptions extends FakeStartSessionOptions {
@@ -42,6 +51,8 @@ export interface FakeStartCall {
   agentId?: string;
   connectionType?: string;
   textOnly?: boolean;
+  workletPaths?: FakeWorkletPaths;
+  libsampleratePath?: string;
 }
 
 export interface VoiceFakeApi {
@@ -121,6 +132,8 @@ export function useConversation(props: FakeHookOptions = {}) {
         agentId: config?.agentId,
         connectionType: config?.connectionType,
         textOnly,
+        workletPaths: config?.workletPaths,
+        libsampleratePath: config?.libsampleratePath,
       });
 
       const failure = failEveryStartRef.current ?? failNextStartRef.current;

@@ -208,6 +208,63 @@ test("the signed URL of the server names the missing variable and the browser ne
   expect(seen).not.toContain(sentinel);
 });
 
+test("the audio worklets are served by this origin and load under the policy of the page", async ({ page }) => {
+  const asked: string[] = [];
+  const paths = [
+    "/voice/worklets/raw-audio-processor.js",
+    "/voice/worklets/audio-concat-processor.js",
+    "/voice/worklets/libsamplerate.worklet.js",
+  ];
+
+  page.on("request", (request) => {
+    asked.push(request.url());
+  });
+
+  await page.goto("/");
+
+  // The status of every file first: a miss here is the same 404 the resampler of the SDK would find on a device that
+  // needs a sample-rate conversion.
+  const answers: Array<{ path: string; status: number; type: string }> = [];
+
+  for (const path of paths) {
+    const response = await page.request.get(path);
+
+    answers.push({
+      path,
+      status: response.status(),
+      type: response.headers()["content-type"] ?? "",
+    });
+  }
+
+  // And then the same files through `AudioWorklet.addModule` inside the page, which is what the SDK does: the policy
+  // of the page applies to that request, so a third-party host or a blocked module fails right here.
+  const loaded = await page.evaluate(async (targets) => {
+    const context = new AudioContext();
+    const results: string[] = [];
+
+    for (const target of targets) {
+      try {
+        await context.audioWorklet.addModule(target);
+
+        results.push(`${target}: loaded`);
+      } catch (error) {
+        results.push(`${target}: ${error instanceof Error ? error.name : String(error)}`);
+      }
+    }
+
+    return results;
+  }, paths);
+
+  console.log(
+    `the worklets: ${answers.map((answer) => `${answer.path} ${answer.status} ${answer.type}`).join("; ")}; ${loaded.join("; ")}`,
+  );
+
+  expect(answers.map((answer) => answer.status)).toEqual([200, 200, 200]);
+  expect(answers.every((answer) => /javascript/.test(answer.type))).toBe(true);
+  expect(loaded).toEqual(paths.map((path) => `${path}: loaded`));
+  expect(asked.filter((url) => /jsdelivr|unpkg|\/\/cdn\./i.test(url))).toEqual([]);
+});
+
 test("the voice panel passes axe at level A and AA", async ({ page }) => {
   await answerSignedUrl(page);
   await openPanel(page);
