@@ -11,7 +11,8 @@
 3. **Where the flame goes.**
    - README foot (both languages): `<picture>` with the original for `(prefers-color-scheme: dark)` and the ink variant
      as the fallback, 48 px high, beside `Built by Katalis` linked to `https://katalis.dev`.
-   - Banner (both themes) and social preview: the flame at the height of the `by Katalis` line, to its left; the banner
+   - Banner (both themes) and social preview: the flame to the left of `by Katalis`, at least 40 px high in the banners
+     and 64 px in the social preview so it is seen (amended by Fable: at the height of the line it measured 19 px); the banner
      and the preview are re-rendered with the existing scripts, which read the flame from `public/brand/`.
    - The invented `docs/images/katalis-logo*.png` and every reference to them are removed; the graphics guard of the
      render scripts refuses a record that names them.

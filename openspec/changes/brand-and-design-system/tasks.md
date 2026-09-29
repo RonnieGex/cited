@@ -63,3 +63,14 @@ secret, no customer data, no licensed font.
       `docs/readme-assets.md` updated — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-04.md` in Spanish, with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
+
+## 10. The flame has to be seen (contract written by Fable after looking at the banner)
+
+Evidence rule as above. Report: `reports/2026-09-29-step-10-flame-size.md`. Commit in small steps.
+
+- [ ] 10.1 Tests first: the records of the banner and of the social preview state the rendered height of the flame, and
+      a test asserts at least 40 px in both banners and 64 px in the social preview; red against the current 19 px
+- [ ] 10.2 Re-render both banners and the social preview with the flame at those sizes, beside `by Katalis`, keeping the
+      luminance and the honesty tests green; the README foot stays at 48 px
+- [ ] 10.3 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`; append the
+      round to `katalis-dev/tasks/entrega-community-04.md` with the new images and `## Issues`
