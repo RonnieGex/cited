@@ -100,9 +100,29 @@ Change 'pluggable-models-and-ask' archived as '2026-09-29-pluggable-models-and-a
 EXIT: 0
 ```
 
-The `17/24` is this section before its own checkboxes were marked; with the seven tasks marked the archiver reports
-`24/24 tasks` and no warning. `openspec validate --all --strict` passes with 7 items: the capability is checked
-through the open change and through the restored spec of `main`.
+The `17/24` is this section before its own checkboxes were marked. On a fresh throwaway clone of the closing commit
+(`81b73e3`, with the seven tasks marked and this report inside), the same command archives without a warning:
+
+```
+> openspec archive pluggable-models-and-ask -y
+Task status: ✓ Complete
+
+Specs to update:
+  answering: create
+  project-readme: update
+Applying changes to openspec/specs/answering/spec.md:
+  + 7 added
+Applying changes to openspec/specs/project-readme/spec.md:
+  ~ 2 modified
+Totals: + 7, ~ 2, - 0, → 0
+Specs updated successfully.
+Change 'pluggable-models-and-ask' archived as '2026-09-29-pluggable-models-and-ask'.
+EXIT: 0
+```
+
+`openspec validate --all --strict` passes with 7 items on the branch: the capability is checked through the open
+change, and the restored spec of `main` is the one the archive modifies. `openspec list` reports the change as
+`✓ Complete`.
 
 ## 10.2 Major 1: the last address of `X-Forwarded-For`
 
@@ -363,7 +383,9 @@ On Windows 11, Node v24.11.0, and in a `node:24` Linux container (v24.21.0, npm 
 | `git status --short --branch` | only `## feature/pluggable-models-and-ask`, clean tree |
 
 The delivery `katalis-dev/tasks/entrega-community-05.md` appends this round in Spanish, with `## Issues`, and
-`LOOP_STATE.md` ends in `STATUS: DONE`.
+`LOOP_STATE.md` ends in `STATUS: DONE`. The closing commit was checked again after the report and the checkboxes
+joined the tree: `npm test` 16 files and 172 tests green, `npm run typecheck` and `npm run lint` at 0, and the archive
+of the clone above.
 
 ## Issues
 
