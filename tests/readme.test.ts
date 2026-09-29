@@ -4,8 +4,6 @@ import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
-const readmePath = resolve(repositoryRoot, "README.md");
-const spanishPath = resolve(repositoryRoot, "README.es.md");
 const imagesDirectory = "docs/images";
 const formerName = /katalis[\s-]+responde[\s-]+community/i;
 const archivedChanges = "openspec/changes/archive/";
@@ -45,20 +43,6 @@ const katalisLogo = `${imagesDirectory}/katalis-logo.png`;
 const bannerRecordPath = `${imagesDirectory}/readme-banner.json`;
 const graphicsRecordPath = `${imagesDirectory}/readme-graphics.json`;
 
-const sections = [
-  "Why Cited",
-  "Status",
-  "How it works",
-  "See it answer",
-  "Roadmap",
-  "Voice",
-  "Quick start",
-  "Configuration",
-  "Security",
-  "Contributing",
-  "License",
-];
-
 const imageHosts = ["https://img.shields.io/", `https://github.com/`];
 const maximumImageWeight = 3 * 1024 * 1024;
 
@@ -66,7 +50,7 @@ const binaryExtensions = new Set([".png", ".jpg", ".jpeg", ".gif", ".ico", ".wof
 const fontExtensions = new Set([".woff", ".woff2", ".ttf", ".otf"]);
 
 type TrackedFile = { path: string; text: string | null };
-type Section = { level: number; title: string; body: string };
+type Section = { level: number; title: string; lines: string[] };
 
 let trackedCache: TrackedFile[] | null = null;
 
@@ -129,26 +113,34 @@ function sectionsOf(text: string): Section[] {
   const found: Section[] = [];
   let current: Section | null = null;
 
+  const close = (section: Section): void => {
+    found.push({ level: section.level, title: section.title, lines: section.lines });
+  };
+
   for (const line of lines) {
     const heading = /^(#{2,3}) (.+)$/.exec(line);
 
     if (heading === null) {
-      current?.body.push(line);
+      current?.lines.push(line);
       continue;
     }
 
     if (current !== null) {
-      found.push({ level: current.level, title: current.title, body: current.body.join("\n") });
+      close(current);
     }
 
-    current = { level: heading[1]?.length ?? 2, title: heading[2] ?? "", body: [] };
+    current = { level: heading[1]?.length ?? 2, title: heading[2] ?? "", lines: [] };
   }
 
   if (current !== null) {
-    found.push({ level: current.level, title: current.title, body: current.body.join("\n") });
+    close(current);
   }
 
   return found;
+}
+
+function bodyOf(text: string, name: string): string {
+  return sectionNamed(text, name).lines.join("\n");
 }
 
 function h2Titles(text: string): string[] {
@@ -173,16 +165,14 @@ function beforeFirstCodeBlock(text: string): string {
 
 function statusRows(text: string): Array<{ capability: string; state: string; reference: string }> {
   return sectionNamed(text, "Status")
-    .body.split("\n")
-    .map((line) => tableRow(line))
+    .lines.map((line) => tableRow(line))
     .filter((cells): cells is string[] => cells !== null && cells.length === 3)
     .filter((cells) => (statusStates as readonly string[]).includes(cells[1] ?? ""))
     .map((cells) => ({ capability: cells[0] ?? "", state: cells[1] ?? "", reference: cells[2] ?? "" }));
 }
 
 function configurationRows(text: string): Array<{ variable: string; purpose: string; readToday: string }> {
-  const body = sectionNamed(text, "Configuration").body;
-  const cell = (line: string, index: number): string => tableRow(line)?.[index]?.trim() ?? "";
+  const body = bodyOf(text, "Configuration");
 
   return body
     .split("\n")
@@ -316,7 +306,7 @@ describe("README, the promise and the maturity", () => {
     expect(linksOf(head)).toContain("README.es.md");
     expect(head).toMatch(/early development/i);
     expect(head).toMatch(/not ready for production/i);
-    expect(sectionNamed(readText("README.md"), "Why Cited").body.match(/^\d\. /gm) ?? []).toHaveLength(3);
+    expect(bodyOf(readText("README.md"), "Why Cited").match(/^\d\. /gm) ?? []).toHaveLength(3);
   });
 
   it("carries no em dash in its prose", () => {
@@ -348,8 +338,8 @@ describe("README, the status table", () => {
   it("never presents a planned capability as available outside the status table and the roadmap", () => {
     const text = readText("README.md");
     const outside = text
-      .replace(sectionNamed(text, "Status").body, " ")
-      .replace(sectionNamed(text, "Roadmap").body, " ");
+      .replace(bodyOf(text, "Status"), " ")
+      .replace(bodyOf(text, "Roadmap"), " ");
 
     for (const phrase of ["answers with citations", "voice agent", "admin panel", "one-click deploy"]) {
       expect(prose(outside).toLowerCase(), phrase).not.toContain(phrase);
@@ -360,7 +350,7 @@ describe("README, the status table", () => {
 describe("README, the quick start and the configuration", () => {
   it("names only scripts of package.json, and runs the sample corpus with no key", () => {
     const manifest = JSON.parse(readText("package.json")) as { scripts: Record<string, string> };
-    const quickStart = sectionNamed(readText("README.md"), "Quick start").body;
+    const quickStart = bodyOf(readText("README.md"), "Quick start");
 
     expect(commands(quickStart).length).toBeGreaterThanOrEqual(4);
     expect(commands(quickStart)).toContain("ci");
@@ -498,12 +488,12 @@ describe("README, its graphics", () => {
     expect(total).toBeLessThanOrEqual(maximumImageWeight);
   });
 
-  it("labels as Next every graphic that shows a planned capability", () => {
+  it("labels as Next every graphic that shows a planned capability, and only those", () => {
     const record = recorded(graphicsRecordPath);
     const drawn = record["graphics"] as Array<Record<string, unknown>>;
-    const planned = Object.entries(graphics).filter(([, value]) => value.planned);
 
     expect(drawn.length).toBeGreaterThanOrEqual(Object.keys(graphics).length);
+    expect(record["states"]).toEqual({ Available: "Available", Planned: "Next" });
 
     for (const [name, value] of Object.entries(graphics)) {
       const entry = drawn.find((candidate) => candidate["name"] === name);
@@ -511,10 +501,8 @@ describe("README, its graphics", () => {
       expect(entry, name).toBeDefined();
       expect(entry?.["dark"]).toBe(value.dark);
       expect(entry?.["light"]).toBe(value.light);
-
-      if (value.planned) {
-        expect(entry?.["label"], name).toBe("Next");
-      }
+      expect(entry?.["shows"], name).toBe(value.planned ? "Planned" : "Available");
+      expect(entry?.["label"], name).toBe(value.planned ? "Next" : null);
     }
   });
 
@@ -565,7 +553,7 @@ describe("README, its graphics", () => {
 
 describe("README, the flow and the foot", () => {
   it("carries the designed flow and the Mermaid version inside a details block", () => {
-    const body = sectionNamed(readText("README.md"), "How it works").body;
+    const body = bodyOf(readText("README.md"), "How it works");
 
     expect(body).toContain(graphics.flow.light);
     expect(body).toContain("<details>");
@@ -578,7 +566,7 @@ describe("README, the flow and the foot", () => {
 
   it("closes with the license and the foot of Katalis", () => {
     const text = readText("README.md");
-    const body = sectionNamed(text, "License").body;
+    const body = bodyOf(text, "License");
 
     expect(body).toContain("Apache-2.0");
     expect(linksOf(body)).toContain("LICENSE");

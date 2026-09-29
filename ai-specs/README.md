@@ -1,6 +1,6 @@
 # ai-specs
 
-Canonical source of the agent definitions of Katalis Responde Community.
+Canonical source of the agent definitions of Cited.
 
 ## Contents
 

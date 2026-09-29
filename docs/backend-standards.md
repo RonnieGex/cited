@@ -1,5 +1,5 @@
 ---
-description: Backend standards for Katalis Responde Community. Next.js route handlers, libSQL, Vercel AI SDK, server-only configuration.
+description: Backend standards for Cited. Next.js route handlers, libSQL, Vercel AI SDK, server-only configuration.
 alwaysApply: true
 ---
 

@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for looking at Katalis Responde Community. This is the free and forkable edition of Katalis Responde: a
+Thanks for looking at Cited. This is the free and forkable edition of Katalis Responde: a
 business forks the repository, fills in its own information and its own API keys, and answers its customers with
 citations from its own documents.
 

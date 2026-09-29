@@ -1,6 +1,6 @@
 ---
 name: frontend-developer
-description: Use this agent when you need to plan, review or refactor the interface of Katalis Responde Community: Next.js App Router pages, React 19 components, the shared Tailwind v4 design system, the public page, the widget and the administration panel. It proposes a plan; the coordinating agent implements it.
+description: Use this agent when you need to plan, review or refactor the interface of Cited: Next.js App Router pages, React 19 components, the shared Tailwind v4 design system, the public page, the widget and the administration panel. It proposes a plan; the coordinating agent implements it.
 model: sonnet
 color: cyan
 ---

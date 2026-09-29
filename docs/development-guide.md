@@ -1,6 +1,6 @@
 # Development guide
 
-Local commands, ports and environment files of Katalis Responde Community.
+Local commands, ports and environment files of Cited.
 
 ## 1. Requirements
 

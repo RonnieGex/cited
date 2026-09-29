@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Report it privately through **Security → Report a vulnerability** on this repository
-(`https://github.com/RonnieGex/katalis-responde-community/security/advisories/new`), which is the private
+(`https://github.com/RonnieGex/cited/security/advisories/new`), which is the private
 vulnerability reporting channel of GitHub. Never in a public issue.
 
 There is no reporting email address yet. The role address `security@katalis.dev` is added to this file when the

@@ -1,5 +1,5 @@
 ---
-description: Frontend standards for Katalis Responde Community. Next.js 16 App Router, React 19, strict TypeScript and Tailwind v4.
+description: Frontend standards for Cited. Next.js 16 App Router, React 19, strict TypeScript and Tailwind v4.
 alwaysApply: true
 ---
 

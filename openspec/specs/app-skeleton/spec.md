@@ -42,13 +42,13 @@ Tailwind with `@import "tailwindcss"`. The repository SHALL NOT carry a `tailwin
 
 ### Requirement: Home page
 
-The application SHALL render one page that shows the product name `Katalis Responde Community` and nothing else.
+The application SHALL render one page that shows the product name `Cited` and nothing else.
 The page SHALL live in `app/page.tsx` and SHALL carry no design system: that arrives in change 1.
 
 #### Scenario: The page names the product
 
 - **WHEN** the application serves `GET /`
-- **THEN** the response is 200 and its HTML carries the text `Katalis Responde Community`
+- **THEN** the response is 200 and its HTML carries the text `Cited`
 
 #### Scenario: The page carries nothing else
 

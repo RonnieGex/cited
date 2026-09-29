@@ -1,6 +1,6 @@
 ---
 name: backend-developer
-description: Use this agent when you need to plan, review or refactor the server side of Katalis Responde Community: Next.js route handlers, the libSQL knowledge store, the model providers, the guards and the limits. It designs the change inside one Next.js process and proposes a plan; the coordinating agent implements it.
+description: Use this agent when you need to plan, review or refactor the server side of Cited: Next.js route handlers, the libSQL knowledge store, the model providers, the guards and the limits. It designs the change inside one Next.js process and proposes a plan; the coordinating agent implements it.
 model: sonnet
 color: red
 ---

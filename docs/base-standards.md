@@ -1,5 +1,5 @@
 ---
-description: Development rules and guidelines of Katalis Responde Community, applicable to every AI agent (Claude, Codex, Cursor, DeepSeek, Gemini).
+description: Development rules and guidelines of Cited, applicable to every AI agent (Claude, Codex, Cursor, DeepSeek, Gemini).
 alwaysApply: true
 ---
 

@@ -1,5 +1,5 @@
 context: |
-  Katalis Responde Community: the free and forkable edition of Katalis Responde. A business forks the repository,
+  Cited: the free and forkable edition of Katalis Responde. A business forks the repository,
   fills in its own information and its own API keys, and answers its customers with citations from its own
   documents. One business per installation. Deliberately lighter than the paid service: no agency panel, no payment
   integrations, no measured evaluation. That difference is the business model.

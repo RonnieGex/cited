@@ -1,4 +1,4 @@
-# LOOP_STATE · Katalis Responde Community
+# LOOP_STATE · Cited
 
 STATUS: DONE
 CHANGE: core-hybrid-search (OpenSpec)

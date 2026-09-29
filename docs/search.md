@@ -1,6 +1,6 @@
 # Knowledge search
 
-How Katalis Responde Community turns the documents of a business into passages and answers a question with the
+How Cited turns the documents of a business into passages and answers a question with the
 passages that come closest to it. This is change 2 of the approved plan: the core, before any chat, voice or page.
 
 The module is deliberately lighter than the paid service: keyword ranking and vector similarity fused with Reciprocal
