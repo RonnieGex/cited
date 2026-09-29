@@ -48,9 +48,9 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 7. End-to-end
 
-- [ ] 7.1 The E2E of 2.2 green; captures of the voice panel at 1440 and 375 px — report:
+- [x] 7.1 The E2E of 2.2 green; captures of the voice panel at 1440 and 375 px — report:
       `reports/2026-09-29-step-7-e2e.md`
-- [ ] 7.2 One real session against a real agent is **Fable's** task; leave it `[BLOCKED]` — report:
+- [BLOCKED] 7.2 One real session against a real agent is **Fable's** task; leave it `[BLOCKED]` — report:
       `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
