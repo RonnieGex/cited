@@ -128,4 +128,36 @@ describe("the widget script", () => {
       `https://cited.example${EMBED_PATH}`,
     );
   });
+
+  // The scenario "Escape inside the iframe" of the requirement "The brand color is seen and the widget closes from
+  // inside": the key that reaches the document of `/embed` never reaches the document of the host page, so the embed
+  // posts the close to its parent and the widget believes only a message from its own origin.
+  it("closes when the embed asks it to, and only through its own protocol and origin", () => {
+    const close = { source: "cited-embed", type: "close" };
+    const message = (data: unknown, origin: string): MessageEvent =>
+      new MessageEvent("message", { data, origin });
+
+    load("https://shop.example");
+
+    const button = screen.getByRole("button", { name: PUBLIC_STRINGS.en.widget.button });
+
+    fireEvent.click(button);
+
+    expect(document.querySelector("iframe"), "the widget is open").not.toBeNull();
+
+    window.dispatchEvent(message(close, "https://evil.example"));
+
+    expect(document.querySelector("iframe"), "another origin cannot close it").not.toBeNull();
+
+    window.dispatchEvent(message({ source: "cited-embed", type: "open" }, "https://shop.example"));
+    window.dispatchEvent(message({ source: "another-widget", type: "close" }, "https://shop.example"));
+
+    expect(document.querySelector("iframe"), "another protocol cannot close it").not.toBeNull();
+
+    window.dispatchEvent(message(close, "https://shop.example"));
+
+    expect(document.querySelector("iframe"), "its own embed closes it").toBeNull();
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    expect(button, "the focus comes back to the button").toHaveFocus();
+  });
 });

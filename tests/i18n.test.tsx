@@ -1,12 +1,21 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { LanguageSwitch, type LanguageSwitchProps } from "@/components/i18n/LanguageSwitch";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 import { PUBLIC_STRINGS, welcomeFor } from "@/lib/i18n/public";
+import type { Lang } from "@/lib/settings/business";
 
 // Design decision 8 of `openspec/changes/public-page-and-widget/design.md`: `lib/i18n/language.ts` and
 // `components/i18n/LanguageSwitch.tsx` are the modules this lane owns, with the exact interface the decision writes.
 // Franc asked for the demo in English first, with the switch `English | Español` in that order.
+
+// The consumer of the parallel lane. `components/admin/AdminNav.tsx` of `admin-panel-and-onboarding` renders exactly
+// this, and design decision 8 (amended by Fable after `revision-community-08`) fixes the name of the one prop:
+// `LanguageSwitch({ current }: { current: Lang })`. The review reproduced TS2322 when the owner declared `lang`, so the
+// interface of the owner is pinned here the way its consumer calls it.
+function AdminNavLanguage({ lang }: { lang: Lang }) {
+  return <LanguageSwitch current={lang} />;
+}
 
 type Captured = { events: string[]; restore: () => void };
 
@@ -72,7 +81,7 @@ describe("the language of the public page", () => {
   });
 
   it("offers English first, with aria-pressed on the chosen one", () => {
-    render(<LanguageSwitch lang="en" reload={() => {}} />);
+    render(<LanguageSwitch current="en" reload={() => {}} />);
 
     const buttons = screen.getAllByRole("button");
 
@@ -89,7 +98,7 @@ describe("the language of the public page", () => {
   });
 
   it("marks Spanish when Spanish is chosen", () => {
-    render(<LanguageSwitch lang="es" reload={() => {}} />);
+    render(<LanguageSwitch current="es" reload={() => {}} />);
 
     expect(screen.getByRole("button", { name: "Español" })).toHaveAttribute(
       "aria-pressed",
@@ -107,7 +116,7 @@ describe("the language of the public page", () => {
     const reload = vi.fn(() => captured.events.push("reload"));
 
     try {
-      render(<LanguageSwitch lang="en" reload={reload} />);
+      render(<LanguageSwitch current="en" reload={reload} />);
 
       fireEvent.click(screen.getByRole("button", { name: "Español" }));
 
@@ -126,7 +135,7 @@ describe("the language of the public page", () => {
     const reload = vi.fn();
 
     try {
-      render(<LanguageSwitch lang="es" reload={reload} />);
+      render(<LanguageSwitch current="es" reload={reload} />);
 
       fireEvent.click(screen.getByRole("button", { name: "Español" }));
 
@@ -135,5 +144,33 @@ describe("the language of the public page", () => {
     } finally {
       captured.restore();
     }
+  });
+
+  it("is the module the parallel lane consumes: the one prop is current", () => {
+    // The shape of the props the owner exports, as `admin-panel-and-onboarding` writes it.
+    const props: LanguageSwitchProps = { current: "es" };
+
+    expect(props.current).toBe("es");
+
+    render(<AdminNavLanguage lang="en" />);
+
+    expect(screen.getByRole("button", { name: "English" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Español" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+  });
+
+  it("takes the chosen language from the consumer, in Spanish too", () => {
+    render(<AdminNavLanguage lang="es" />);
+
+    expect(screen.getByRole("button", { name: "Español" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("group", { name: PUBLIC_STRINGS.es.language })).toBeInTheDocument();
   });
 });

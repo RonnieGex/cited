@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Chat, type AskFn } from "@/components/chat/Chat";
 import { SESSION_KEY } from "@/lib/chat/session";
 import type { AskResult } from "@/lib/chat/client";
@@ -203,5 +203,116 @@ describe("the chat of the public page", () => {
     fireEvent.click(screen.getByRole("button", { name: strings.question.submit }));
 
     expect(ask).not.toHaveBeenCalled();
+  });
+
+  // The requirement "The brand color is seen and the widget closes from inside" of `specs/public-chat/spec.md`: the
+  // primary color of the settings paints the ask button and the accents. The page declares `--primary` and
+  // `--on-primary` on its `main` (`tests/public-page.test.tsx`) and this test pins that the chat consumes them; the
+  // computed color a browser paints is measured in `e2e/public-chat.spec.ts`.
+  it("paints the ask button and the accents with the primary color of the settings", async () => {
+    const pending = deferred<AskResult>();
+
+    render(
+      <Chat
+        lang="en"
+        welcome="Ask us anything."
+        ask={() => pending.promise}
+        storage={new MemoryStorage()}
+      />,
+    );
+
+    const ask = screen.getByRole("button", { name: strings.question.submit });
+
+    expect(ask.className, "the fill of the ask button").toContain("bg-[var(--primary)]");
+    expect(ask.className, "the text over the fill").toContain("text-[var(--on-primary)]");
+
+    question("How much is a tune-up?");
+
+    const loading = await screen.findByText(strings.loading);
+
+    expect(loading.className, "the accent of the loading state").toContain(
+      "border-[var(--primary)]",
+    );
+
+    await act(async () => {
+      pending.resolve({ status: "answered", answer: "380 pesos. [1]", citations: [citation] });
+    });
+
+    const chip = screen.getByRole("button", { name: strings.citation(1) });
+
+    expect(chip.className, "the accent of the citation chip").toContain(
+      "hover:bg-[var(--primary)]",
+    );
+  });
+});
+
+describe("the chat inside the widget", () => {
+  const originalParent = Object.getOwnPropertyDescriptor(window, "parent");
+
+  afterEach(() => {
+    if (originalParent === undefined) {
+      Reflect.deleteProperty(window, "parent");
+
+      return;
+    }
+
+    Object.defineProperty(window, "parent", originalParent);
+  });
+
+  /** Turns the jsdom window into the window of an iframe, whose parent is the page that carries the widget. */
+  function frame(parent: { postMessage: (data: unknown, target: string) => void }): void {
+    Object.defineProperty(window, "parent", { configurable: true, get: () => parent });
+  }
+
+  it("asks its parent to close when Escape is pressed inside the iframe", () => {
+    const posted: Array<{ data: unknown; target: string }> = [];
+
+    frame({
+      postMessage: (data, target) => {
+        posted.push({ data, target });
+      },
+    });
+
+    render(<Chat lang="en" welcome="Ask us anything." variant="embed" storage={new MemoryStorage()} />);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    // The protocol the widget of `lib/widget/script.ts` listens to: a message with this shape, and only from the
+    // origin of the embed, closes the chat and returns the focus to the button. `e2e/widget.spec.ts` proves the two
+    // halves together in a browser.
+    expect(posted).toEqual([{ data: { source: "cited-embed", type: "close" }, target: "*" }]);
+  });
+
+  it("does not post anything when the chat is the public page", () => {
+    const posted: unknown[] = [];
+
+    frame({
+      postMessage: (data) => {
+        posted.push(data);
+      },
+    });
+
+    render(<Chat lang="en" welcome="Ask us anything." storage={new MemoryStorage()} />);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(posted).toEqual([]);
+  });
+
+  it("ignores every other key", () => {
+    const posted: unknown[] = [];
+
+    frame({
+      postMessage: (data) => {
+        posted.push(data);
+      },
+    });
+
+    render(<Chat lang="en" welcome="Ask us anything." variant="embed" storage={new MemoryStorage()} />);
+
+    fireEvent.keyDown(document, { key: "Enter" });
+    fireEvent.keyDown(document, { key: "a" });
+
+    expect(posted).toEqual([]);
   });
 });

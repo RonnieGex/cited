@@ -58,6 +58,33 @@ test("an allowed site: the widget loads the chat and the chat answers", async ({
   }
 });
 
+// The scenario "Escape inside the iframe" of the requirement "The brand color is seen and the widget closes from
+// inside", and the reproduction of the review: when the focus is on the question box of `/embed`, the key event
+// belongs to the document of the iframe and never reaches the listener of the host document.
+test("Escape inside the iframe closes the widget and returns the focus to its button", async ({ page }) => {
+  const server = await serve(3210);
+
+  try {
+    await page.goto(allowedSite);
+
+    const button = page.getByRole("button", { name: "Ask us" });
+
+    await button.click();
+
+    const question = page.frameLocator("iframe").getByLabel("Your question");
+
+    await expect(question).toBeVisible();
+    await question.click();
+
+    await page.keyboard.press("Escape");
+
+    await expect(page.locator("iframe"), "the widget closes").toHaveCount(0);
+    await expect(button, "and the focus comes back to its button").toBeFocused();
+  } finally {
+    server.close();
+  }
+});
+
 test("a site that is not allowed cannot embed the chat", async ({ page, request }) => {
   const server = await serve(3211);
 

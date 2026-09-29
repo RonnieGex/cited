@@ -76,12 +76,21 @@ describe("the public page", () => {
 
     const { container } = render(await Home());
     const main = container.querySelector("main");
+    const ask = screen.getByRole("button", { name: PUBLIC_STRINGS.es.question.submit });
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Café La Horquilla");
     expect(screen.getByLabelText(PUBLIC_STRINGS.es.question.label)).toBeInTheDocument();
     expect(screen.getByText("Pregúntanos lo que quieras.")).toBeInTheDocument();
     expect(main?.style.getPropertyValue("--primary")).toBe("#1d4ed8");
     expect(main?.getAttribute("lang")).toBe("es");
+    // The requirement "The brand color is seen and the widget closes from inside": the color of the settings has to
+    // reach the ask button and not stay in a variable nobody reads. The fixture is the one the review used.
+    expect(ask.className, "the ask button takes the fill of the settings").toContain(
+      "bg-[var(--primary)]",
+    );
+    expect(ask.className, "and the text that is legible over it").toContain(
+      "text-[var(--on-primary)]",
+    );
   });
 
   it("falls back to lime when the primary color fails AA", async () => {
