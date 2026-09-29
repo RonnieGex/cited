@@ -102,3 +102,34 @@ exceed it.
 
 - **WHEN** forty tests arrive at the same time
 - **THEN** exactly twenty reach the provider double and the others answer `429`
+
+### Requirement: The address that was validated is the address that is connected to
+
+For every request the server makes to an address the owner supplied (the test, and every chat or embeddings call that
+uses it), the host SHALL be resolved once, every resolved address SHALL be classified, and the connection SHALL be
+opened to the address that was classified and never to a second resolution of the name; addresses SHALL be classified in
+every notation, including IPv4 mapped into IPv6 in dotted or hexadecimal form, unique local, link-local, NAT64 and 6to4
+addresses that embed a private IPv4.
+
+#### Scenario: A name that changes its answer
+
+- **WHEN** the resolver double answers a public address the first time and `127.0.0.1` the second time for the same name
+- **THEN** the connection goes to the first address, or nothing connects, and the local double never receives the request
+
+#### Scenario: A mapped address
+
+- **WHEN** the base URL is `http://[::ffff:7f00:1]:11434`, `http://[::ffff:127.0.0.1]:11434` or a name that resolves to
+  one of them
+- **THEN** the test answers that the address is not allowed and no connection is opened
+
+### Requirement: The owner never reads a variable name in an answer of the panel
+
+The routes of the panel SHALL answer failures with a reason code and no text that names a variable of the environment;
+the page SHALL map each code to a sentence in the owner's words, and for a setting that only the installer can change it
+SHALL point to the page "For the installer", the only place where the variable may be named.
+
+#### Scenario: Local providers turned off
+
+- **WHEN** the owner tests Ollama at `127.0.0.1` and the server does not allow local providers
+- **THEN** the response carries the code `address_not_allowed` and no variable name, and the page says in words that the
+  installer must allow local providers and links "For the installer"
