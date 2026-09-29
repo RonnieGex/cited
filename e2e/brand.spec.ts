@@ -208,8 +208,8 @@ async function sampleTexts(page: Page, root: string): Promise<SampledText[]> {
   }, root);
 }
 
-function expectEveryTextToRead(samples: SampledText[], where: string): void {
-  expect(samples.length, `${where}: the texts the test measured`).toBeGreaterThan(3);
+function expectEveryTextToRead(samples: SampledText[], where: string, atLeast = 4): void {
+  expect(samples.length, `${where}: the texts the test measured`).toBeGreaterThanOrEqual(atLeast);
 
   for (const sample of samples) {
     console.log(
@@ -731,7 +731,8 @@ test.describe("a business is configured", () => {
     const switchTexts = await sampleTexts(page, '[data-public="band"] [role="group"]');
 
     expect(switchTexts.length, "the two languages of the switch").toBeGreaterThanOrEqual(2);
-    expectEveryTextToRead(switchTexts, "the switch over the band of the business");
+    // The switch is two buttons and its label, so its floor is the two languages and not the four of a page.
+    expectEveryTextToRead(switchTexts, "the switch over the band of the business", 2);
     expectEveryTextToRead(await sampleTexts(page, '[data-public="band"]'), "the band of the business");
 
     // The welcome is the headline with its last words highlighted, under the band, on paper.

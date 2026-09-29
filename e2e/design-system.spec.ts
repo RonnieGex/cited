@@ -393,6 +393,10 @@ test("the controls can be seen: 3:1 of the border and of the focus, 4.5:1 of eve
     // here: a frame of eight pixels around the top left corner of the control, decoded from a screenshot of the real
     // page, has to carry the hairline that the computation above composited. A computed colour the browser did not
     // paint cannot pass.
+    // The kit page is longer since the identity devices join it and the focus checks above scrolled the page to the last
+    // control, so each control is brought into the viewport before the clip of its corner is taken.
+    await page.locator(control.selector).scrollIntoViewIfNeeded();
+
     const box = await page.locator(control.selector).boundingBox();
 
     expect(box, `${control.label}: the box of the control`).not.toBeNull();
