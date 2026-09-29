@@ -26,11 +26,11 @@ before you promise anything to anyone.
 | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited answers only from the documents of the business" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Every passage of Cited carries its document, its heading and its position" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voice with ElevenLabs, planned for the next change" width="400"></picture> |
 |---|---|---|
 
-1. **It answers only from your documents.** Ingestion reads the files you point it at, and nothing else: no web, no
-   model memory, no invented page.
-2. **Every passage carries its source.** Document, heading and position travel with the text, so a reader can open the
-   page an answer came from instead of trusting a summary.
-3. **Text today, voice next.** Retrieval and search work now; talking to the same documents with ElevenLabs arrives in a
+1. **Only your documents.** Ingestion reads the files you point it at, and nothing else: no web, no model memory, no
+   invented page.
+2. **Every answer shows its page.** Document, heading and position travel with the text, so a reader can open the page
+   an answer came from instead of trusting a summary.
+3. **Talk to it.** Retrieval and search answer in text today; talking to the same documents with ElevenLabs arrives in a
    later change, and the card that shows it says `Next` for that reason.
 
 ## Status
@@ -52,6 +52,8 @@ Every row is either available today or planned, and each planned row names the c
 
 ## How it works
 
+**From a folder of documents to a cited passage.**
+
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer" width="1280"></picture>
 
 <details>
@@ -71,12 +73,16 @@ flowchart LR
 
 ## See it answer
 
+**Ask a question. Get the passage and where it came from.**
+
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/demo-dark.png"><img src="docs/images/demo-light.png" alt="A real run of the quick start of Cited: ingestion and one search" width="1280"></picture>
 
 The image is drawn by `scripts/render-readme-graphics.mjs` from the output of the commands in the quick start, so it
 cannot show a result the code does not produce.
 
 ## Roadmap
+
+**What runs today, and what comes next.**
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/roadmap-dark.png"><img src="docs/images/roadmap-light.png" alt="The roadmap of Cited: what is available today and what each next change adds" width="1280"></picture>
 
@@ -85,6 +91,8 @@ citations, then the panel and the public page, then the voice with ElevenLabs, t
 and the docs.
 
 ## Voice
+
+**Talk to your documents.**
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/voice-teaser-dark.png"><img src="docs/images/voice-teaser-light.png" alt="Voice agent of Cited, planned for the ElevenLabs change" width="1280"></picture>
 
@@ -118,7 +126,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 36 ms, rss 109 MB
 ```
 
 ```
@@ -141,7 +149,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 78 MB
+8 results, 6 ms, rss 74 MB
 ```
 
 The store lives in `.data/katalis.sqlite`, which git ignores. `docs/search.md` explains the schema, the chunking and

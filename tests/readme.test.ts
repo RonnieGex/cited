@@ -690,6 +690,19 @@ describe("README, its graphics", () => {
     expect(social["byline"]).toBe("by Katalis");
   });
 
+  it("records the headline of every graphic, and the template and the README carry it", () => {
+    const drawn = recorded(graphicsRecordPath)["graphics"] as Array<Record<string, unknown>>;
+
+    for (const name of Object.keys(graphics)) {
+      const entry = drawn.find((candidate) => candidate["name"] === name);
+      const headline = entry?.["headline"];
+
+      expect(typeof headline, name).toBe("string");
+      expect(readText(`scripts/readme-graphics/${name}.html`), name).toContain(headline as string);
+      expect(readText("README.md"), name).toContain(headline as string);
+    }
+  });
+
   it("is reproducible by the committed script and by the templates of every graphic", () => {
     const script = readText("scripts/render-readme-graphics.mjs");
 
