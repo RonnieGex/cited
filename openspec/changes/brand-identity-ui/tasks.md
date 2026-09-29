@@ -78,8 +78,8 @@ flame.
 
 ## 9. Documentation
 
-- [ ] 9.1 `DESIGN.md` at the root (decision 14), the section of the product tokens and the two devices in
+- [x] 9.1 `DESIGN.md` at the root (decision 14), the section of the product tokens and the two devices in
       `docs/design-system.md`, the README capture of the public page re-rendered with
       `scripts/render-readme-captures.mjs` and its twin — report: `reports/2026-09-29-step-9-docs.md`
-- [ ] 9.2 The delivery `katalis-dev/tasks/entrega-community-14.md` in Spanish with the captures and `## Issues` —
+- [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-14.md` in Spanish with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
