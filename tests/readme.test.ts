@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -114,10 +114,20 @@ function trackedFiles(): TrackedFile[] {
     .filter((path) => path.length > 0);
 
   trackedCache = listed.map((path) => {
-    const bytes = readFileSync(resolve(repositoryRoot, path));
-    const binary = bytes.includes(0) || binaryExtensions.has(extname(path).toLowerCase());
+    const absolute = resolve(repositoryRoot, path);
+    const regular =
+      lstatSync(absolute).isFile() && binaryExtensions.has(extname(path).toLowerCase()) === false;
 
-    return { path: path.replaceAll("\\", "/"), text: binary ? null : bytes.toString("utf8") };
+    if (!regular) {
+      return { path: path.replaceAll("\\", "/"), text: null };
+    }
+
+    const bytes = readFileSync(absolute);
+
+    return {
+      path: path.replaceAll("\\", "/"),
+      text: bytes.includes(0) ? null : bytes.toString("utf8"),
+    };
   });
 
   return trackedCache;
