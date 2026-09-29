@@ -12,7 +12,7 @@ export const plannedMark = new RegExp(
     "\\bsiguiente\\b",
     "design-system-shared",
     "pluggable-models-and-ask",
-    "admin-and-public-ui",
+    "public-page-and-widget",
     "elevenlabs-voice-agent",
     "security-hardening",
     "docs-deploy-and-launch",

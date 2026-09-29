@@ -20,7 +20,7 @@ exit=0
 The base had 17 files and 191 tests (task 1.1); the change adds ten files and fifty-five tests, and every one of
 them passes.
 
-### Which existing test changed: none
+### Which existing test changed: none at the time of this review
 
 ```
 $ git diff --name-status main...HEAD | Select-String "^M|^D|^R"
@@ -32,9 +32,17 @@ M	lib/store/index.ts
 M	playwright.config.ts
 ```
 
-No file under `tests/` of the base was modified, renamed or deleted: every test of the base passes with the change
-exactly as it was written. The change touches five source files and one configuration file, and this is why each one
-of them did not invalidate a test of the base:
+No file under `tests/` of the base was modified, renamed or deleted at this point of the branch: every test of the
+base passed with the change exactly as it was written.
+
+**Correction, added in task 9.1.** Later in the same branch, `tests/readme.test.ts` gained one name in its constant
+list of planned changes: `admin-and-public-ui` became `public-page-and-widget`, because Fable split that change in
+two and the status row of the panel now names the change that is actually being built beside this one. It is the only
+line of an existing test that this change touches, the reason is written in the report of step 9, and the correction
+is recorded here because a report never keeps a claim that stopped being true.
+
+The change touches five source files and one configuration file, and this is why each one of them did not invalidate
+a test of the base:
 
 - `app/layout.tsx` reads the cookie `cited-lang` and puts the language on `<html lang>`. The tests of the base do not
   render the layout (`tests/home.test.tsx` renders `Home`, not the document) and the browser tests of the base check

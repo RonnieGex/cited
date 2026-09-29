@@ -22,9 +22,9 @@ alwaysApply: true
 ```
 app/
   layout.tsx        # root layout, metadata and language
-  page.tsx          # public page of questions and answers (planned in admin-and-public-ui)
+  page.tsx          # public page of questions and answers (planned in public-page-and-widget)
   globals.css       # Tailwind import and the theme of the project
-  admin/            # administration panel (change 4)
+  admin/            # panel of the owner: the setup, the business, the documents and the conversations
   api/              # route handlers: ask, voice, upload, health (changes 3, 4 and 5)
 components/         # UI of this application, ported from the shared kit in change 1
 lib/                # search, models, guards, limits, settings

@@ -44,7 +44,8 @@ Every row is either available today or planned, and each planned row names the c
 | Embeddings through an OpenAI-compatible API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Local libSQL file or Turso | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Answers with citations from any model provider, spend limits | Available | [answering](openspec/specs/answering/spec.md) |
-| Admin panel, public page and widget in Spanish and English | Planned | `admin-and-public-ui` |
+| The panel: the setup, the business, the documents and the conversations | Available | [admin-panel](openspec/specs/admin-panel/spec.md) |
+| Public page and embeddable widget in Spanish and English | Planned | `public-page-and-widget` |
 | Voice agent with ElevenLabs, created in one click | Planned | `elevenlabs-voice-agent` |
 | Shared design system | Planned | `design-system-shared` |
 | Security hardening and abuse tests | Planned | `security-hardening` |
@@ -80,6 +81,15 @@ flowchart LR
 The image is drawn by `scripts/render-readme-graphics.mjs` from the output of the commands in the quick start, so it
 cannot show a result the code does not produce: the same corpus, the same search and the same answer with its
 citation.
+
+**And the owner manages it from the browser.** The panel of `/admin` shows what is configured, stores the business
+and its logo, uploads the documents and lists the questions with the passages they used. It opens in English, with
+the switch `English | Español` in its header, and it is served by the same application as the questions.
+
+<picture><img src="docs/images/admin/panel.png" alt="The business screen of the panel of Cited, with the name, the color, the tone, the language, the forbidden topics, the two welcomes and the logo of the business" width="1280"></picture>
+
+`docs/admin.md` explains the screens, the routes, the store and the rules of the logo; the capture is a real run of
+the built application, taken by the end-to-end suite of `e2e/admin.spec.ts` with the deterministic providers.
 
 ## Roadmap
 
@@ -129,7 +139,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 43 ms, rss 107 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 30 ms, rss 112 MB
 ```
 
 ```
@@ -152,7 +162,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 5 ms, rss 72 MB
+8 results, 6 ms, rss 77 MB
 ```
 
 ```
@@ -164,7 +174,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 41 ms, rss 93 MB
+citations 1, 40 ms, rss 100 MB
 ```
 
 The store lives in `.data/katalis.sqlite`, which git ignores. `docs/search.md` explains the schema, the chunking and
@@ -201,13 +211,13 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `MAX_ANSWER_TOKENS` | the token ceiling of one answer, 600 by default | yes |
 | `CONVERSATION_RETENTION_DAYS` | the days a conversation is kept, 30 by default | yes |
 | `TRUST_PROXY` | `1` reads the visitor address from `x-forwarded-for`; without it the header is not trusted | yes |
-| `ADMIN_SESSION_SECRET` | secret that salts the hash of the visitor address, and that will sign the panel session | yes |
-| `ADMIN_PASSWORD` | password of the administration panel, planned in `admin-and-public-ui` | no |
+| `ADMIN_SESSION_SECRET` | secret that salts the hash of the visitor address and signs the session of the panel | yes |
+| `ADMIN_PASSWORD` | password of the panel, the one that opens `/admin` | yes |
 | `VOICE_TOOL_SECRET` | secret the voice tool expects in its Bearer token, planned in `elevenlabs-voice-agent` | no |
 | `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | model of the voice agent, planned in `elevenlabs-voice-agent` | no |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs, planned in `elevenlabs-voice-agent` | no |
 | `DAILY_VOICE_MINUTE_LIMIT` | the voice minutes of one day, planned in `elevenlabs-voice-agent` | no |
-| `ALLOWED_ORIGINS` | origins allowed to embed the widget, planned in `admin-and-public-ui` | no |
+| `ALLOWED_ORIGINS` | origins allowed to embed the widget, planned in `public-page-and-widget` | no |
 
 A row marked `no` is a name the repository already reserves and no code reads yet. No key has a value in this
 repository, and `.env` is ignored by git.
