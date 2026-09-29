@@ -15,7 +15,7 @@ the API balance of the owner.
 | Environment files never enter the history | Done | `.gitignore` (`.env*` except `.env.example`) |
 | No key has a value in the repository | Done | `.env.example` with empty values |
 | Dependency vulnerabilities above the high level stop the pipeline | Done | `.github/workflows/ci.yml`, `npm run audit:high` |
-| Static analysis of the code in the pipeline | Done | `.github/workflows/codeql.yml` (JavaScript and TypeScript) |
+| Static analysis of the code in the pipeline | Done | `.github/workflows/codeql.yml` (JavaScript and TypeScript) runs on every push to `main`, on every pull request and on a weekly schedule while the repository is public; while it is private the analysis job is skipped, not failed, because GitHub accepts code scanning uploads from a private repository only with a paid plan |
 | Dependency updates reviewed | Done | `.github/dependabot.yml` |
 | No commercially licensed font file | Done | the repository carries no `.woff`, `.woff2`, `.ttf` or `.otf` |
 | Threat model written and reviewed | This document | `docs/security.md` |

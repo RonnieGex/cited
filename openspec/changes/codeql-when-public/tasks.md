@@ -44,7 +44,7 @@ blocking, unless the evidence is missing or contradicts the mark. Reports: `repo
 
 ## 8. The state of the base after
 
-- [ ] 8.1 Repeat 1.1 (local part) and 1.2 — report: `reports/2026-09-29-step-8-base-after.md`
+- [x] 8.1 Repeat 1.1 (local part) and 1.2 — report: `reports/2026-09-29-step-8-base-after.md`
 
 ## 9. Documentation
 

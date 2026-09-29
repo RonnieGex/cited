@@ -19,8 +19,15 @@ the repository stays private, and it runs unchanged once change 7 makes it publi
 ## Progress
 
 - Step 0: the branch and its base confirmed.
-- Step 1: in progress.
-- Steps 2 to 9: pending.
+- Step 1: the state of the base, with the failing run quoted and the repository proven to have no database.
+- Step 2: the contract test of `codeql.yml` written first and run red on Windows and on Linux.
+- Step 3: the one-line condition on the analysis job; the test green.
+- Step 4: the whole suite green on Windows and in a `node:24` Linux container.
+- Step 5: the checks green on both platforms, plus the production build on Windows.
+- Step 6: not applicable, no route changes; the changed-file list is in the report.
+- Step 7: not applicable, the page does not change.
+- Step 8: the state after, repeated; no database, the suite four tests wider.
+- Step 9: in progress.
 
 ## Hard rules respected
 
