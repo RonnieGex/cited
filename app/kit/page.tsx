@@ -53,7 +53,7 @@ export default function Kit() {
           </p>
           <div data-kit="citation-mark" className="flex max-w-[65ch] flex-col gap-3 border border-ink/10 bg-paper p-6">
             <p className="text-lg leading-[1.6]">
-              La afinación cuesta 380 pesos <CitationMark n={1} /> y el cambio de cámara, 120 <CitationMark n={2} />.
+              La afinación pide cita previa <CitationMark n={1} /> y el taller cierra los lunes <CitationMark n={2} />.
             </p>
             <p className="flex flex-wrap items-center gap-3 text-lg">
               <span className="text-sm text-ink-2">En reposo</span>
@@ -78,7 +78,7 @@ export default function Kit() {
               <HighlightedTail text="Cada respuesta enseña de dónde salió." sweep />
             </p>
             <p className="text-lg leading-[1.6]">
-              <Highlight sweep>Afinación de bicicleta: 380 pesos.</Highlight>
+              <Highlight sweep>Abrimos de martes a domingo.</Highlight>
             </p>
           </div>
         </section>

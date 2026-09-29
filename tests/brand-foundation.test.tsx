@@ -464,6 +464,12 @@ describe("the kit page (decision 13)", () => {
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   });
 
+  it("carries no money figure in its sample copy, so a capture of the kit never shows a price", () => {
+    const { container } = render(<Kit />);
+
+    expect(container.textContent ?? "").not.toMatch(/\d\s*(pesos|MXN|USD|EUR)|[$€]\s*\d/i);
+  });
+
   it("shows the wordmark in both tones, the citation mark and the highlighter in their sections", () => {
     const { container } = render(<Kit />);
 
