@@ -1,7 +1,14 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createFakeChatModel } from "@/lib/models/fake";
 import { resolveChatModel } from "@/lib/models/providers";
-import { CHAT_PROVIDER_NAMES, DEFAULT_CHAT_MODELS, chatModelName } from "@/lib/models/types";
+import {
+  CHAT_PROVIDER_NAMES,
+  DEFAULT_CHAT_MODELS,
+  chatModelName,
+  type ChatProviderName,
+} from "@/lib/models/types";
 
 const keyOf: Record<string, string> = {
   openai: "OPENAI_API_KEY",
@@ -11,6 +18,70 @@ const keyOf: Record<string, string> = {
   groq: "GROQ_API_KEY",
   openrouter: "OPENROUTER_API_KEY",
 };
+
+// The official pages the review cites, read on the date of the change (2026-09-29), plus the page of the local
+// server and, for the deterministic provider, this repository. See `docs/answering.md` section 8.
+const checkedOn = "2026-09-29";
+const officialHosts = [
+  "https://developers.openai.com/",
+  "https://platform.openai.com/",
+  "https://platform.claude.com/",
+  "https://docs.anthropic.com/",
+  "https://ai.google.dev/",
+  "https://api-docs.deepseek.com/",
+  "https://console.groq.com/",
+  "https://openrouter.ai/",
+  "https://ollama.com/",
+  "https://lmstudio.ai/",
+];
+const repositorySource = "lib/models/fake.ts";
+
+const servedOn = (): Record<ChatProviderName, string> => ({
+  openai: "gpt-4o-mini",
+  anthropic: "claude-haiku-4-5-20251001",
+  gemini: "gemini-3.8-flash",
+  deepseek: "deepseek-flash",
+  groq: "openai/gpt-oss-120b",
+  openrouter: "openai/gpt-4o-mini",
+  ollama: "llama3.1",
+  lmstudio: "local-model",
+  fake: "fake",
+});
+
+type DefaultRow = { provider: string; model: string; source: string; checked: string };
+
+function documentationDefaults(): DefaultRow[] {
+  const documentation = readFileSync(resolve(import.meta.dirname, "../docs/answering.md"), "utf8");
+  const rows: DefaultRow[] = [];
+
+  for (const line of documentation.split("\n")) {
+    const cells = line.startsWith("|")
+      ? line
+          .slice(1, -1)
+          .split("|")
+          .map((cell) => cell.trim().replaceAll("`", ""))
+      : [];
+
+    if (cells.length < 6) {
+      continue;
+    }
+
+    const provider = cells[0] ?? "";
+
+    if ((CHAT_PROVIDER_NAMES as readonly string[]).includes(provider) === false) {
+      continue;
+    }
+
+    rows.push({
+      provider,
+      model: cells[2] ?? "",
+      source: cells[4] ?? "",
+      checked: cells[5] ?? "",
+    });
+  }
+
+  return rows;
+}
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -121,5 +192,29 @@ describe("the chat provider is chosen by variables", () => {
 
     expect(createFakeChatModel()).toBeDefined();
     expect(offline).not.toHaveBeenCalled();
+  });
+});
+
+describe("the defaults of the chat providers are current", () => {
+  it("names the model its provider still served on the date of the change", () => {
+    expect(DEFAULT_CHAT_MODELS).toEqual(servedOn());
+    expect(DEFAULT_CHAT_MODELS.deepseek).toBe("deepseek-flash");
+  });
+
+  it("records every default in the documentation with its official source and the date", () => {
+    const rows = documentationDefaults();
+
+    expect(rows.map((row) => row.provider)).toEqual([...CHAT_PROVIDER_NAMES]);
+
+    for (const row of rows) {
+      const provider = row.provider as ChatProviderName;
+
+      expect(row.model, provider).toBe(DEFAULT_CHAT_MODELS[provider]);
+      expect(row.checked, provider).toBe(checkedOn);
+      expect(
+        officialHosts.some((host) => row.source.startsWith(host)) || row.source === repositorySource,
+        `${provider}: ${row.source}`,
+      ).toBe(true);
+    }
   });
 });
