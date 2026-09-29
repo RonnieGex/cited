@@ -84,3 +84,65 @@ components/i18n tests/brand-foundation.test.tsx`: no error, no warning.
 - Interactive marks: `className={citationMarkClass(open ? "open" : "rest")}` plus `data-brand="citation-mark"`.
 - `Button size="sm"` and `variant="ghost"` exist; `LanguageSwitch tone="ink" | "brand"` exists.
 - Nothing in `tests/chat.test.tsx` or `tests/admin-ui.test.tsx` moved because of the kit change.
+
+## Round 2: the three NEEDS_FOUNDATION requests of the surface agents
+
+Implementer: Sonnet 5.5. Date: 2026-09-29. Test first: `tests/brand-foundation-tweaks.test.tsx` (new file, no existing test edited).
+
+| Commit | What |
+|---|---|
+| `e27bff6` | the failing tests (8 tests, 5 red) |
+| `e2d8a73` | `app/brand.css` `.hl-on-ink`; `components/admin/AuthShell.tsx` uses it instead of the inline `style` |
+| `6403141` | `CitationMark` prop `tone: "paper" | "ink"`; `components/admin/AdminNav.tsx` drops `bg-transparent!` and `text-paper/60!` |
+| `fa7ba72` | `components/ui/Input.tsx` dresses `type="file"` |
+
+Red, before the code (`npx vitest run tests/brand-foundation-tweaks.test.tsx` at `e27bff6`):
+
+```
+ FAIL  ... > .hl-on-ink ... > is a solid lime block with ink text, declared after .hl so that it wins
+AssertionError: a rule for .hl-on-ink: expected undefined to be defined
+ FAIL  ... > .hl-on-ink ... > animates nothing of its own: the sweep stays the job of .hl-sweep
+ FAIL  ... > CitationMark tone > draws the rest mark on ink as a quiet outline with paper text, without a competing lime fill
+AssertionError: expected 'inline-grid h-[1.3em] min-w-[1.5em] p…' to contain 'text-paper/60'
+ FAIL  ... > CitationMark tone > draws the open mark on ink as ink with a lime number inside a lime outline
+AssertionError: expected 'inline-grid h-[1.3em] min-w-[1.5em] p…' to contain 'ring-lime'
+ FAIL  ... > Input of type file > styles the native button of the picker and keeps 44 px of height, and stays an input of type file
+AssertionError: expected 'w-full rounded-none border border-bor…' to contain 'file:bg-ink'
+      Tests  5 failed | 3 passed (8)
+```
+
+Green, at `fa7ba72`: `Tests  8 passed (8)`. The foundation and both surfaces together (`npx vitest run` over `brand-foundation-tweaks`,
+`brand-foundation`, `brand-static`, `brand-panel`, `brand-public`, `design-system`, `i18n`, `admin-i18n`, `admin-ui`, `chat`, `public-page`,
+`markdown`): `Test Files  12 passed (12)`, `Tests  216 passed (216)`. `npx tsc --noEmit`: no output. `npx eslint components tests/brand-foundation-tweaks.test.tsx`:
+no error. The gitleaks hook printed `INF no leaks found` on the four commits.
+
+### What was asked and what was done
+
+1. `.hl-on-ink`: done. `background-image: linear-gradient(var(--lime), var(--lime)); color: var(--ink)`, declared after `.hl` (not in a layer, same
+   as `.hl`), used together with `.hl` and `.hl-sweep` (`class="hl hl-on-ink hl-sweep"`), so the sweep and the final size of the reduced-motion block
+   still apply and the existing tests that look for `.hl` in the tagline still find it. It is consistent with decision 4 (an additive variant) and
+   with the contrast rule: the half-height marker would put paper text over lime (1.1:1); a solid block with ink text is the ink-on-lime pair.
+2. `CitationMark tone`: done, as `tone?: "paper" | "ink"` (default `paper`, look unchanged). On `ink` the rest mark is transparent with `text-paper/60`
+   and a `ring-paper/30` outline, and the open mark is ink with a lime number inside a `ring-lime` outline; both are exclusive classes, so the
+   `!important` overrides are gone. `citationMarkClass` (the button of the public page) keeps the paper look.
+3. Styled file input: done for what CSS can do without changing behavior. `Input type="file"` gets the native picker button as the primary button of
+   the kit (`file:bg-ink file:text-paper file:rounded-none file:border-0 file:uppercase file:font-bold`), `min-h-11` and `p-2` instead of `px-5 py-4`.
+   Text inputs are untouched (the test checks their `px-5 py-4`).
+
+Call sites migrated (files of the panel agent, whose work is already committed): `AuthShell.tsx` and `AdminNav.tsx`, one line each, so the
+new API is used and the workarounds do not stay as dead weight. Nothing else of theirs was touched.
+
+### Seen on the dev server (captures outside the repository, nothing committed)
+
+`/admin` signed out at 1440 px: the tagline's last three words are an ink-on-lime block. `/admin/documents` at 1440 px: the numbered marks of the
+navigation are the same as before (quiet outline, the current one ink with a lime numeral), and the file field shows "CHOOSE FILE" as an ink button.
+
+## Issues
+
+- BROKEN: none.
+- RISK: the text next to the picker button ("No file chosen") is written by the browser in the language of the browser, not of the page, so on a
+  Spanish page in an English browser it stays English. Removing it needs a hidden input plus a label and a filename line, which changes the markup
+  and the accessible name that `BusinessForm` and `DocumentsPanel` tests use; that is a behaviour change of the surface files and was not done.
+- NOT DONE: the browser E2E was not run here (concurrency rule); the integration agent runs it in `community-e2e`.
+- UNKNOWN: the contrast of `file:text-paper` on `file:bg-ink` is the pair of the primary button (checked by axe on `/kit`), but no axe run was made
+  on `/admin/documents` with a session in this round.
