@@ -1,10 +1,16 @@
-// Fails a build whose browser output carries the deterministic test SDK of `tests/fakes/elevenlabs-react.tsx`, and
-// fails a build of `npm run build:e2e` whose browser output does not carry it (or that carries the real package
-// instead). `--expect-test-sdk` — or `KATALIS_VOICE_FAKE_SDK=1` — flips the expectation to the end-to-end build.
+// Fails a build whose output carries the deterministic test SDK of `tests/fakes/elevenlabs-react.tsx`, and fails a
+// build of `npm run build:e2e` whose browser output does not carry it (or that carries the real package instead).
+// `--expect-test-sdk` — or `KATALIS_VOICE_FAKE_SDK=1` — flips the expectation to the end-to-end build.
 //
-// The scope of a check is what the browser downloads (`.next/static`): the server output of this project legitimately
-// names `api.elevenlabs.io`, because that is the API its routes call. The marker of the test SDK is looked for in the
-// whole output, because a leak anywhere is a leak.
+// What is scanned, and why:
+//
+//   - the marker of the test SDK is looked for in the emitted output, `.next/static` and `.next/server`: a leak into
+//     anything the application serves is a leak. Turbopack's own scratch space `.next/cache` is left out on purpose —
+//     it is not output, `npm run build` rewrites it, and a production build that follows an end-to-end build would
+//     otherwise always fail on the cache of the previous one;
+//   - the marker of the real package and the header of the provider are looked for in `.next/static`, what the browser
+//     downloads. The server output of this project legitimately names `api.elevenlabs.io`, because that is the API its
+//     routes call.
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -13,6 +19,7 @@ const REAL_MARKER = "api.elevenlabs.io";
 // The header of the provider: the browser of this project never sends it and no bundle may carry it.
 const FORBIDDEN_MARKERS = ["xi-api-key"];
 const ROOT = ".next";
+const OUTPUT_ROOTS = [join(".next", "static"), join(".next", "server")];
 const CLIENT_ROOT = join(".next", "static");
 const SKIP_DIRECTORIES = new Set([".git"]);
 
@@ -98,11 +105,23 @@ function scan(root, markers) {
   return found;
 }
 
-const fakeHits = scan(ROOT, FAKE_MARKERS);
+function merge(maps) {
+  const merged = new Map();
+
+  for (const found of maps) {
+    for (const [file, hits] of found) {
+      merged.set(file, hits);
+    }
+  }
+
+  return merged;
+}
+
+const fakeHits = merge(OUTPUT_ROOTS.map((root) => scan(root, FAKE_MARKERS)));
 const clientFake = scan(CLIENT_ROOT, FAKE_MARKERS);
 const clientReal = scan(CLIENT_ROOT, [REAL_MARKER]);
 const clientForbidden = scan(CLIENT_ROOT, FORBIDDEN_MARKERS);
-const scanned = [ROOT, CLIENT_ROOT].filter(exists);
+const scanned = [ROOT, ...OUTPUT_ROOTS].filter(exists);
 
 console.log(
   `verify-no-test-sdk: mode=${expectFake ? "test-build" : "production"} roots=${scanned.join(", ") || "none"}`,

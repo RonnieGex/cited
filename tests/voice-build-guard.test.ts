@@ -132,4 +132,28 @@ describe("the guard of the test SDK", () => {
     expect(run.status).toBe(1);
     expect(run.output).toContain("xi-api-key");
   });
+
+  // The scratch space of the compiler is not output: `npm run build` rewrites it, and a production build that follows
+  // an end-to-end build would otherwise always fail on the cache of the previous one. The scenario "A production
+  // build" asks about the output, which is `.next/static` and `.next/server`.
+  it("leaves the scratch space of the compiler out of the check", () => {
+    const root = fixture({
+      ".next/cache/turbopack/0000.sst": `export const flag = "${fakeMarker}";`,
+      ".next/static/chunks/panel.js": `export const base = "${realMarker}";`,
+    });
+    const run = guardOn(root);
+
+    expect(run.status).toBe(0);
+  });
+
+  it("still fails when the marker is in the server output of a production build", () => {
+    const root = fixture({
+      ".next/server/app/page.js": `export const flag = "${fakeMarker}";`,
+      ".next/static/chunks/panel.js": `export const base = "${realMarker}";`,
+    });
+    const run = guardOn(root);
+
+    expect(run.status).toBe(1);
+    expect(run.output).toContain("test SDK");
+  });
 });
