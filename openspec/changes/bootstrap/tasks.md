@@ -86,9 +86,11 @@ it overrides `specs/<change>/reports/` of the specboot template).
       line by line, without the leading blank line of the published file; `reports/2026-09-28-step-4-license-and-community.md`
 - [x] 5.2 `NOTICE` with the Katalis attribution - `Built by Katalis (https://katalis.dev)`;
       `reports/2026-09-28-step-4-license-and-community.md`
-- [x] 5.3 `SECURITY.md` per the amended plan (section 3.7): GitHub private vulnerability reporting enabled and
-      documented as the channel, and a role address (`security@katalis.dev`) added only when it exists; no personal
-      address - report: `reports/2026-09-28-step-9-review-fixes.md`
+- [x] 5.3 `SECURITY.md` per the amended plan (section 3.7): GitHub private vulnerability reporting documented as the
+      channel and a role address (`security@katalis.dev`) added only when it exists; no personal address. **Enabling**
+      the GitHub feature is not possible while the repository is private (`GET /repos/.../private-vulnerability-reporting`
+      answers 404, checked by Fable on 2026-09-29), so enabling it moves to change 7 `docs-deploy-and-launch`, the step
+      that makes the repository public (contract amended by Fable after `revision-community-00b.md`) - report: `reports/2026-09-28-step-9-review-fixes.md`
 - [x] 5.4 `CONTRIBUTING.md` with the local steps and the hook installation - commit `834a4ca`;
       `reports/2026-09-28-step-4-license-and-community.md`
 - [x] 5.5 `.github/ISSUE_TEMPLATE/bug_report.md`, `.github/ISSUE_TEMPLATE/feature_request.md` and
