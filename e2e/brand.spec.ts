@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, request, test, type Page } from "@playwright/test";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { E2E_ADMIN_PASSWORD, E2E_ADMIN_SECRET } from "./admin-fixtures";
 
@@ -383,6 +383,34 @@ test("with motion allowed the welcome headline does animate, so the reduced-moti
 // The public page.
 // ---------------------------------------------------------------------------------------------------------------------
 
+/** Decision 18 of `design.md`: the signature of Katalis reads in the language of the page, with the real flame beside it. */
+async function expectSignedWithTheFlame(page: Page, line: string): Promise<void> {
+  const signature = page.getByText(line, { exact: true });
+
+  await expect(signature, `"${line}" is on the page`).toBeVisible();
+
+  const flame = signature.locator("xpath=..").locator("img[src*='katalis-flame']");
+
+  await expect(flame, `the flame of Katalis beside "${line}"`).toHaveCount(1);
+  await expect(flame).toBeVisible();
+}
+
+for (const [lang, line, other] of [
+  ["en", "Built by Katalis", "Hecho por Katalis"],
+  ["es", "Hecho por Katalis", "Built by Katalis"],
+] as const) {
+  test(`in ${lang} the footer of / reads "${line}" beside the flame of Katalis`, async ({ page, context, baseURL }) => {
+    await context.addCookies([{ name: "cited-lang", value: lang, url: baseURL ?? "http://127.0.0.1:3100" }]);
+
+    const response = await page.goto("/");
+
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", lang);
+    await expectSignedWithTheFlame(page, line);
+    await expect(page.getByText(other), "the signature of the other language").toHaveCount(0);
+  });
+}
+
 async function mockAnswer(page: Page): Promise<void> {
   await page.route("**/api/ask", async (route) => {
     await route.fulfill({
@@ -752,5 +780,73 @@ test.describe("a business is configured", () => {
       await page.locator('[data-public="band"]').evaluate((element) => getComputedStyle(element).backgroundColor),
       "the color of the business does not depend on the language",
     ).toBe("rgb(29, 78, 216)");
+  });
+
+  // The scenario "The date of a conversation" of `specs/admin-panel/spec.md` (decision 19 of `design.md`). It lives here
+  // and not in `e2e/admin-brand.spec.ts` because it needs an answered conversation, and only an answered question is
+  // stored: on the shared panel store that means uploading a document and adding an "Answered" row while
+  // `e2e/admin.spec.ts` counts its own row and deletes every conversation. The branded server has a store of its own.
+  test("in Spanish the date of a conversation is a time element with the stored ISO value and a date an owner reads", async ({
+    page,
+    context,
+  }) => {
+    const headers = { origin: brandedBase, "x-forwarded-for": "198.51.100.78" };
+    const question = "¿Cuánto cuesta una afinación de bicicleta?";
+
+    const login = await page.request.post(`${brandedBase}/api/admin/login`, {
+      headers,
+      data: { password: E2E_ADMIN_PASSWORD },
+    });
+
+    expect(login.status(), "the panel of the branded server signs the owner in").toBe(200);
+
+    const uploaded = await page.request.post(`${brandedBase}/api/admin/documents`, {
+      headers,
+      multipart: {
+        document: {
+          name: "cafe-la-horquilla.md",
+          mimeType: "text/markdown",
+          buffer: readFileSync(resolve(process.cwd(), "samples", "cafe-la-horquilla.md")),
+        },
+      },
+    });
+
+    expect(uploaded.status(), "the document is uploaded through the API of the panel").toBe(200);
+
+    const asked = await page.request.post(`${brandedBase}/api/ask`, {
+      headers,
+      data: { question, sessionId: "e2e-brand-dates" },
+    });
+
+    expect(asked.status()).toBe(200);
+    expect(((await asked.json()) as { status?: string }).status, "only an answered question is stored").toBe("answered");
+
+    await context.addCookies([{ name: "cited-lang", value: "es", url: brandedBase }]);
+
+    const response = await page.goto(`${brandedBase}/admin/conversations`);
+
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("lang", "es");
+
+    const row = page.getByRole("row").filter({ hasText: question });
+
+    await expect(row, "the conversation is listed").toHaveCount(1);
+
+    const time = row.locator("time");
+
+    await expect(time, "the date cell is a time element").toHaveCount(1);
+
+    const iso = (await time.getAttribute("datetime")) ?? "";
+    const shown = ((await time.textContent()) ?? "").trim();
+    const expected = await page.evaluate(
+      (value) => new Intl.DateTimeFormat("es", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)),
+      iso,
+    );
+
+    console.log(`the date of the conversation: datetime="${iso}", shown "${shown}", es formats it "${expected}"`);
+
+    expect(iso, "dateTime keeps the stored ISO value").toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+    expect(shown, "the visible date is not the ISO string").not.toMatch(/[TZ]/);
+    expect(shown, "the date and hour formatted for es").toBe(expected);
   });
 });

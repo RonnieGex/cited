@@ -363,6 +363,14 @@ test.describe("the sign-in", () => {
 
     await expect(page.locator('[data-brand="wordmark"]').first(), "the wordmark").toBeVisible();
 
+    // Decision 18 of `design.md`: the Spanish signature, with the real flame beside it.
+    const signature = page.getByText(spanish.builtBy, { exact: true });
+
+    expect(spanish.builtBy).toBe("Hecho por Katalis");
+    await expect(signature).toBeVisible();
+    await expect(signature.locator("xpath=..").locator("img[src*='katalis-flame']")).toHaveCount(1);
+    await expect(page.getByText(english.builtBy)).toHaveCount(0);
+
     // The form keeps its label, its button and its messages.
     await expect(page.getByLabel(spanish.passwordLabel)).toBeVisible();
     await expect(page.getByRole("button", { name: spanish.signIn })).toBeVisible();
