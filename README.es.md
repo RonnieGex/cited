@@ -126,7 +126,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 25 ms, rss 114 MB
 ```
 
 ```
@@ -149,7 +149,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 77 MB
+8 results, 5 ms, rss 78 MB
 ```
 
 El almacén vive en `.data/katalis.sqlite`, que git ignora. `docs/search.md` explica el esquema, el troceado y el
@@ -222,7 +222,6 @@ el aviso.
 <br>
 
 <p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/katalis-logo-dark.png"><img src="docs/images/katalis-logo.png" alt="Katalis" height="64"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="public/brand/katalis-flame-192.png"><img src="public/brand/katalis-flame-ink-192.png" alt="Katalis" height="48"></picture>
+  <a href="https://katalis.dev">Built by Katalis</a>
 </p>
-
-<p align="center"><a href="https://katalis.dev">Built by Katalis</a></p>

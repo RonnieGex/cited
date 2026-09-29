@@ -10,6 +10,12 @@
   "darkBackground": "#171717",
   "lightBackground": "#F7F6F2",
   "lightMarkOutline": "#171717",
+  "flame": {
+    "dark": "public/brand/katalis-flame-192.png",
+    "light": "public/brand/katalis-flame-ink-192.png",
+    "height": "1em",
+    "where": "at the height of the by Katalis line, to its left"
+  },
   "font": {
     "name": "Outfit",
     "source": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",

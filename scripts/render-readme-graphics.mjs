@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { roadmap, states, statusRows, tokens } from "./readme-graphics/data.mjs";
 import { assertHonestRecord } from "./readme-graphics/honesty.mjs";
-import { graphics, logo, social } from "./readme-graphics/manifest.mjs";
+import { graphics, social } from "./readme-graphics/manifest.mjs";
 import { patchReadmeQuickStart, terminalLines, withoutNpmNoise } from "./readme-graphics/quickstart.mjs";
 
 const loadOptimizer = async () => {
@@ -45,7 +45,18 @@ const font = {
   fileInRepository: false,
 };
 
+// The mark of the maker (design decision 3): the flame of `public/brand/` beside `by Katalis` in the social preview,
+// the same flame the banner and the foot of the README use. It is embedded as a data URI because the pages are set
+// with `setContent` and have no base address.
+const flame = {
+  dark: "public/brand/katalis-flame-192.png",
+  ink: "public/brand/katalis-flame-ink-192.png",
+  height: "1em",
+  where: "at the height of the by Katalis line, to its left",
+};
+
 const absolute = (relative) => resolve(root, relative);
+const dataUri = (path) => `data:image/png;base64,${readFileSync(absolute(path)).toString("base64")}`;
 
 const themes = {
   dark: {
@@ -539,11 +550,19 @@ const styles = `
   color: var(--muted);
 }
 .byline {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--muted);
+}
+.byline .flame {
+  display: block;
+  height: 1em;
+  width: auto;
 }
 .rule {
   width: 220px;
@@ -836,6 +855,53 @@ async function audit(page, graphic, theme) {
   return found;
 }
 
+async function auditFlame(page, graphic, theme) {
+  const placed = await page.evaluate(() => {
+    const line = document.querySelector(".byline");
+    const image = document.querySelector(".byline .flame");
+    const word = document.querySelector(".byline span");
+
+    if (line === null || image === null || word === null) {
+      return null;
+    }
+
+    const mark = image.getBoundingClientRect();
+    const text = word.getBoundingClientRect();
+
+    return {
+      height: mark.height,
+      width: mark.width,
+      line: Number.parseFloat(getComputedStyle(line).fontSize),
+      toTheLeft: mark.right <= text.left + 0.5,
+      middle: Math.abs(mark.top + mark.height / 2 - (text.top + text.height / 2)),
+    };
+  });
+
+  if (placed === null) {
+    throw new Error(`${graphic.name} (${theme}) draws no flame beside by Katalis.`);
+  }
+
+  if (Math.abs(placed.height - placed.line) > 0.5) {
+    throw new Error(
+      `${graphic.name} (${theme}) draws the flame ${placed.height}px high and the by Katalis line is ${placed.line}px.`,
+    );
+  }
+
+  if (placed.toTheLeft === false) {
+    throw new Error(`${graphic.name} (${theme}) draws the flame to the right of by Katalis.`);
+  }
+
+  if (placed.middle > 1) {
+    throw new Error(
+      `${graphic.name} (${theme}) draws the flame ${placed.middle}px away from the middle of the by Katalis line.`,
+    );
+  }
+
+  console.log(
+    `${graphic.name} (${theme}): the flame is ${placed.width.toFixed(1)} by ${placed.height.toFixed(1)}px beside a line of ${placed.line}px`,
+  );
+}
+
 async function emptyBand(buffer, plain, width, height) {
   const drawn = await sharp(buffer).ensureAlpha().raw().toBuffer();
   const empty = await sharp(plain).ensureAlpha().raw().toBuffer();
@@ -911,6 +977,11 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
   }
 
   const audit_ = await audit(page, graphic, theme);
+
+  if (graphic.name === social.name) {
+    await auditFlame(page, graphic, theme);
+  }
+
   mkdirSync(dirname(absolute(target)), { recursive: true });
 
   const png = await page.screenshot({ type: "png" });
@@ -982,7 +1053,7 @@ const wanted = (name) => asked.length === 0 || asked.includes(name);
 const banner = JSON.parse(readFileSync(absolute(bannerRecordPath), "utf8"));
 const templatesOf = new Map(
   await Promise.all(
-    [...graphics, social, logo].map(async (graphic) => [
+    [...graphics, social].map(async (graphic) => [
       graphic.name,
       await readFile(absolute(`${templates}/${graphic.template}`), "utf8"),
     ]),
@@ -1024,6 +1095,7 @@ const contents = new Map(
       AVAILABLE_ROWS: rowsOf("Available"),
       PLANNED_ROWS: rowsOf("Planned"),
       TAGLINE: escapeHtml(banner.tagline),
+      FLAME: dataUri(flame.dark),
     }),
   ]),
 );
@@ -1069,32 +1141,6 @@ try {
   if (wanted(social.name)) {
     await render(browser, social, contents.get(social.name), "dark", social.dark, backgrounds);
   }
-
-  if (wanted(logo.name)) {
-    for (const theme of ["light", "dark"]) {
-      const logoPage = await browser.newPage({
-        viewport: { width: 340, height: 170 },
-        deviceScaleFactor: 1,
-      });
-      const target = theme === "dark" ? logo.dark : logo.light;
-
-      await logoPage.setContent(html(templatesOf.get(logo.name), theme, 340, 170), { waitUntil: "load" });
-      await logoPage.evaluate(() => document.fonts.ready);
-      await logoPage.addStyleTag({ content: "html, body { background: transparent; }" });
-
-      const logoPng = await logoPage.locator(".logo").screenshot({ type: "png", omitBackground: true });
-      const logoOptimized =
-        sharp === null
-          ? logoPng
-          : await sharp(logoPng)
-              .png({ compressionLevel: 9, effort: 10, palette: false, adaptiveFiltering: true })
-              .toBuffer();
-
-      await writeFile(absolute(target), logoOptimized);
-      await logoPage.close();
-      console.log(`rendered ${target} (${logoOptimized.length} bytes, transparent mark)`);
-    }
-  }
 } finally {
   await browser.close();
 }
@@ -1117,7 +1163,7 @@ if (asked.length > 0) {
       width: social.width,
       height: social.height,
     },
-    logo: { file: logo.light, dark: logo.dark, alt: logo.alt },
+    flame,
     font,
     tokens,
     artDirection: {

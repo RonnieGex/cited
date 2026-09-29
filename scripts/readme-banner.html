@@ -73,11 +73,19 @@
       }
       .byline {
         position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
         font-size: 19px;
         font-weight: 600;
         letter-spacing: 0.28em;
         text-transform: uppercase;
         opacity: {{BYLINE_OPACITY}};
+      }
+      .byline .flame {
+        display: block;
+        height: 1em;
+        width: auto;
       }
     </style>
   </head>
@@ -89,6 +97,9 @@
       <span class="mark">[1]</span>
     </div>
     <div class="tagline">{{TAGLINE}}</div>
-    <div class="byline">by Katalis</div>
+    <div class="byline">
+      <img class="flame" src="{{FLAME}}" alt="" />
+      <span>by Katalis</span>
+    </div>
   </body>
 </html>

@@ -128,6 +128,11 @@ function declarations(text: string): Map<string, string> {
   return found;
 }
 
+/** The body of a rule of a stylesheet, from its selector to the closing brace of its own line. */
+function block(text: string, selector: string): string {
+  return new RegExp(`${selector}[^{]*\\{([\\s\\S]*?)\\n\\}`).exec(text)?.[1] ?? "";
+}
+
 function trackedFiles(): string[] {
   return execFileSync("git", ["ls-files", "-z"], { cwd: repositoryRoot, encoding: "utf8" })
     .split("\0")
@@ -412,7 +417,7 @@ describe("the mark of the maker is the real flame", () => {
 
 describe("one set of tokens, the ones of Construye", () => {
   it("declares the tokens of the reference once, in app/tokens.css", () => {
-    const tokens = declarations(readText(tokensSheet));
+    const tokens = declarations(block(readText(tokensSheet), ":root"));
 
     for (const name of tokenNames) {
       expect([...tokens.keys()], name).toContain(name);
@@ -427,7 +432,7 @@ describe("one set of tokens, the ones of Construye", () => {
 
   it("records in the document the value each token has in Construye, and the two are equal", () => {
     const document = readText(designDocument);
-    const tokens = declarations(readText(tokensSheet));
+    const tokens = declarations(block(readText(tokensSheet), ":root"));
 
     for (const name of tokenNames) {
       const row = rowWith(document, name);
@@ -457,7 +462,7 @@ describe("one set of tokens, the ones of Construye", () => {
   it("exposes the tokens to Tailwind through @theme and imports them from globals.css", () => {
     const sheet = readText(tokensSheet);
     const globals = readText("app/globals.css");
-    const theme = /@theme[^{]*\{([\s\S]*?)\n\}/.exec(sheet)?.[1] ?? "";
+    const theme = block(sheet, "@theme");
     const exposed = [...declarations(theme).keys()];
 
     expect(theme.length, "app/tokens.css carries a @theme block").toBeGreaterThan(0);
