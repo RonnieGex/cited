@@ -9,13 +9,14 @@ import { chromium } from "@playwright/test";
 //
 //   ADMIN_PASSWORD=<the password of the running app> node scripts/capture-ui.mjs <directory> [http://localhost:3300]
 //
-// The password is read from the environment and is never printed. Without it only the pages that need no session are
-// captured.
+// The password is read from the environment and is never printed, and it is only sent to the machine itself: with a
+// password the base URL must be localhost, 127.0.0.1 or [::1]. Without it only the pages that need no session are
+// captured. The default question has no amount in its answer, so no capture shows money (CAPTURE_QUESTION changes it).
 
 const target = process.argv[2];
 const base = (process.argv[3] ?? "http://localhost:3300").replace(/\/$/, "");
 const password = process.env.ADMIN_PASSWORD ?? "";
-const question = process.env.CAPTURE_QUESTION ?? "How much does a late cancellation cost?";
+const question = process.env.CAPTURE_QUESTION ?? "When are you open on Saturday?";
 const sizes = [
   { suffix: "1440", width: 1440, height: 900 },
   { suffix: "375", width: 375, height: 812 },
@@ -25,18 +26,35 @@ if (target === undefined) {
   throw new Error("The first argument is the directory of the captures.");
 }
 
+if (password.length > 0 && ["localhost", "127.0.0.1", "[::1]"].includes(new URL(base).hostname) === false) {
+  throw new Error(`ADMIN_PASSWORD is only sent to this machine: ${new URL(base).origin} is not localhost or 127.0.0.1.`);
+}
+
 const directory = resolve(target);
 
 mkdirSync(directory, { recursive: true });
 
 async function settle(page) {
   await page.evaluate(() => document.fonts.ready);
-  // The entrance motion of the page lands before the shot: the capture shows the state a reader ends up looking at.
-  await page.waitForTimeout(1200);
+  // The entrance motion of the page lands before the shot: the capture shows the state a reader ends up looking at. Every
+  // animation that ends is awaited (the waiting bar loops, so it is left out), as in `render-readme-captures.mjs`.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Number.POSITIVE_INFINITY)
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
 }
 
 async function shot(page, name, size, options = {}) {
   await page.setViewportSize({ width: size.width, height: size.height });
+
+  if (options.scrollTo !== undefined) {
+    await page.locator(options.scrollTo).first().scrollIntoViewIfNeeded();
+  }
+
   await settle(page);
   await page.screenshot({ path: resolve(directory, `${name}-${size.suffix}.png`), fullPage: options.fullPage ?? true });
   console.log(`rendered ${name}-${size.suffix}.png`);
@@ -67,12 +85,22 @@ try {
   await ask(page);
   await page.getByRole("button", { name: /^(citation|cita) 1$/i }).first().click();
 
+  // On a phone the ask form sticks to the foot of the screen, so a full-page shot paints it over the open citation: the
+  // 375 shot is the screen a reader sees with the citation scrolled into view.
   for (const size of sizes) {
-    await shot(page, "public-answer", size);
+    await shot(
+      page,
+      "public-answer",
+      size,
+      size.width < 768 ? { fullPage: false, scrollTo: '[data-cited="citation"]' } : {},
+    );
   }
 
   await page.goto(`${base}/embed`);
-  await shot(page, "embed", sizes[0]);
+  for (const size of sizes) {
+    await shot(page, "embed", size);
+  }
+
   await page.goto(`${base}/kit`);
   for (const size of sizes) {
     await shot(page, "kit", size);
