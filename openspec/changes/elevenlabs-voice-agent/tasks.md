@@ -18,9 +18,9 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 2. Tests first
 
-- [ ] 2.1 Red unit and route tests for every scenario of `specs/voice-agent/spec.md` with the API double — report:
+- [x] 2.1 Red unit and route tests for every scenario of `specs/voice-agent/spec.md` with the API double — report:
       `reports/2026-09-29-step-2-tests-first.md`
-- [ ] 2.2 Red E2E with the test SDK: the microphone button, the Orb loaded on demand, the four states, the written
+- [x] 2.2 Red E2E with the test SDK: the microphone button, the Orb loaded on demand, the four states, the written
       question echoed once, the chips; the production-build guard — report: `reports/2026-09-29-step-2-tests-first.md`
 
 ## 3. Implementation
