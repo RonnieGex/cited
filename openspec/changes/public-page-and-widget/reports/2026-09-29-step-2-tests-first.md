@@ -161,5 +161,4 @@ modules that do not exist yet. The green run of these same specs, on `npm run bu
 
 ### Commit
 
-The commit of this step carries `playwright.config.ts` and the two spec files: `2d21f9b`.
-
+The commit of this step carries `playwright.config.ts` and the two spec files: `9c014e8` (the first version of this line announced a hash that did not exist yet; the correction is in the report of step 3).
