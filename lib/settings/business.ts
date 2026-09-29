@@ -1,0 +1,122 @@
+import type { ChatEnvironment } from "../models/types.ts";
+import { sharedStore } from "../store/instance.ts";
+import type { StoredBusiness } from "../store/index.ts";
+
+export type Lang = "en" | "es";
+
+export interface Business {
+  name: string;
+  hasLogo: boolean;
+  primaryColor: string | null;
+  tone: string;
+  language: Lang;
+  forbiddenTopics: string[];
+  welcome: { en: string; es: string };
+  updatedAt: string;
+}
+
+export interface BusinessInput {
+  name: string;
+  primaryColor: string | null;
+  tone: string;
+  language: Lang;
+  forbiddenTopics: string[];
+  welcome: { en: string; es: string };
+}
+
+export type BusinessLogo = {
+  mime: string;
+  bytes: Uint8Array;
+};
+
+const topicSeparator = /[\n,]/;
+
+export function topicsFrom(value: string): string[] {
+  const topics = value
+    .split(topicSeparator)
+    .map((topic) => topic.trim())
+    .filter((topic) => topic.length > 0);
+
+  return [...new Set(topics)];
+}
+
+export function topicsTo(topics: string[]): string {
+  return topics.join("\n");
+}
+
+function languageOf(value: string): Lang {
+  return value === "es" ? "es" : "en";
+}
+
+function toBusiness(row: StoredBusiness): Business {
+  return {
+    name: row.name,
+    hasLogo: row.hasLogo,
+    primaryColor: row.primaryColor,
+    tone: row.tone,
+    language: languageOf(row.language),
+    forbiddenTopics: topicsFrom(row.forbiddenTopics),
+    welcome: { en: row.welcomeEn, es: row.welcomeEs },
+    updatedAt: row.updatedAt,
+  };
+}
+
+export async function readBusiness(
+  environment: ChatEnvironment = process.env,
+): Promise<Business | null> {
+  try {
+    const store = await sharedStore(environment);
+    const row = await store.readBusiness();
+
+    return row === null ? null : toBusiness(row);
+  } catch {
+    return null;
+  }
+}
+
+export async function saveBusiness(
+  input: BusinessInput,
+  environment: ChatEnvironment = process.env,
+): Promise<Business> {
+  const store = await sharedStore(environment);
+
+  await store.saveBusiness({
+    name: input.name.trim(),
+    primaryColor: input.primaryColor,
+    tone: input.tone.trim(),
+    language: input.language,
+    forbiddenTopics: topicsTo(input.forbiddenTopics),
+    welcomeEn: input.welcome.en,
+    welcomeEs: input.welcome.es,
+  });
+
+  const stored = await store.readBusiness();
+
+  if (stored === null) {
+    throw new Error("the store kept no business row after the write");
+  }
+
+  return toBusiness(stored);
+}
+
+export async function saveBusinessLogo(
+  mime: string,
+  bytes: Uint8Array,
+  environment: ChatEnvironment = process.env,
+): Promise<void> {
+  const store = await sharedStore(environment);
+
+  await store.saveBusinessLogo(mime, bytes);
+}
+
+export async function readBusinessLogo(
+  environment: ChatEnvironment = process.env,
+): Promise<BusinessLogo | null> {
+  try {
+    const store = await sharedStore(environment);
+
+    return await store.readBusinessLogo();
+  } catch {
+    return null;
+  }
+}

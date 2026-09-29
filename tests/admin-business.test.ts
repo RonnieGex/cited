@@ -1,4 +1,4 @@
-// @vitest-environment node
+﻿// @vitest-environment node
 import { afterAll, describe, expect, it } from "vitest";
 import { GET as business, PUT as businessWrite } from "@/app/api/admin/business/route";
 import { POST as logo } from "@/app/api/admin/business/logo/route";
@@ -28,11 +28,11 @@ afterAll(cleanup);
 
 const welcome = {
   en: "Welcome. Ask about our policies.",
-  es: "Bienvenido. Pregunta por nuestras políticas.",
+  es: "Bienvenido. Pregunta por nuestras polÃ­ticas.",
 };
 
 const stored = {
-  name: "Café La Horquilla",
+  name: "CafÃ© La Horquilla",
   primaryColor: "#171717",
   tone: "cercano y breve",
   language: "es" as const,
@@ -118,9 +118,9 @@ describe("the business settings", () => {
   });
 
   it("splits the topics the owner writes one per line", () => {
-    expect(topicsFrom("precios de la competencia\n  temas médicos  \n\n")).toEqual([
+    expect(topicsFrom("precios de la competencia\n  temas mÃ©dicos  \n\n")).toEqual([
       "precios de la competencia",
-      "temas médicos",
+      "temas mÃ©dicos",
     ]);
     expect(topicsFrom("uno, dos , tres")).toEqual(["uno", "dos", "tres"]);
     expect(topicsFrom("")).toEqual([]);
@@ -145,7 +145,7 @@ describe("the logo of the business", () => {
 
     expect(good.status).toBe(200);
 
-    const before = await brandLogo(new Request("http://localhost/api/brand/logo"));
+    const before = await brandLogo();
 
     expect(before.status).toBe(200);
 
@@ -156,7 +156,7 @@ describe("the logo of the business", () => {
     expect(renamed.status).toBe(400);
     expect(await vector.text()).not.toContain("<svg");
 
-    const after = await brandLogo(new Request("http://localhost/api/brand/logo"));
+    const after = await brandLogo();
 
     expect(after.status).toBe(200);
     expect(new Uint8Array(await after.arrayBuffer())).toEqual(pngBytes());
@@ -165,7 +165,7 @@ describe("the logo of the business", () => {
   it("refuses more than 512 KB and serves the stored bytes with their type and a cache header", async () => {
     await environmentOf(configured());
 
-    const missing = await brandLogo(new Request("http://localhost/api/brand/logo"));
+    const missing = await brandLogo();
 
     expect(missing.status).toBe(404);
 
@@ -181,7 +181,7 @@ describe("the logo of the business", () => {
     expect(webp.status).toBe(200);
     expect(body.business.hasLogo).toBe(true);
 
-    const served = await brandLogo(new Request("http://localhost/api/brand/logo"));
+    const served = await brandLogo();
 
     expect(served.status).toBe(200);
     expect(served.headers.get("content-type")).toBe("image/webp");
@@ -195,7 +195,7 @@ describe("the logo of the business", () => {
 describe("the prompt of the answers reads the business", () => {
   it("carries the tone, the language and the forbidden topics as rules", () => {
     const messages = buildMessages({
-      question: "¿Cuánto cuesta?",
+      question: "Â¿CuÃ¡nto cuesta?",
       hits: [
         {
           passageId: 1,
@@ -230,7 +230,7 @@ describe("the prompt of the answers reads the business", () => {
         {
           position: 0,
           heading: "Precios",
-          text: "Afinación de bicicleta: 380 pesos.",
+          text: "AfinaciÃ³n de bicicleta: 380 pesos.",
           embedding: new Array<number>(64).fill(0.5),
         },
       ],
@@ -240,7 +240,7 @@ describe("the prompt of the answers reads the business", () => {
 
     const calls: FakeCall[] = [];
     const outcome = await askQuestion({
-      question: "¿Cuánto cuesta una afinación de bicicleta?",
+      question: "Â¿CuÃ¡nto cuesta una afinaciÃ³n de bicicleta?",
       store,
       embeddings: {
         dimensions: 64,

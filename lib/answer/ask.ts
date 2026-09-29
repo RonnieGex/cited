@@ -7,6 +7,7 @@ import { dayOf, hourWindowStart, retryAfterSeconds } from "../guards/window.ts";
 import type { ChatEnvironment } from "../models/types.ts";
 import { hybridSearch } from "../search/index.ts";
 import type { Store } from "../store/index.ts";
+import { readBusiness } from "../settings/business.ts";
 import { extractCitations } from "./citations.ts";
 import { NO_ANSWER, buildMessages, refusalMessage } from "./prompt.ts";
 import type { Turn } from "./prompt.ts";
@@ -97,9 +98,10 @@ export async function askQuestion(input: AskInput): Promise<AskOutcome> {
     };
   }
 
+  const business = await readBusiness(environment);
   const generated = await generateText({
     model: input.model,
-    messages: buildMessages({ question, hits, history }),
+    messages: buildMessages({ question, hits, history, business }),
     allowSystemInMessages: true,
     maxOutputTokens: limits.maxAnswerTokens,
     temperature: ANSWER_TEMPERATURE,
