@@ -45,7 +45,7 @@ secret, no customer data, no licensed font.
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 `npm run build && npm run start`, then `curl.exe` of `/`, `/kit` and the Outfit file: 200, and the font file
+- [x] 6.1 `npm run build && npm run start`, then `curl.exe` of `/`, `/kit` and the Outfit file: 200, and the font file
       served from the app — report: `reports/2026-09-29-step-6-curl.md`
 
 ## 7. End-to-end
