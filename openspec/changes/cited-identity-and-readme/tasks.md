@@ -122,11 +122,11 @@ Evidence rule as above. Report: `reports/2026-09-29-step-12-review-round.md`. Co
 Evidence rule as above. Report: `reports/2026-09-29-step-13-review-round.md`. Commit in small steps. Section 10 stays
 reserved for Fable.
 
-- [ ] 13.1 Tests first: the amended scenario "Only planned text speaks of answers" over `docs/**/*.md` and every text
+- [x] 13.1 Tests first: the amended scenario "Only planned text speaks of answers" over `docs/**/*.md` and every text
       field of both records, red against the current files; the render script cannot write a present-tense answer
       claim into a record
-- [ ] 13.2 Correct `docs/search.md`, `docs/backend-standards.md`, `docs/frontend-standards.md`, the records and any
+- [x] 13.2 Correct `docs/search.md`, `docs/backend-standards.md`, `docs/frontend-standards.md`, the records and any
       other place the test names, marking what is planned with the change that delivers it; re-render only what changed
-- [ ] 13.3 Minor: the report of 6.1 names `95459db` as the commit of its amendment
-- [ ] 13.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
+- [x] 13.3 Minor: the report of 6.1 names `95459db` as the commit of its amendment
+- [x] 13.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
       `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-03.md` with `## Issues`
