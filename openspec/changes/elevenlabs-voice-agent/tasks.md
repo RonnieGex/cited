@@ -86,11 +86,11 @@ Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before ea
 
 Report: `reports/2026-09-29-step-11-review-fixes.md`. Tests first, red before each fix.
 
-- [ ] 11.1 Major: the cap is checked before the configuration (requirement "The cap is checked before the
+- [x] 11.1 Major: the cap is checked before the configuration (requirement "The cap is checked before the
       configuration"), with the scenario of the review as a test with the key empty — report: the one of this section
-- [ ] 11.2 Major: the license texts of the resampler next to it, byte for byte from the package, and
+- [x] 11.2 Major: the license texts of the resampler next to it, byte for byte from the package, and
       `THIRD_PARTY_NOTICES.md` (requirement "What is copied from a package keeps its notice"), with a test that reads
       the package and compares — report: the one of this section
-- [ ] 11.3 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 11.3 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
       to `katalis-dev/tasks/entrega-community-09.md` with `## Issues` — report: the one of this section
