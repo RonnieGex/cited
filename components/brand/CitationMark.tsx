@@ -7,10 +7,19 @@ import { focusRing } from "@/components/ui/focus";
 // same mark sits in a sentence at 18 px, in the wordmark at 20 to 56 px and in the navigation of the panel.
 
 export type CitationMarkState = "rest" | "open";
+export type CitationMarkTone = "paper" | "ink";
 
 const look = {
-  rest: "bg-lime text-ink",
-  open: "bg-ink text-lime",
+  paper: {
+    rest: "bg-lime text-ink",
+    open: "bg-ink text-lime",
+  },
+  // On a ground of ink (the navigation of the panel): the rest mark is a quiet outline with paper text (6.8:1 over ink,
+  // the numeral is text), and the open mark is ink with a lime number inside a lime outline so it does not vanish.
+  ink: {
+    rest: "bg-transparent text-paper/60 ring-1 ring-inset ring-paper/30",
+    open: "bg-ink text-lime ring-1 ring-inset ring-lime",
+  },
 } as const;
 
 const shape =
@@ -22,20 +31,22 @@ const shape =
  * the pages that declare `--primary` and `--on-primary` (the public page and the embed) use it as a button.
  */
 export function citationMarkClass(state: CitationMarkState = "rest"): string {
-  return `${shape} ${look[state]} cursor-pointer transition-colors duration-[var(--dur-fast)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] ${focusRing}`;
+  return `${shape} ${look.paper[state]} cursor-pointer transition-colors duration-[var(--dur-fast)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] ${focusRing}`;
 }
 
 export type CitationMarkProps = {
   n?: number | string;
   /** `open` paints the mark ink with a lime number: the source that is open, the place of the panel that is current. */
   state?: CitationMarkState;
+  /** `ink` is the look for a ground of ink; `paper` (the default) is the look everywhere else. */
+  tone?: CitationMarkTone;
   className?: string;
 };
 
 /** The static mark: a span that looks exactly like the button of `citationMarkClass`. */
-export function CitationMark({ n = 1, state = "rest", className = "" }: CitationMarkProps) {
+export function CitationMark({ n = 1, state = "rest", tone = "paper", className = "" }: CitationMarkProps) {
   return (
-    <span data-brand="citation-mark" className={`${shape} ${look[state]} ${className}`}>
+    <span data-brand="citation-mark" className={`${shape} ${look[tone][state]} ${className}`}>
       {n}
     </span>
   );

@@ -79,11 +79,7 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
                   aria-current={current ? "page" : undefined}
                   className={`${link} ${current ? "bg-paper/10 text-paper" : "text-paper/80 hover:text-paper"}`}
                 >
-                  <CitationMark
-                    n={index + 1}
-                    state={current ? "open" : "rest"}
-                    className={current ? "ring-1 ring-inset ring-lime" : "bg-transparent! text-paper/60! ring-1 ring-inset ring-paper/30"}
-                  />
+                  <CitationMark n={index + 1} tone="ink" state={current ? "open" : "rest"} />
                   {strings[section.name]}
                 </Link>
               </li>
