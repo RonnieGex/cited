@@ -92,6 +92,42 @@ git diff --check                            -> (no output)                      
 git diff --check 3ff834f..HEAD              -> (no output)                          (exit 0)
 ```
 
+## The flake that the closing battery found, and its fix
+
+The battery was repeated in the container on the tree that already carries the reports, with the machine busy with
+other builds of the suite, and one of the scenarios of the fixture exceeded the default timeout of Vitest:
+
+```
+❯ tests/personal-paths.test.ts (7 tests | 1 failed) 9873ms
+  ✓ are listed by git 22ms
+  ✓ carry no home directory of a development machine 191ms
+  ✓ carry no home directory prefix outside the change contract that states the rule 16ms
+  ✓ are read by the target of the link when git tracks them as a symbolic link 22ms
+  ✓ report a tracked symbolic link whose target carries a home directory 592ms
+  × exempt the rule-defining contract at its active and archived path and report any other file with the prefix 6932ms
+  ✓ skip a binary tracked file 99ms
+
+FAIL ... Error: Test timed out in 5000ms.
+Test Files  1 failed | 1 passed (2)
+     Tests  1 failed | 8 passed (9)
+=== exit code: 1 ===
+```
+
+It is a defect of the test, not of the fix: the scenario builds a throwaway Git repository and calls git about ten
+times, so a loaded machine can push it past the five seconds that Vitest allows by default. The same scenario passed
+in every other run, between 85 ms and 1.6 s. The three scenarios that build a fixture now declare
+`{ timeout: fixtureTimeout }`, with `fixtureTimeout = 30_000`, and the suite is green again on both platforms:
+
+```
+npm test
+  -> Test Files  2 passed (2)
+          Tests  9 passed (9)
+```
+
+The rest of that battery (typecheck, lint, the strict OpenSpec validation, gitleaks and `git diff --check`) was green
+in the same run; only the unit suite failed, on that timeout, and it was green again with the timeout declared. The
+closing run, on the commit that carries this report, is recorded in the delivery.
+
 ## Summary
 
 | Check | Linux container | Windows |

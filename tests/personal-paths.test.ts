@@ -30,6 +30,7 @@ const developmentHomePrefix = `${driveLetter}\\${homeDirectory}\\`;
 
 const symlinkMode = "120000";
 const regularFileModes = ["100644", "100755"];
+const fixtureTimeout = 30_000;
 const gitDefaults = ["-c", "core.autocrlf=false", "-c", "init.defaultBranch=main"];
 const fixtureRoots: string[] = [];
 
@@ -168,7 +169,7 @@ describe("tracked files", () => {
     );
   });
 
-  it("report a tracked symbolic link whose target carries a home directory", () => {
+  it("report a tracked symbolic link whose target carries a home directory", { timeout: fixtureTimeout }, () => {
     const root = fixtureRepo(
       { "docs/notes.md": "Release notes." },
       [{ path: "docs/vault", target: `${developmentHome}\\Documents\\vault` }],
@@ -178,19 +179,23 @@ describe("tracked files", () => {
     expect(offenders(root, homePrefix)).toEqual(["docs/vault"]);
   });
 
-  it("exempt the rule-defining contract at its active and archived path and report any other file with the prefix", () => {
-    const rule = `No ${developmentHomePrefix} path is committed.`;
+  it(
+    "exempt the rule-defining contract at its active and archived path and report any other file with the prefix",
+    { timeout: fixtureTimeout },
+    () => {
+      const rule = `No ${developmentHomePrefix} path is committed.`;
 
-    const root = fixtureRepo({
-      "docs/notes.md": `Scratch checkout of ${developmentHomePrefix}`,
-      "openspec/changes/archive/2026-09-29-bootstrap/tasks.md": rule,
-      "openspec/changes/bootstrap/tasks.md": rule,
-    });
+      const root = fixtureRepo({
+        "docs/notes.md": `Scratch checkout of ${developmentHomePrefix}`,
+        "openspec/changes/archive/2026-09-29-bootstrap/tasks.md": rule,
+        "openspec/changes/bootstrap/tasks.md": rule,
+      });
 
-    expect(offenders(root, homePrefix, ruleDefiningContracts)).toEqual(["docs/notes.md"]);
-  });
+      expect(offenders(root, homePrefix, ruleDefiningContracts)).toEqual(["docs/notes.md"]);
+    },
+  );
 
-  it("skip a binary tracked file", () => {
+  it("skip a binary tracked file", { timeout: fixtureTimeout }, () => {
     const root = fixtureRepo({
       "docs/blob.bin": Buffer.concat([
         Buffer.from(`${developmentHomePrefix}scratch`, "utf8"),

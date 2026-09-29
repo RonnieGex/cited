@@ -97,6 +97,11 @@ assignable to type 'TrackedEntry[]'.
 The commit was amended with `const [mode = ""] = ...` and the whole battery is green since. The intermediate state was
 never pushed and never left `feature/fix-tracked-text-scan`.
 
+Later, when the closing battery ran with the machine loaded, one of the scenarios that build a fixture hit the default
+timeout of Vitest (5 s), because each of them calls git about ten times; the three fixture scenarios now declare
+`{ timeout: fixtureTimeout }`, with `fixtureTimeout = 30_000`. The finding, its output and the fix are in
+`reports/2026-09-29-step-5-checks.md`.
+
 ## Green after the fix
 
 On Windows:
