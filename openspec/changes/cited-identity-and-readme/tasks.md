@@ -96,3 +96,23 @@ Evidence rule as above. Report: `reports/2026-09-29-step-11-art-direction.md`. C
 - [x] 11.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
       `git diff --check main...HEAD`, the total weight of `docs/images/` at 3 MB or less; append the round to
       `katalis-dev/tasks/entrega-community-03.md` under its own heading with `## Issues`
+
+## 12. Review round (contract written by Fable after `revision-community-03.md`)
+
+Evidence rule as above. Report: `reports/2026-09-29-step-12-review-round.md`. Commit in small steps on
+`feature/cited-identity-and-readme`. Section 10 stays reserved for Fable.
+
+- [ ] 12.1 Tests first, and each one red against the current files before the fix: the two new scenarios of
+      `project-readme` (translated twin; only planned text speaks of answers), the luminance of the terminal area of
+      `demo-light.png` at 0.30 or less, and the roadmap at 1280 px wide and 720 px or less high
+- [ ] 12.2 Major 1: the tagline and the second reason card as design decisions 2 and 10 now say, re-rendered in both
+      themes with the banner, the social preview and every record; every sentence of both READMEs and `docs/` that
+      promised an answer or a page today
+- [ ] 12.3 Major 2: `README.es.md` translated as design decision 11 says
+- [ ] 12.4 Major 3 and the teaser: the dark terminal in `demo-light.png`; the voice teaser copy of decision 11
+- [ ] 12.5 Minor: the report of 6.1 says exactly what was executed (the private repository cannot be cloned
+      anonymously, so name the substitute and the lines it replaced)
+- [ ] 12.6 Re-capture the first screens of 7.1; `npm test`, `npm run typecheck`, `npm run lint`, gitleaks,
+      `openspec validate --all --strict`, `git diff --check main...HEAD`, the weight of `docs/images/`; append the round
+      to `katalis-dev/tasks/entrega-community-03.md` under its own heading with every graphic that changed and
+      `## Issues`

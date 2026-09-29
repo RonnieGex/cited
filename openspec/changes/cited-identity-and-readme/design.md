@@ -18,8 +18,9 @@ navigation, all of it checked by a contract test. Cited follows the same discipl
    1280 × 320 in two variants and writes the two PNGs and `docs/images/readme-banner.json`.
    - The wordmark is `Cited` in Outfit (OFL, the free font Franc chose for the public edition), with a superscript
      citation mark `[1]` in lime `#DDF469`: the mark of the product is the citation.
-   - Under it, the tagline: `Answers from your own documents, with the page they came from.` and, smaller,
-     `by Katalis`.
+   - Under it, the tagline: `Ask your own documents. Get the passage and where it came from.` and, smaller,
+     `by Katalis`. (Amended by Fable after `revision-community-03.md`: the first tagline promised "answers" with "the
+     page", but the answer is planned and the passages keep their document, heading and position, not a page.)
    - Dark variant: ink `#171717` background, off-white text. Light variant: off-white background, ink text, the lime
      mark with an ink outline so it stays visible.
    - The script loads Outfit from Google Fonts at render time; no font file is added in this change (the design system
@@ -91,7 +92,7 @@ navigation, all of it checked by a contract test. Cited follows the same discipl
     - **Fill:** the content occupies the canvas: no band of empty background taller than a quarter of the height.
     - **Reason cards:** a bold benefit headline, an illustration that takes at least 40% of the card, one line of copy,
       and a visible card surface (a border or fill that contrasts with the page). Headlines: `Only your documents.`,
-      `Every answer shows its page.`, and `Talk to it.` with `Next` on the voice card.
+      `Every passage keeps its source.`, and `Talk to it.` with `Next` on the voice card.
     - **How it works:** the five steps as cards with a visible surface joined by a lime line; only the answer step and
       the two branches after it (web widget, voice agent) carry `Next`; no `Next` on the whole graphic.
     - **Demo:** a terminal is dark in both themes; commands in lime, output in off-white, no outline or stroke effect on
@@ -103,6 +104,19 @@ navigation, all of it checked by a contract test. Cited follows the same discipl
       `Next · ElevenLabs` tag.
     - **Social preview:** full-bleed ink with the lime glow, the wordmark at 180 px or more with its `[1]` mark, the
       tagline, `by Katalis` and a lime rule; the text block is at least half of the canvas height.
+
+11. **Corrections after `revision-community-03.md` (Fable).**
+    - Nothing outside a `Next` tag says "answer", "respuesta" or "page": the search returns passages with their
+      document, heading and position, and that is what the copy promises until `pluggable-models-and-ask` lands.
+    - The roadmap graphic is 1280 px wide and as tall as its rows need, 720 px at most; decision 8's 360 px could not
+      hold ten legible rows.
+    - The voice teaser reads `Voice with ElevenLabs arrives in an upcoming release.` instead of a sentence about the
+      graphic itself.
+    - The terminal of the demo is dark in both themes: its mean luminance is 0.30 or less inside the terminal area of
+      `demo-light.png` too.
+    - `README.es.md` is translated, not only mirrored: its headings, the status words (`Disponible`, `Siguiente`) and
+      the yes/no of the configuration (`sí`, `no`) are Spanish; code, commands, variable names, file paths and the
+      product and change names stay as they are.
 
 ## Risks / Trade-offs
 

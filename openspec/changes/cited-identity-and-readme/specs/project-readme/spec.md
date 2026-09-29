@@ -83,6 +83,19 @@ the same commands and the same variables, and each file SHALL link the other at 
 - **THEN** they have the same number of level-two sections, the same code blocks, the same variable names and the same
   status of every row
 
+#### Scenario: The twin is translated
+
+- **WHEN** the headings, the status column and the configuration table of `README.es.md` are read
+- **THEN** no level-two heading is the English heading of `README.md`, every status reads `Disponible` or `Siguiente`,
+  and every yes/no reads `sí` or `no`; only code, commands, variable names, paths and product and change names stay in
+  English
+
+#### Scenario: Only planned text speaks of answers
+
+- **WHEN** the tagline, the headlines of the graphics and the sentences of both READMEs outside the status table and
+  the roadmap are read
+- **THEN** none of them says that Cited answers, gives an answer or cites a page today, unless it carries `Next`
+
 ### Requirement: Every link and image of the README resolves
 
 Every relative link and image of `README.md` and `README.es.md` SHALL resolve to a file of the repository, and every
