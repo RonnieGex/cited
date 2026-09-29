@@ -756,6 +756,33 @@ describe("README, the promise of an answer", () => {
       ...offenders(spoken, answerWords),
     ]).toEqual([]);
   });
+
+  it("reads every field of the demo but the lines the run printed", () => {
+    // Amended by Fable after `revision-community-03c.md`: the exemption of the demo is the capture of the quick
+    // start, so every field of `demo` that is not a command line or a line the run printed is copy and is read.
+    const promise = "Cited answers a question and shows the page it came from.";
+    const record = recorded(graphicsRecordPath);
+    const demo = record["demo"] as Record<string, unknown>;
+    const drawn = demo["drawn"] as Record<string, string[]>;
+    const printed = String((demo["ingest"] as Record<string, unknown>)["output"]);
+    const drawnLines = drawn["ingest"] ?? [];
+
+    expect(printed).toContain("no pages");
+    expect(printed.split("\n")).toContain(drawnLines[0]);
+    expect(untaggedClaims(record), graphicsRecordPath).toEqual([]);
+
+    const copied = structuredClone(record) as Record<string, unknown>;
+    at(copied, `${capturedOutput}.caption`, promise);
+    expect(untaggedClaims(copied), "a field of the demo that the run did not print").toContain(
+      `${capturedOutput}.caption: ${promise}`,
+    );
+
+    const redrawn = structuredClone(record) as Record<string, unknown>;
+    at(redrawn, `${capturedOutput}.drawn.ingest[0]`, promise);
+    expect(untaggedClaims(redrawn), "a drawn line the run did not print").toContain(
+      `${capturedOutput}.drawn.ingest[0]: ${promise}`,
+    );
+  });
 });
 
 describe("the records of the render", () => {
@@ -792,7 +819,7 @@ describe("the records of the render", () => {
     }
   });
 
-  it("keeps the state of a roadmap row and the capture of the demo as the record", () => {
+  it("keeps the state of a roadmap row and the captured run of the demo as the evidence", () => {
     const record = recorded(graphicsRecordPath);
     const rows = record["roadmap"] as Array<Record<string, unknown>>;
     const available = rows.find((row) => row["state"] === "Available");
@@ -813,11 +840,21 @@ describe("the records of the render", () => {
         demo: {
           ingest: { command: claim, output: claim },
           search: { output: claim },
-          drawn: { search: [claim] },
+          drawn: { ingest: [claim], search: [claim] },
         },
       }),
-      "the subtree of the demo is the verbatim run of the quick start",
+      "the command lines and the lines they printed are the evidence of the demo",
     ).toEqual([]);
+    expect(
+      untaggedClaims({
+        demo: {
+          ingest: { output: claim },
+          drawn: { ingest: [claim] },
+          caption: claim,
+        },
+      }),
+      "any other field under demo is copy and is read",
+    ).toEqual([`demo.caption: ${claim}`]);
   });
 
   it("writes no record before the check of the guard", () => {
