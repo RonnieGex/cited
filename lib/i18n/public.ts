@@ -61,7 +61,7 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     error: "No se pudo obtener la respuesta. Inténtalo de nuevo.",
     language: "Idioma",
     history: "Conversación",
-    footer: "Built by Katalis",
+    footer: "Hecho por Katalis",
     widget: { button: "Pregúntanos", title: "Pregunta a este negocio", close: "Cerrar" },
   },
 };

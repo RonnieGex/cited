@@ -201,6 +201,18 @@ describe("the band of the public page (decision 9)", () => {
     expect(screen.getByText(en.footer)).toBeInTheDocument();
   });
 
+  // Decision 18 of `design.md`: the signature of Katalis reads in the language of the page.
+  it("signs the Spanish page with Hecho por Katalis beside the flame, and never the English line", async () => {
+    langCookie = "es";
+
+    render(await Home());
+    const signature = screen.getByText("Hecho por Katalis", { exact: true });
+
+    expect(es.footer).toBe("Hecho por Katalis");
+    expect(signature.parentElement?.querySelector("img[src*='katalis-flame']")).not.toBeNull();
+    expect(screen.queryByText("Built by Katalis")).toBeNull();
+  });
+
   it("puts the welcome under the band as the headline with its last words in the highlighter", async () => {
     business = workshop;
 
