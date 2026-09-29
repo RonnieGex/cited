@@ -5,7 +5,8 @@
 The test that forbids home directories of a development machine in tracked files SHALL decide how to inspect each
 tracked path from its git mode, so it behaves the same on Linux, macOS and Windows checkouts. A symlink SHALL be checked
 by its link target; a regular file by its content; a binary file SHALL be skipped. The rule-defining contract SHALL be
-exempt at its active path and at its archived path.
+exempt at exactly its active path `openspec/changes/bootstrap/tasks.md` and its archived path
+`openspec/changes/archive/2026-09-29-bootstrap/tasks.md`, and nowhere else.
 
 #### Scenario: A tracked symlink to a directory on Linux
 
@@ -19,6 +20,6 @@ exempt at its active path and at its archived path.
 
 #### Scenario: The archived contract
 
-- **WHEN** the contract that states the rule lives under `openspec/changes/archive/<date>-bootstrap/tasks.md`
+- **WHEN** the contract that states the rule lives at `openspec/changes/archive/2026-09-29-bootstrap/tasks.md`
 - **THEN** it is exempt from the prefix check exactly as at its active path, and any other file with the prefix is still
   reported
