@@ -12,6 +12,27 @@ export function missingAdminVariables(environment: AdminEnvironment): string[] {
   return adminConfig(environment).missing;
 }
 
+function ownOrigins(request: Request): string[] {
+  const url = new URL(request.url);
+  const origins = new Set<string>([url.origin]);
+  const host = request.headers.get("host")?.trim() ?? "";
+
+  if (host.length > 0) {
+    const forwarded = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? "";
+    const protocol = forwarded.length > 0 ? forwarded : url.protocol.replace(":", "");
+
+    origins.add(`${protocol}://${host}`);
+  }
+
+  return [...origins];
+}
+
+export function sameOrigin(request: Request): boolean {
+  const origin = request.headers.get("origin");
+
+  return origin !== null && ownOrigins(request).includes(origin);
+}
+
 export function guardSession(
   token: string | undefined,
   environment: AdminEnvironment,
@@ -41,12 +62,8 @@ export function guardRequest(
     return guarded;
   }
 
-  if (mutations.has(request.method.toUpperCase())) {
-    const origin = request.headers.get("origin");
-
-    if (origin === null || origin !== new URL(request.url).origin) {
-      return { status: "forbidden" };
-    }
+  if (mutations.has(request.method.toUpperCase()) && sameOrigin(request) === false) {
+    return { status: "forbidden" };
   }
 
   return { status: "ok" };

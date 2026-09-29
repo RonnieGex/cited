@@ -108,6 +108,34 @@ describe("the guard of the panel", () => {
     ).toEqual({ status: "unauthorized" });
   });
 
+  it("accepts the origin of the host the request carries", () => {
+    expect(
+      guardRequest(
+        request("POST", "http://localhost/api/admin/business", {
+          cookie: `${SESSION_COOKIE}=${token}`,
+          origin: "http://127.0.0.1:3311",
+          host: "127.0.0.1:3311",
+          "x-forwarded-proto": "http",
+        }),
+        environment,
+        now,
+      ),
+    ).toEqual({ status: "ok" });
+
+    expect(
+      guardRequest(
+        request("POST", "http://localhost/api/admin/business", {
+          cookie: `${SESSION_COOKIE}=${token}`,
+          origin: "https://panel.example.com",
+          host: "127.0.0.1:3311",
+          "x-forwarded-proto": "https",
+        }),
+        environment,
+        now,
+      ),
+    ).toEqual({ status: "forbidden" });
+  });
+
   it("guards a page with the value of its cookie", () => {
     expect(guardSession(token, environment, now)).toEqual({ status: "ok" });
     expect(guardSession(undefined, environment, now)).toEqual({ status: "unauthorized" });

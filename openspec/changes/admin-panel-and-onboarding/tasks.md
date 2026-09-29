@@ -48,7 +48,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 `npm run build && npm run start`; `curl.exe` of `/admin` without the variable (503), of an admin API without
+- [x] 6.1 `npm run build && npm run start`; `curl.exe` of `/admin` without the variable (503), of an admin API without
       a session (401), the login and the sixth failed attempt (429), and an upload with the session cookie — report:
       `reports/2026-09-29-step-6-curl.md`
 

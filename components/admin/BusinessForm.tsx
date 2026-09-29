@@ -3,7 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { Button, Chip, Input, Panel, SectionTitle } from "@/components/ui";
 import type { AdminStrings } from "@/lib/i18n/admin";
-import { topicsFrom, type Business, type Lang } from "@/lib/settings/business";
+import { topicsFrom } from "@/lib/settings/topics";
+import type { Business, Lang } from "@/lib/settings/business";
 
 export type BusinessFormProps = {
   strings: AdminStrings;

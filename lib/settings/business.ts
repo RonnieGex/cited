@@ -1,6 +1,9 @@
 import type { ChatEnvironment } from "../models/types.ts";
 import { sharedStore } from "../store/instance.ts";
 import type { StoredBusiness } from "../store/index.ts";
+import { topicsFrom, topicsTo } from "./topics.ts";
+
+export { topicsFrom, topicsTo };
 
 export type Lang = "en" | "es";
 
@@ -28,21 +31,6 @@ export type BusinessLogo = {
   mime: string;
   bytes: Uint8Array;
 };
-
-const topicSeparator = /[\n,]/;
-
-export function topicsFrom(value: string): string[] {
-  const topics = value
-    .split(topicSeparator)
-    .map((topic) => topic.trim())
-    .filter((topic) => topic.length > 0);
-
-  return [...new Set(topics)];
-}
-
-export function topicsTo(topics: string[]): string {
-  return topics.join("\n");
-}
 
 function languageOf(value: string): Lang {
   return value === "es" ? "es" : "en";

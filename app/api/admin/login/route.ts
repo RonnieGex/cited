@@ -1,4 +1,5 @@
 import { clearFailures, lockState, registerFailure } from "../../../../lib/admin/lockout.ts";
+import { sameOrigin } from "../../../../lib/admin/guard.ts";
 import { bodyOf, guardResponse, json } from "../../../../lib/admin/respond.ts";
 import {
   adminConfig,
@@ -12,10 +13,6 @@ import { sharedStore } from "../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
 
-function refused(origin: string | null, url: string): boolean {
-  return origin === null || origin !== new URL(url).origin;
-}
-
 export async function POST(request: Request): Promise<Response> {
   const environment = process.env;
   const config = adminConfig(environment);
@@ -24,7 +21,7 @@ export async function POST(request: Request): Promise<Response> {
     return guardResponse({ status: "unconfigured", missing: config.missing });
   }
 
-  if (refused(request.headers.get("origin"), request.url)) {
+  if (sameOrigin(request) === false) {
     return guardResponse({ status: "forbidden" });
   }
 
