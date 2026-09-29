@@ -27,10 +27,10 @@ secret, no customer data, no licensed font.
 
 - [x] 3.1 The flame files and the ink variants with their script and record (decisions 1 and 2) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.2 The flame in the README foot of both languages, the banner and the social preview re-rendered with it, the
+- [x] 3.2 The flame in the README foot of both languages, the banner and the social preview re-rendered with it, the
       invented logo removed and refused by the guard (decision 3) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.3 Tokens, Outfit and the kit with `/kit` (decisions 4 to 6) — report:
+- [x] 3.3 Tokens, Outfit and the kit with `/kit` (decisions 4 to 6) — report:
       `reports/2026-09-29-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests
