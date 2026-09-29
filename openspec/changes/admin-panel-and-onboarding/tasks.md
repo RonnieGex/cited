@@ -85,3 +85,23 @@ reproduced.
 - [x] 10.5 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
       to `katalis-dev/tasks/entrega-community-07.md` with `## Issues` — report: the one of this section
+
+## 11. The integration with `main` (contract amended by Fable after `revision-community-07b`)
+
+`main` now carries `public-page-and-widget` (`ee966f0`). Report: `reports/2026-09-29-step-11-integration.md`.
+
+- [ ] 11.1 `git merge main` into this branch (never a commit on `main`) and resolve every conflict by these rules, one
+      commit for the merge: `lib/settings/business.ts` and `/api/brand/logo` keep this branch's version (the panel owns
+      them); `lib/i18n/language.ts` and `components/i18n/LanguageSwitch.tsx` keep `main`'s version (the public page owns
+      them) and every stand-in header disappears; `proxy.ts`, the root layout, `playwright.config.ts`, the README and
+      its twin keep the behaviour of both sides (the nonce and `frame-ancestors` of the public pages, and the guards of
+      the panel; the ports and origins of both suites); list each conflicted file and the rule applied — report: the
+      one of this section
+- [ ] 11.2 Minor: `readBusiness()` returns `null` only for the missing table `business`, and a missing `documents` table
+      (or any other error) reaches the caller — report: the one of this section
+- [ ] 11.3 Minor: the command of 10.4 in its report shows the real output (the three historical mentions it finds), or
+      a command that excludes them on purpose — report: the one of this section
+- [ ] 11.4 The whole battery on the merged branch: `npm test` on Windows and in a `node:24` Linux container,
+      `npm run typecheck`, `npm run lint`, `npm run test:e2e` (the panel and the public page together), gitleaks,
+      `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round to
+      `katalis-dev/tasks/entrega-community-07.md` with `## Issues` — report: the one of this section
