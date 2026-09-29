@@ -82,4 +82,4 @@ documentation, as the proposal of the change says.
 
 ## Files
 
-- `reports/2026-09-29-step-8-base-after.md` (this file).
+- `openspec/changes/brand-and-design-system/reports/2026-09-29-step-8-base-after.md` (this file).

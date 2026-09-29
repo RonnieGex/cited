@@ -68,4 +68,4 @@ runs the same suite inside a `node:24` Linux container, where the floor of the i
 
 ## Files
 
-- `reports/2026-09-29-step-0-branch.md` (this file).
+- `openspec/changes/brand-and-design-system/reports/2026-09-29-step-0-branch.md` (this file).

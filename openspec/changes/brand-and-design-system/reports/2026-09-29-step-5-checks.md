@@ -162,4 +162,4 @@ were removed in `5a5f6bb`.
 ## Files
 
 - `package-lock.json` (the optional dependencies of every platform are back).
-- `reports/2026-09-29-step-5-checks.md` (this file).
+- `openspec/changes/brand-and-design-system/reports/2026-09-29-step-5-checks.md` (this file).

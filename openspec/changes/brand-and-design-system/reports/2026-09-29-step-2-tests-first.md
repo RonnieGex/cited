@@ -141,4 +141,4 @@ check, so the build of the base is sound and the failure is the missing route, n
 - `e2e/design-system.spec.ts` (new).
 - `scripts/readme-graphics/honesty.d.mts` (the declaration of `inventedLogos` and `intendedLogo`).
 - `package.json`, `package-lock.json` (`@axe-core/playwright` as a development dependency).
-- `reports/2026-09-29-step-2-tests-first.md` (this file).
+- `openspec/changes/brand-and-design-system/reports/2026-09-29-step-2-tests-first.md` (this file).

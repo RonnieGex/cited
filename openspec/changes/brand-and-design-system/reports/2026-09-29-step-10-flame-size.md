@@ -189,6 +189,10 @@ $ git diff ac818eb..HEAD -- reports/2026-09-29-step-5-checks.md
 ++fonts, including any derivative works, can be bundled, embedded,
 ```
 
+The path of the report of step 5 in the two quotations above is the one of before the move of section 11: the check and
+the command printed it that way and they are quoted as they ran. The file lives now in
+`openspec/changes/brand-and-design-system/reports/2026-09-29-step-5-checks.md`.
+
 With both, the check the contract asks for:
 
 ```
@@ -267,5 +271,6 @@ two commands. Everything else of the round is in the repository.
   `docs/images/social-preview.png`, `docs/images/readme-graphics.json`, `docs/images/demo-{dark,light}.png`.
 - `README.md`, `README.es.md` (the numbers of the quick start, as the render writes them).
 - `docs/design-system.md`, `docs/readme-assets.md`.
-- `.gitattributes`, `reports/2026-09-29-step-5-checks.md` (one invisible space of a quotation).
+- `.gitattributes`, `openspec/changes/brand-and-design-system/reports/2026-09-29-step-5-checks.md` (one invisible space
+  of a quotation).
 - `LOOP_STATE.md` and this report.
