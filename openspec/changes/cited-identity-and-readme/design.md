@@ -79,6 +79,31 @@ navigation, all of it checked by a contract test. Cited follows the same discipl
    HTML is opened with the images pointed at the local files, and Playwright captures the first screen at 1280 and
    400 px in light and dark.
 
+10. **Art direction, second pass (Fable, after looking at the first renders).** The first set was correct and plain:
+    every "dark" graphic except the banner rendered on a white background (mean luminance 0.92 to 0.98), the cards
+    were nearly invisible, the whole flow carried a `Next` tag, and the social preview was a small logo on white. The
+    graphics must look like the banner, which is the reference:
+    - **Theme:** a dark variant has the ink background `#171717` with the subtle radial lime glow of the banner; a light
+      variant has the off-white background. Measured: the mean luminance of every `*-dark.png` and of
+      `social-preview.png` is 0.30 or less, and of every `*-light.png` is 0.80 or more.
+    - **Type:** Outfit; headlines in weight 700 at 44 px or more on the 1280 px graphics and 30 px or more on the reason
+      cards; no text under 16 px; body text with a contrast ratio of 4.5 or more against its background.
+    - **Fill:** the content occupies the canvas: no band of empty background taller than a quarter of the height.
+    - **Reason cards:** a bold benefit headline, an illustration that takes at least 40% of the card, one line of copy,
+      and a visible card surface (a border or fill that contrasts with the page). Headlines: `Only your documents.`,
+      `Every answer shows its page.`, and `Talk to it.` with `Next` on the voice card.
+    - **How it works:** the five steps as cards with a visible surface joined by a lime line; only the answer step and
+      the two branches after it (web widget, voice agent) carry `Next`; no `Next` on the whole graphic.
+    - **Demo:** a terminal is dark in both themes; commands in lime, output in off-white, no outline or stroke effect on
+      the text; the first result and its heading highlighted in lime; headline
+      `Ask a question. Get the passage and where it came from.`
+    - **Roadmap:** two columns with bold headers; `Available now` rows with a lime check, `Next` rows with an outlined
+      `Next` tag and the name of the change.
+    - **Voice teaser:** a large Orb-like sphere in lime and ink gradients, the headline `Talk to your documents.` and a
+      `Next · ElevenLabs` tag.
+    - **Social preview:** full-bleed ink with the lime glow, the wordmark at 180 px or more with its `[1]` mark, the
+      tagline, `by Katalis` and a lime rule; the text block is at least half of the canvas height.
+
 ## Risks / Trade-offs
 
 - **An honest status table makes the product look early.** It is early; saying so is what makes the rest credible, and
