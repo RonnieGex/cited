@@ -1,4 +1,4 @@
-# Step 2 · tests first, in red
+# Step 2 Â· tests first, in red
 
 Contract: `openspec/changes/brand-and-design-system/tasks.md`, tasks 2.1 and 2.2.
 Agent: deepseek-harness. Date: 2026-09-29.
@@ -27,30 +27,30 @@ built from `homedir()` so that the test file itself carries no home directory.
 ```
 $ npx vitest run tests/design-system.test.ts
 
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community-ui
+ RUN  v5.0.2 <root>
 
- ❯ tests/design-system.test.ts (17 tests | 17 failed) 57ms
-   ❯ the mark of the maker is the real flame (8)
-     × copies the three files byte for byte from the flame of the product 5ms
-     × is byte for byte the file of the same size in Construye 1ms
-     × derives the ink variant from the 512 px original and records the operation 0ms
-     × keeps the shading of the original in ink, and draws nothing of its own 1ms
-     × is reproduced byte for byte by the committed script 0ms
-     × removes the invented logo and every reference to it, and the foot of both READMEs shows the flame 4ms
-     × draws the flame beside by Katalis in the banner and in the social preview 2ms
-     × refuses a record that names the invented logo, and accepts the records of the round 0ms
-   ❯ one set of tokens, the ones of Construye (4)
-     × declares the tokens of the reference once, in app/tokens.css 0ms
-     × records in the document the value each token has in Construye, and the two are equal 0ms
-     × carries the values of Construye's own stylesheet 1ms
-     × exposes the tokens to Tailwind through @theme and imports them from globals.css 0ms
-   ❯ Outfit is the font, self-hosted and licensed (3)
-     × ships the Outfit files and nothing else, with the OFL license next to them 0ms
-     × carries no font file outside public/fonts/outfit and no name of a licensed family 38ms
-     × declares the face in the tokens sheet and applies it on html 0ms
-   ❯ a kit of components (2)
-     × provides the five components of the kit, built on the tokens 0ms
-     × renders the kit in Spanish at /kit 0ms
+ â¯ tests/design-system.test.ts (17 tests | 17 failed) 57ms
+   â¯ the mark of the maker is the real flame (8)
+     Ã— copies the three files byte for byte from the flame of the product 5ms
+     Ã— is byte for byte the file of the same size in Construye 1ms
+     Ã— derives the ink variant from the 512 px original and records the operation 0ms
+     Ã— keeps the shading of the original in ink, and draws nothing of its own 1ms
+     Ã— is reproduced byte for byte by the committed script 0ms
+     Ã— removes the invented logo and every reference to it, and the foot of both READMEs shows the flame 4ms
+     Ã— draws the flame beside by Katalis in the banner and in the social preview 2ms
+     Ã— refuses a record that names the invented logo, and accepts the records of the round 0ms
+   â¯ one set of tokens, the ones of Construye (4)
+     Ã— declares the tokens of the reference once, in app/tokens.css 0ms
+     Ã— records in the document the value each token has in Construye, and the two are equal 0ms
+     Ã— carries the values of Construye's own stylesheet 1ms
+     Ã— exposes the tokens to Tailwind through @theme and imports them from globals.css 0ms
+   â¯ Outfit is the font, self-hosted and licensed (3)
+     Ã— ships the Outfit files and nothing else, with the OFL license next to them 0ms
+     Ã— carries no font file outside public/fonts/outfit and no name of a licensed family 38ms
+     Ã— declares the face in the tokens sheet and applies it on html 0ms
+   â¯ a kit of components (2)
+     Ã— provides the five components of the kit, built on the tokens 0ms
+     Ã— renders the kit in Spanish at /kit 0ms
 
  Test Files  1 failed (1)
       Tests  17 failed (17)
@@ -109,16 +109,16 @@ $ npx playwright test e2e/design-system.spec.ts --reporter=list
 
 Running 2 tests using 2 workers
 
-  x  2 [chromium] › e2e\design-system.spec.ts:19:5 › every text of the app is Outfit, served by the app (292ms)
-  x  1 [chromium] › e2e\design-system.spec.ts:63:5 › the kit renders every component, answers 200 and passes axe (276ms)
+  x  2 [chromium] â€º e2e\design-system.spec.ts:19:5 â€º every text of the app is Outfit, served by the app (292ms)
+  x  1 [chromium] â€º e2e\design-system.spec.ts:63:5 â€º the kit renders every component, answers 200 and passes axe (276ms)
 
-  1) [chromium] › e2e\design-system.spec.ts:19:5 › every text of the app is Outfit, served by the app
+  1) [chromium] â€º e2e\design-system.spec.ts:19:5 â€º every text of the app is Outfit, served by the app
     Error: expect(received).toBe(expected) // Object.is equality
     Expected: 200
     Received: 404
     > 28 |   expect(response?.status()).toBe(200);
 
-  2) [chromium] › e2e\design-system.spec.ts:63:5 › the kit renders every component, answers 200 and passes axe
+  2) [chromium] â€º e2e\design-system.spec.ts:63:5 â€º the kit renders every component, answers 200 and passes axe
     Error: expect(received).toBe(expected) // Object.is equality
     Expected: 200
     Received: 404

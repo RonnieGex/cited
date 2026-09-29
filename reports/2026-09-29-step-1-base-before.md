@@ -1,4 +1,4 @@
-# Step 1.1 · the state of the base before
+# Step 1.1 Â· the state of the base before
 
 Contract: `openspec/changes/brand-and-design-system/tasks.md`, task 1.1.
 Agent: deepseek-harness. Date: 2026-09-29.
@@ -15,12 +15,12 @@ $ npm test
 > cited@0.1.0 test
 > vitest run
 
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community-ui
+ RUN  v5.0.2 <root>
 
- ❯ tests/personal-paths.test.ts (7 tests | 2 failed) 1669ms
-   ❯ tracked files (7)
-     × carry no home directory of a development machine 302ms
-     × carry no home directory prefix outside the change contract that states the rule 116ms
+ â¯ tests/personal-paths.test.ts (7 tests | 2 failed) 1669ms
+   â¯ tracked files (7)
+     Ã— carry no home directory of a development machine 302ms
+     Ã— carry no home directory prefix outside the change contract that states the rule 116ms
 
  Test Files  1 failed | 10 passed (11)
       Tests  2 failed | 112 passed (114)
@@ -46,7 +46,7 @@ AssertionError: expected [ Array(1) ] to deeply equal []
 + [
 +   "openspec/changes/brand-and-design-system/design.md",
 + ]
- ❯ tests/personal-paths.test.ts:156:49
+ â¯ tests/personal-paths.test.ts:156:49
 ```
 
 ```
@@ -54,7 +54,7 @@ $ npm run typecheck
 > cited@0.1.0 typecheck
 > next typegen && tsc --noEmit
 Generating route types...
-✓ Types generated successfully
+âœ“ Types generated successfully
 exit=0
 
 $ npm run lint
@@ -63,13 +63,13 @@ $ npm run lint
 exit=0
 
 $ openspec validate --all --strict
-✓ spec/app-skeleton
-✓ change/brand-and-design-system
-✓ spec/knowledge-search
-✓ spec/product-identity
-✓ spec/project-readme
-✓ spec/repository-bootstrap
-✓ spec/supply-chain-security
+âœ“ spec/app-skeleton
+âœ“ change/brand-and-design-system
+âœ“ spec/knowledge-search
+âœ“ spec/product-identity
+âœ“ spec/project-readme
+âœ“ spec/repository-bootstrap
+âœ“ spec/supply-chain-security
 Totals: 7 passed, 0 failed (7 items)
 exit=0
 
