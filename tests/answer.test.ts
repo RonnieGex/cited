@@ -8,7 +8,6 @@ import { extractCitations } from "@/lib/answer/citations";
 import { buildMessages, refusalMessage } from "@/lib/answer/prompt";
 import type { AskOutcome } from "@/lib/answer/types";
 import { createFakeEmbeddings } from "@/lib/embeddings/fake";
-import type { EmbeddingProvider } from "@/lib/embeddings/types";
 import { createFakeChatModel, type FakeCall } from "@/lib/models/fake";
 import { ingestFolder } from "@/lib/ingest";
 import type { SearchHit } from "@/lib/search";
