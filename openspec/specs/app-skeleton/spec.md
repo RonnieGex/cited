@@ -1,7 +1,8 @@
 # app-skeleton Specification
 
 ## Purpose
-TBD - created by archiving change bootstrap. Update Purpose after archive.
+Keep Cited a Next.js application with strict TypeScript, Tailwind v4, a pinned Node version and one smoke test per
+runner, so every change starts from a base that builds and starts.
 ## Requirements
 ### Requirement: Next.js application with strict TypeScript
 
@@ -42,18 +43,18 @@ Tailwind with `@import "tailwindcss"`. The repository SHALL NOT carry a `tailwin
 
 ### Requirement: Home page
 
-The application SHALL render one page that shows the product name `Cited` and nothing else.
-The page SHALL live in `app/page.tsx` and SHALL carry no design system: that arrives in change 1.
+The application SHALL render at `/` the public chat of the business, with the name `Cited` shown when the business has
+no name set yet. The page SHALL live in `app/page.tsx` and SHALL use the design system.
 
-#### Scenario: The page names the product
+#### Scenario: The page names the product or the business
 
-- **WHEN** the application serves `GET /`
+- **WHEN** the application serves `GET /` before any business setting exists
 - **THEN** the response is 200 and its HTML carries the text `Cited`
 
-#### Scenario: The page carries nothing else
+#### Scenario: The page is the chat
 
-- **WHEN** `app/page.tsx` is read
-- **THEN** it renders one `main` element with one `h1` heading and no other content
+- **WHEN** `app/page.tsx` is rendered
+- **THEN** it renders one `main` element with one `h1` heading and the question box of the chat
 
 ### Requirement: Node version pinned
 

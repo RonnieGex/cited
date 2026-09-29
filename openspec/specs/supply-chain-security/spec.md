@@ -1,7 +1,8 @@
 # supply-chain-security Specification
 
 ## Purpose
-TBD - created by archiving change bootstrap. Update Purpose after archive.
+Keep the dependencies and the history safe: locked installs, an audit of high findings, a secret scan of the
+whole history and CodeQL when the repository is public.
 ## Requirements
 ### Requirement: Written threat model
 

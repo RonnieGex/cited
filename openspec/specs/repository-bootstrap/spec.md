@@ -1,7 +1,8 @@
 # repository-bootstrap Specification
 
 ## Purpose
-TBD - created by archiving change bootstrap. Update Purpose after archive.
+Start the repository with its license, its SDD structure, its security policy and its contribution rules, ready
+to be public.
 ## Requirements
 ### Requirement: OpenSpec workspace
 
