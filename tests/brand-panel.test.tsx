@@ -74,12 +74,13 @@ describe("the numbered navigation of the panel (decision 7)", () => {
       "/admin/documents",
       "/admin/conversations",
     ]);
-    expect(links.map((link) => link.textContent?.replaceAll(/\s+/g, " ").trim())).toEqual([
-      `1 ${english.navSetup}`,
-      `2 ${english.navBusiness}`,
-      `3 ${english.navDocuments}`,
-      `4 ${english.navConversations}`,
-    ]);
+
+    // The same pattern as `e2e/admin-brand.spec.ts`: the number, then the name, with or without a space between them.
+    const names = [english.navSetup, english.navBusiness, english.navDocuments, english.navConversations];
+
+    for (const [index, link] of links.entries()) {
+      expect(link.textContent ?? "").toMatch(new RegExp(String.raw`^\s*${index + 1}\s*${names[index]}\s*$`));
+    }
 
     for (const link of links) {
       expect(link.querySelector('[data-brand="citation-mark"]'), link.textContent ?? "").not.toBeNull();
@@ -120,7 +121,7 @@ describe("the numbered navigation of the panel (decision 7)", () => {
     render(<AdminNav lang="en" strings={english} />);
 
     const current = sidebar().querySelector('[aria-current="page"] [data-brand="citation-mark"]');
-    const other = sidebar().querySelector('a:not([aria-current]) [data-brand="citation-mark"]');
+    const other = sidebar().querySelector('nav a:not([aria-current]) [data-brand="citation-mark"]');
 
     expect(current?.className).toContain("bg-ink");
     expect(current?.className).toContain("text-lime");

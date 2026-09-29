@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Button, Input, Panel, SectionTitle } from "@/components/ui";
+import { Button, Input, SectionTitle } from "@/components/ui";
 import type { AdminStrings } from "@/lib/i18n/admin";
 
 export type LoginFormProps = {
@@ -56,7 +56,7 @@ export function LoginForm({ strings, onSignedIn }: LoginFormProps) {
   }
 
   return (
-    <Panel className="mx-auto mt-16 flex max-w-[520px] flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
         {strings.signInTitle}
       </SectionTitle>
@@ -82,6 +82,6 @@ export function LoginForm({ strings, onSignedIn }: LoginFormProps) {
           </p>
         )}
       </form>
-    </Panel>
+    </div>
   );
 }

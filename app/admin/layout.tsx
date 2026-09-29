@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AuthShell } from "@/components/admin/AuthShell";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { Panel, SectionTitle } from "@/components/ui";
 import { guardSession } from "@/lib/admin/guard";
@@ -15,8 +16,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
 
   if (guarded.status === "unconfigured") {
     return (
-      <main className="min-h-screen bg-paper px-6 py-16 text-ink">
-        <Panel className="mx-auto flex max-w-[640px] flex-col gap-4">
+      <AuthShell strings={strings}>
+        <Panel className="flex flex-col gap-4">
           <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
             {strings.unconfiguredTitle}
           </SectionTitle>
@@ -24,24 +25,24 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             {strings.unconfigured.replace("{variables}", guarded.missing.join(", "))}
           </p>
         </Panel>
-      </main>
+      </AuthShell>
     );
   }
 
   if (guarded.status === "unauthorized") {
     return (
-      <main className="min-h-screen bg-paper px-6 py-16 text-ink">
+      <AuthShell strings={strings}>
         <LoginForm strings={strings} />
-      </main>
+      </AuthShell>
     );
   }
 
   return (
-    <div lang={lang} className="min-h-screen bg-paper text-ink">
-      <header className="border-b border-ink/10 px-6 py-6">
-        <AdminNav lang={lang} strings={strings} />
-      </header>
-      <main className="mx-auto flex max-w-[960px] flex-col gap-10 px-6 py-12">{children}</main>
+    <div lang={lang} className="min-h-screen bg-paper text-ink lg:grid lg:grid-cols-[240px_1fr]">
+      <AdminNav lang={lang} strings={strings} />
+      <main className="mx-auto flex w-full min-w-0 max-w-[960px] flex-col gap-10 px-6 py-12 lg:px-12">
+        {children}
+      </main>
     </div>
   );
 }
