@@ -26,12 +26,12 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 3. Implementation
 
-- [ ] 3.1 Session, lockout, guard and CSRF check (decisions 1 to 3) — report:
+- [x] 3.1 Session, lockout, guard and CSRF check (decisions 1 to 3) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.2 Setup status and the provider tests — report: `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.3 Business settings, logo and the prompt rules (decisions 4 and 5) — report:
+- [x] 3.2 Setup status and the provider tests — report: `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.3 Business settings, logo and the prompt rules (decisions 4 and 5) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.4 Documents and conversations (decision 6), the interface in both languages (decision 7) — report:
+- [x] 3.4 Documents and conversations (decision 6), the interface in both languages (decision 7) — report:
       `reports/2026-09-29-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests
