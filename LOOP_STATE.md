@@ -1,110 +1,115 @@
 # LOOP_STATE · Katalis Responde Community
 
 STATUS: DONE
-CHANGE: fix-tracked-text-scan (OpenSpec)
-BRANCH: feature/fix-tracked-text-scan
-BASE: 3ff834f (main)
+CHANGE: codeql-when-public (OpenSpec)
+BRANCH: feature/codeql-when-public
+BASE: efdda14 (main)
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
 ## Objective
 
-Execute the contract `openspec/changes/fix-tracked-text-scan/tasks.md`, written by Fable, in order, with the evidence
-of every task in `openspec/changes/fix-tracked-text-scan/reports/`. The defect: the first CI run of `main` (`3ff834f`)
-failed in the job Unit tests with `EISDIR: illegal operation on a directory, read` in `tests/personal-paths.test.ts`,
-because `.claude/agents`, `.codex/agents` and `.cursor/agents` are tracked links (mode `120000`) to the directory
-`ai-specs/agents`, which a Linux checkout materialises as a real link.
+Execute the contract `openspec/changes/codeql-when-public/tasks.md`, written by Fable, in order, with the evidence of
+every task in `openspec/changes/codeql-when-public/reports/`. The defect: the first CodeQL run of `main`
+(`36511364255`) analyzed the code and then failed at the upload, "Code scanning is not enabled for this repository",
+because GitHub accepts code scanning uploads from a private repository only with a paid plan (the workflow of `main`
+was red on every push for a reason unrelated to the code). The change is one job-level condition,
+`if: ${{ !github.event.repository.private }}`, so the analysis job is reported as skipped, not failed, while the
+repository stays private, and it runs unchanged once change 7 makes it public.
 
 ## What was delivered
 
-- **Step 0**: the branch and the base confirmed: `feature/fix-tracked-text-scan` over `3ff834f`, clean tree.
-- **Step 1**: the state of the base. The failing run of `main` on GitHub (`gh run view 36506681705`) is quoted with the
-  two `EISDIR` of `tests/personal-paths.test.ts:23`, and the local suite is measured at `3ff834f`. The measurement
-  corrects the contract: on Windows the base is **red**, not green, because of the second defect (the archived
-  contract). The repository has no database: no datastore dependency among the eighteen declared packages, no tracked
-  data, dump, migration or schema file.
-- **Step 2**: the red. The failure of the CI is reproduced in a disposable `node:24` container over a fresh clone of
-  `main`, with the three real links and the same two `EISDIR`. The four scenarios of the spec delta were added first
-  and run red on both platforms (three failures on Windows, five on Linux).
-- **Step 3**: the fix. `tests/personal-paths.test.ts` reads `git ls-files -s -z` and decides with the mode of each
-  path: a link (`120000`) by its target, a regular file (`100644`, `100755`) by its content, a binary file skipped,
-  anything else skipped.
-- **Step 4**: the three existing assertions still hold; what changed is the helper that obtains the text, the
-  exemption list (active and archived path of the rule-defining contract) and the fixture scaffolding.
-- **Step 5**: every check green in the Linux container and on Windows: `npm test`, `npm run typecheck`,
-  `npm run lint`, gitleaks over the whole history, `openspec validate --all --strict` and `git diff --check`.
+- **Step 0**: the branch and its base confirmed: `feature/codeql-when-public` over `efdda14` (`main`), with the
+  contract of Fable as its only commit and a clean tree.
+- **Step 1**: the state of the base. The failing run of `main` on GitHub (`gh run view 36511364255 --log-failed`) is
+  quoted with the upload error, the run is `failure` on the push of `efdda14`, and the local suite and the strict
+  validation are measured green at the base. The repository has no database: no tracked file with a database
+  extension, no `migrations/`, no datastore dependency among the eighteen declared packages.
+- **Step 2**: the red. `tests/codeql-workflow.test.ts` was written first, with a strict reader of the YAML subset the
+  workflows use (no YAML library is declared, and the change adds no dependency); four assertions, one per scenario
+  of the spec delta. It failed on Windows and in the disposable `node:24` container with one single failure: the
+  missing condition. The three assertions of what must not change were green in both.
+- **Step 3**: the fix. One line on the analysis job of `.github/workflows/codeql.yml`. The file was cross-checked with
+  `npx --yes js-yaml` (exit 0), which reads the condition as the string `${{ !github.event.repository.private }}` and
+  reads the triggers, the permissions, the languages and the queries exactly as the contract test does. The test and
+  the whole suite went green.
+- **Step 4**: the whole suite green on Windows and in the container: 3 files, 13 tests (the base had 9). The only test
+  file that changes is the new one; `tests/home.test.tsx` and `tests/personal-paths.test.ts` are untouched.
+- **Step 5**: every check green on both platforms: `npm test`, `npm run typecheck`, `npm run lint`, gitleaks over the
+  whole history with the command of the pipeline, `openspec validate --all --strict`, `git diff --check`, plus
+  `npm run build` on Windows. `actionlint` is not installed on this machine and the contract asks for it only if it
+  is; the syntax is covered locally by the two YAML parsers.
 - **Step 6**: no route or server behaviour changed, so `curl` does not apply; the changed-file list is in the report.
-- **Step 7**: `npm run test:e2e` green on Windows and in the Linux container.
-- **Step 8**: the base after the change is the base before it plus one test file and one paragraph of documentation;
-  no datastore appeared and no package changed.
-- **Step 9**: `docs/development-guide.md` explains the symlinks of a Windows checkout (`core.symlinks`) and why the
-  scan follows the git modes. This delivery is `katalis-dev/tasks/entrega-community-00d.md`, in Spanish.
+- **Step 7**: the page does not change, so the end-to-end suite has nothing of this change to exercise; said so, with
+  the empty diff of `app/` and `e2e/`.
+- **Step 8**: the state after is the state before plus one line of a workflow, one test file, one row of
+  documentation and the reports: no database, no package added, no application file touched.
+- **Step 9**: the row that `docs/security.md` owns now states when CodeQL runs and why it is skipped while the
+  repository is private. This delivery is `katalis-dev/tasks/entrega-community-00g.md`, in Mexican Spanish.
 
-All the twelve boxes of the contract are `[x]`, every one with its report; the text of no task and no line of the spec
-delta was edited.
+All the eleven boxes of the contract that belong to this execution are `[x]`, every one with its report; task 10.1
+stays `[BLOCKED]` and reserved for Fable; the text of no task and no line of the spec delta was edited.
 
-Two findings of the closing battery were corrected before the delivery: `git diff --check 3ff834f..HEAD` flagged the
-blank lines of the diff quoted in the step 3 report (removed in `a845370`), and one of the scenarios that build a
-fixture hit the default timeout of Vitest on a loaded machine (the three now declare `{ timeout: fixtureTimeout }`,
-with `fixtureTimeout = 30_000`, in `14611c3`).
-
-## Commits (all on feature/fix-tracked-text-scan, none in main)
+## Commits (all on feature/codeql-when-public, none in main)
 
 | SHA | Message |
 |---|---|
-| `14611c3` | test(fix-tracked-text-scan): give the fixture scenarios an explicit timeout |
-| `a845370` | docs(fix-tracked-text-scan): drop the trailing whitespace of the step 3 report |
-| `cb0ab96` | chore(fix-tracked-text-scan): close the state file as done |
-| `1f0e541` | docs(fix-tracked-text-scan): report the steps and mark the contract |
-| `9d41fac` | docs(fix-tracked-text-scan): note the symlink modes behind the scan |
-| `5b7fc46` | fix(fix-tracked-text-scan): decide the tracked-path scan from the git mode |
-| `2c3e2ae` | test(fix-tracked-text-scan): add the cross-platform scan scenarios |
-| `c332309` | chore(fix-tracked-text-scan): set the state file to running and report the base state |
+| `bf461eb` | docs(codeql-when-public): report the documentation step and mark the contract |
+| `36deb70` | docs(codeql-when-public): state when CodeQL runs and report the state after |
+| `10aafd4` | docs(codeql-when-public): report the checks and the steps that do not apply |
+| `59c369b` | docs(codeql-when-public): report the green suite on both platforms |
+| `10ba77f` | ci(codeql-when-public): skip the CodeQL analysis while the repository is private |
+| `b43f5a1` | test(codeql-when-public): add the contract test of the codeql workflow |
+| `1c14bd6` | chore(codeql-when-public): set the state file to running and report the base state |
 
-`ecd9bb0` ("Specify the cross-platform fix of the personal-path scan") is the commit of Fable that carries the
-contract, and the branch starts there. The verification of step 5 ran on `9d41fac`, and the whole battery ran again on
-the closing tree: `npm test` 9 passed, `npm run typecheck`, `npm run lint`, gitleaks over every commit, `openspec
-validate --all --strict`, `git diff --check 3ff834f..HEAD`, the end-to-end suite and the disposable Linux container,
-all green. The closing commit, the exact command of every run and its real output are in the delivery
-`katalis-dev/tasks/entrega-community-00d.md`, and the last commit of the branch adds this file.
+`789c2c8` ("Specify running CodeQL only while the repository is public") is the commit of Fable that carries the
+contract, and the branch starts there. The closing commit of this execution carries this state file with the result of
+the closing battery, and it is named in the delivery.
 
 ## Evidence
 
-`openspec/changes/fix-tracked-text-scan/reports/` holds one report per step, with the exact command, the commit and
-the real output: `2026-09-29-step-0-branch.md`, `-step-1-base-before.md`, `-step-2-tests-first.md`,
+`openspec/changes/codeql-when-public/reports/` holds one report per step, with the exact command, the commit and the
+real output: `2026-09-29-step-0-branch.md`, `-step-1-base-before.md`, `-step-2-tests-first.md`,
 `-step-3-implementation.md`, `-step-4-existing-tests.md`, `-step-5-checks.md`, `-step-6-curl.md`, `-step-7-e2e.md`,
 `-step-8-base-after.md` and `-step-9-docs.md`.
 
 ## Hard rules respected
 
 - No Lufga source material and no licensed font file: nothing of the sort was downloaded, copied or added.
-- No personal path: the reports and the documents use relative paths, and the scan of the repository passes on the
-  tree that carries them. One draft of the step 1 report quoted the literal home prefix of the rule; the suite caught
-  it and the line was rewritten.
+- No personal path: the reports and the documents use relative paths and elide the absolute path the tools print; the
+  tracked-file scan of the suite passes on the tree that carries them.
 - No `.env` file was opened; not even `.env.example`.
-- No push: `git for-each-ref refs/remotes` still points at the base only, and the remote was never contacted.
-- No commit in `main`: `main` stays at `3ff834f`, exactly where it was.
-- No archive: `openspec/changes/archive/` keeps the single `2026-09-29-bootstrap` entry.
+- No push: the remote was never contacted, and `git rev-parse origin/main` still points at the base.
+- No commit in `main`: `main` stays at `efdda14`.
+- No archive: `openspec/changes/archive/` keeps its entries of the earlier changes, and this change is not archived.
+- No repository setting was touched: enabling code scanning belongs to the launch (decision 3 of the design).
 - UTF-8 with LF in every file written or modified.
 
 ## Pending and out of scope
 
-- UNKNOWN, by the rules of this mission: the CI of the branch on GitHub. A push is forbidden here, so the Linux
-  failure and the Linux fix are proven in a disposable container that reproduces the runner (fresh clone, real links,
-  Node 24), not on a GitHub runner.
-- NOT DONE, owner action: the `BROKEN` of the delivery, the parenthesis of task 1.1 that says "green on Windows". The
-  base is red there; the measurement is in the step 1 report and correcting the text of the contract is up to Fable.
-- RISK: this machine runs Node 24.11.0 while the declared floor is 24.15.0, the version the locked dependencies
-  require, so `npm ci` prints `EBADENGINE` warnings about the root package and about jsdom. Inherited from the
-  bootstrap change and not affected by this one.
-- RISK: on a Windows clone without the symlink privilege the three `agents` entries are plain text files, so the
-  canonical definitions do not materialise as a folder there. Inherited, unchanged, and now documented in
-  `docs/development-guide.md`.
-- RISK: the local `node_modules` of this checkout was emptied during the measurement of step 1, when a temporary git
-  worktree that contained a directory junction to it was removed with `git worktree remove --force`. It is untracked
-  build material and `npm ci` restored it (550 packages, exit 0); no tracked file was lost. The detail is in the
-  delivery.
+- UNKNOWN, by the rules of this mission: the CI of the branch on GitHub and the GitHub-side validation of the
+  workflow schema. A push is forbidden here, so the suite, the checks and the container run were verified on a
+  disposable `node:24` container that reproduces the runner, not on a GitHub runner.
+- BLOCKED, owner Fable: task 10.1, "Push `main` and confirm the CodeQL run is reported as skipped, not failed". It is
+  reserved for Fable and requires the merge and the push this mission does not authorize.
+- RISK: this machine runs Node 24.11.0 while the declared floor is 24.15.0, so `npm ci` prints `EBADENGINE` warnings
+  about the root package and about jsdom. Inherited from the bootstrap change and not affected by this one.
+- RISK: a hand-written reader of the YAML subset is what the contract test uses, because no YAML library is declared
+  and the proposal adds no dependency. It throws instead of guessing, and its reading of `codeql.yml` was
+  cross-checked against `js-yaml` and against the file itself.
+- RISK inherited and unchanged: on a Windows clone without the symlink privilege, `.claude/agents`, `.codex/agents`
+  and `.cursor/agents` stay as text files with the target path, so the canonical definitions do not materialise as a
+  folder there.
 
 ## Closing
 
-Delivery in `katalis-dev/tasks/entrega-community-00d.md`, in Spanish, with its `## Issues` section.
+The closing battery ran on `bf461eb`, the commit that marks the last task, with a clean tree, and every check is
+green on the two platforms: `npm test` 3 files and 13 tests passed; `npm run typecheck`, `npm run lint` and
+`git diff --check` with exit code 0; `openspec validate --all --strict` with 4 passed and 0 failed; `npm run build`
+green on Windows; and gitleaks over the whole history, with the command and the release of the pipeline, 37 commits
+scanned and no leaks found on Windows and in the `node:24` container. `git ls-files --eol` reports no CRLF and no
+mixed line ending, every file written by this change is UTF-8 without BOM, `main` and `refs/remotes/origin/main` still
+point at `efdda14`, and `openspec/changes/archive/` keeps its two earlier entries, without this change.
+
+The commit that carries this file records the closing battery; its SHA is named in the delivery
+`katalis-dev/tasks/entrega-community-00g.md`, in Mexican Spanish, with its `## Issues` section.
