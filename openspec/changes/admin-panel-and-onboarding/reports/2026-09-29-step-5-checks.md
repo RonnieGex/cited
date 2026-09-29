@@ -131,5 +131,7 @@ section.
 
 ## Commits of this task
 
-- `ab4a742` the margin of the suite in `vitest.config.mts`.
-- the commit that carries this report and the marks of 5.1 and 5.2.
+- `ab4a742` ("Give the suite the margin of a slow machine instead of the five seconds of the default") the margin of
+  the suite in `vitest.config.mts`.
+- `b883eb3` ("Record the battery on both systems and the tables of the store") carries this report and the marks of
+  5.1 and 5.2.

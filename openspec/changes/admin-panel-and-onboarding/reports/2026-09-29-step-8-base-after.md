@@ -80,4 +80,4 @@ at `2bb7373`; the ones of the file after the render are reported in task 5.2 of 
 
 ## Commit of this task
 
-- the commit that carries this report and the mark of 8.1.
+- `2bb7373` ("Repeat the battery of the base with the panel in place") carries this report and the mark of 8.1.

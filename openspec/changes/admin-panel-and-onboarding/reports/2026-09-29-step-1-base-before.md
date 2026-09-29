@@ -86,5 +86,5 @@ ignores; it lists every table of the design and the rows of each one. The tables
 
 ## Commit of this task
 
-Every command above ran against `8c054c1`. The mark of 1.1 and this report travel together in the closing commit of
-the step.
+Every command above ran against `8c054c1`. The mark of 1.1 and this report landed in `0d10d2c` ("Start the panel
+change with the branch, the base checks and the reports of steps 0 and 1").

@@ -101,5 +101,6 @@ refusing the missing modules, and the green of task 7.1 is the same command with
 
 ## Commits of this task
 
-- the commit that carries this report, the ten test files, `e2e/admin.spec.ts`, `e2e/admin-fixtures.ts`, the
-  `playwright.config.ts` of the run and the marks of 2.1 and 2.2.
+- `1785d2f` ("Write the red tests of the panel, unit, route and end to end, before its code") carries this report, the
+  ten test files, `e2e/admin.spec.ts`, `e2e/admin-fixtures.ts`, the `playwright.config.ts` of the run and the marks of
+  2.1 and 2.2.

@@ -65,4 +65,5 @@ tests while implementing, and why".
 
 ## Commit of this task
 
-- the commit that carries this report and the mark of 4.1, verified against `74a0ad9`.
+- `22d8649` ("Review the whole suite: no test of the base had to change") carries this report and the mark of 4.1,
+  verified against `74a0ad9`.

@@ -79,4 +79,5 @@ The repository carries no `.env`; the only environment template is `.env.example
 ## Commit of this task
 
 Every command above ran against `8c054c1` (`git rev-parse HEAD` before the first commit of the implementation). The
-mark of 0.1, this report and `LOOP_STATE.md` with `STATUS: RUNNING` travel together in the closing commit of the step.
+mark of 0.1, this report and `LOOP_STATE.md` with `STATUS: RUNNING` landed in `0d10d2c` ("Start the panel change with
+the branch, the base checks and the reports of steps 0 and 1").
