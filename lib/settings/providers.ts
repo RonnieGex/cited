@@ -291,6 +291,24 @@ export function embeddingsProblem(resolution: EmbeddingsResolution): string | nu
   return null;
 }
 
+// The same state, in the words of the owner. `embeddingsProblem()` writes the diagnostic of whoever installs and it
+// names the variables of the server, which is what the command line reads; this is what a page of the panel may say
+// (the Major M-3 of `revision-community-12.md` and the amendment of `proposal.md`: the API error bodies and the
+// command line may name a variable, the interface of the owner never). `null` means the search works.
+export function panelEmbeddingsProblem(resolution: EmbeddingsResolution): string | null {
+  if (embeddingsConfigured(resolution)) {
+    return null;
+  }
+
+  if (resolution.mode === "none") {
+    return "The meaning search is not chosen yet: choose a provider or search by words in the panel.";
+  }
+
+  return resolution.keyState === "unreadable"
+    ? "The key of the search provider cannot be read: connect it again."
+    : "The search provider is not ready: connect it again in the panel.";
+}
+
 // What the store has to have been indexed with for every passage to carry a vector of the provider in force. The key
 // is never part of it: the signature is written in the store and read by the panel.
 export function embeddingsSignature(resolution: EmbeddingsResolution): string {

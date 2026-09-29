@@ -85,7 +85,7 @@ reproduced.
       section
 - [x] 10.3 Major: the atomic test limit (requirement "The test limit holds under concurrency") — report: the one of this
       section
-- [ ] 10.4 Major: the pages follow the amended proposal (no variable name outside "For the installer"), with a test that
+- [x] 10.4 Major: the pages follow the amended proposal (no variable name outside "For the installer"), with a test that
       reads every panel page — report: the one of this section
 - [ ] 10.5 Major: the E2E with affiliate links on, and the read of every `/api/admin/*` response and of the store for
       the saved key, as 6.1 asked — report: the one of this section

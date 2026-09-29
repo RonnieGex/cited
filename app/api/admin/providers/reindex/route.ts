@@ -3,24 +3,19 @@ import { guardResponse, json } from "../../../../../lib/admin/respond.ts";
 import { embeddingsFrom } from "../../../../../lib/embeddings/providers.ts";
 import { sanitizeOutbound } from "../../../../../lib/guards/outbound.ts";
 import { reindexStore } from "../../../../../lib/settings/indexing.ts";
-import { embeddingsSignature, resolveEmbeddings } from "../../../../../lib/settings/providers.ts";
+import {
+  embeddingsSignature,
+  panelEmbeddingsProblem,
+  resolveEmbeddings,
+} from "../../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
 
 // The requirement "Embeddings come from a configured provider" of `specs/knowledge-search/spec.md`: the page says how
 // many passages need re-indexing and this route re-indexes them now. The message of this page names no variable: the
-// owner reads it in the panel, which speaks the words of the business and never the words of the server.
-function panelProblem(mode: string, keyState: string): string {
-  if (mode === "none") {
-    return "Choose meaning search or search by words in the panel before re-indexing.";
-  }
-
-  return keyState === "unreadable"
-    ? "The key of the search provider cannot be read: connect it again."
-    : "The search provider is not ready: connect it again.";
-}
-
+// owner reads it in the panel, which speaks the words of the business and never the words of the server
+// (`lib/settings/providers.ts`, `panelEmbeddingsProblem()`).
 export async function POST(request: Request): Promise<Response> {
   const guarded = guardRequest(request, process.env);
 
@@ -30,12 +25,17 @@ export async function POST(request: Request): Promise<Response> {
 
   const store = await sharedStore(process.env);
   const resolution = await resolveEmbeddings({ environment: process.env, store });
+  const problem = panelEmbeddingsProblem(resolution);
   let embeddings;
+
+  if (problem !== null) {
+    return json({ status: "invalid", error: problem }, 400);
+  }
 
   try {
     embeddings = embeddingsFrom(resolution);
   } catch {
-    return json({ status: "invalid", error: panelProblem(resolution.mode, resolution.keyState) }, 400);
+    return json({ status: "invalid", error: panelEmbeddingsProblem(resolution) }, 400);
   }
 
   try {

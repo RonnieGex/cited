@@ -235,3 +235,66 @@ npm run lint
 
 The exact numbers of the reproduction are the ones the suite checks: `allowed` 20, `limited` 20 and
 `seen.requests` 20.
+
+## 10.4 Major M-3: no page of the panel names a variable of the environment
+
+**The finding.** `proposal.md` says that no page shows a variable name outside "For the installer", and the
+specifications of `answering` and `knowledge-search` ask the opposite of two messages that reach the browser. Codex
+left the contradiction open, and the amendment of Fable resolved it: the **API error bodies and the command-line
+messages** may name a server variable — the diagnostic of whoever installs — and the **pages of the panel** may not.
+
+### Red before the fix
+
+The suite is new, so its first run was also the run that found the leak. The test renders every page of the panel with
+the environment of an installation halfway through its setup, and it made two things visible at once:
+
+```text
+npx vitest run tests/admin-pages-variables.test.ts --reporter=verbose
+ × … keeps them out of AI and keys when nothing is connected 4ms
+ × … keeps them out of AI and keys when the server has half a configuration 2ms
+ × … keeps them out of AI and keys in Spanish too 2ms
+ × … keeps them out of the other pages of the panel 2ms
+ × … shows them on For the installer, which is the page of whoever installs 1ms
+ × … keeps the diagnostic of the missing variable in the command line of the installer 59ms
+   → expected 'the openai embeddings provider needs …' to contain 'EMBEDDINGS_PROVIDER'
+ × … answers the upload of the panel without naming a variable 104ms
+   → expected '{"status":"invalid","error":"EMBEDDIN…' not to contain 'EMBEDDINGS_PROVIDER'
+      Tests  7 failed | 2 passed (9)
+```
+
+The first five were the harness of the test itself (the pages could not be rendered without the mock of
+`next/headers` and without the state of the store), and they were corrected in this same commit; the honest red of the
+Major is the two that survived, and they are the leak itself:
+
+- `app/api/admin/documents/route.ts` answered the upload of a document with
+  `"EMBEDDINGS_PROVIDER is empty and the panel holds no embeddings provider: …"`, which the panel renders as its own
+  alert — the name of a variable on a page of the owner.
+- `app/api/admin/providers/reindex/route.ts` said "the search provider is not ready", which was already in the words of
+  the panel and is now shared with the other route instead of duplicated.
+
+### The fix
+
+- `lib/settings/providers.ts`: `panelEmbeddingsProblem()`, the same state as `embeddingsProblem()` in the words of the
+  owner. `embeddingsProblem()` keeps naming the variables, because the command line of whoever installs reads it.
+- `app/api/admin/documents/route.ts`: the upload answers `panelEmbeddingsProblem()` before it reads the file, so the
+  owner never reads the name of a variable and the message arrives before any work.
+- `app/api/admin/providers/reindex/route.ts`: it uses the shared function instead of its own copy.
+- `tests/admin-pages-variables.test.ts` (new): it renders `/admin/ai`, `/admin/business`, `/admin/conversations` and
+  `/admin/documents`, reads the text a browser would receive and compares it with **every variable of
+  `.env.example`**, read from the template itself, so a variable added tomorrow is covered without touching the test.
+  It also proves the other half of the amendment: For the installer does show them, and the CLI diagnostic still names
+  the variable.
+
+### Green after the fix
+
+```text
+npx vitest run tests/admin-pages-variables.test.ts
+      Tests  9 passed (9)
+```
+
+```text
+npm test
+ Test Files  50 passed (50)
+      Tests  451 passed (451)
+ Duration  21.62s
+```
