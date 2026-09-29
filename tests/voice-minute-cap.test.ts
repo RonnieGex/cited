@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createClient } from "@libsql/client";
@@ -74,6 +74,14 @@ async function emptyStore(limit: number): Promise<string> {
   (await openStore(path)).close();
 
   return path;
+}
+
+function virginStorePath(): string {
+  const root = mkdtempSync(join(tmpdir(), "katalis-voice-cap-"));
+
+  roots.push(root);
+
+  return join(root, "store.sqlite");
 }
 
 async function rows(path: string, sql: string): Promise<Array<Record<string, unknown>>> {
@@ -165,5 +173,88 @@ describe("a limit below one session", () => {
     expect(response.status).toBe(429);
     expect(body).toMatchObject({ status: "limited", reason: "spent", limit: limitWide });
     expect(double.calls).toHaveLength(0);
+  });
+});
+
+// The requirement "The cap is checked before the configuration" of
+// `openspec/changes/elevenlabs-voice-agent/specs/voice-agent/spec.md`, with the battery the review of Codex reproduced:
+// a cap below the five minutes of one session answers 429 whether or not the key and the agent are configured. The
+// limit of 1 to 4 is the scenario of `revision-community-09b.md`, where the key lives empty and the route answered 503
+// before it ever looked at the cupo.
+
+describe("the cap of the day is answered before the configuration", () => {
+  for (const limit of [1, 2, 3, 4]) {
+    it(`answers 429 with a limit of ${limit} and an empty key, and asks ElevenLabs for nothing`, async () => {
+      const path = virginStorePath();
+
+      setEnvironment({
+        DATABASE_URL: path,
+        VOICE_TOOL_SECRET: secret,
+        ELEVENLABS_API_KEY: "",
+        ELEVENLABS_AGENT_ID: "",
+        DAILY_VOICE_MINUTE_LIMIT: String(limit),
+      });
+
+      const double = elevenLabsDouble();
+
+      useVoiceTransport(double.transport);
+
+      const response = await GET();
+      const body = (await response.json()) as Record<string, unknown>;
+
+      expect(response.status).toBe(429);
+      expect(body).toMatchObject({ status: "limited", reason: "below-session", limit });
+      expect(String(body["error"])).toContain(`DAILY_VOICE_MINUTE_LIMIT=${limit}`);
+      expect(double.calls).toHaveLength(0);
+      expect(existsSync(path)).toBe(false);
+    });
+  }
+
+  it("answers 429 and not 503 when the key is set and no agent exists anywhere", async () => {
+    const path = virginStorePath();
+
+    setEnvironment({
+      DATABASE_URL: path,
+      VOICE_TOOL_SECRET: secret,
+      ELEVENLABS_API_KEY: key,
+      ELEVENLABS_AGENT_ID: "",
+      DAILY_VOICE_MINUTE_LIMIT: String(limitBelow),
+    });
+
+    const double = elevenLabsDouble();
+
+    useVoiceTransport(double.transport);
+
+    const response = await GET();
+    const body = (await response.json()) as Record<string, unknown>;
+
+    expect(response.status).toBe(429);
+    expect(body).toMatchObject({ status: "limited", reason: "below-session" });
+    expect(double.calls).toHaveLength(0);
+    expect(existsSync(path)).toBe(false);
+  });
+
+  it("still answers 503 naming the key when the cap does admit a session", async () => {
+    const path = virginStorePath();
+
+    setEnvironment({
+      DATABASE_URL: path,
+      VOICE_TOOL_SECRET: secret,
+      ELEVENLABS_API_KEY: "",
+      ELEVENLABS_AGENT_ID: "",
+      DAILY_VOICE_MINUTE_LIMIT: String(5),
+    });
+
+    const double = elevenLabsDouble();
+
+    useVoiceTransport(double.transport);
+
+    const response = await GET();
+    const text = await response.text();
+
+    expect(response.status).toBe(503);
+    expect(text).toContain("ELEVENLABS_API_KEY");
+    expect(double.calls).toHaveLength(0);
+    expect(existsSync(path)).toBe(false);
   });
 });
