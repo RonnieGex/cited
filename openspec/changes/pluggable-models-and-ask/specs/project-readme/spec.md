@@ -9,7 +9,9 @@ answers with citations is `Available` and links `openspec/specs/answering/spec.m
 #### Scenario: Available means specified and merged
 
 - **WHEN** a row is marked `Available`
-- **THEN** it links the spec in force under `openspec/specs/` that describes it, and that spec exists
+- **THEN** it links `openspec/specs/<capability>/spec.md`, and that spec exists, or an open change under
+  `openspec/changes/` adds it as `specs/<capability>/spec.md` (the file of the spec in force appears when that change
+  is archived, and is never written by hand before)
 
 #### Scenario: Planned means scheduled
 

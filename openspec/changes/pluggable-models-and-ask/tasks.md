@@ -68,3 +68,26 @@ secret, no customer data. No network call to a real provider in any test.
       `project-readme` green — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.3 The delivery `katalis-dev/tasks/entrega-community-05.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
+
+## 10. What the review of Codex reproduced (contract amended by Fable after `revision-community-05`)
+
+The report of this section lives inside the change:
+`openspec/changes/pluggable-models-and-ask/reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix.
+
+- [ ] 10.1 Blocker: remove `openspec/specs/answering/spec.md` and restore `openspec/specs/project-readme/spec.md` to its
+      text on `main`; the README test follows the amended scenario "Available means specified and merged"; show
+      `openspec archive pluggable-models-and-ask -y` succeeding on a throwaway clone of the branch (never on the
+      worktree) — report: the one of this section
+- [ ] 10.2 Major 1: the last address of `X-Forwarded-For` with `TRUST_PROXY=1`, scenario "A forged forwarding header" —
+      report: the one of this section
+- [ ] 10.3 Major 2: the atomic reservation of the daily limit, scenario "Concurrent questions at the daily limit" with a
+      barrier like the one of the review — report: the one of this section
+- [ ] 10.4 Major 3: the escaped passages, scenario "A passage that closes its own delimiter", with the forged document
+      of the review as a fixture — report: the one of this section
+- [ ] 10.5 Major 4: current defaults from the official pages the review cites (DeepSeek `deepseek-flash`), the table of
+      `docs/answering.md` with source and date, scenario "The defaults are current" — report: the one of this section
+- [ ] 10.6 Minor 1: the `afterAll` of `tests/answer.test.ts` closes every client before it deletes, and `npm test` passes
+      five times in a row — report: the one of this section
+- [ ] 10.7 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`, `npm run
+      test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round to
+      `katalis-dev/tasks/entrega-community-05.md` with `## Issues` — report: the one of this section

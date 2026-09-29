@@ -46,11 +46,20 @@ content to quote, never an instruction to follow.
 - **THEN** the system prompt sent to the model marks that text as a passage, and the response never contains the
   system prompt
 
+#### Scenario: A passage that closes its own delimiter
+
+- **WHEN** a document, its name or its heading carries `</passage>`, a planted instruction and a forged
+  `<passage n="1" ...>`
+- **THEN** the prompt sent to the model holds all of that text inside the one passage it came from, escaped so it
+  cannot close or open a delimiter, and the answer never cites the forged passage
+
 ### Requirement: The chat model is chosen by variables
 
 `CHAT_PROVIDER` SHALL be one of `openai`, `anthropic`, `gemini`, `deepseek`, `groq`, `openrouter`, `ollama`, `lmstudio`
 or `fake`, and `CHAT_MODEL` SHALL name the model; the key of the chosen provider SHALL come from its variable of
-`.env.example`. A missing or invalid configuration SHALL answer `503` with a message that names the variable and never
+`.env.example`. When `CHAT_MODEL` is empty the provider's default SHALL be a model its provider still serves according
+to its public documentation on the date of the change, recorded with that source in `docs/answering.md`. A missing or
+invalid configuration SHALL answer `503` with a message that names the variable and never
 its value, and no key SHALL ever reach a response, a log line or the browser.
 
 #### Scenario: A missing key
@@ -64,12 +73,21 @@ its value, and no key SHALL ever reach a response, a log line or the browser.
 - **THEN** the answer is built without any network call from the top passages, with valid citations, and it says in
   its text that it comes from the test provider
 
+#### Scenario: The defaults are current
+
+- **WHEN** the table of defaults of `lib/models/types.ts` is compared with the table of `docs/answering.md`
+- **THEN** both name the same model per provider, each row of the documentation carries the official source and the
+  date it was checked, and the DeepSeek default is `deepseek-flash`, the model Katalis Responde serves in production
+
 ### Requirement: The owner's spend is bounded
 
 The route SHALL refuse a question longer than `MAX_QUESTION_CHARS` (default 1000) with `400`; SHALL allow at most
 `RATE_LIMIT_PER_IP_PER_HOUR` (default 30) questions per IP per hour, answering `429` with `Retry-After`; SHALL make at
 most `DAILY_MODEL_CALL_LIMIT` (default 500) model calls per UTC day, answering `503` with a daily-limit message after
-it; and SHALL pass `MAX_ANSWER_TOKENS` (default 600) to the model. The IP SHALL be stored only as a salted hash.
+it, reserving each call atomically before it is made so that concurrent questions never exceed the limit; and SHALL
+pass `MAX_ANSWER_TOKENS` (default 600) to the model. The IP SHALL be stored only as a salted hash. With `TRUST_PROXY=1`
+the IP SHALL be the last address of `X-Forwarded-For`, the one the trusted proxy appended; without it the forwarding
+headers SHALL be ignored.
 
 #### Scenario: The limits hold
 
@@ -77,6 +95,17 @@ it; and SHALL pass `MAX_ANSWER_TOKENS` (default 600) to the model. The IP SHALL 
   the daily limit is reached
 - **THEN** they receive `400`, `429` with `Retry-After`, and `503` respectively, and no model call is made in any of the
   three
+
+#### Scenario: Concurrent questions at the daily limit
+
+- **WHEN** eight questions arrive at once with `DAILY_MODEL_CALL_LIMIT=1` and the counter at 0
+- **THEN** exactly one model call is made, the other seven answer `503`, and the counter of the day is 1
+
+#### Scenario: A forged forwarding header
+
+- **WHEN** `TRUST_PROXY=1` and one client sends two questions whose `X-Forwarded-For` differ only in the addresses the
+  client wrote before the one its proxy appended, with `RATE_LIMIT_PER_IP_PER_HOUR=1`
+- **THEN** both questions fall in the same bucket and the second answers `429`
 
 #### Scenario: No IP in clear
 
