@@ -417,10 +417,23 @@ v24.21.0
  Test Files  55 passed (55)
       Tests  478 passed | 2 skipped (480)
    Duration  123.16s
+
+$ git -C <that directory> fetch origin feature/provider-keys-in-panel
+$ git -C <that directory> merge --ff-only FETCH_HEAD
+$ git -C <that directory> log --oneline -1
+91e74dc Close the second review: every notation, the pinned address, the owner words and a read-only state
+
+$ docker run --rm -v "<that directory>:/app" -w /app node:24 sh -c "npx vitest run --reporter=dot"
+v24.21.0
+ Test Files  55 passed (55)
+      Tests  478 passed | 2 skipped (480)
+   Duration  99.68s
 ```
 
-The two skipped tests are the two of `tests/design-system.test.ts` that were already skipped on Linux before this
-change. The clone is clean: nothing of the round lives outside a commit.
+The clone was made at `8e57547`, the last commit that touches code, and it was fast-forwarded to the closing commit
+`91e74dc` — which only adds this report, the marks and the state of the loop — before the run of the end, so what the
+container ran is the tree that ships. The two skipped tests are the two of `tests/design-system.test.ts` that were
+already skipped on Linux before this change. The clone is clean: nothing of the round lives outside a commit.
 
 ### gitleaks, one commit at a time
 
