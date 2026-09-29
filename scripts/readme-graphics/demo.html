@@ -1,34 +1,22 @@
 <div class="page">
   <div class="head">
     <div class="eyebrow">See it answer</div>
-    <div class="headline">The real run of the quick start, drawn from its own output</div>
+    <div class="headline">Ask a question. Get the passage and where it came from.</div>
   </div>
-  <div class="columns">
-    <div class="terminal">
-      <div class="bar">
-        <span class="light light-a"></span>
-        <span class="light light-b"></span>
-        <span class="light light-c"></span>
-        <span class="bar-title">ingest</span>
-      </div>
-      <div class="screen">
-        <div class="prompt"><span class="sign">$</span> {{INGEST_COMMAND}}</div>
-        <div class="out">{{INGEST_OUTPUT}}</div>
-        <div class="prompt"><span class="sign">$</span> <span class="cursor"></span></div>
-      </div>
+  <div class="terminal">
+    <div class="bar">
+      <span class="light light-a"></span>
+      <span class="light"></span>
+      <span class="light"></span>
+      <span class="bar-title">cited · quick start</span>
     </div>
-    <div class="terminal">
-      <div class="bar">
-        <span class="light light-a"></span>
-        <span class="light light-b"></span>
-        <span class="light light-c"></span>
-        <span class="bar-title">search</span>
-      </div>
-      <div class="screen">
-        <div class="prompt"><span class="sign">$</span> {{SEARCH_COMMAND}}</div>
-        <div class="out">{{SEARCH_OUTPUT}}</div>
-        <div class="prompt"><span class="sign">$</span> <span class="cursor"></span></div>
-      </div>
+    <div class="screen">
+      <div class="line prompt"><span class="sign">$</span>{{INGEST_COMMAND}}</div>
+      <div class="line">{{INGEST_OUTPUT}}</div>
+      <div class="line prompt"><span class="sign">$</span>{{SEARCH_COMMAND}}</div>
+      <div class="line">{{SEARCH_BEFORE}}</div>
+      <div class="line hit">{{SEARCH_HIT}}</div>
+      <div class="line">{{SEARCH_AFTER}}</div>
     </div>
   </div>
 </div>

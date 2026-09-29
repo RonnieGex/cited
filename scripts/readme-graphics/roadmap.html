@@ -1,16 +1,23 @@
 <div class="page">
   <div class="head">
     <div class="eyebrow">Roadmap</div>
-    <div class="headline">What you can run today, and what each next change adds</div>
+    <div class="headline">What runs today, and what comes next</div>
   </div>
   <div class="board">
     <div class="column">
-      <div class="column-title"><span class="dot dot-available"></span> Available now</div>
+      <div class="column-title">
+        <svg class="check" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="fill-lime" cx="11" cy="11" r="11" />
+          <path class="check-stroke" d="M6 11.5l3.6 3.6L16.2 8" />
+        </svg>
+        Available now
+      </div>
       {{AVAILABLE_ROWS}}
     </div>
     <div class="column">
-      <div class="column-title"><span class="dot dot-planned"></span> Next, change by change</div>
+      <div class="column-title"><span class="dot"></span> Next, change by change</div>
       {{PLANNED_ROWS}}
     </div>
   </div>
+  <div class="note">The four rows of Available run today with the deterministic provider and no key; each Next row names the OpenSpec change that delivers it.</div>
 </div>
