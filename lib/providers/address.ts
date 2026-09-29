@@ -1,4 +1,4 @@
-import { isIP } from "node:net";
+import { BlockList, isIP } from "node:net";
 import { lookup } from "node:dns/promises";
 import { providerEntry, type CatalogueKind } from "./catalog.ts";
 
@@ -12,11 +12,15 @@ import { providerEntry, type CatalogueKind } from "./catalog.ts";
 //   endpoint; a cloud provider uses the fixed official host of the catalogue, which is what the requirement asks;
 // - the scheme is `https`, and `http` only to a local host when the server sets `ALLOW_LOCAL_PROVIDERS=1`;
 // - the host is resolved here, and no answer may be loopback, link-local, private, carrier-grade NAT or the metadata
-//   address of the cloud, unless the server set `ALLOW_LOCAL_PROVIDERS=1`;
+//   address of the cloud, unless the server set `ALLOW_LOCAL_PROVIDERS=1`; every notation is classified — the tables
+//   are `node:net` `BlockList` subnets and an address that carries an IPv4 inside (mapped, NAT64, 6to4) is judged by
+//   that IPv4, which is the Major M-1 of `katalis-dev/tasks/revision-community-12b.md`;
 // - the caller is told to follow no redirect.
 //
 // The resolver is a parameter so the suite proves the rule without touching the DNS of the machine and without ever
-// opening a connection to a private network: `tests/provider-address.test.ts` passes a controlled double.
+// opening a connection to a private network: `tests/provider-address.test.ts` passes a controlled double. This module
+// answers with the addresses it classified, which is what `lib/providers/pinned.ts` connects to (requirement "The
+// address that was validated is the address that is connected to").
 
 export const ALLOW_LOCAL_PROVIDERS_VARIABLE = "ALLOW_LOCAL_PROVIDERS";
 export const ADDRESS_NOT_ALLOWED = "address_not_allowed";
@@ -64,59 +68,155 @@ function allowsLocal(environment: Record<string, string | undefined>): boolean {
   return (environment[ALLOW_LOCAL_PROVIDERS_VARIABLE]?.trim() ?? "") === "1";
 }
 
-function isPrivateV4(address: string): boolean {
-  const parts = address.split(".").map((part) => Number(part));
+// The ranges that never answer as a provider of the owner, in the order of the requirement: this network, RFC 1918,
+// carrier-grade NAT, loopback, link-local (where the metadata service of the cloud lives), the protocol assignments,
+// benchmarking, multicast and the reserved range. They are subnets of `node:net` `BlockList`, which parses and
+// compares the numbers: the Major M-1 of `katalis-dev/tasks/revision-community-12b.md` was a table of hand-written
+// comparisons that only knew one spelling of an address.
+const privateV4 = new BlockList();
 
-  if (parts.length !== 4 || parts.some((part) => Number.isInteger(part) === false)) {
-    return true;
-  }
-
-  const [first = 0, second = 0] = parts;
-
-  return (
-    first === 0 ||
-    first === 10 ||
-    first === 127 ||
-    (first === 100 && second >= 64 && second <= 127) ||
-    (first === 169 && second === 254) ||
-    (first === 172 && second >= 16 && second <= 31) ||
-    (first === 192 && second === 168) ||
-    first >= 224
-  );
+for (const [network, prefix] of [
+  ["0.0.0.0", 8],
+  ["10.0.0.0", 8],
+  ["100.64.0.0", 10],
+  ["127.0.0.0", 8],
+  ["169.254.0.0", 16],
+  ["172.16.0.0", 12],
+  ["192.0.0.0", 24],
+  ["192.168.0.0", 16],
+  ["198.18.0.0", 15],
+  ["224.0.0.0", 4],
+  ["240.0.0.0", 4],
+] as const) {
+  privateV4.addSubnet(network, prefix, "ipv4");
 }
 
-// IPv6 as Node reports it: `::1`, `fe80::/10`, `fc00::/7`, multicast, the documentation range and the IPv4-mapped
-// form, which is the one a name can hide a loopback in (`::ffff:127.0.0.1`).
-function isPrivateV6(address: string): boolean {
-  const lower = address.toLowerCase();
-  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(lower);
+// The same for IPv6: the unspecified address, loopback, unique local, link-local, multicast, the documentation range,
+// Teredo — a tunnel that carries an address nobody classified — and the IPv4-translated range of SIIT.
+const privateV6 = new BlockList();
 
-  if (mapped !== null) {
-    return isPrivateV4(mapped[1] as string);
+for (const [network, prefix] of [
+  ["::", 128],
+  ["::1", 128],
+  ["fc00::", 7],
+  ["fe80::", 10],
+  ["ff00::", 8],
+  ["2001:db8::", 32],
+  ["2001::", 32],
+  ["::ffff:0:0:0", 96],
+] as const) {
+  privateV6.addSubnet(network, prefix, "ipv6");
+}
+
+// The eight groups of an IPv6 literal, whatever its notation: a compressed `::`, upper case, a zone and a trailing
+// dotted quad all end in the same numbers. `null` is a literal `node:net` would not accept either.
+function groupsOf(address: string): number[] | null {
+  const value = (address.split("%")[0] ?? address).toLowerCase();
+  const compressed = value.includes("::");
+  const [headText = "", tailText = ""] = compressed ? value.split("::") : [value, ""];
+
+  function expand(text: string): number[] | null {
+    if (text.length === 0) {
+      return [];
+    }
+
+    const parts = text.split(":");
+    const last = parts[parts.length - 1] ?? "";
+
+    if (last.includes(".")) {
+      const quad = last.split(".").map((part) => Number(part));
+
+      if (quad.length !== 4 || quad.some((part) => Number.isInteger(part) === false || part < 0 || part > 255)) {
+        return null;
+      }
+
+      const [a = 0, b = 0, c = 0, d = 0] = quad;
+
+      parts.splice(parts.length - 1, 1, ((a << 8) | b).toString(16), ((c << 8) | d).toString(16));
+    }
+
+    if (parts.some((part) => /^[0-9a-f]{1,4}$/.test(part) === false)) {
+      return null;
+    }
+
+    return parts.map((part) => Number.parseInt(part, 16));
   }
 
-  const value = lower.split("%")[0] ?? lower;
+  const head = expand(headText);
 
-  if (value === "::" || value === "::1" || value.startsWith("2001:db8")) {
-    return true;
+  if (head === null) {
+    return null;
   }
 
-  if (value.startsWith("fc") || value.startsWith("fd") || value.startsWith("ff")) {
-    return true;
+  if (compressed === false) {
+    return head.length === 8 ? head : null;
   }
 
-  // `fe80` to `febf` is the link-local range, written as the three first hexadecimal digits.
-  return /^fe[89ab]/.test(value);
+  const tail = expand(tailText);
+
+  if (tail === null) {
+    return null;
+  }
+
+  const zeros = 8 - head.length - tail.length;
+
+  return zeros < 1 ? null : [...head, ...new Array<number>(zeros).fill(0), ...tail];
+}
+
+function dotted(high: number, low: number): string {
+  return [high >> 8, high & 0xff, low >> 8, low & 0xff].join(".");
+}
+
+// The 32 bits of IPv4 an IPv6 literal carries inside, if it carries any: the mapped form `::ffff:0:0/96` — which is
+// how a name or a literal reaches the loopback of the server —, the deprecated compatible form `::/96`, NAT64
+// (`64:ff9b::/96` and its local-use sibling `64:ff9b:1::/48`) and 6to4 (`2002::/16`). `new URL()` canonicalises the
+// dotted mapping into hexadecimal (`http://[::ffff:127.0.0.1]:11434` arrives as `::ffff:7f00:1`), so the guard reads
+// the number and never the spelling: that was the whole of the Major M-1.
+function embeddedIpv4(address: string): string | null {
+  const groups = groupsOf(address);
+
+  if (groups === null) {
+    return null;
+  }
+
+  const [first = 0, second = 0, third = 0, fourth = 0, fifth = 0, sixth = 0, high = 0, low = 0] = groups;
+
+  if (first === 0 && second === 0 && third === 0 && fourth === 0 && fifth === 0 && (sixth === 0 || sixth === 0xffff)) {
+    return dotted(high, low);
+  }
+
+  if (first === 0x64 && second === 0xff9b && (third === 0 || third === 1) && fourth === 0 && fifth === 0 && sixth === 0) {
+    return dotted(high, low);
+  }
+
+  return first === 0x2002 ? dotted(second, third) : null;
 }
 
 function isInternal(address: string): boolean {
   const family = isIP(address);
 
   if (family === 4) {
-    return isPrivateV4(address);
+    return privateV4.check(address, "ipv4");
   }
 
-  return family === 6 ? isPrivateV6(address) : true;
+  if (family !== 6) {
+    return true;
+  }
+
+  const embedded = embeddedIpv4(address);
+
+  // An address that carries an IPv4 is judged by that IPv4: `::ffff:5db8:d822` is the public address it names and
+  // `::ffff:7f00:1` is the loopback of the server.
+  if (embedded !== null) {
+    return privateV4.check(embedded, "ipv4");
+  }
+
+  try {
+    return privateV6.check(address, "ipv6");
+  } catch {
+    // A literal `BlockList` refuses is a literal nothing should connect to.
+    return true;
+  }
 }
 
 function parse(url: string): URL | null {
