@@ -25,18 +25,33 @@ a value of the environment, only whether it is set.
 
 | Page | What it does |
 |---|---|
-| `/admin` | the setup: every variable of `.env.example` grouped by purpose, as `Set` or `Missing`, with one button that makes one small call to the chat model and one to the embeddings and reports what the provider answered |
+| `/admin` | "For the installer": every variable of `.env.example` grouped by purpose, read-only, as `Set` or `Missing`, with one button that makes one small call to the chat model and one to the embeddings and reports what the provider answered. It is the only place of the interface where the name of a variable is written |
+| `/admin/ai` | "AI and keys": the two sections "Answers" and "Meaning search". Each one shows the connected provider (name, model, `••••` and the last four characters, the last test and its latency, and whether the value comes from the panel or from the server) or the honest list of providers to connect one, with the key field, the test and the save |
 | `/admin/business` | the name, the logo, the primary color, the tone, the language, the forbidden topics and the welcome message in English and in Spanish |
 | `/admin/documents` | the upload, the list of every document with its passages, the re-ingestion and the delete |
 | `/admin/conversations` | the latest questions with their status and their citations, and the button that deletes them all |
 
-| The setup | The business |
+| For the installer | AI and keys |
 |---|---|
-| ![The setup of the panel: the two buttons that try the providers and every variable of the template as set or missing](images/admin/setup.png) | ![The business of the panel with the name, the color, the tone, the language, the forbidden topics, the two welcomes and the logo](images/admin/panel.png) |
+| ![The read-only screen of whoever installs Cited: every variable of the template as set or missing](images/admin/installer-1440.png) | ![The keys of the AI: the connected provider with its model and the last four characters of its key, and the list of the other providers with one line each](images/admin/ai-keys-connected-1440.png) |
 
-| The documents | The conversations |
+| A key the provider rejects | A provider the server set |
 |---|---|
-| ![The documents of the panel: the upload of a document and the list with the passages and the actions of each one](images/admin/documents.png) | ![The conversations of the panel: the latest questions with their status and the passages they used](images/admin/conversations.png) |
+| ![The keys of the AI after a test the provider refused, with the reason in words next to the field](images/admin/ai-keys-rejected-1440.png) | ![The keys of the AI when the server sets the providers: set by the server, read only, with no key field](images/admin/ai-keys-server-1440.png) |
+
+## The keys of the AI
+
+The owner pastes a key in `/admin/ai`, presses "Test" and only then can save it. The key is sealed with
+**AES-256-GCM** under `ENCRYPTION_KEY` and written in `provider_settings` as `v1:<nonce>:<ciphertext>:<tag>`; the
+browser never sees it again, only its last four characters, the provider, the model and the last test with its latency.
+Without a valid `ENCRYPTION_KEY` nothing is stored and the panel says why, in the words of a person and without the
+name of a variable. `docs/providers.md` carries the whole rule: the catalogue, the precedence of the server, the
+meaning search and the keyword mode, the disclosure of the links and the shape of every route.
+
+The test, the save and the removal require the session and the `Origin` check, and the test and the save share a limit
+of twenty tests per hour. A test makes one minimal call with a timeout of ten seconds and answers one of
+`rejected_key`, `no_credit`, `rate_limited`, `model_not_found`, `unreachable` or `timeout`: the text of the provider is
+never returned to the browser.
 
 ## The session
 
@@ -66,7 +81,11 @@ with the cookie of the owner.
 | `/api/admin/login` | `POST` | the password, the cookie and the lockout |
 | `/api/admin/logout` | `POST` | clears the cookie |
 | `/api/admin/setup` | `GET` | the variables of the template grouped by purpose, as set or missing |
-| `/api/admin/setup/test` | `POST` | `{"target": "chat" \| "embeddings"}`: one small call, and the provider error with every key removed |
+| `/api/admin/setup/test` | `POST` | `{"target": "chat" \| "embeddings"}`: one small call to what the server set, and the provider error with every key removed |
+| `/api/admin/providers` | `GET`, `DELETE` | the state of the keys of the panel, and the removal of the value of one kind |
+| `/api/admin/providers/test` | `POST` | `{"kind", "provider", "key"?, "model"?, "baseUrl"?}`: one minimal call, ten seconds at most, and one word for its result |
+| `/api/admin/providers/save` | `POST` | the same body, with the test repeated: it seals the key and saves it, or saves the search by words |
+| `/api/admin/providers/reindex` | `POST` | the embedding of every passage, computed again with the provider in force |
 | `/api/admin/business` | `GET`, `PUT` | the business of the store |
 | `/api/admin/business/logo` | `POST` | the `multipart/form-data` of the logo |
 | `/api/brand/logo` | `GET` | the stored logo with its type and a cache header, **without** the session: the public questions read it |
@@ -122,12 +141,17 @@ that `public-page-and-widget` owns.
 
 ## The store
 
-The change adds two tables to the store of `docs/search.md`:
+The change adds these tables to the store of `docs/search.md`:
 
 - `business(id, name, logo_mime, logo_bytes, primary_color, tone, language, forbidden_topics, welcome_en,
   welcome_es, updated_at)`, one row with `id = 1`.
 - `login_attempts(ip_hash, window_start, count)`, one row per address and window of fifteen minutes, with the salted
   hash of the address and never the address.
+- `provider_settings(kind, provider, model, key_ciphertext, key_last4, base_url, mode, tested_at, test_latency_ms,
+  updated_at)`, one row per kind of provider, with the key of the owner encrypted and never in clear.
+- `provider_tests(window_start, count)`, the counter of the twenty tests of an hour.
+- `document_index(document_id, signature, indexed_at)`, the signature of the embeddings that made the vectors of a
+  document, which is what the warning of re-indexing compares.
 
 The logo is stored in the row, in the column `logo_bytes`, and served from memory by `/api/brand/logo`: no file of
 the upload survives on disk.
@@ -146,7 +170,12 @@ the upload survives on disk.
 | `tests/admin-documents.test.ts` | the upload, the list, the delete, the re-ingestion and the counters of spend |
 | `tests/admin-ui.test.tsx` | the two languages and the five components of the panel |
 | `tests/admin-i18n.test.tsx` | the stand-in of the shared switch |
-| `e2e/admin.spec.ts` | the six flows of the panel in a browser, each page with its axe check |
+| `tests/secrets.test.ts` | the encryption of a key: the round trip, the tampered value, the missing key and the wrong key |
+| `tests/provider-settings.test.ts` | the resolver of the provider: the server first, the panel next and `none` |
+| `tests/provider-routes.test.ts` | the four routes of the keys against a local double of every provider |
+| `tests/provider-ui.test.tsx` | the two states of `/admin/ai`, the honest lines, the affiliate link and the re-index |
+| `e2e/admin.spec.ts` | the six flows of the panel in a browser, each with its axe check |
+| `e2e/providers.spec.ts` | the flows of the keys in a browser, against a double the spec serves itself |
 
 No test of this change calls a real provider: the deterministic `fake` of `lib/models/fake.ts` and
 `lib/embeddings/fake.ts` runs the suite and the browser flows.

@@ -42,9 +42,9 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 |---|---|---|
 | Ingesta de PDF, DOCX, Markdown y texto con límites | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Búsqueda híbrida: texto completo y vectores, fusionados con Reciprocal Rank Fusion | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Embeddings por una API compatible con OpenAI u Ollama | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Archivo libSQL local o Turso | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| libSQL local o Turso, y embeddings por API u Ollama | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Disponible | [answering](openspec/specs/answering/spec.md) |
+| Las llaves de la IA en el panel, cifradas y probadas antes de guardarlas | Disponible | [provider-settings](openspec/specs/provider-settings/spec.md) |
 | El panel: la configuración, el negocio, los documentos y las conversaciones | Disponible | [admin-panel](openspec/specs/admin-panel/spec.md) |
 | Chat público del negocio, con el widget que cualquier sitio puede incrustar | Disponible | [public-chat](openspec/specs/public-chat/spec.md) |
 | Agente de voz con ElevenLabs, creado en un clic | Siguiente | `elevenlabs-voice-agent` |
@@ -146,7 +146,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 29 ms, rss 114 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 35 ms, rss 127 MB
 ```
 
 ```
@@ -169,7 +169,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 79 MB
+8 results, 5 ms, rss 86 MB
 ```
 
 ```
@@ -181,7 +181,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 46 ms, rss 100 MB
+citations 1, 40 ms, rss 96 MB
 ```
 
 El almacén vive en `.data/katalis.sqlite`, que git ignora. `docs/search.md` explica el esquema, el troceado y el
@@ -212,6 +212,11 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `CHAT_MODEL` | modelo opcional del proveedor de chat; sin él cada uno usa su default | sí |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` | la llave del proveedor de chat elegido, y de ningún otro | sí |
 | `LMSTUDIO_BASE_URL` | URL base de un LM Studio local, `http://localhost:1234/v1` por defecto | sí |
+| `OPENAI_BASE_URL`, `ANTHROPIC_BASE_URL`, `GEMINI_BASE_URL`, `DEEPSEEK_BASE_URL`, `GROQ_BASE_URL`, `OPENROUTER_BASE_URL` | opcional: apunta un proveedor a un endpoint compatible tuyo, una pasarela o un proxy; vacío mantiene su dirección publicada | sí |
+| `ENCRYPTION_KEY` | la llave que cifra las llaves que el dueño pega en el panel: 32 bytes en base64, y sin ella el panel no guarda ninguna | sí |
+| `PROVIDER_TEST_TIMEOUT_MS` | lo que espera la prueba de un proveedor antes de decir que tardó demasiado, diez segundos por defecto | sí |
+| `AFFILIATE_LINKS` | `off` convierte cada enlace de afiliado del catálogo de proveedores en su enlace simple | sí |
+| `HOSTED_OFFER_URL` | dirección de la versión hospedada de Katalis que el panel ofrece bajo la lista de proveedores | sí |
 | `MAX_QUESTION_CHARS` | la pregunta más larga que acepta la ruta, 1000 caracteres por defecto | sí |
 | `RATE_LIMIT_PER_IP_PER_HOUR` | las preguntas que una dirección puede hacer en una hora, 30 por defecto | sí |
 | `DAILY_MODEL_CALL_LIMIT` | las llamadas al modelo de un día UTC, 500 por defecto | sí |

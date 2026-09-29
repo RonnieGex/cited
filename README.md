@@ -41,9 +41,9 @@ Every row is either available today or planned, and each planned row names the c
 |---|---|---|
 | Ingestion of PDF, DOCX, Markdown and text with limits | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Hybrid search: full text and vectors, fused with Reciprocal Rank Fusion | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Embeddings through an OpenAI-compatible API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Local libSQL file or Turso | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Local libSQL or Turso, and embeddings by API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Answers with citations from any model provider, spend limits | Available | [answering](openspec/specs/answering/spec.md) |
+| The keys of the AI in the panel, encrypted and tested before saving | Available | [provider-settings](openspec/specs/provider-settings/spec.md) |
 | The panel: the setup, the business, the documents and the conversations | Available | [admin-panel](openspec/specs/admin-panel/spec.md) |
 | Public chat of the business, with the widget any site can embed | Available | [public-chat](openspec/specs/public-chat/spec.md) |
 | Voice agent with ElevenLabs, created in one click | Planned | `elevenlabs-voice-agent` |
@@ -144,7 +144,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 29 ms, rss 114 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 35 ms, rss 127 MB
 ```
 
 ```
@@ -167,7 +167,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 79 MB
+8 results, 5 ms, rss 86 MB
 ```
 
 ```
@@ -179,7 +179,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 46 ms, rss 100 MB
+citations 1, 40 ms, rss 96 MB
 ```
 
 The store lives in `.data/katalis.sqlite`, which git ignores. `docs/search.md` explains the schema, the chunking and
@@ -210,6 +210,11 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `CHAT_MODEL` | optional model of the chat provider; without it each one uses its default | yes |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` | the key of the chosen chat provider, and of no other | yes |
 | `LMSTUDIO_BASE_URL` | base URL of a local LM Studio, `http://localhost:1234/v1` by default | yes |
+| `OPENAI_BASE_URL`, `ANTHROPIC_BASE_URL`, `GEMINI_BASE_URL`, `DEEPSEEK_BASE_URL`, `GROQ_BASE_URL`, `OPENROUTER_BASE_URL` | optional: point a provider at a compatible endpoint of your own, a gateway or a proxy; an empty value keeps its published address | yes |
+| `ENCRYPTION_KEY` | the key that encrypts the keys the owner pastes in the panel: 32 bytes in base64, and without it the panel stores none | yes |
+| `PROVIDER_TEST_TIMEOUT_MS` | how long the test of a provider waits before it says it took too long, ten seconds by default | yes |
+| `AFFILIATE_LINKS` | `off` turns every affiliate link of the provider catalogue into its plain link | yes |
+| `HOSTED_OFFER_URL` | address of the hosted version of Katalis that the panel offers under the list of providers | yes |
 | `MAX_QUESTION_CHARS` | the longest question the route accepts, 1000 characters by default | yes |
 | `RATE_LIMIT_PER_IP_PER_HOUR` | the questions one address may ask in an hour, 30 by default | yes |
 | `DAILY_MODEL_CALL_LIMIT` | the model calls of one UTC day, 500 by default | yes |

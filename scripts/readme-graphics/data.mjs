@@ -35,12 +35,7 @@ export const statusRows = [
     reference: "openspec/specs/knowledge-search/spec.md",
   },
   {
-    capability: "Embeddings through an OpenAI-compatible API or Ollama",
-    state: "Available",
-    reference: "openspec/specs/knowledge-search/spec.md",
-  },
-  {
-    capability: "Local libSQL file or Turso",
+    capability: "Local libSQL or Turso, and embeddings by API or Ollama",
     state: "Available",
     reference: "openspec/specs/knowledge-search/spec.md",
   },
@@ -48,6 +43,11 @@ export const statusRows = [
     capability: "Answers with citations from any model provider, spend limits",
     state: "Available",
     reference: "openspec/specs/answering/spec.md",
+  },
+  {
+    capability: "The keys of the AI in the panel, encrypted and tested before saving",
+    state: "Available",
+    reference: "openspec/specs/provider-settings/spec.md",
   },
   {
     capability: "The panel: the setup, the business, the documents and the conversations",
