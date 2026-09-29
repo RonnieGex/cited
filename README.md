@@ -7,17 +7,15 @@
 
 <p align="center">Answers from your own documents, with the page they came from.</p>
 
-<p align="center">
-  [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
-  [![Node 24.15 or newer](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
-  [![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](package.json)
-  [![TypeScript in strict mode](https://img.shields.io/badge/TypeScript-strict-3178c6)](https://www.typescriptlang.org/)
-  [![libSQL as the store](https://img.shields.io/badge/store-libSQL-4b8bbe)](https://github.com/tursodatabase/libsql)
-  ![Status: early development](https://img.shields.io/badge/status-early%20development-orange)
-  [![Continuous integration](https://github.com/RonnieGex/cited/actions/workflows/ci.yml/badge.svg)](https://github.com/RonnieGex/cited/actions/workflows/ci.yml)
-</p>
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Node 24.15 or newer](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](package.json)
+[![TypeScript in strict mode](https://img.shields.io/badge/TypeScript-strict-3178c6)](https://www.typescriptlang.org/)
+[![libSQL as the store](https://img.shields.io/badge/store-libSQL-4b8bbe)](https://github.com/tursodatabase/libsql)
+![Status: early development](https://img.shields.io/badge/status-early%20development-orange)
+[![Continuous integration](https://github.com/RonnieGex/cited/actions/workflows/ci.yml/badge.svg)](https://github.com/RonnieGex/cited/actions/workflows/ci.yml)
 
-<p align="center">[English](README.md) · [Español](README.es.md)</p>
+[English](README.md) · [Español](README.es.md)
 
 **Cited is in early development and not ready for production.** What you can run today is the core: it turns a
 folder of documents into citable passages and finds them again with a hybrid search. Read the [status table](#status)

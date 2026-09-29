@@ -7,17 +7,15 @@
 
 <p align="center">Respuestas de tus propios documentos, con la página de donde salieron.</p>
 
-<p align="center">
-  [![Licencia: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
-  [![Node 24.15 o superior](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
-  [![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](package.json)
-  [![TypeScript en modo estricto](https://img.shields.io/badge/TypeScript-strict-3178c6)](https://www.typescriptlang.org/)
-  [![libSQL como almacén](https://img.shields.io/badge/store-libSQL-4b8bbe)](https://github.com/tursodatabase/libsql)
-  ![Estado: desarrollo temprano](https://img.shields.io/badge/status-early%20development-orange)
-  [![Integración continua](https://github.com/RonnieGex/cited/actions/workflows/ci.yml/badge.svg)](https://github.com/RonnieGex/cited/actions/workflows/ci.yml)
-</p>
+[![Licencia: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![Node 24.15 o superior](https://img.shields.io/badge/node-%3E%3D24.15-3c873a)](package.json)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black)](package.json)
+[![TypeScript en modo estricto](https://img.shields.io/badge/TypeScript-strict-3178c6)](https://www.typescriptlang.org/)
+[![libSQL como almacén](https://img.shields.io/badge/store-libSQL-4b8bbe)](https://github.com/tursodatabase/libsql)
+![Estado: desarrollo temprano](https://img.shields.io/badge/status-early%20development-orange)
+[![Integración continua](https://github.com/RonnieGex/cited/actions/workflows/ci.yml/badge.svg)](https://github.com/RonnieGex/cited/actions/workflows/ci.yml)
 
-<p align="center">[English](README.md) · [Español](README.es.md)</p>
+[English](README.md) · [Español](README.es.md)
 
 **Cited está en desarrollo temprano y no sirve todavía para producción.** Lo que puedes correr hoy es el núcleo:
 convierte una carpeta de documentos en pasajes citables y los vuelve a encontrar con una búsqueda híbrida. Lee la
