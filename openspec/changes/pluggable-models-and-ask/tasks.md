@@ -66,5 +66,5 @@ secret, no customer data. No network call to a real provider in any test.
       defaults in comments — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The README, its Spanish twin and the graphics as design decision 8, with the modified requirement of
       `project-readme` green — report: `reports/2026-09-29-step-9-docs.md`
-- [ ] 9.3 The delivery `katalis-dev/tasks/entrega-community-05.md` in Spanish with `## Issues` — report:
+- [x] 9.3 The delivery `katalis-dev/tasks/entrega-community-05.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
