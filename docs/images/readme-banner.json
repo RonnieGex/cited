@@ -13,8 +13,24 @@
   "flame": {
     "dark": "public/brand/katalis-flame-192.png",
     "light": "public/brand/katalis-flame-ink-192.png",
-    "height": "1em",
-    "where": "at the height of the by Katalis line, to its left"
+    "minimumHeight": 40,
+    "where": "beside the by Katalis line, to its left, taller than the line",
+    "rendered": {
+      "dark": {
+        "x": 532.52,
+        "y": 226.39,
+        "width": 48,
+        "height": 48,
+        "line": 19
+      },
+      "light": {
+        "x": 532.52,
+        "y": 226.39,
+        "width": 48,
+        "height": 48,
+        "line": 19
+      }
+    }
   },
   "font": {
     "name": "Outfit",
