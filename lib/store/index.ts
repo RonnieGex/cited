@@ -5,6 +5,7 @@ import type {
   KeywordMatch,
   PassageFilter,
   PassageInput,
+  StoreEnvironment,
   StoredDocument,
   StoredPassage,
   VectorMatch,
@@ -33,8 +34,13 @@ const schemaStatements = [
 ];
 
 const searchableToken = /[\p{L}\p{N}]+/gu;
+const remoteProtocol = /^(libsql|https?|wss?|ws):/;
 
 type Row = Record<string, unknown>;
+
+export type StoreOptions = {
+  environment?: StoreEnvironment;
+};
 
 function connectionUrl(path: string): string {
   if (/^(file|libsql|https?|wss?|ws):/.test(path)) {
@@ -42,6 +48,22 @@ function connectionUrl(path: string): string {
   }
 
   return pathToFileURL(path).href;
+}
+
+function authTokenFor(url: string, environment: StoreEnvironment): string | undefined {
+  if (!remoteProtocol.test(url)) {
+    return undefined;
+  }
+
+  const token = environment["TURSO_AUTH_TOKEN"]?.trim() ?? "";
+
+  if (token.length === 0) {
+    throw new Error(
+      "TURSO_AUTH_TOKEN is empty: a remote libSQL database needs its token. Fill it in the environment of the server; an empty value is an absent value.",
+    );
+  }
+
+  return token;
 }
 
 export function tokenize(question: string): string[] {
@@ -97,8 +119,11 @@ export type Store = {
   close(): void;
 };
 
-export async function openStore(path: string): Promise<Store> {
-  const client: Client = createClient({ url: connectionUrl(path) });
+export async function openStore(path: string, options: StoreOptions = {}): Promise<Store> {
+  const url = connectionUrl(path);
+  const authToken = authTokenFor(url, options.environment ?? process.env);
+  const client: Client =
+    authToken === undefined ? createClient({ url }) : createClient({ url, authToken });
 
   for (const statement of schemaStatements) {
     await client.execute(statement);

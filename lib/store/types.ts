@@ -1,3 +1,5 @@
+export type StoreEnvironment = Record<string, string | undefined>;
+
 export type PassageInput = {
   position: number;
   heading: string | null;
