@@ -123,17 +123,29 @@ describe("the address of the visitor", () => {
     expect(hashIp("203.0.113.7", undefined)).not.toBe(hashIp("203.0.113.7", "sal-de-prueba"));
   });
 
-  it("reads x-forwarded-for only when TRUST_PROXY is 1", () => {
+  it("reads the last address of x-forwarded-for only when TRUST_PROXY is 1", () => {
     const forwarded = request({
       "x-forwarded-for": "203.0.113.7, 10.0.0.1",
       "x-real-ip": "10.0.0.2",
     });
 
-    expect(clientIp(forwarded, { TRUST_PROXY: "1" })).toBe("203.0.113.7");
-    expect(clientIp(forwarded, { TRUST_PROXY: "true" })).toBe("203.0.113.7");
+    expect(clientIp(forwarded, { TRUST_PROXY: "1" })).toBe("10.0.0.1");
+    expect(clientIp(forwarded, { TRUST_PROXY: "true" })).toBe("10.0.0.1");
     expect(clientIp(forwarded, {})).toBe(DIRECT_BUCKET);
     expect(clientIp(forwarded, { TRUST_PROXY: "0" })).toBe(DIRECT_BUCKET);
     expect(clientIp(forwarded, { TRUST_PROXY: "no" })).toBe(DIRECT_BUCKET);
+  });
+
+  it("ignores the addresses a client wrote before the one its proxy appended", () => {
+    const forged = request({
+      "x-forwarded-for": "198.51.100.10, 198.51.100.11, 203.0.113.55",
+    });
+    const other = request({
+      "x-forwarded-for": "198.51.100.12, 203.0.113.55",
+    });
+
+    expect(clientIp(forged, { TRUST_PROXY: "1" })).toBe("203.0.113.55");
+    expect(clientIp(other, { TRUST_PROXY: "1" })).toBe("203.0.113.55");
   });
 
   it("falls back to x-real-ip and then to a single bucket behind a proxy", () => {

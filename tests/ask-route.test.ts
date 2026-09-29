@@ -235,6 +235,27 @@ describe("POST /api/ask protects the wallet of the owner", () => {
     expect(Number(calls[0]?.["total"] ?? 0)).toBe(30);
   });
 
+  it("keeps one bucket when a client forges the header its proxy appends to", async () => {
+    const path = await corpusStore();
+
+    setEnvironment({
+      DATABASE_URL: path,
+      TRUST_PROXY: "1",
+      RATE_LIMIT_PER_IP_PER_HOUR: "1",
+    });
+
+    const first = await POST(
+      askRequest({ question: priceQuestion }, { "x-forwarded-for": "198.51.100.10, 203.0.113.55" }),
+    );
+    const second = await POST(
+      askRequest({ question: priceQuestion }, { "x-forwarded-for": "198.51.100.11, 203.0.113.55" }),
+    );
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(429);
+    expect(Number(second.headers.get("retry-after"))).toBeGreaterThanOrEqual(1);
+  });
+
   it("answers 503 with the daily limit after DAILY_MODEL_CALL_LIMIT calls", async () => {
     const path = await corpusStore();
 
