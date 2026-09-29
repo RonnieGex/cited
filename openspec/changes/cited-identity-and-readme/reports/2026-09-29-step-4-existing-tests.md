@@ -36,7 +36,7 @@ diff --git a/e2e/home.spec.ts b/e2e/home.spec.ts
 diff --git a/tests/home.test.tsx b/tests/home.test.tsx
 @@ -7,7 +7,7 @@ describe("home page", () => {
      render(<Home />);
- 
+
      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
 -      "Katalis Responde Community",
 +      "Cited",
