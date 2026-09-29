@@ -69,6 +69,12 @@ async function loadedStore(): Promise<{ store: Store; provider: EmbeddingProvide
   return { store: opened, provider: embeddings };
 }
 
+function withoutRanking(store: Store, branch: "keyword" | "vector"): Store {
+  return branch === "keyword"
+    ? { ...store, keywordSearch: async () => [] }
+    : { ...store, vectorSearch: async () => [] };
+}
+
 let shared: { store: Store; provider: EmbeddingProvider };
 
 beforeAll(async () => {
@@ -130,21 +136,47 @@ describe("hybrid search", () => {
     expect(hits[0]?.text).toContain("Cambios y cancelaciones");
   });
 
-  it("ranks a keyword-only match", async () => {
-    const hits = await hybridSearch("taller", { store: shared.store, embeddings: shared.provider });
-    const documents = hits.map((hit) => hit.name);
-
-    expect(documents).toContain("horario.md");
-  });
-
-  it("ranks a meaning-only match with the fake provider", async () => {
-    const hits = await hybridSearch("¿puedo mover mi cita a otro día?", {
+  it("ranks a keyword-only match that the vector ranking does not rank first", async () => {
+    const question = "mantenimiento";
+    const keyword = await shared.store.keywordSearch(question, 50);
+    const vector = await shared.store.vectorSearch(await shared.provider.embedQuery(question), 50);
+    const [hit] = await hybridSearch(question, {
       store: shared.store,
       embeddings: shared.provider,
+      limit: 1,
+    });
+    const [withoutKeyword] = await hybridSearch(question, {
+      store: withoutRanking(shared.store, "keyword"),
+      embeddings: shared.provider,
+      limit: 1,
     });
 
-    expect(hits[0]?.name).toBe("politicas.md");
-    expect(hits[0]?.text).toContain("Cambios y cancelaciones");
+    expect(keyword[0]?.passageId).toBe(hit?.passageId);
+    expect(vector[0]?.passageId).not.toBe(hit?.passageId);
+    expect(hit?.name).toBe("horario.md");
+    expect(hit?.text).toContain("mantenimiento");
+    expect(withoutKeyword?.name).not.toBe("horario.md");
+  });
+
+  it("ranks a meaning-only match with no shared term and an empty keyword ranking", async () => {
+    const question = "¿Aceptan reprogramaciones gratuitas avisando anticipadamente?";
+    const keyword = await shared.store.keywordSearch(question, 50);
+    const [hit] = await hybridSearch(question, {
+      store: shared.store,
+      embeddings: shared.provider,
+      limit: 1,
+    });
+    const withoutVector = await hybridSearch(question, {
+      store: withoutRanking(shared.store, "vector"),
+      embeddings: shared.provider,
+      limit: 1,
+    });
+
+    expect(keyword).toHaveLength(0);
+    expect(hit?.name).toBe("politicas.md");
+    expect(hit?.text).toContain("Cambios y cancelaciones");
+    expect(hit?.score).toBeCloseTo(1 / 61, 6);
+    expect(withoutVector).toEqual([]);
   });
 
   it("returns the top eight by default and no more than the limit", async () => {
