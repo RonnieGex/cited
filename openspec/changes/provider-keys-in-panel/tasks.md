@@ -103,26 +103,26 @@ reproduced.
 Report: `reports/2026-09-29-step-11-review-fixes.md`. Tests first, red before each fix, reproducing what the review
 reproduced.
 
-- [ ] 11.1 Major: the classification of addresses in every notation (requirement "The address that was validated is the
+- [x] 11.1 Major: the classification of addresses in every notation (requirement "The address that was validated is the
       address that is connected to", scenario "A mapped address"), a table test with `::ffff:7f00:1`,
       `::ffff:127.0.0.1`, `::ffff:a00:1`, `fc00::1`, `fe80::1`, `::`, `::1`, `64:ff9b::7f00:1`, `2002:7f00:1::1` and the
       IPv4 ranges of the earlier requirement; prefer `node:net` `BlockList` over hand-written arithmetic — report: the
       one of this section
-- [ ] 11.2 Major: the validated address is the address connected to, for the test and for every chat or embeddings call
+- [x] 11.2 Major: the validated address is the address connected to, for the test and for every chat or embeddings call
       that uses an owner-supplied base URL (scenario "A name that changes its answer"): a fetch that connects with
       `node:http` or `node:https` and a `lookup` that returns the classified address (the TLS name stays the host's), no
       new dependency, used by the test route and passed as `fetch` to the provider clients — report: the one of this
       section
-- [ ] 11.3 Major: reason codes in the routes and owner words in the page (requirement "The owner never reads a variable
+- [x] 11.3 Major: reason codes in the routes and owner words in the page (requirement "The owner never reads a variable
       name in an answer of the panel"), with a test that reads every response of the provider routes and every panel
       page for variable names outside "For the installer" — report: the one of this section
-- [ ] 11.4 Major (the evidence of 10.6): a state reader that opens the store read-only (`node:sqlite` with
+- [x] 11.4 Major (the evidence of 10.6): a state reader that opens the store read-only (`node:sqlite` with
       `readOnly: true`, never the libSQL client, which creates and migrates), the state before measured on a copy of a
       store created by the code of `main` (a temporary worktree of `main`, its ingest, its file copied) and the state
       after on the same copy opened by the code of this branch, the new table absent before and present and empty after,
       with every command recorded — report: the one of this section
-- [ ] 11.5 Minor: the delivery names the final HEAD and the count of commits computed with `git rev-list --count
+- [x] 11.5 Minor: the delivery names the final HEAD and the count of commits computed with `git rev-list --count
       main..HEAD` after the last commit — report: the one of this section
-- [ ] 11.6 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 11.6 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks per commit, `openspec validate --all --strict`, `git diff --check main...HEAD`;
       append the round to `katalis-dev/tasks/entrega-community-12.md` with `## Issues` — report: the one of this section
