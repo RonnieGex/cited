@@ -153,3 +153,90 @@ replaced by the code, and the sentence of the owner is checked for the words of 
   it checks `admin_password_too_short` in `status` and `reason`.
 - `tests/admin-routes.test.ts`, `GET /api/admin/setup` without a password: it expected the body to contain
   `ADMIN_PASSWORD`; now it checks the code and that the name is absent.
+
+## 12.2 Major M-2: `store:state` fails clearly on a store that is not there
+
+**The finding.** `scripts/store-state.ts` printed `exists: false` for a path that did not exist and returned from
+`main()` without a word: the process finished with code 0. The test of 11.4 codified it
+(`expect(result.status).toBe(0)`), so a command of evidence could support a box with a store that never existed.
+Codex reproduced it with a temporary path:
+
+```text
+npm run store:state -- C:\...\store-review\missing.sqlite
+exists: false
+tables: 0
+...
+STORE_MISSING exit=0 created=False
+```
+
+The other half of the finding was closed: a reading over an existing SQLite finished with code 0, kept the same
+SHA-256 and added no table (`STORE_READONLY exit=0 hash_unchanged=True`).
+
+### Red before the fix
+
+Command:
+
+```text
+npx vitest run tests/store-state.test.ts --reporter=verbose
+```
+
+Output (with the fix out of the worktree, at the red commit `33c443c`):
+
+```text
+ FAIL  tests/store-state.test.ts > the reader of the state of the store > fails clearly on a store that is not there,
+       creating nothing
+ AssertionError: expected +0 to be 2 // Object.is equality
+
+ - Expected
+ + Received
+
+ - 2
+ + 0
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+```
+
+The test that expected code 0 was changed to expect 2; the other three passed before the fix and after it, which is
+the point of the second one: an existing file keeps its bytes.
+
+Commits: `33c443c` (the test, red) and this one (the fix).
+
+### The fix
+
+`scripts/store-state.ts`: `missing()` no longer prints a table of absences as if it were a state. It writes
+`store not found: <path>` to stderr and exits with code 2, and it creates neither the file nor the folder — the path
+was already only resolved, never prepared with `prepareStorePath()`, which is what creates the folder of the store.
+The comment of the file carries the reason, with the Major that reproduced it.
+
+The reader of a store that exists is untouched: `node:sqlite` with `readOnly: true`, no `openStore()`, no migration.
+
+### Green after the fix
+
+```text
+npx vitest run tests/store-state.test.ts --reporter=verbose
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+```
+
+### The command of the review, over the fixed reader
+
+The same command Codex reproduced, with a temporary path that did not exist (the folder of the path did not exist
+either, so both halves of "creating nothing" are read):
+
+```text
+$ npm run store:state -- <a temporary path that did not exist>
+
+> cited@0.1.0 store:state
+> node --env-file-if-exists=.env scripts/store-state.ts <that path>
+
+.env not found. Continuing without it.
+store not found: <that path>
+exit=2 file=False folder=False
+```
+
+`file=False` is `Test-Path` over the path and `folder=False` is `Test-Path` over its folder: the command created
+nothing at all. The `.env not found. Continuing without it.` line is Node and not the reader: the repository has no
+`.env` (`Test-Path .env` is `False`), which is why the script can be run through `npm run store:state` without opening
+a file of secrets.
+

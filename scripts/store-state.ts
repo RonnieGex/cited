@@ -17,6 +17,11 @@ import { storeLocation } from "../lib/store/path.ts";
 // existing and migrated, so the "before" it printed was the state after the current code. The Major M-4 of
 // `katalis-dev/tasks/revision-community-12b.md` reproduced exactly that, and it is why this file imports a list of
 // names that loads no client (`lib/store/tables.ts`) and never the application.
+//
+// A store that is not there is not a state of the store: it is a failure of the command. The Major M-2 of
+// `katalis-dev/tasks/revision-community-12c.md` reproduced that the reader printed `exists: false` and finished with
+// code 0, so a script could take the absence of the base for a successful reading. It now writes
+// `store not found: <path>` to stderr and exits with code 2, creating neither the file nor its folder.
 
 // The tables of `lib/store/index.ts`, in the order of the schema, with the ones this change added marked.
 const ADDED_BY_THE_CHANGE = ["provider_settings", "provider_tests", "document_index"];
@@ -28,16 +33,10 @@ const SHADOW = /^passages_fts_/;
 // creating anything.
 const REMOTE = /^(libsql|https?|wss?|ws):/;
 
-function missing(path: string): void {
-  console.log(`store: ${path}`);
-  console.log("exists: false");
-  console.log("tables: 0");
+function missing(path: string): never {
+  console.error(`store not found: ${path}`);
 
-  for (const name of storeTables) {
-    console.log(`  ${name} MISSING`);
-  }
-
-  console.log("rows of the tables this change added: 0");
+  process.exit(2);
 }
 
 function main(): void {
@@ -57,8 +56,6 @@ function main(): void {
 
   if (existsSync(path) === false) {
     missing(path);
-
-    return;
   }
 
   const database = new DatabaseSync(path, { readOnly: true });

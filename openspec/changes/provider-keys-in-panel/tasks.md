@@ -139,7 +139,7 @@ reproduced. The sections 0 to 11 are done: their text does not change.
       `ADMIN_SESSION_SECRET` missing and, separately, with a 12-character `ADMIN_PASSWORD`, and checks every response of
       `/api/admin/*` and every page of `/admin` other than "For the installer" against every variable name of
       `.env.example` — report: the one of this section
-- [ ] 12.2 Major: `npm run store:state -- <path>` exits with code 2 and writes `store not found: <path>` to stderr when
+- [x] 12.2 Major: `npm run store:state -- <path>` exits with code 2 and writes `store not found: <path>` to stderr when
       the file does not exist, creating nothing; the test that expected code 0 is changed to expect 2 (red first), and a
       second test proves that an existing file keeps its SHA-256 — report: the one of this section
 - [ ] 12.3 Minor: every `[x]` of this section is marked in the same commit as the evidence it cites, the Linux container
