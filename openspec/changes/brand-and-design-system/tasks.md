@@ -59,7 +59,7 @@ secret, no customer data, no licensed font.
 
 ## 9. Documentation
 
-- [ ] 9.1 `docs/design-system.md`: tokens next to Construye, the font and its license, the flame and its hashes, the kit;
+- [x] 9.1 `docs/design-system.md`: tokens next to Construye, the font and its license, the flame and its hashes, the kit;
       `docs/readme-assets.md` updated — report: `reports/2026-09-29-step-9-docs.md`
-- [ ] 9.2 The delivery `katalis-dev/tasks/entrega-community-04.md` in Spanish, with the captures and `## Issues` —
+- [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-04.md` in Spanish, with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
