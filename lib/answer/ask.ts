@@ -72,17 +72,6 @@ export async function askQuestion(input: AskInput): Promise<AskOutcome> {
     };
   }
 
-  const day = dayOf(now);
-  const calls = await input.store.modelCallsOn(day);
-
-  if (calls >= limits.dailyModelCallLimit) {
-    return {
-      status: "unavailable",
-      reason: "daily_limit",
-      message: `the daily limit of model calls (DAILY_MODEL_CALL_LIMIT=${limits.dailyModelCallLimit}) is reached; it resets at 00:00 UTC`,
-    };
-  }
-
   const hits = await hybridSearch(question, { store: input.store, embeddings: input.embeddings });
 
   if (hits.length === 0) {
@@ -97,7 +86,16 @@ export async function askQuestion(input: AskInput): Promise<AskOutcome> {
           answer: turn.answer,
         }));
 
-  await input.store.recordModelCall(day);
+  const day = dayOf(now);
+  const reserved = await input.store.reserveModelCall(day, limits.dailyModelCallLimit);
+
+  if (reserved === null) {
+    return {
+      status: "unavailable",
+      reason: "daily_limit",
+      message: `the daily limit of model calls (DAILY_MODEL_CALL_LIMIT=${limits.dailyModelCallLimit}) is reached; it resets at 00:00 UTC`,
+    };
+  }
 
   const generated = await generateText({
     model: input.model,

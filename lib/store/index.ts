@@ -152,7 +152,7 @@ export type Store = {
   vectorSearch(embedding: number[], limit: number, documentName?: string): Promise<VectorMatch[]>;
   recordQuestion(ipHash: string, windowStart: string): Promise<number>;
   questionsInWindow(ipHash: string, windowStart: string): Promise<number>;
-  recordModelCall(day: string): Promise<number>;
+  reserveModelCall(day: string, limit: number): Promise<number | null>;
   modelCallsOn(day: string): Promise<number>;
   appendTurn(turn: TurnInput): Promise<number>;
   turnsOf(sessionId: string, limit: number): Promise<StoredTurn[]>;
@@ -415,15 +415,16 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
       return Number(found.rows[0]?.["count"] ?? 0);
     },
 
-    async recordModelCall(day: string): Promise<number> {
+    async reserveModelCall(day: string, limit: number): Promise<number | null> {
       const counted = await client.execute({
         sql: `INSERT INTO model_calls (day, count) VALUES (?, 1)
-          ON CONFLICT (day) DO UPDATE SET count = count + 1
+          ON CONFLICT (day) DO UPDATE SET count = count + 1 WHERE count < ?
           RETURNING count`,
-        args: [day],
+        args: [day, limit],
       });
+      const row = counted.rows[0];
 
-      return Number(counted.rows[0]?.["count"] ?? 0);
+      return row === undefined ? null : Number(row["count"]);
     },
 
     async modelCallsOn(day: string): Promise<number> {

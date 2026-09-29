@@ -46,15 +46,16 @@ the variable (`The openai chat provider needs OPENAI_API_KEY.`).
 
 ## 2. The flow
 
-1. **The guards** (section 6) run before anything expensive: the length of the question, the purge, the rate limit of
-   the address and the daily limit of model calls.
+1. **The guards** (section 6) run before anything expensive: the length of the question, the purge and the rate limit
+   of the address. The daily limit is reserved atomically right before the model call (point 5), so a question the
+   documents do not answer spends nothing.
 2. **Hybrid search.** The question goes through `hybridSearch` of `docs/search.md`: keyword ranking and vector
    ranking fused with Reciprocal Rank Fusion, the top eight passages.
 3. **No passage, no model call.** An empty result is a refusal and the wallet of the owner is untouched. The counter of
    model calls does not move.
 4. **The prompt** (section 3) carries the system rules, the last turns of the session and the numbered passages.
-5. **One call to the chat model** through the Vercel AI SDK, with `maxOutputTokens` of `MAX_ANSWER_TOKENS` and a
-   temperature of `0.2`.
+5. **One call to the chat model** through the Vercel AI SDK, after reserving the model call of the day atomically,
+   with `maxOutputTokens` of `MAX_ANSWER_TOKENS` and a temperature of `0.2`.
 6. **The citations** (section 4) are parsed and renumbered, and the answer is stored as a turn of its session when the
    request carried a `sessionId`.
 7. **The refusal** (section 5) replaces the text of the model whenever the answer cannot be trusted to a passage.
@@ -132,8 +133,11 @@ Three ways to a refusal: the search found no passage (and no model was called), 
 | `MAX_ANSWER_TOKENS` | 600 | the token ceiling of one answer |
 | `CONVERSATION_RETENTION_DAYS` | 30 | the turns of a session older than this are purged |
 
-A value that is empty, zero, negative or not an integer keeps its default. The model call is counted **before** it is
-made, so a provider that fails still spends the budget of the day instead of leaving it open.
+A value that is empty, zero, negative or not an integer keeps its default. The model call is reserved **before** it is
+made with one atomic statement (`INSERT ... ON CONFLICT (day) DO UPDATE SET count = count + 1 WHERE count < ?
+RETURNING count`), so a provider that fails still spends the budget of the day instead of leaving it open, and eight
+questions that arrive at once with `DAILY_MODEL_CALL_LIMIT=1` make exactly one call: the other seven answer `503` and
+the counter of the day ends at 1.
 
 ## 7. The address of the visitor
 
