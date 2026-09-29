@@ -8,8 +8,11 @@ with evidence in its report (`reports/2026-09-29-step-N-<name>.md`): the exact c
 
 ## 1. The state of the base before
 
-- [x] 1.1 `npm test` locally (green on Windows) and the failing GitHub run of `main` (job Unit tests, `EISDIR`) quoted
-      from `gh run view --log-failed` — report: `reports/2026-09-29-step-1-base-before.md`
+- [x] 1.1 `npm test` locally on the base and the failing GitHub run of `main` (job Unit tests, `EISDIR`) quoted from
+      `gh run view --log-failed`. **Contract corrected by Fable after `revision-community-00d.md` Major 2:** the base
+      is not green on Windows either (1 failed, 4 passed: the archived contract is reported by the prefix check, the
+      second defect of the proposal); the report records that result — report:
+      `reports/2026-09-29-step-1-base-before.md`
 - [x] 1.2 The state of the database: this repository has no database yet; prove it (no datastore dependency, no data
       file tracked) — report: `reports/2026-09-29-step-1-base-before.md`
 
@@ -55,3 +58,9 @@ with evidence in its report (`reports/2026-09-29-step-N-<name>.md`): the exact c
 - [x] 9.1 A line in `docs/development-guide.md` about symlinks on Windows checkouts (`core.symlinks`) and why the scan
       uses git modes; the delivery `katalis-dev/tasks/entrega-community-00d.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
+
+## Contract note (Fable, 2026-09-29)
+
+`design.md` was added by Fable after `revision-community-00d.md` Major 1. Evidence rule applied from this review on:
+every `[x]` needs a real report whose content supports it at archive time; a report added in a later commit than
+its mark is recorded, not blocking, unless the evidence is missing or contradicts the mark.
