@@ -1,0 +1,22 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Dependencies and generated output are not repository content."
+paths = [
+  '''^node_modules/''',
+  '''^\.next/''',
+  '''^out/''',
+  '''^build/''',
+  '''^coverage/''',
+  '''^playwright-report/''',
+  '''^test-results/''',
+  '''^blob-report/''',
+  '''^next-env\.d\.ts$''',
+]
+
+[[rules]]
+id = "katalis-planted-example-key"
+description = "Known AWS example key, planted on purpose to prove that the local hook and the pipeline refuse a commit that carries a secret."
+regex = '''AKIAIOSFODNN7EXAMPLE'''
+tags = ["katalis", "test"]

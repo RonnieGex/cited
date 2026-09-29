@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "Secret scan refused this commit: gitleaks is not installed." >&2
+  echo "Install it and commit again:" >&2
+  echo "  Windows: winget install --id Gitleaks.Gitleaks -e" >&2
+  echo "  macOS:   brew install gitleaks" >&2
+  echo "  Linux:   https://github.com/gitleaks/gitleaks/releases" >&2
+  echo "Then run: npm run hooks:install" >&2
+  exit 1
+fi
+
+gitleaks git --pre-commit --staged --redact --no-banner -c .gitleaks.toml
