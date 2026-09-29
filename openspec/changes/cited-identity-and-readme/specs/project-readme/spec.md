@@ -98,6 +98,9 @@ the same commands and the same variables, and each file SHALL link the other at 
 - **THEN** none of them says that Cited answers, gives an answer or cites a page today; a sentence about the planned
   answer carries `Next`, `planned` or the name of the change that delivers it (amended by Fable after
   `revision-community-03b.md`: `docs/` and the fields of the records were outside the first scope)
+- **AND** the only text exempt from this check is the verbatim output the render script captured from the real run of
+  the quick start (the command lines and the lines they printed), because it is evidence and not copy; every other
+  field under `demo`, and anywhere else, is checked
 
 ### Requirement: Every link and image of the README resolves
 
