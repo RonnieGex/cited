@@ -477,6 +477,9 @@ f62849f => 1 commits scanned. | no leaks found
 02dfe38 => 1 commits scanned. | no leaks found
 be5509e => 1 commits scanned. | no leaks found
 388c6f5 => 1 commits scanned. | no leaks found
+4f2f9c0 => 1 commits scanned. | no leaks found
+559cb3c => 1 commits scanned. | no leaks found
+cde2c43 => 1 commits scanned. | no leaks found
 ```
 
 Two of them are worth writing down because they are the rule working: the first attempt of `c016b81` was **refused by
@@ -489,8 +492,7 @@ The whole history, at the end of the round:
 
 ```text
 $ gitleaks git --redact --no-banner
-324 commits scanned.
-scanned ~5630153 bytes (5.63 MB) in 3.54s
+329 commits scanned.
 no leaks found
 ```
 
@@ -567,6 +569,9 @@ change. The clone is clean: nothing of the round lives outside a commit.
 `git status --short` is empty at the end of the round, and the text of no task, of `design.md` or of the specs was
 edited: the only change in `tasks.md` is the box of each task of section 10.
 
-The count of the commits of the contract, the number the delivery carries after the two Minors of the review:
-`git log --oneline 71f08f0..HEAD | Measure-Object` answers **18** — ten from `e12d34a` to `5404823`, the correction
-`9a47f41`, and the seven of this round, the closing commit included.
+The count of the commits of the contract: the delivery says **20** over the last commit of the round, and it is read
+with `git log --oneline 71f08f0..HEAD | Measure-Object` — nine from `e12d34a` to `5404823`, the correction `9a47f41`,
+and the ten of this round (the seven fixes, this report, the round of the delivery and the commits that corrected the
+count). The number moves with every commit that writes it, which is why the delivery writes the command next to it and
+the report writes what the command answered when the correction was made: **18**. The command is the promise; the
+number is a photograph.

@@ -63,9 +63,9 @@ reproduced.
   administrative answers).
 - `npm run typecheck`, `npm run lint`, `npm audit --audit-level=high` (0 vulnerabilities), `gitleaks git` (324 commits,
   no leaks), `openspec validate --all --strict` (11 items) and `git diff --check main...HEAD`: green.
-- The round: seven fixes, 38 files, 2 941 lines added and 227 removed, plus the commit that corrects the count of the
-  deliveries. The branch closes with 19 commits over the contract: ten between `71f08f0` and `5404823` (`9a47f41`
-  included) and the eight of this round.
+- The round: seven fixes, 38 files, 2 941 lines added and 227 removed, plus the closing commits that carry the marks,
+  the report and the count of the deliveries. The branch closes with **20 commits** over the contract: nine between
+  `71f08f0` and `5404823`, `9a47f41` and the ten of this round.
 
 ## The issues that stay open
 
