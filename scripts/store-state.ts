@@ -1,6 +1,8 @@
+import { existsSync, statSync } from "node:fs";
+import { isAbsolute, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { openStore, storeTables } from "../lib/store/index.ts";
-import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
+import { storeTables } from "../lib/store/tables.ts";
+import { storeLocation } from "../lib/store/path.ts";
 
 // The state of the store, read without opening the application: the tables the schema declares, how many rows each one
 // holds and which of them the change of the keys in the panel added. It is the tool of task 10.6 of the contract and
@@ -10,8 +12,11 @@ import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
 //     node scripts/store-state.ts                     (the store of DATABASE_URL, or the default of the repository)
 //     node scripts/store-state.ts .data/otra.sqlite   (a store of its own)
 //
-// It writes nothing: `openStore()` creates the tables that are missing — which is what the application does on its
-// first query — and the reader opens the file in read-only mode afterwards.
+// It writes nothing and it reads with `node:sqlite` and `readOnly: true`. The first version called `openStore()`
+// first, and `openStore()` creates every table the schema declares: a store that did not exist came out of the command
+// existing and migrated, so the "before" it printed was the state after the current code. The Major M-4 of
+// `katalis-dev/tasks/revision-community-12b.md` reproduced exactly that, and it is why this file imports a list of
+// names that loads no client (`lib/store/tables.ts`) and never the application.
 
 // The tables of `lib/store/index.ts`, in the order of the schema, with the ones this change added marked.
 const ADDED_BY_THE_CHANGE = ["provider_settings", "provider_tests", "document_index"];
@@ -19,12 +24,42 @@ const ADDED_BY_THE_CHANGE = ["provider_settings", "provider_tests", "document_in
 // The five tables FTS5 keeps for the index of `passages_fts`, which are not read one by one.
 const SHADOW = /^passages_fts_/;
 
-async function main(): Promise<void> {
-  const declared = process.argv[2]?.trim();
-  const path = declared === undefined || declared.length === 0 ? storeLocation(process.env) : declared;
-  const store = await openStore(prepareStorePath(path));
+// A remote store lives in libSQL or in Turso: this reader opens a file and nothing else, and it says so instead of
+// creating anything.
+const REMOTE = /^(libsql|https?|wss?|ws):/;
 
-  store.close();
+function missing(path: string): void {
+  console.log(`store: ${path}`);
+  console.log("exists: false");
+  console.log("tables: 0");
+
+  for (const name of storeTables) {
+    console.log(`  ${name} MISSING`);
+  }
+
+  console.log("rows of the tables this change added: 0");
+}
+
+function main(): void {
+  const declared = process.argv[2]?.trim();
+  const asked = declared === undefined || declared.length === 0 ? storeLocation(process.env) : declared;
+
+  if (REMOTE.test(asked)) {
+    console.error(`store: ${asked}`);
+    console.error("this reader opens a file of SQLite; a remote store is read with its own tools");
+
+    process.exit(1);
+  }
+
+  // The path is resolved and never prepared: `prepareStorePath()` creates the folder that holds the store, and a
+  // reader of the state does not create anything, not even a folder.
+  const path = isAbsolute(asked) ? asked : resolve(asked);
+
+  if (existsSync(path) === false) {
+    missing(path);
+
+    return;
+  }
 
   const database = new DatabaseSync(path, { readOnly: true });
   const found = database
@@ -44,6 +79,8 @@ async function main(): Promise<void> {
   database.close();
 
   console.log(`store: ${path}`);
+  console.log("exists: true");
+  console.log(`bytes: ${statSync(path).size}`);
   console.log(`tables: ${own.length} (plus the ${names.length - own.length} of the full-text index)`);
 
   for (const name of storeTables) {
@@ -69,4 +106,4 @@ async function main(): Promise<void> {
   console.log(`rows of the tables this change added: ${total}`);
 }
 
-await main();
+main();

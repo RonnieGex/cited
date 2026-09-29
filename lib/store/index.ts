@@ -99,20 +99,10 @@ const searchableToken = /[\p{L}\p{N}]+/gu;
 const remoteProtocol = /^(libsql|https?|wss?|ws):/;
 
 // The tables of the schema, for whoever reads the state of a store without opening the application
-// (`scripts/store-state.ts`, task 10.6 of the contract of the keys in the panel).
-export const storeTables = [
-  "documents",
-  "passages",
-  "passages_fts",
-  "rate_limits",
-  "model_calls",
-  "conversations",
-  "login_attempts",
-  "business",
-  "provider_settings",
-  "provider_tests",
-  "document_index",
-];
+// (`scripts/store-state.ts`, task 10.6 of the contract of the keys in the panel). The list itself lives in
+// `./tables.ts`, which imports nothing: a reader of the state must be able to know the names without loading the
+// libSQL client of this module (task 11.4).
+export { storeTables } from "./tables.ts";
 
 type Row = Record<string, unknown>;
 
