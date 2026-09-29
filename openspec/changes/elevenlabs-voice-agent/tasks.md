@@ -8,7 +8,7 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/elevenlabs-voice-agent`, created by Fable from `main` after the admin panel and the public
+- [x] 0.1 Work on `feature/elevenlabs-voice-agent`, created by Fable from `main` after the admin panel and the public
       page; confirm branch and base; `npm ci` — report: `reports/2026-09-29-step-0-branch.md`
 
 ## 1. The state of the base before
