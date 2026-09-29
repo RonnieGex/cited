@@ -82,3 +82,27 @@ A voice session SHALL start only when its reservation of five minutes keeps the 
 
 - **WHEN** `DAILY_VOICE_MINUTE_LIMIT=3` and a visitor starts a voice session
 - **THEN** `/api/voice/signed-url` answers `429` and no signed URL is requested
+
+### Requirement: The cap is checked before the configuration
+
+`GET /api/voice/signed-url` SHALL evaluate the daily minute cap before it checks the ElevenLabs configuration: a cap
+below the five minutes of one session answers `429` whether or not the key and the agent are configured, and only then
+does a missing key or agent answer `503` naming the variable.
+
+#### Scenario: A cap of three minutes with no key
+
+- **WHEN** `DAILY_VOICE_MINUTE_LIMIT=3`, `ELEVENLABS_API_KEY` is empty and a visitor starts a voice session
+- **THEN** the route answers `429` and no signed URL is requested
+
+### Requirement: What is copied from a package keeps its notice
+
+Every file the repository serves or ships that is a verbatim copy of a package SHALL sit next to the license text of
+that package, byte for byte from the package, and SHALL be listed in `THIRD_PARTY_NOTICES.md` with its name, version,
+license and origin.
+
+#### Scenario: The resampler
+
+- **WHEN** `public/voice/worklets/` is read
+- **THEN** the license texts of `@alexanderolsen/libsamplerate-js` (MIT) and of the libsamplerate library it bundles
+  (BSD 2-clause) are there, equal to the files of the package, and `THIRD_PARTY_NOTICES.md` names the resampler, its
+  version `2.1.2` and both licenses
