@@ -54,3 +54,79 @@ operation and the hash of each output. Running the script twice writes the same 
 | The foot of `README.md` and `README.es.md` | `katalis-flame-192.png` for the dark theme, `katalis-flame-ink-192.png` for the light one | a `<picture>` 48 px high, beside `Built by Katalis` |
 | The banner of the README, both themes | `katalis-flame-192.png` on the ink, `katalis-flame-ink-192.png` on the paper | drawn by `scripts/render-readme-banner.mjs`, at the height of the `by Katalis` line and to its left |
 | The social preview | `katalis-flame-192.png` | drawn by `scripts/render-readme-graphics.mjs`, at the height of the `by Katalis` line and to its left |
+
+The two scripts measure what they draw and fail instead of shipping a banner whose mark is missing or misplaced: the
+flame has to be to the left of `by Katalis`, centred on it, and exactly as high as its line (`1em` of 19 px in the
+banner and of 20 px in the preview).
+
+## 2. The tokens
+
+`app/tokens.css` declares the tokens of the system once and `app/globals.css` imports it right after Tailwind. The
+`@theme` block exposes them to Tailwind v4 as colors (`bg-ink`, `text-paper`, `outline-lime`), as the square corner
+(`rounded-none`) and as the single curve of the system (`ease-out-expo`), and it declares the family of the app.
+
+The values are the ones of Construye, read from its `app/globals.css`. This table is the record the test compares
+against, cell by cell:
+
+| Token | Value in Cited | Where it is in Construye | Value there |
+|---|---|---|---|
+| `--ink` | `#171717` | `--foreground` and `--primary` of `:root` | `#171717` |
+| `--lime` | `#DDF469` | `--lime` of `:root` | `#DDF469` |
+| `--coral` | `#FF6059` | `--coral` of `:root` | `#FF6059` |
+| `--surface` | `#FAFAF9` | `--panel` of `:root` | `#FAFAF9` |
+| `--surface-dark` | `#1C1917` | `--color-surface-dark` of `@theme inline` | `#1C1917` |
+| `--paper` | `#FFFFFF` | `--background` of `:root` | `#FFFFFF` |
+| `--radius` | `0` | `--radius-xl`, `--radius-2xl` and `--radius-squircle` of `@theme inline` | `0px` |
+| `--ease-out-expo` | `cubic-bezier(0.16, 1, 0.3, 1)` | the transitions of `.hover-lift` and `.btn-primary` | `cubic-bezier(0.16, 1, 0.3, 1)` |
+
+The names are Cited's own, because this repository carries its copy until `@katalis/ui-tokens` v0.2.0 exists without
+a licensed font; the values are Construye's to the character. Two conventions of the reference travel with the values:
+the corner radius is zero everywhere, and one curve covers every transition of the system.
+
+## 3. Outfit
+
+The family of the product is **Outfit**, the variable font of weights 100 to 900, under the SIL Open Font License. It
+is served by the app from `public/fonts/outfit/`, with its license next to the files, and it is applied on `<html>`
+so every text of every screen uses it (the defect of Construye, where the family sits on `body`, is not copied).
+
+| File | Origin | SHA-256 |
+|---|---|---|
+| `public/fonts/outfit/outfit-latin.woff2` | `https://fonts.gstatic.com/s/outfit/v15/QGYvz_MVcBeNP4NJtEtq.woff2` | `6c18d579fd87c3776be068b762cbc83fde3acb543d49eabd3ade842eb987e887` |
+| `public/fonts/outfit/outfit-latin-ext.woff2` | `https://fonts.gstatic.com/s/outfit/v15/QGYvz_MVcBeNP4NJuktqQ4E.woff2` | `0f53d1c03b3918d744a843b5039001ee31695ca1e255e3914188df81beb461e9` |
+| `public/fonts/outfit/OFL.txt` | `https://raw.githubusercontent.com/google/fonts/main/ofl/outfit/OFL.txt` | `c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416` |
+
+The two web fonts are the two subsets Google Fonts serves for the family, taken from its own host, and the stylesheet
+that names them declares `font-family: 'Outfit'` with `font-weight: 100 900`. Both carry the same variable family, so
+`font-weight` works from 100 to 900 without a second file. The license comes from the official Google Fonts
+repository, where the family lives as `ofl/outfit/Outfit[wght].ttf` (110884 bytes, SHA-256
+`fc7287273e66929776e2ba54f144fe699080bec29f61bf649d70d871468aeade`, typographic family `Outfit`, one axis
+`wght 100 to 900`).
+
+**No paid font enters the repository.** Lufga, the family of Construye, is not here: it is not redistributable, and
+the family of this product is Outfit, which is OFL. `tests/design-system.test.ts` lists every font file of the
+repository and fails on any of them that is not under `public/fonts/outfit` or that carries the name Lufga.
+
+## 4. The kit
+
+`components/ui/` carries five small components. They are server components: no state, no effect, no `"use client"`.
+They take their colors, their corners and their curve from the tokens, so a change of the palette is a change of
+`app/tokens.css` and nothing else.
+
+| Component | What it is |
+|---|---|
+| `Button` | `variant="primary"` is the ink button, uppercase and bold, with the ink of the system on paper; `variant="secondary"` is the paper button with a hairline |
+| `Panel` | the warm paper surface of `--surface`, a one pixel hairline and no shadow at rest |
+| `Input` | a full width field on paper, with the hairline of the system |
+| `Chip` | a small label in microcaps, for the state of a capability |
+| `SectionTitle` | the microcaps eyebrow over a level of heading, with the tracking of the system |
+
+`focusRing`, in `components/ui/focus.ts`, is the focus of the kit: a 2 px lime outline with offset, as decision 6
+asks, plus a one pixel edge of ink. Lime on paper is 1.07:1, so the outline alone would be invisible on the ground
+most screens use; the edge is what keeps the focus visible without giving up the lime of the design.
+
+The route `/kit` shows one example of each component, in Spanish, the language of the first market. It is the
+reference anyone who forks the repository can open.
+
+The eyebrow of `SectionTitle` uses the ink at 70% instead of the 40% of Construye: at 11 px, 40% of the ink on paper
+is 2.5:1, below the 4.5:1 that level AA asks for, and the axe check of `/kit` would refuse it.
+

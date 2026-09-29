@@ -566,8 +566,9 @@ describe("a kit of components", () => {
 
     const button = readText("components/ui/Button.tsx");
 
-    expect(button).toContain('"primary"');
-    expect(button).toContain('"secondary"');
+    expect(button, "the primary variant").toMatch(/\bprimary\b/);
+    expect(button, "the secondary variant").toMatch(/\bsecondary\b/);
+    expect(button, "the type of the variants").toMatch(/variant\??:/);
   });
 
   it("renders the kit in Spanish at /kit", () => {
