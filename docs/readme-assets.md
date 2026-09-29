@@ -12,7 +12,7 @@ writes three files:
 |---|---|
 | `docs/images/readme-banner-dark.png` | the dark variant, ink `#171717` background and off-white text |
 | `docs/images/readme-banner-light.png` | the light variant, off-white `#F7F6F2` background and ink text |
-| `docs/images/readme-banner.json` | the record: the wordmark, the citation mark, the tagline, the byline, the size, the font and the brand tokens |
+| `docs/images/readme-banner.json` | the record: the wordmark, the citation mark, the tagline, the byline, the size, the flame it measured with its box, the font and the brand tokens |
 
 ```
 node scripts/render-readme-banner.mjs
@@ -79,7 +79,8 @@ The foot of the two READMEs does not appear in that table because it is not a gr
 of `public/brand/`, the mark every Katalis product uses, copied byte for byte from Construye and rendered in ink for
 the light theme by `scripts/render-flame-variants.mjs`. `docs/design-system.md` carries its files, its hashes and the
 command that renders the variant. The banner and the social preview draw the same flame beside their `by Katalis`
-line, at the height of the line and to its left, and the render measures it and fails when it is missing or misplaced.
+line, to its left and taller than it (48 px in the banner and 68 px in the social preview), and the render measures it
+and fails when it is missing, misplaced or below the height the mark needs to be read (40 px and 64 px at the least).
 
 The two variants of a graphic carry the same content: the dark one is ink with the lime glow and the light one is
 off-white, both measured. In the light theme a lime mark carries an ink edge or an ink inner mark, because lime on

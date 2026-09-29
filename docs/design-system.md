@@ -52,12 +52,17 @@ operation and the hash of each output. Running the script twice writes the same 
 | Place | File | How |
 |---|---|---|
 | The foot of `README.md` and `README.es.md` | `katalis-flame-192.png` for the dark theme, `katalis-flame-ink-192.png` for the light one | a `<picture>` 48 px high, beside `Built by Katalis` |
-| The banner of the README, both themes | `katalis-flame-192.png` on the ink, `katalis-flame-ink-192.png` on the paper | drawn by `scripts/render-readme-banner.mjs`, at the height of the `by Katalis` line and to its left |
-| The social preview | `katalis-flame-192.png` | drawn by `scripts/render-readme-graphics.mjs`, at the height of the `by Katalis` line and to its left |
+| The banner of the README, both themes | `katalis-flame-192.png` on the ink, `katalis-flame-ink-192.png` on the paper | drawn by `scripts/render-readme-banner.mjs`, 48 px high, beside the `by Katalis` line and to its left |
+| The social preview | `katalis-flame-192.png` | drawn by `scripts/render-readme-graphics.mjs`, 68 px high, beside the `by Katalis` line and to its left |
 
 The two scripts measure what they draw and fail instead of shipping a banner whose mark is missing or misplaced: the
-flame has to be to the left of `by Katalis`, centred on it, and exactly as high as its line (`1em` of 19 px in the
-banner and of 20 px in the preview).
+flame has to be to the left of `by Katalis`, centred on it, and it fails below the height the mark needs to be read
+(40 px in the banner and 64 px in the social preview). At the height of the `by Katalis` line the mark measured 19 px in
+the banner and 20 px in the preview, and Fable saw in the banner that it did not read as the flame of Katalis. The
+height lives in the style sheet of each render, 48 px in `scripts/readme-banner.html` and 68 px in the styles of
+`scripts/render-readme-graphics.mjs`, and `docs/images/readme-banner.json` and `docs/images/readme-graphics.json`
+record what the render measured, the box of the flame and the line it sits beside, so a test measures the committed
+PNG against its record and the record against the style sheet.
 
 ## 2. The tokens
 
