@@ -18,12 +18,44 @@ export const plannedMark = new RegExp(
 
 export const capturedOutput = "demo";
 
-function isCaptured(route) {
-  return (
-    route === capturedOutput ||
-    route.startsWith(`${capturedOutput}.`) ||
-    route.startsWith(`${capturedOutput}[`)
-  );
+const capturedSteps = ["ingest", "search"];
+
+function capturedEvidence(record) {
+  const demo = record?.[capturedOutput];
+  const captured = typeof demo === "object" && demo !== null ? demo : {};
+  const fields = new Set();
+  const lines = new Map();
+
+  for (const step of capturedSteps) {
+    const run = captured[step] ?? {};
+
+    if (typeof run.command === "string") {
+      fields.add(`${capturedOutput}.${step}.command`);
+    }
+
+    if (typeof run.output === "string") {
+      fields.add(`${capturedOutput}.${step}.output`);
+      lines.set(`${capturedOutput}.drawn.${step}`, new Set(run.output.split("\n")));
+    }
+  }
+
+  return { fields, lines };
+}
+
+function isCaptured(evidence, route, value) {
+  if (evidence.fields.has(route)) {
+    return true;
+  }
+
+  const drawn = route.endsWith("]")
+    ? evidence.lines.get(route.slice(0, route.lastIndexOf("[")))
+    : undefined;
+
+  return typeof value === "string" && drawn !== undefined && drawn.has(value);
+}
+
+export function isCapturedOutput(record, route, value) {
+  return isCaptured(capturedEvidence(record), route, value);
 }
 
 function isRow(value) {
@@ -41,19 +73,17 @@ function cell(row) {
     .join(" ");
 }
 
-function statements(value, route, found) {
-  if (isCaptured(route)) {
-    return found;
-  }
-
+function statements(value, route, found, evidence) {
   if (typeof value === "string") {
-    found.push([route, value]);
+    if (isCaptured(evidence, route, value) === false) {
+      found.push([route, value]);
+    }
 
     return found;
   }
 
   if (Array.isArray(value)) {
-    value.forEach((item, index) => statements(item, `${route}[${index}]`, found));
+    value.forEach((item, index) => statements(item, `${route}[${index}]`, found, evidence));
 
     return found;
   }
@@ -66,7 +96,7 @@ function statements(value, route, found) {
     }
 
     for (const [key, item] of Object.entries(value)) {
-      statements(item, route.length === 0 ? key : `${route}.${key}`, found);
+      statements(item, route.length === 0 ? key : `${route}.${key}`, found, evidence);
     }
   }
 
@@ -74,7 +104,9 @@ function statements(value, route, found) {
 }
 
 export function untaggedClaims(record) {
-  return statements(record, "", [])
+  const evidence = capturedEvidence(record);
+
+  return statements(record, "", [], evidence)
     .filter(([, text]) => plannedMark.test(text) === false && answerWords.test(text))
     .map(([route, text]) => `${route}: ${text}`);
 }

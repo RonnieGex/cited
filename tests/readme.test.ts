@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertHonestRecord,
   capturedOutput,
+  isCapturedOutput,
   plannedMark,
   untaggedClaims,
 } from "../scripts/readme-graphics/honesty.mjs";
@@ -464,36 +465,40 @@ function markdownStatements(name: string, text: string): Statement[] {
   return found;
 }
 
-function textRoutes(value: unknown, route = ""): string[] {
-  if (
-    route === capturedOutput ||
-    route.startsWith(`${capturedOutput}.`) ||
-    route.startsWith(`${capturedOutput}[`)
-  ) {
-    return [];
-  }
+function textRoutes(record: Record<string, unknown>): string[] {
+  const found: string[] = [];
 
-  if (typeof value === "string") {
-    return [route];
-  }
+  const visit = (value: unknown, route: string): void => {
+    if (typeof value === "string") {
+      if (isCapturedOutput(record, route, value) === false) {
+        found.push(route);
+      }
 
-  if (Array.isArray(value)) {
-    return value.flatMap((item, index) => textRoutes(item, `${route}[${index}]`));
-  }
-
-  if (typeof value === "object" && value !== null) {
-    const row = value as Record<string, unknown>;
-
-    if (typeof row["state"] === "string" && typeof row["reference"] === "string") {
-      return [];
+      return;
     }
 
-    return Object.entries(row).flatMap(([key, item]) =>
-      textRoutes(item, route.length === 0 ? key : `${route}.${key}`),
-    );
-  }
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${route}[${index}]`));
 
-  return [];
+      return;
+    }
+
+    if (typeof value === "object" && value !== null) {
+      const row = value as Record<string, unknown>;
+
+      if (typeof row["state"] === "string" && typeof row["reference"] === "string") {
+        return;
+      }
+
+      for (const [key, item] of Object.entries(row)) {
+        visit(item, route.length === 0 ? key : `${route}.${key}`);
+      }
+    }
+  };
+
+  visit(record, "");
+
+  return found;
 }
 
 function at(root: Record<string, unknown>, route: string, value: string): void {
@@ -665,16 +670,10 @@ describe("README, the promise of an answer", () => {
     const found: Statement[] = [];
 
     const visit = (value: unknown, route: string): void => {
-      if (
-        route === capturedOutput ||
-        route.startsWith(`${capturedOutput}.`) ||
-        route.startsWith(`${capturedOutput}[`)
-      ) {
-        return;
-      }
-
       if (typeof value === "string") {
-        found.push([`${name}: ${route}`, value]);
+        if (isCapturedOutput(record, route, value) === false) {
+          found.push([`${name}: ${route}`, value]);
+        }
 
         return;
       }
@@ -765,23 +764,30 @@ describe("README, the promise of an answer", () => {
     const demo = record["demo"] as Record<string, unknown>;
     const drawn = demo["drawn"] as Record<string, string[]>;
     const printed = String((demo["ingest"] as Record<string, unknown>)["output"]);
+    const command = String((demo["ingest"] as Record<string, unknown>)["command"]);
     const drawnLines = drawn["ingest"] ?? [];
 
     expect(printed).toContain("no pages");
     expect(printed.split("\n")).toContain(drawnLines[0]);
     expect(untaggedClaims(record), graphicsRecordPath).toEqual([]);
 
+    expect(isCapturedOutput(record, `${capturedOutput}.ingest.command`, command)).toBe(true);
+    expect(isCapturedOutput(record, `${capturedOutput}.ingest.output`, printed)).toBe(true);
+    expect(isCapturedOutput(record, `${capturedOutput}.drawn.ingest[0]`, drawnLines[0])).toBe(true);
+
     const copied = structuredClone(record) as Record<string, unknown>;
     at(copied, `${capturedOutput}.caption`, promise);
     expect(untaggedClaims(copied), "a field of the demo that the run did not print").toContain(
       `${capturedOutput}.caption: ${promise}`,
     );
+    expect(isCapturedOutput(copied, `${capturedOutput}.caption`, promise)).toBe(false);
 
     const redrawn = structuredClone(record) as Record<string, unknown>;
     at(redrawn, `${capturedOutput}.drawn.ingest[0]`, promise);
     expect(untaggedClaims(redrawn), "a drawn line the run did not print").toContain(
       `${capturedOutput}.drawn.ingest[0]: ${promise}`,
     );
+    expect(isCapturedOutput(redrawn, `${capturedOutput}.drawn.ingest[0]`, promise)).toBe(false);
   });
 });
 
@@ -1111,12 +1117,17 @@ describe("README, its graphics", () => {
 
     const drawn = demo["drawn"] as Record<string, string[]>;
 
-    for (const line of drawn["ingest"] ?? []) {
-      expect(quickStart, line.slice(0, 60)).toContain(line.slice(0, 60));
-    }
+    for (const step of ["ingest", "search"]) {
+      const output = String((demo[step] as Record<string, unknown>)["output"]);
+      const printed = output.split("\n");
 
-    for (const line of (drawn["search"] ?? []).slice(0, 10)) {
-      expect(quickStart, line.slice(0, 60)).toContain(line.slice(0, 60));
+      for (const line of drawn[step] ?? []) {
+        expect(printed, `${step}: a drawn line is a line the run printed`).toContain(line);
+      }
+
+      for (const line of printed) {
+        expect(quickStart, line.slice(0, 60)).toContain(line.slice(0, 60));
+      }
     }
   });
 
