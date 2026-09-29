@@ -72,14 +72,14 @@ Reports: `reports/2026-09-29-step-N-<name>.md`. No network call to a real provid
 Evidence rule as above. Report: `reports/2026-09-29-step-10-review-round.md`. Commit in small steps on
 `feature/core-hybrid-search`: the commits are part of the implementer's work.
 
-- [ ] 10.1 Major 1, tests first: a PDF above 500 pages is refused from its page count before any text is extracted;
+- [x] 10.1 Major 1, tests first: a PDF above 500 pages is refused from its page count before any text is extracted;
       prove it with a spy on the text extraction that records zero calls for the refused file; paste the red run
-- [ ] 10.2 Major 2, tests first: the requirement "A remote libSQL database authenticates with its token" with its two
+- [x] 10.2 Major 2, tests first: the requirement "A remote libSQL database authenticates with its token" with its two
       scenarios; `.env.example` and `docs/search.md` name `TURSO_AUTH_TOKEN` with an empty value
-- [ ] 10.3 Major 3: the keyword-only and meaning-only tests isolate their ranking. Prove it by mutation: with the
+- [x] 10.3 Major 3: the keyword-only and meaning-only tests isolate their ranking. Prove it by mutation: with the
       vector branch disabled the meaning-only test fails, with the keyword branch disabled the keyword-only test fails,
       and both pass with the real search; paste the three runs. Correct the reports whose figures contradict the
       real corpus
-- [ ] 10.4 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 10.4 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`;
       append the round to `katalis-dev/tasks/entrega-community-02.md` under its own heading with `## Issues`
