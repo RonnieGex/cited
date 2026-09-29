@@ -70,3 +70,20 @@ and the documentation SHALL say that Turso is not supported yet.
 - **WHEN** the spike runs
 - **THEN** its report shows the exact statements and results for vectors and FTS5, and `design.md` records the choice
   before any other code of the store exists
+
+### Requirement: A remote libSQL database authenticates with its token
+
+When the store URL is remote (`libsql://`, `https://` or `wss://`), the store SHALL pass `TURSO_AUTH_TOKEN` to the libSQL
+client, SHALL stop before any query with a message that names `TURSO_AUTH_TOKEN` when it is empty, and SHALL never print
+its value. A local `file:` URL SHALL need no token. (Added by Fable after `revision-community-02.md`: the documentation
+promised Turso and the code could not authenticate to it.)
+
+#### Scenario: A remote URL without its token
+
+- **WHEN** the store URL is `libsql://example.turso.io` and `TURSO_AUTH_TOKEN` is empty
+- **THEN** the store stops before any network call, and the message names `TURSO_AUTH_TOKEN` and not a value
+
+#### Scenario: A remote URL with its token
+
+- **WHEN** the store URL is remote and `TURSO_AUTH_TOKEN` is set
+- **THEN** the libSQL client is created with that URL and that token as `authToken`, proved with a double of the client
