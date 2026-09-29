@@ -61,15 +61,22 @@ passages: 11
 passages_fts: 11
 passages_fts_config: 1
 passages_fts_content: 11
-passages_fts_data: 3
+passages_fts_data: 7
 passages_fts_docsize: 11
-passages_fts_idx: 1
-rate_limits: 2
+passages_fts_idx: 5
+rate_limits: 1
 ```
 
 The store of the quick start is the same one of task 1.1 with the two tables of this change added and empty: the
-four documents, the eleven passages and the counters of the quick start are untouched, because every test and every
-run of this change points `DATABASE_URL` at a store of its own.
+four documents and the eleven passages of the sample corpus are untouched, because every test and every run of this
+change points `DATABASE_URL` at a store of its own.
+
+**Correction, added in task 9.1.** The counts of the two counters of the quick start moved after this run, and it
+was not this change: `node scripts/render-readme-graphics.mjs` runs the quick start again to draw the demo and
+patches the README with what it printed, so it wrote one more rate limit row and one more model call in
+`.data/katalis.sqlite`. The table grew two more internal rows of `passages_fts_data` and `passages_fts_idx` with the
+same eleven passages, which is the index the same corpus re-ingested. The measurement above is the one of this task
+at `2bb7373`; the ones of the file after the render are reported in task 5.2 of the final run.
 
 ## Commit of this task
 

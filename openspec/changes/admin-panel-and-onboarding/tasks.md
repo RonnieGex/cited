@@ -64,5 +64,5 @@ secret, no customer data. No network call to a real provider in any test.
 
 - [x] 9.1 `docs/admin.md`; the README status row and one real capture of the panel; the Spanish twin — report:
       `reports/2026-09-29-step-9-docs.md`
-- [ ] 9.2 The delivery `katalis-dev/tasks/entrega-community-07.md` in Spanish with the captures and `## Issues` —
+- [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-07.md` in Spanish with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
