@@ -95,9 +95,12 @@ const graphics = {
   },
 };
 const socialPreview = `${imagesDirectory}/social-preview.png`;
-const katalisLogo = {
-  light: `${imagesDirectory}/katalis-logo.png`,
-  dark: `${imagesDirectory}/katalis-logo-dark.png`,
+// The mark of the maker is the flame of `public/brand/`, the same image every Katalis product uses: the original for
+// the dark theme and the ink variant the script renders for the light one. The invented
+// `docs/images/katalis-logo*.png` of the first round is gone and the guard of the render scripts refuses it.
+const katalisFlame = {
+  dark: "public/brand/katalis-flame-192.png",
+  light: "public/brand/katalis-flame-ink-192.png",
 };
 const bannerRecordPath = `${imagesDirectory}/readme-banner.json`;
 const graphicsRecordPath = `${imagesDirectory}/readme-graphics.json`;
@@ -157,7 +160,6 @@ const artDirection = {
     "voice-teaser-light.png",
   ],
   terminalCanvases: ["demo-light.png"],
-  marks: ["katalis-logo.png", "katalis-logo-dark.png"],
 };
 
 const binaryExtensions = new Set([
@@ -570,7 +572,7 @@ describe("README, the banner", () => {
     expect(readText("README.md")).toContain(tagline as string);
   });
 
-  it("records the brand tokens and the font, and the font is not a file of the repository", () => {
+  it("records the brand tokens and the font, and the font of the repository is Outfit", () => {
     const tokens = recorded(bannerRecordPath)["tokens"] as Record<string, string>;
     const font = recorded(bannerRecordPath)["font"] as Record<string, string>;
 
@@ -578,10 +580,22 @@ describe("README, the banner", () => {
     expect(tokens["lime"]?.toLowerCase()).toBe("#ddf469");
     expect(font["name"]).toBe("Outfit");
     expect(font["loadedAtRenderTime"]).toBe(true);
-    expect(font["fileInRepository"]).toBe(false);
+    // Amended by the change `brand-and-design-system`: the render used to take Outfit from the Google Fonts
+    // stylesheet and the record said so. The family is a file of the repository now, under the SIL Open Font License,
+    // the render reads it from `public/fonts/outfit/` and it needs no network.
+    expect(font["fileInRepository"]).toBe(true);
+    expect(font["source"]).toBe("public/fonts/outfit/outfit-latin.woff2");
+    expect(existsSync(resolve(repositoryRoot, font["source"] ?? "")), font["source"]).toBe(true);
+
+    const fonts = trackedFiles().filter((file) =>
+      fontExtensions.has(extname(file.path).toLowerCase()),
+    );
+
+    expect(fonts.length, "the font files of the repository").toBeGreaterThan(0);
     expect(
-      trackedFiles().filter((file) => fontExtensions.has(extname(file.path).toLowerCase())),
-    ).toEqual([]);
+      fonts.filter((file) => file.path.startsWith("public/fonts/outfit/")).length,
+      "every font file is the Outfit of the repository",
+    ).toBe(fonts.length);
   });
 });
 
@@ -1046,7 +1060,7 @@ describe("README, its graphics", () => {
     ...Object.values(graphics).map(
       (graphic): [string, string] => [graphic.dark, graphic.light],
     ),
-    [katalisLogo.dark, katalisLogo.light],
+    [katalisFlame.dark, katalisFlame.light],
   ];
 
   it("shows every graphic of the design in both themes, as a picture with its alt", () => {
@@ -1070,7 +1084,7 @@ describe("README, its graphics", () => {
     }
   });
 
-  it("keeps every image as a PNG under docs/images, 3 MB or less together", () => {
+  it("keeps every image as a PNG under docs/images or public/brand, 3 MB or less together", () => {
     const text = `${readText("README.md")}\n${readText("README.es.md")}`;
     const local = imagesOf(text).filter((image) => !image.startsWith("http"));
     const total = local.reduce((sum, image) => sum + sizeInBytes(image), 0);
@@ -1078,7 +1092,12 @@ describe("README, its graphics", () => {
     expect(local.length).toBeGreaterThanOrEqual(18);
 
     for (const image of local) {
-      expect(image.startsWith(imagesDirectory), image).toBe(true);
+      // Amended by the change `brand-and-design-system`: the foot of the README carries the flame of the maker, which
+      // lives with the brand of the repository in `public/brand/`, not with the graphics of the README.
+      expect(
+        image.startsWith(imagesDirectory) || image.startsWith("public/brand/"),
+        image,
+      ).toBe(true);
       expect(pngSize(image).width, image).toBeGreaterThan(0);
     }
 
@@ -1236,6 +1255,9 @@ describe("README, the art direction of its graphics", () => {
       ];
     }),
   );
+  // Amended by the change `brand-and-design-system`: the two marks of the foot are the flame of the maker, which
+  // lives with the brand in `public/brand/` and not with the graphics of the README in `docs/images/`.
+  const marks = [katalisFlame.dark, katalisFlame.light];
 
   it("keeps every canvas in the luminance bounds of the second art direction", () => {
     const table = files
@@ -1249,9 +1271,7 @@ describe("README, the art direction of its graphics", () => {
 
     console.log(`The luminance of every PNG of ${imagesDirectory}:\n${table}`);
 
-    expect(files).toEqual(
-      [...artDirection.canvases, ...artDirection.marks].sort(),
-    );
+    expect(files).toEqual([...artDirection.canvases].sort());
 
     const lightDark = artDirection.darkCanvases
       .map((name) => ({ name, value: measured.get(name)?.luminance ?? 1 }))
@@ -1259,17 +1279,29 @@ describe("README, the art direction of its graphics", () => {
     const darkLight = artDirection.lightCanvases
       .map((name) => ({ name, value: measured.get(name)?.luminance ?? 0 }))
       .filter((entry) => entry.value < artDirection.lightMinimum);
-    const paintedMarks = artDirection.marks
-      .map((name) => ({ name, value: measured.get(name)?.transparent ?? 0 }))
+    const paintedMarks = marks
+      .map((path) => ({
+        path,
+        value: transparentShare(decodePng(readFileSync(resolve(repositoryRoot, path)))),
+      }))
       .filter((entry) => entry.value < 0.05);
     const exempted = artDirection.canvases.filter(
       (name) =>
         name.endsWith("-light.png") && artDirection.lightCanvases.includes(name) === false,
     );
 
+    console.log(
+      `The transparency of the flame: ${marks
+        .map(
+          (path) =>
+            `${path} ${transparentShare(decodePng(readFileSync(resolve(repositoryRoot, path)))).toFixed(3)}`,
+        )
+        .join(", ")}`,
+    );
+
     expect(lightDark.map((entry) => `${entry.name} ${entry.value.toFixed(3)}`)).toEqual([]);
     expect(darkLight.map((entry) => `${entry.name} ${entry.value.toFixed(3)}`)).toEqual([]);
-    expect(paintedMarks.map((entry) => `${entry.name} transparent ${entry.value.toFixed(3)}`)).toEqual(
+    expect(paintedMarks.map((entry) => `${entry.path} transparent ${entry.value.toFixed(3)}`)).toEqual(
       [],
     );
     expect(exempted, "only the demo of the dark terminal leaves the light bound").toEqual(
@@ -1316,7 +1348,7 @@ describe("README, the flow and the foot", () => {
     expect(linksOf(body)).toContain("NOTICE");
     expect(body).toContain("Built by Katalis");
     expect(body).toContain("https://katalis.dev");
-    expect(body).toContain(katalisLogo.light);
+    expect(body).toContain(katalisFlame.light);
     expect(h2Titles(text).at(-1)).toBe(slug("License"));
   });
 });
