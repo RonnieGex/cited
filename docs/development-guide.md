@@ -84,6 +84,12 @@ openspec/             # proposals, specs and change reports
 scripts/              # local tooling
 ```
 
+`.claude/agents`, `.codex/agents` and `.cursor/agents` are Git symbolic links to `ai-specs/agents`. A Windows
+checkout without the symlink privilege materialises them as plain text files that hold the target
+(`core.symlinks=false`), so `tests/personal-paths.test.ts` asks git for the mode of every tracked path
+(`git ls-files -s`) instead of trusting the working tree: it checks a link by its target, a regular file by its
+content and skips a binary file, and the scan behaves the same on Linux, macOS and Windows.
+
 ## 7. Working order
 
 1. Read `docs/katalis-sdd-standard.md` and `docs/openspec-tasks-mandatory-steps.md`.
