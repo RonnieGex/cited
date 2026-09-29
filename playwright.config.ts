@@ -9,9 +9,6 @@ import {
   E2E_AFFILIATE_URL,
   E2E_BASE_URL,
   E2E_DATABASE_URL,
-  E2E_KEYS_BASE_URL,
-  E2E_KEYS_DATABASE_URL,
-  E2E_KEYS_PORT,
   E2E_PORT,
 } from "./e2e/admin-fixtures";
 

@@ -87,9 +87,9 @@ reproduced.
       section
 - [x] 10.4 Major: the pages follow the amended proposal (no variable name outside "For the installer"), with a test that
       reads every panel page — report: the one of this section
-- [ ] 10.5 Major: the E2E with affiliate links on, and the read of every `/api/admin/*` response and of the store for
+- [x] 10.5 Major: the E2E with affiliate links on, and the read of every `/api/admin/*` response and of the store for
       the saved key, as 6.1 asked — report: the one of this section
-- [ ] 10.6 Major (a gap of Fable's contract): the state of the store before and after this change (tables and row
+- [x] 10.6 Major (a gap of Fable's contract): the state of the store before and after this change (tables and row
       counts, the new table empty before and as expected after), with the exact commands — report: the one of this
       section
 - [ ] 10.7 Minors: the count of commits in the delivery, and gitleaks recorded for every commit of this round —

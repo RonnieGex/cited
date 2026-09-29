@@ -12,7 +12,7 @@ import {
   resolveChat,
   resolveEmbeddings,
 } from "@/lib/settings/providers";
-import { openStore, type Store } from "@/lib/store";
+import { openStore, storeTables, type Store } from "@/lib/store";
 
 // Requirement "The server wins over the panel" of `specs/provider-settings/spec.md` and decisions 3 and 5 of
 // `design.md`: one resolver reads the provider of the answers and of the ingestion, a value set on the server wins,
@@ -283,5 +283,26 @@ describe("resolveEmbeddings", () => {
     await expect(
       resolveEmbeddings({ environment: { EMBEDDINGS_PROVIDER: "lo-que-sea" }, store }),
     ).rejects.toThrowError(/EMBEDDINGS_PROVIDER must be one of/);
+  });
+});
+
+describe("the tables this change added", () => {
+  it("says which ones the store has to carry, for the reader of the state", () => {
+    // Task 10.6 of the contract: `scripts/store-state.ts` prints the tables of the schema, and this list is the one
+    // it reads. The three names of the end are the ones this change added to the schema.
+    expect(storeTables).toContain("documents");
+    expect(storeTables).toContain("passages");
+    expect(storeTables).toContain("passages_fts");
+    expect(storeTables).toContain("rate_limits");
+    expect(storeTables).toContain("model_calls");
+    expect(storeTables).toContain("conversations");
+    expect(storeTables).toContain("login_attempts");
+    expect(storeTables).toContain("business");
+    expect(storeTables.slice(-3)).toEqual([
+      "provider_settings",
+      "provider_tests",
+      "document_index",
+    ]);
+    expect(new Set(storeTables).size).toBe(storeTables.length);
   });
 });

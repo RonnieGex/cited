@@ -298,3 +298,132 @@ npm test
       Tests  451 passed (451)
  Duration  21.62s
 ```
+
+## 10.5 Major M-4: the affiliate switch on, and every administrative answer read
+
+**The finding.** Task 2.3 asked for an E2E of the affiliate links on and off, and task 7.1 asked for it complete; only
+the `off` case existed. And task 6.1 claimed "every `/api/admin/*` response" while its report visited eight of the
+fifteen routes of the tree. Codex marked both as a Major because the evidence did not support the mark.
+
+### What was missing, and why the `on` case could not exist
+
+No affiliate URL is committed in this change (decision 6 of `design.md`), so the browser could only ever show the
+`off` path. The door that was missing is the one whoever joins a programme needs: the catalogue now reads the address
+of a programme from the environment, `<PROVIDER>_AFFILIATE_URL`, and `affiliateUrlOf()` is its only reader. The browser
+suite of `e2e/affiliate.spec.ts` writes a virtual address of the documentation there and sees the label in a real
+browser.
+
+### The fix
+
+- `lib/providers/catalog.ts`: `affiliateUrlOf()`, fed by `DEEPSEEK_AFFILIATE_URL` and its siblings.
+- `playwright.config.ts` and `e2e/admin-fixtures.ts`: a third service of the panel (port 3215, its own store, its own
+  encryption key) with `AFFILIATE_LINKS=on` and `DEEPSEEK_AFFILIATE_URL` set; `workers: 1`, because the suite of the
+  keys and the new one serve their provider double on the same port 3216; and `ALLOW_LOCAL_PROVIDERS=1` in the
+  environment of the two services whose provider is the local double, which the rule of the address asks of an
+  installation with a provider on its own machine.
+- `e2e/affiliate.spec.ts` (new): the labelled link before the click and the plain link nowhere, then the save of a key
+  and the read of **every** route of `/api/admin/*` — the fifteen of the tree, with the method and the body each one
+  needs, including the ones the review listed as never read (`providers` DELETE, `reindex`, `documents/delete`,
+  `documents/reingest`, `setup/test`, `logout`, `business/logo` and `conversations/delete`) — plus the pages of the
+  panel, the raw bytes of the store and the row of `provider_settings` through `node:sqlite`.
+- `tests/affiliate-links.test.ts` (new): the guard of that list. It walks `app/api/admin/**/route.ts` and fails if one
+  of them is not written in the spec, so a route added later cannot go unread; and it proves the four combinations of
+  the affiliate switch.
+- `.env.example` and `docs/providers.md`: the variable of the programme and how it is read.
+
+### Green after the fix
+
+```text
+npx playwright test --reporter=list
+  ok 29 [affiliate] › e2e\affiliate.spec.ts:94:5 › the affiliate link is labelled before the click and the plain link is nowhere
+  ok 30 [affiliate] › e2e\affiliate.spec.ts:119:5 › the key is tested, saved, and never comes back in any response nor in the store
+  30 passed (40.1s)
+```
+
+The count of the browser suite went from 28 to 30: the two cases of the new service.
+
+## 10.6 Major M-5: the state of the store before and after
+
+**The finding.** The reports of steps 1 and 8 recorded `git status`, the tests, the types, the lint and OpenSpec, and
+never the tables, the row counts or the state of the database. The standard of the change distinguishes the state of
+Git from the state of the database: one does not prove the other.
+
+### The tool
+
+`scripts/store-state.ts` (new), with `npm run store:state`: it opens the store the application uses — `openStore()`
+creates the tables that are missing, which is what the first query does — and then reads the file in read-only mode to
+print every table with its row count and to mark the ones this change added. `lib/store/index.ts` exports `storeTables`
+so the reader and the test of the schema share one list.
+
+### Before
+
+```text
+$ git show 71f08f0:lib/store/index.ts | Select-String 'CREATE TABLE|CREATE VIRTUAL TABLE'
+CREATE TABLE IF NOT EXISTS documents (
+CREATE TABLE IF NOT EXISTS passages (
+CREATE VIRTUAL TABLE IF NOT EXISTS passages_fts USING fts5(text)
+CREATE TABLE IF NOT EXISTS rate_limits (
+CREATE TABLE IF NOT EXISTS model_calls (
+CREATE TABLE IF NOT EXISTS conversations (
+CREATE TABLE IF NOT EXISTS login_attempts (
+CREATE TABLE IF NOT EXISTS business (
+
+$ git show 71f08f0:lib/store/index.ts | Select-String 'provider_settings|provider_tests|document_index' | Measure-Object
+Count: 0
+```
+
+**Eight tables, and none of the three this change adds.** The state of a fresh store of that version, read with the
+reader of today:
+
+```text
+$ node scripts/store-state.ts .data/step-10-before.sqlite
+store: .data/step-10-before.sqlite
+tables: 12 (plus the 5 of the full-text index)
+  documents rows=0
+  passages rows=0
+  passages_fts rows=0
+  rate_limits rows=0
+  model_calls rows=0
+  conversations rows=0
+  login_attempts rows=0
+  business rows=0
+  provider_settings rows=0 (added by this change)
+  provider_tests rows=0 (added by this change)
+  document_index rows=0 (added by this change)
+rows of the tables this change added: 0
+```
+
+### After
+
+A key is sealed and saved in that store (a throwaway script of the run, deleted afterwards; the key and the master key
+are strings of the verification and live only in the process), and the state is read again:
+
+```text
+$ node scripts/store-state.ts .data/step-10-before.sqlite
+store: .data/step-10-before.sqlite
+tables: 12 (plus the 5 of the full-text index)
+  documents rows=0
+  passages rows=0
+  passages_fts rows=0
+  rate_limits rows=0
+  model_calls rows=0
+  conversations rows=0
+  login_attempts rows=0
+  business rows=0
+  provider_settings rows=1 (added by this change)
+  provider_tests rows=0 (added by this change)
+  document_index rows=0 (added by this change)
+rows of the tables this change added: 1
+```
+
+```text
+$ node -e "…SELECT provider, model, key_ciphertext, key_last4 FROM provider_settings…"
+provider=deepseek model=deepseek-flash last4=4321
+ciphertext starts with v1: true
+ciphertext carries the key: false
+ciphertext length: 89
+```
+
+The table this change added is empty before the change and carries the row the save writes after it, with the ciphertext
+and never the key. The disposable worktree that held the version before the change was removed and pruned
+(`git worktree list` no longer shows `.tmp-store-before`).

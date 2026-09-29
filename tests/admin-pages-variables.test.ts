@@ -8,7 +8,6 @@ import AdminAi from "@/app/admin/ai/page";
 import AdminBusiness from "@/app/admin/business/page";
 import AdminConversations from "@/app/admin/conversations/page";
 import AdminDocuments from "@/app/admin/documents/page";
-import { closeSharedStores } from "@/lib/store/instance";
 import { ADMIN_SECRET, cleanup, environmentOf, setEnvironment } from "./admin-helpers";
 
 // Section 10.4 of the contract, the Major M-3 of `katalis-dev/tasks/revision-community-12.md` and the amendment of

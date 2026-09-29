@@ -98,6 +98,22 @@ const schemaStatements = [
 const searchableToken = /[\p{L}\p{N}]+/gu;
 const remoteProtocol = /^(libsql|https?|wss?|ws):/;
 
+// The tables of the schema, for whoever reads the state of a store without opening the application
+// (`scripts/store-state.ts`, task 10.6 of the contract of the keys in the panel).
+export const storeTables = [
+  "documents",
+  "passages",
+  "passages_fts",
+  "rate_limits",
+  "model_calls",
+  "conversations",
+  "login_attempts",
+  "business",
+  "provider_settings",
+  "provider_tests",
+  "document_index",
+];
+
 type Row = Record<string, unknown>;
 
 export type StoreOptions = {
