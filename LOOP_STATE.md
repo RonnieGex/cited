@@ -1,115 +1,86 @@
 # LOOP_STATE · Katalis Responde Community
 
 STATUS: DONE
-CHANGE: codeql-when-public (OpenSpec)
-BRANCH: feature/codeql-when-public
-BASE: efdda14 (main)
+CHANGE: core-hybrid-search (OpenSpec)
+BRANCH: feature/core-hybrid-search
+BASE: 2e1e580 (main)
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
 ## Objective
 
-Execute the contract `openspec/changes/codeql-when-public/tasks.md`, written by Fable, in order, with the evidence of
-every task in `openspec/changes/codeql-when-public/reports/`. The defect: the first CodeQL run of `main`
-(`36511364255`) analyzed the code and then failed at the upload, "Code scanning is not enabled for this repository",
-because GitHub accepts code scanning uploads from a private repository only with a paid plan (the workflow of `main`
-was red on every push for a reason unrelated to the code). The change is one job-level condition,
-`if: ${{ !github.event.repository.private }}`, so the analysis job is reported as skipped, not failed, while the
-repository stays private, and it runs unchanged once change 7 makes it public.
+Execute the review round of the contract `openspec/changes/core-hybrid-search/tasks.md`, section 10, written by Fable
+after the adversarial review `katalis-dev/tasks/revision-community-02.md` (0 Blockers, 3 Majors). The three Majors were
+reproduced first and corrected tests first, in small commits, each `[x]` with its report.
 
 ## What was delivered
 
-- **Step 0**: the branch and its base confirmed: `feature/codeql-when-public` over `efdda14` (`main`), with the
-  contract of Fable as its only commit and a clean tree.
-- **Step 1**: the state of the base. The failing run of `main` on GitHub (`gh run view 36511364255 --log-failed`) is
-  quoted with the upload error, the run is `failure` on the push of `efdda14`, and the local suite and the strict
-  validation are measured green at the base. The repository has no database: no tracked file with a database
-  extension, no `migrations/`, no datastore dependency among the eighteen declared packages.
-- **Step 2**: the red. `tests/codeql-workflow.test.ts` was written first, with a strict reader of the YAML subset the
-  workflows use (no YAML library is declared, and the change adds no dependency); four assertions, one per scenario
-  of the spec delta. It failed on Windows and in the disposable `node:24` container with one single failure: the
-  missing condition. The three assertions of what must not change were green in both.
-- **Step 3**: the fix. One line on the analysis job of `.github/workflows/codeql.yml`. The file was cross-checked with
-  `npx --yes js-yaml` (exit 0), which reads the condition as the string `${{ !github.event.repository.private }}` and
-  reads the triggers, the permissions, the languages and the queries exactly as the contract test does. The test and
-  the whole suite went green.
-- **Step 4**: the whole suite green on Windows and in the container: 3 files, 13 tests (the base had 9). The only test
-  file that changes is the new one; `tests/home.test.tsx` and `tests/personal-paths.test.ts` are untouched.
-- **Step 5**: every check green on both platforms: `npm test`, `npm run typecheck`, `npm run lint`, gitleaks over the
-  whole history with the command of the pipeline, `openspec validate --all --strict`, `git diff --check`, plus
-  `npm run build` on Windows. `actionlint` is not installed on this machine and the contract asks for it only if it
-  is; the syntax is covered locally by the two YAML parsers.
-- **Step 6**: no route or server behaviour changed, so `curl` does not apply; the changed-file list is in the report.
-- **Step 7**: the page does not change, so the end-to-end suite has nothing of this change to exercise; said so, with
-  the empty diff of `app/` and `e2e/`.
-- **Step 8**: the state after is the state before plus one line of a workflow, one test file, one row of
-  documentation and the reports: no database, no package added, no application file touched.
-- **Step 9**: the row that `docs/security.md` owns now states when CodeQL runs and why it is skipped while the
-  repository is private. This delivery is `katalis-dev/tasks/entrega-community-00g.md`, in Mexican Spanish.
+- **10.1, Major 1**: `tests/ingest.test.ts` spies on `PDFParse#getText()` and proves zero calls for a PDF refused by
+  its page count. `parsePdf` asks `getInfo()` for the count first and only then extracts the text; `parseFile` passes
+  `limits.maxPages` down, so the check no longer runs after the extraction.
+- **10.2, Major 2**: `tests/store-remote.test.ts` doubles the libSQL client and covers both scenarios of the new
+  requirement: a remote URL with an empty `TURSO_AUTH_TOKEN` stops before a client exists, a remote URL with a token
+  creates the client with it as `authToken`, and a local `file:` URL needs none. `.env.example` and `docs/search.md`
+  name the variable and say when it is required.
+- **10.3, Major 3**: the keyword-only test uses `mantenimiento` (the keyword ranking puts its passage first and the
+  vector ranking does not) and the meaning-only test uses `¿Aceptan reprogramaciones gratuitas avisando
+  anticipadamente?` (the keyword ranking is empty). With the vector branch disabled only the meaning-only test fails;
+  with the keyword branch disabled only the keyword-only test fails; both pass with the real search. The step 3 and
+  step 4 reports whose figures contradicted the real corpus are corrected.
+- **10.4**: the battery is green on Windows and in a `node:24` Linux container with `--network none`; the round is
+  appended to `katalis-dev/tasks/entrega-community-02.md` under its own heading with `## Issues`.
 
-All the eleven boxes of the contract that belong to this execution are `[x]`, every one with its report; task 10.1
-stays `[BLOCKED]` and reserved for Fable; the text of no task and no line of the spec delta was edited.
+The report with every command, commit and real output is
+`openspec/changes/core-hybrid-search/reports/2026-09-29-step-10-review-round.md`. The four boxes 10.1 to 10.4 are `[x]`
+and the diff of `tasks.md` is four `[ ]` converted into `[x]`: the text of no task was edited.
 
-## Commits (all on feature/codeql-when-public, none in main)
+## State of the tree
+
+The tree is clean on `feature/core-hybrid-search`. `main` still points at `2e1e580`, no remote was contacted, nothing
+was pushed and nothing was archived.
+
+## Commits of the round (all on feature/core-hybrid-search, none in main)
 
 | SHA | Message |
 |---|---|
-| `bf461eb` | docs(codeql-when-public): report the documentation step and mark the contract |
-| `36deb70` | docs(codeql-when-public): state when CodeQL runs and report the state after |
-| `10aafd4` | docs(codeql-when-public): report the checks and the steps that do not apply |
-| `59c369b` | docs(codeql-when-public): report the green suite on both platforms |
-| `10ba77f` | ci(codeql-when-public): skip the CodeQL analysis while the repository is private |
-| `b43f5a1` | test(codeql-when-public): add the contract test of the codeql workflow |
-| `1c14bd6` | chore(codeql-when-public): set the state file to running and report the base state |
+| `e033c8b` | chore(core-hybrid-search): open the review round of the contract |
+| `ee7f411` | test(core-hybrid-search): spy the pdf text extraction before the page limit |
+| `dc81a18` | fix(core-hybrid-search): refuse a pdf by its page count before extracting text |
+| `5eaed5f` | test(core-hybrid-search): prove a remote store needs and uses its token |
+| `ce205c5` | feat(core-hybrid-search): authenticate a remote libSQL store with its token |
+| `17a2989` | docs(core-hybrid-search): document the page count check and the store token |
+| `2435664` | test(core-hybrid-search): isolate the keyword-only and meaning-only rankings |
+| `c66d71a` | docs(core-hybrid-search): correct the corpus figures of the search reports |
+| `f119d0c` | docs(core-hybrid-search): report the review round of the contract |
+| `f79d62c` | chore(core-hybrid-search): mark the review round of the contract |
 
-`789c2c8` ("Specify running CodeQL only while the repository is public") is the commit of Fable that carries the
-contract, and the branch starts there. The closing commit of this execution carries this state file with the result of
-the closing battery, and it is named in the delivery.
+The closing commit carries this state file; a commit cannot list its own hash, so the table stops at the ten commits of
+the work itself.
 
-## Evidence
+## Closing battery
 
-`openspec/changes/codeql-when-public/reports/` holds one report per step, with the exact command, the commit and the
-real output: `2026-09-29-step-0-branch.md`, `-step-1-base-before.md`, `-step-2-tests-first.md`,
-`-step-3-implementation.md`, `-step-4-existing-tests.md`, `-step-5-checks.md`, `-step-6-curl.md`, `-step-7-e2e.md`,
-`-step-8-base-after.md` and `-step-9-docs.md`.
+Windows 11, Node `v24.11.0`, clean tree: `npm test` 10 files and 72 tests passed, `npm run typecheck`, `npm run lint`,
+`npm audit --audit-level=high` (0 vulnerabilities), `npm run secrets:scan` (62 commits, no leaks found),
+`openspec validate --all --strict` (4 passed) and `git diff --check main...HEAD` all exit 0. Linux x64, image
+`node@sha256:64af3819f9275802414d7cdc38c27e9d82bd564dec4d4da87d008255d36c63b4`, Node `v24.21.0`, native clone of the
+closing tree outside the repository: `npm ci` installed 496 packages with 0 vulnerabilities and `npm test` passed 10
+files and 72 tests with `--network none`.
 
 ## Hard rules respected
 
-- No Lufga source material and no licensed font file: nothing of the sort was downloaded, copied or added.
-- No personal path: the reports and the documents use relative paths and elide the absolute path the tools print; the
-  tracked-file scan of the suite passes on the tree that carries them.
-- No `.env` file was opened; not even `.env.example`.
-- No push: the remote was never contacted, and `git rev-parse origin/main` still points at the base.
-- No commit in `main`: `main` stays at `efdda14`.
-- No archive: `openspec/changes/archive/` keeps its entries of the earlier changes, and this change is not archived.
-- No repository setting was touched: enabling code scanning belongs to the launch (decision 3 of the design).
-- UTF-8 with LF in every file written or modified.
+- No `.env` file was opened: only the tracked template with empty values, which the task asks to keep updated.
+- No push, no remote, no commit in `main`, no archive.
+- No call to a real provider and no call to Turso: the suite uses the deterministic fake provider, one HTTP double on
+  `127.0.0.1` and a doubled libSQL client module.
+- No secret, no client data and no text of the Construye book in any file; no personal path in any tracked file.
+- No `MEMORY.md` in any commit.
+- UTF-8 with LF in every file written or modified; `git ls-files --eol` reports no CRLF and no mixed ending.
 
 ## Pending and out of scope
 
-- UNKNOWN, by the rules of this mission: the CI of the branch on GitHub and the GitHub-side validation of the
-  workflow schema. A push is forbidden here, so the suite, the checks and the container run were verified on a
-  disposable `node:24` container that reproduces the runner, not on a GitHub runner.
-- BLOCKED, owner Fable: task 10.1, "Push `main` and confirm the CodeQL run is reported as skipped, not failed". It is
-  reserved for Fable and requires the merge and the push this mission does not authorize.
-- RISK: this machine runs Node 24.11.0 while the declared floor is 24.15.0, so `npm ci` prints `EBADENGINE` warnings
-  about the root package and about jsdom. Inherited from the bootstrap change and not affected by this one.
-- RISK: a hand-written reader of the YAML subset is what the contract test uses, because no YAML library is declared
-  and the proposal adds no dependency. It throws instead of guessing, and its reading of `codeql.yml` was
-  cross-checked against `js-yaml` and against the file itself.
-- RISK inherited and unchanged: on a Windows clone without the symlink privilege, `.claude/agents`, `.codex/agents`
-  and `.cursor/agents` stay as text files with the target path, so the canonical definitions do not materialise as a
-  folder there.
-
-## Closing
-
-The closing battery ran on `bf461eb`, the commit that marks the last task, with a clean tree, and every check is
-green on the two platforms: `npm test` 3 files and 13 tests passed; `npm run typecheck`, `npm run lint` and
-`git diff --check` with exit code 0; `openspec validate --all --strict` with 4 passed and 0 failed; `npm run build`
-green on Windows; and gitleaks over the whole history, with the command and the release of the pipeline, 37 commits
-scanned and no leaks found on Windows and in the `node:24` container. `git ls-files --eol` reports no CRLF and no
-mixed line ending, every file written by this change is UTF-8 without BOM, `main` and `refs/remotes/origin/main` still
-point at `efdda14`, and `openspec/changes/archive/` keeps its two earlier entries, without this change.
-
-The commit that carries this file records the closing battery; its SHA is named in the delivery
-`katalis-dev/tasks/entrega-community-00g.md`, in Mexican Spanish, with its `## Issues` section.
+- **NOT DONE**: the GitHub pipeline, because a push is forbidden here; the equivalent battery ran locally on Windows
+  and in the disposable `node:24` container.
+- **NOT DONE, reserved for Fable and Codex**: the independent confirmation of the three Majors, the archive of the
+  change and its merge. Archiving needs the explicit OK of Franc.
+- **UNKNOWN**: the behaviour of a real Turso database (the contract of the client is proved with a double, never the
+  network) and the quality of a real embeddings provider on a real corpus, which the plan already names as a risk.

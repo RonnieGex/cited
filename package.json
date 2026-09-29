@@ -16,13 +16,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "ingest": "node --env-file-if-exists=.env scripts/ingest.ts",
+    "search": "node --env-file-if-exists=.env scripts/search.ts",
     "audit:high": "npm audit --audit-level=high",
     "secrets:scan": "gitleaks git --redact --no-banner",
     "hooks:install": "node scripts/install-hooks.mjs",
     "openspec:validate": "openspec validate --all --strict"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "mammoth": "^1.13.0",
     "next": "16.3.6",
+    "pdf-parse": "^2.4.5",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
