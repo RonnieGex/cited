@@ -336,6 +336,29 @@ describe("connecting a provider", () => {
     expect(screen.getByRole("button", { name: english.saveKey })).toBeDisabled();
   });
 
+  it("answers a refused address in the words of the owner and links For the installer", async () => {
+    // Requirement "The owner never reads a variable name in an answer of the panel" (task 11.3): the code
+    // `address_not_allowed` is the whole answer of the route, and the page is what turns it into a sentence of the
+    // owner and a link to the only page that names the variable of whoever installs.
+    stubFetch({
+      status: 400,
+      body: { status: "address_not_allowed", ok: false, reason: "address_not_allowed" },
+    });
+
+    render(<ProviderConnect encryptionReady entries={chat} kind="chat" strings={english} />);
+
+    fireEvent.change(screen.getByLabelText(english.providerLabel), { target: { value: "ollama" } });
+    fireEvent.click(screen.getByRole("button", { name: english.testKey }));
+
+    const alert = await screen.findByRole("alert");
+
+    expect(alert).toHaveTextContent(english.reasonAddressNotAllowed);
+    expect(alert.textContent).not.toContain("ALLOW_LOCAL_PROVIDERS");
+    expect(
+      within(alert).getByRole("link", { name: english.reasonAddressNotAllowedLink }),
+    ).toHaveAttribute("href", "/admin");
+  });
+
   it("tests and saves a good key, then shows only the last four characters", async () => {
     const fetched = stubFetch(
       { status: 200, body: { status: "ok", ok: true, model: "gpt-4o-mini", latencyMs: 120 } },
