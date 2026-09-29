@@ -48,7 +48,7 @@ blocking, unless the evidence is missing or contradicts the mark. Reports: `repo
 
 ## 9. Documentation
 
-- [ ] 9.1 One line in `docs/security.md` on when CodeQL runs and why; the delivery
+- [x] 9.1 One line in `docs/security.md` on when CodeQL runs and why; the delivery
       `katalis-dev/tasks/entrega-community-00g.md` in Spanish with `## Issues` — report: `reports/2026-09-29-step-9-docs.md`
 
 ## 10. After merge (Fable)
