@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import { Chat } from "@/components/chat";
 import { LANG_COOKIE } from "@/lib/i18n/language";
 import { PUBLIC_STRINGS } from "@/lib/i18n/public";
-import { FLAME, LOGO_ENDPOINT, readPublicBrand } from "@/lib/public/brand";
+import { FLAME, LOGO_ENDPOINT, PRODUCT_NAME, readPublicBrand } from "@/lib/public/brand";
 
 // The public page: the chat of the business, with its name, its logo and its primary color from the settings (the brand
 // of Cited when there are none yet). The requirement "Home page" of `specs/app-skeleton/spec.md` (MODIFIED) lives here:
@@ -38,6 +38,11 @@ export default async function Home() {
               className="h-12 w-auto"
             />
           ) : null}
+          {brand.name === PRODUCT_NAME ? null : (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/70">
+              {PRODUCT_NAME}
+            </p>
+          )}
           <h1 className="text-4xl font-bold tracking-[-0.02em] text-ink">{brand.name}</h1>
         </header>
 

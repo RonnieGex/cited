@@ -123,4 +123,75 @@ npx vitest run tests/theme.test.ts tests/public-page.test.tsx
 
 ### Commit
 
-The commit of this step is the one that carries this section, and its hash is written in the report of step 3.3.
+The commit of step 3.2 is `226a4fe` ("Build the public page: the brand of the settings, the chat and the language of
+the document"), read from `git log`.
+
+## 3.3 The widget, `/embed` and the headers (decisions 4 and 5), the session (decision 6)
+
+### What was written
+
+| Path | What it is |
+| --- | --- |
+| `lib/widget/script.ts` | The source of the widget: one floating button with an accessible name, an iframe of `/embed` built from the origin of the script itself, `Escape` closes it, the button toggles it, the script does nothing twice and asks in the language of the page that carries it. The strings come from `lib/i18n/public.ts` |
+| `scripts/build-widget.mjs` | `npm run build:widget`: writes `public/widget.js` from that source |
+| `public/widget.js` | The built widget, committed: 2175 bytes, under the 5 KB of the decision. `tests/widget.test.ts` fails when it drifts from its source |
+| `lib/headers/csp.ts` | `ALLOWED_ORIGINS` as a list of origins and nothing else, `frame-ancestors 'self'` on `/` and `'self'` plus the allowed origins on `/embed`, the policy with the nonce of Next, and the nonce itself |
+| `proxy.ts` | The proxy of the two public documents: it puts the policy and the nonce on the request and on the response. Its matcher is `/` and `/embed`, so the pages that carry no data of a visitor keep their policy untouched |
+| `app/embed/page.tsx` | The page of the widget: the same chat without the chrome, in the language of the visitor, with the primary color of the settings |
+| `package.json` | The script `build:widget` |
+| `lib/chat/session.ts` | Already in 3.1; the session of decision 6 is what `/` and `/embed` share through `sessionStorage` |
+
+### The commands
+
+```powershell
+npm run build:widget
+npx vitest run tests/widget.test.ts tests/csp.test.ts tests/embed.test.tsx tests/session.test.ts
+```
+
+### The output (verbatim)
+
+```text
+wrote public/widget.js (2175 bytes)
+```
+
+```text
+ RUN  v5.0.2 <repository root>
+
+ Test Files  4 passed (4)
+      Tests  25 passed (25)
+   Start at  10:11:15
+   Duration  1.86s (environment 73%, setup 12%, tests 6%, import 2%, worker 1%)
+```
+
+and after the fix of the isolation of the widget tests:
+
+```text
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  10:11:29
+   Duration  3.76s (environment 77%, setup 10%, tests 7%, transform 4%, import 2%, worker 1%)
+```
+
+### The decisions this section had to take
+
+1. **`style-src 'self' 'unsafe-inline'`.** The design asks for "a CSP without inline scripts other than Next's nonce",
+   and that is what the policy does: `script-src` carries the nonce and `'strict-dynamic'` and no `'unsafe-inline'`. The
+   primary color of the settings, however, is an inline style attribute (the CSS variable of decision 3), and CSP does
+   not cover a style attribute with a nonce, so the alternative was a second inline `<style>` element with the nonce on
+   every page. The policy therefore keeps the scripts strict and allows inline styles. It is recorded in the Issues of
+   the delivery.
+2. **The widget did not run twice.** The unit test loads it twice on purpose; the script asks for
+   `[data-cited=widget]` before it adds anything.
+3. **The isolation of the widget tests.** The listener of `Escape` lives on the `document`, which outlives the body of
+   a test, so a widget left open by one test answered the `Escape` of the next one and tried to remove a frame that its
+   own document no longer carried. The fix is in the test: it closes whatever is open before it cleans the document.
+   The first run of the tests of this step is the one that shows the unhandled error.
+4. **The `MODULE_TYPELESS_PACKAGE_JSON` notice.** `node scripts/build-widget.mjs` imports the TypeScript source
+   directly, which Node 24 strips, and it prints a notice about the missing `"type": "module"` of `package.json`. The
+   command exits 0 and the built file is byte for byte the one of the source; the notice is recorded rather than fixed,
+   because `"type": "module"` is a change of the whole package and this lane does not own it.
+
+### Commit
+
+The commit of this step is the one that carries this section and the sources above; its hash is written in the report of
+step 4.

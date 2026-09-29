@@ -29,7 +29,7 @@ secret, no customer data. No network call to a real provider in any test.
       `reports/2026-09-29-step-3-implementation.md`
 - [x] 3.2 The public page with the theme from the settings (decision 3) — report:
       `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.3 The widget, `/embed` and the headers (decisions 4 and 5), the session (decision 6) — report:
+- [x] 3.3 The widget, `/embed` and the headers (decisions 4 and 5), the session (decision 6) — report:
       `reports/2026-09-29-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests

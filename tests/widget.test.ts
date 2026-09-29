@@ -29,6 +29,9 @@ function load(origin: string, lang = "en"): void {
 }
 
 afterEach(() => {
+  // The listener of `Escape` lives on the document, so the widget of a test outlives the body that carried it: the
+  // first thing is to close whatever is open, and only then to clean the document of the next test.
+  fireEvent.keyDown(document, { key: "Escape" });
   document.head.innerHTML = "";
   document.body.innerHTML = "";
   document.documentElement.lang = "en";
