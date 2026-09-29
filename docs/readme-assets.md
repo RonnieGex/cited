@@ -34,8 +34,8 @@ READMEs together.
 
 ## 2. The graphics
 
-`scripts/render-readme-graphics.mjs` renders the nine graphics in **both themes** and writes
-`docs/images/readme-graphics.json`.
+`scripts/render-readme-graphics.mjs` renders the seven graphics in **both themes**, the social preview and the two
+Katalis marks, and writes `docs/images/readme-graphics.json`.
 
 ```
 node scripts/render-readme-graphics.mjs
@@ -47,22 +47,37 @@ What it does, in order:
    `DATABASE_URL` and no `TURSO_DATABASE_URL`, and keeps their real output;
 2. it renders every template of `scripts/readme-graphics/` with Playwright in light and dark and optimizes each PNG
    with `sharp` when it is installed (`next` brings it);
-3. it writes the record with the size, the state each graphic shows, its `Next` label when it shows a planned
-   capability, the roadmap rows, the tagline, the font, the tokens and the demo;
+3. it writes the record with the size, the headline and the copy each graphic draws, the state it shows, its `Next`
+   label when it shows a planned capability, the bounds of the second art direction, the roadmap rows, the tagline,
+   the font, the tokens and the demo;
 4. it patches the two output blocks of the quick start in `README.md` and `README.es.md` with what the commands
-   printed, so the README cannot show a result the code does not produce.
+   printed, so the README cannot show a result the code does not produce. The block is found by the script it runs, so
+   running the renderer twice is safe.
+
+**The render measures what it draws and fails instead of shipping a graphic that breaks the art direction** (design
+decision 10): the smallest text at 16 px or more, every headline at weight 700 with 44 px on the 1280 px graphics and
+30 px on the cards, every text-on-surface pair of both themes at 4.5:1 or more, the longest band of empty background
+against a content-free render of the same page at a quarter of the height or less, the illustration of a card at 40%
+of it or more, and no element outside the canvas. A template with an unfilled `{{PLACEHOLDER}}` also fails: that is how
+five dark variants once came out painted white.
 
 | Graphic | Size | What it shows |
 |---|---|---|
-| `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited` |
+| `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited`, with its benefit headline |
 | `reason-citations-{dark,light}.png` | 400 × 300 | the second reason |
 | `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with `Next` |
-| `how-it-works-{dark,light}.png` | 1280 × 480 | the flow, with `Next` on the planned part |
-| `demo-{dark,light}.png` | 1280 × 560 | the real run of the quick start |
-| `roadmap-{dark,light}.png` | 1280 × 440 | the status table as a board, `Next` on the planned column |
-| `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice teaser, with `Next` |
+| `how-it-works-{dark,light}.png` | 1280 × 480 | the flow, with `Next` only on the answer and its two branches |
+| `demo-{dark,light}.png` | 1280 × 560 | the real run of the quick start, with the first result in lime |
+| `roadmap-{dark,light}.png` | 1280 × 700 | the status table as a board, `Next` on the planned column |
+| `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice teaser, with `Next · ElevenLabs` |
 | `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` |
-| `katalis-logo{,-dark}.png` | 320 × 64 | the logo of the maker, at the foot of the README |
+| `katalis-logo{,-dark}.png` | 340 × 64 | the transparent mark of the maker, at the foot of the README |
+
+The two variants of a graphic carry the same content: the dark one is ink with the lime glow and the light one is
+off-white, both measured. In the light theme a lime mark carries an ink edge or an ink inner mark, because lime on
+off-white is 1.07:1. The one place where the light variant does not follow the dark one is the terminal of the demo,
+which is dark on ink and paper on off-white: a dark terminal would have to stay under 19% of the canvas to keep the
+light variant at 0.80 or more of mean luminance, and the real run of the quick start does not fit there.
 
 The templates share `scripts/readme-graphics/base.html` and the brand styles of the script, and they read the tokens
 and the roadmap rows from `scripts/readme-graphics/data.mjs`. **That file is the single source of the status table**: a
@@ -116,10 +131,13 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 
 | | |
 |---|---|
-| Files in `docs/images/` | 21 |
-| Weight of the whole directory | 0.445 MB |
-| Weight of the images the README uses | about 0.44 MB |
+| Files in `docs/images/` | 19 PNG and 2 JSON |
+| Weight of the PNGs | 0.675 MB |
+| Weight of the images the README uses | about 0.67 MB |
 | Budget | 3 MB |
 
 The banner is the heaviest single file at about 100 KB. When a graphic is added, keep it under the budget and prefer
-flat colors and text: the palette of 128 colors of `sharp` is what keeps the set small.
+flat colors and text: the palette of 256 colors of `sharp` is what keeps the set small while the lime glow and the orb
+keep their gradients. The PNG of a graphic is also measured against the luminance bounds of decision 10 (0.30 or less
+for a dark variant and for the social preview, 0.80 or more for a light variant), so a graphic that forgets to paint
+its theme fails the test even if it is small.
