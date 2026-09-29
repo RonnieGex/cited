@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <main>
-      <h1>Katalis Responde Community</h1>
+      <h1>Cited</h1>
     </main>
   );
 }

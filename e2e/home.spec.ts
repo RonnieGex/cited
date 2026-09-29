@@ -5,6 +5,6 @@ test("home page answers with the product name", async ({ page }) => {
 
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Katalis Responde Community",
+    "Cited",
   );
 });

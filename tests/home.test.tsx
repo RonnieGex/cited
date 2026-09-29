@@ -7,7 +7,7 @@ describe("home page", () => {
     render(<Home />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Katalis Responde Community",
+      "Cited",
     );
   });
 
