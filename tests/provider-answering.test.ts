@@ -42,6 +42,8 @@ const managed = [
   "ADMIN_SESSION_SECRET",
   "RATE_LIMIT_PER_IP_PER_HOUR",
   "DAILY_MODEL_CALL_LIMIT",
+  "ALLOW_LOCAL_PROVIDERS",
+  "DEEPSEEK_BASE_URL",
 ];
 
 function setEnvironment(overrides: Record<string, string | undefined>): void {
@@ -117,10 +119,16 @@ function askRequest(body: unknown): Request {
 
 // The key of the panel is sealed and opened with the same encryption key of the run, which lives only in the process
 // environment: the test never writes it in a file.
-function withEncryptionKey(): void {
+//
+// `address` is the address the panel saved. Since task 11.2 the answer path validates that address again before every
+// call and pins the connection to the address it classified, so the row has to describe an installation the product
+// can actually write: a provider on the machine of the owner, with `ALLOW_LOCAL_PROVIDERS=1`, and the gateway of the
+// provider — `DEEPSEEK_BASE_URL` — pointing at the same double. The panel save route refuses any other combination.
+function withEncryptionKey(address?: string): void {
   setEnvironment({
     DATABASE_URL: process.env["DATABASE_URL"],
     ENCRYPTION_KEY: encryptionKey,
+    ...(address === undefined ? {} : { ALLOW_LOCAL_PROVIDERS: "1", DEEPSEEK_BASE_URL: address }),
   });
 }
 
@@ -162,7 +170,7 @@ describe("POST /api/ask with the provider saved in the panel", () => {
 
     await corpusStore();
     await panelChat(`${seen.url}/v1`);
-    withEncryptionKey();
+    withEncryptionKey(`${seen.url}/v1`);
 
     const response = await POST(askRequest({ question }));
     const text = await response.text();

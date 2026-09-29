@@ -11,7 +11,7 @@ import { chatModelFrom } from "@/lib/models/providers";
 import type { AddressResolver } from "@/lib/providers/address";
 import { testProvider } from "@/lib/providers/test";
 import { resolveChat, resolveEmbeddings } from "@/lib/settings/providers";
-import { closeSharedStores, sharedStore } from "@/lib/store/instance";
+import { sharedStore } from "@/lib/store/instance";
 import { ADMIN_PASSWORD, ADMIN_SECRET, cleanup, environmentOf } from "./admin-helpers";
 import { openAiChatAnswer, providerDouble, type ProviderDouble } from "./provider-double";
 
@@ -253,7 +253,7 @@ describe.runIf(withOpenssl)("the name of TLS", () => {
   const folder = mkdtempSync(join(tmpdir(), "cited-tls-"));
   let tls: ReturnType<typeof createHttpsServer>;
   let tlsPort = "";
-  const names: Array<string | undefined> = [];
+  const names: Array<string | false | null> = [];
   let requests = 0;
   let previous: string | undefined;
 

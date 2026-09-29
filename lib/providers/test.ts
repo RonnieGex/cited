@@ -1,11 +1,12 @@
-import { providerAddress, ADDRESS_NOT_ALLOWED } from "./address.ts";
+import { providerAddress, ADDRESS_NOT_ALLOWED, type AddressResolver } from "./address.ts";
 import { providerEntry } from "./catalog.ts";
+import { pinnedFetch } from "./pinned.ts";
 import { DEFAULT_CHAT_MODELS } from "../models/types.ts";
 
 // Decision 4 of `openspec/changes/provider-keys-in-panel/design.md`: one minimal call to the provider the owner chose,
 // with a ten-second timeout, and one word for what happened. The raw answer of the provider never travels to the
-// browser and no key is ever written in a log line. Every provider is called here with `fetch`, which is the same
-// shape the test doubles of the suite speak.
+// browser and no key is ever written in a log line. Every provider is called here through the pinned transport of
+// `lib/providers/pinned.ts`, which speaks the same shape the test doubles of the suite speak.
 //
 // The requirement "A provider address cannot reach private networks" is applied before the call, in
 // `lib/providers/address.ts`, and the call itself follows no redirect: a provider that answers 302 to an address of
@@ -30,6 +31,8 @@ export type ProviderTestInput = {
   model?: string;
   baseUrl?: string;
   timeoutMs?: number;
+  /** The resolver of the guard, for the suite: a test classifies a controlled answer and never the DNS of the machine. */
+  resolve?: AddressResolver;
 };
 
 export type ProviderTestOutcome =
@@ -218,11 +221,16 @@ function vectorOf(provider: string, answer: Record<string, unknown>): number[] {
   return data?.[0]?.embedding ?? [];
 }
 
-async function callProvider(input: ProviderTestInput, call: Call, timeoutMs: number): Promise<void> {
+async function callProvider(
+  input: ProviderTestInput,
+  call: Call,
+  timeoutMs: number,
+  send: typeof fetch,
+): Promise<void> {
   let response: Response;
 
   try {
-    response = await fetch(call.url, {
+    response = await send(call.url, {
       method: "POST",
       headers: call.headers,
       body: JSON.stringify(call.body),
@@ -272,6 +280,7 @@ export async function testProvider(input: ProviderTestInput): Promise<ProviderTe
     provider: input.provider,
     kind: input.kind,
     environment: process.env,
+    ...(input.resolve === undefined ? {} : { resolve: input.resolve }),
   });
 
   if (allowed.ok === false) {
@@ -282,10 +291,13 @@ export async function testProvider(input: ProviderTestInput): Promise<ProviderTe
   const started = Date.now();
 
   try {
+    // Requirement "The address that was validated is the address that is connected to": the call opens the socket to
+    // one of the addresses the guard classified, in the same resolution, and never to a second answer of the name.
     await callProvider(
       input,
       input.kind === "chat" ? chatCall(input, model) : embeddingsCall(input, model),
       input.timeoutMs ?? TEST_TIMEOUT_MS,
+      pinnedFetch(allowed.addresses),
     );
   } catch (error) {
     return {

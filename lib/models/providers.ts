@@ -42,13 +42,20 @@ export type ChatCredentials = {
   model: string;
   key: string;
   baseUrl: string;
+  /** The transport of an address the owner wrote in the panel: it validates and pins every connection (task 11.2). */
+  fetch?: typeof fetch;
 };
 
 // The one place that builds a chat model, from credentials that the caller already resolved: the server environment
 // through `resolveChat()` (decision 3 of `openspec/changes/provider-keys-in-panel/design.md`) or the values the owner
 // pasted in the panel. The pipeline never reads a provider variable on its own.
+//
+// `fetch` is the transport of `lib/providers/pinned.ts` when the address came from the panel: the SDK then connects to
+// the address the guard classified and never to a second resolution of the name (requirement "The address that was
+// validated is the address that is connected to").
 export function chatModelFrom(credentials: ChatCredentials): LanguageModel {
   const { provider, model, key, baseUrl: url } = credentials;
+  const transport = credentials.fetch === undefined ? {} : { fetch: credentials.fetch };
 
   if (provider === "fake") {
     return createFakeChatModel();
@@ -58,36 +65,53 @@ export function chatModelFrom(credentials: ChatCredentials): LanguageModel {
 
   switch (provider) {
     case "openai":
-      return createOpenAI(url.length > 0 ? { apiKey: key, baseURL: url } : { apiKey: key })(model);
+      return createOpenAI(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "anthropic":
-      return createAnthropic(url.length > 0 ? { apiKey: key, baseURL: url } : { apiKey: key })(
-        model,
-      );
+      return createAnthropic(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "gemini":
       return createGoogleGenerativeAI(
-        url.length > 0 ? { apiKey: key, baseURL: url } : { apiKey: key },
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
       )(model);
     case "deepseek":
-      return createDeepSeek(url.length > 0 ? { apiKey: key, baseURL: url } : { apiKey: key })(
-        model,
-      );
+      return createDeepSeek(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "groq":
-      return createGroq(url.length > 0 ? { apiKey: key, baseURL: url } : { apiKey: key })(model);
+      return createGroq(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "openrouter":
       return createOpenAICompatible({
         name: "openrouter",
         baseURL: withUrl(defaultOpenRouterUrl),
         apiKey: key,
+        ...transport,
       })(model);
     case "ollama":
       return createOpenAICompatible({
         name: "ollama",
         baseURL: withUrl(defaultOllamaUrl),
+        ...transport,
       })(model);
     case "lmstudio":
       return createOpenAICompatible({
         name: "lmstudio",
         baseURL: withUrl(defaultLmStudioUrl),
+        ...transport,
       })(model);
     default:
       return createFakeChatModel();

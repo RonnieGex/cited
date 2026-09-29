@@ -31,6 +31,8 @@ async function main(): Promise<void> {
     model: chat.model,
     key: chat.key,
     baseUrl: chat.baseUrl,
+    // The address of the panel travels with its pinned transport, exactly as it does in `/api/ask`.
+    ...(chat.fetch === undefined ? {} : { fetch: chat.fetch }),
   });
   const started = Date.now();
   const outcome = await askQuestion({

@@ -166,8 +166,15 @@ describe("a change of embeddings", () => {
       testLatencyMs: 80,
     });
 
+    // The address of the panel is validated again and pinned on every call (task 11.2), so the resolution describes
+    // an installation the product can write: the gateway of OpenAI points at the double and local providers are
+    // allowed, which is the flag of a provider on the machine of the owner.
     const vectors = await resolveEmbeddings({
-      environment: { ENCRYPTION_KEY: encryptionKey },
+      environment: {
+        ENCRYPTION_KEY: encryptionKey,
+        OPENAI_BASE_URL: `${seen.url}/v1`,
+        ALLOW_LOCAL_PROVIDERS: "1",
+      },
       store,
     });
     const signature = embeddingsSignature(vectors);

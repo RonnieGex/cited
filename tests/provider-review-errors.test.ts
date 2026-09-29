@@ -61,6 +61,7 @@ const managed = [
   "DAILY_MODEL_CALL_LIMIT",
   "PROVIDER_TEST_TIMEOUT_MS",
   "ALLOW_LOCAL_PROVIDERS",
+  "DEEPSEEK_BASE_URL",
 ];
 
 function setEnvironment(overrides: Record<string, string | undefined>): void {
@@ -144,8 +145,15 @@ function askRequest(body: unknown): Request {
   });
 }
 
-function withEncryptionKey(): void {
-  setEnvironment({ DATABASE_URL: process.env["DATABASE_URL"], ENCRYPTION_KEY: encryptionKey });
+// The address of the panel has to describe an installation the product can write: since task 11.2 the answer path
+// validates the stored address again on every call and pins the connection to the address it classified, so the
+// gateway of the provider — `DEEPSEEK_BASE_URL` — points at the same double and the server allows local providers.
+function withEncryptionKey(address?: string): void {
+  setEnvironment({
+    DATABASE_URL: process.env["DATABASE_URL"],
+    ENCRYPTION_KEY: encryptionKey,
+    ...(address === undefined ? {} : { ALLOW_LOCAL_PROVIDERS: "1", DEEPSEEK_BASE_URL: address }),
+  });
 }
 
 function token(): string {
@@ -206,7 +214,7 @@ describe("a provider that echoes the saved key", () => {
 
     await corpusStore({ ADMIN_SESSION_SECRET: ADMIN_SECRET });
     await panelChat(`${echoing.url}/v1`);
-    withEncryptionKey();
+    withEncryptionKey(`${echoing.url}/v1`);
 
     const response = await ask(askRequest({ question }));
     const text = await response.text();

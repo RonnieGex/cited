@@ -29,8 +29,13 @@ function dimensionsFrom(environment: EmbeddingEnvironment, fallback: number): nu
 
 type EmbeddingResponse = { data?: Array<{ embedding?: number[]; index?: number }> };
 
-async function post(url: string, body: unknown, headers: Record<string, string>): Promise<number[][]> {
-  const answer = await fetch(url, {
+async function post(
+  url: string,
+  body: unknown,
+  headers: Record<string, string>,
+  send: typeof fetch,
+): Promise<number[][]> {
+  const answer = await send(url, {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify(body),
@@ -56,10 +61,13 @@ export type EmbeddingsCredentials = {
   model: string;
   key: string;
   dimensions: number;
+  /** The transport of an address the owner wrote in the panel: it validates and pins every connection (task 11.2). */
+  fetch?: typeof fetch;
 };
 
 function openAiCompatible(input: EmbeddingsCredentials): EmbeddingProvider {
   const url = `${input.baseUrl.replace(/\/+$/, "")}/embeddings`;
+  const send = input.fetch ?? fetch;
 
   const embed = async (texts: string[]): Promise<number[][]> => {
     if (texts.length === 0) {
@@ -70,6 +78,7 @@ function openAiCompatible(input: EmbeddingsCredentials): EmbeddingProvider {
       url,
       { model: input.model, input: texts },
       input.key.length === 0 ? {} : { authorization: `Bearer ${input.key}` },
+      send,
     );
   };
 
@@ -88,13 +97,14 @@ type OllamaResponse = { embeddings?: number[][] };
 
 function ollama(input: Omit<EmbeddingsCredentials, "key">): EmbeddingProvider {
   const url = `${input.baseUrl.replace(/\/+$/, "")}/api/embed`;
+  const send = input.fetch ?? fetch;
 
   const embed = async (texts: string[]): Promise<number[][]> => {
     if (texts.length === 0) {
       return [];
     }
 
-    const answer = await fetch(url, {
+    const answer = await send(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ model: input.model, input: texts }),
@@ -123,7 +133,9 @@ function ollama(input: Omit<EmbeddingsCredentials, "key">): EmbeddingProvider {
 
 // The one place that builds the embeddings of a resolved provider: the server environment or the panel, through
 // `resolveEmbeddings()`. `null` is keyword mode, which ranks with FTS5 alone and stores no vector; a configuration
-// that is missing or unreadable stops the caller with a message that names what is missing and never a value.
+// that is missing or unreadable stops the caller with a message that names what is missing and never a value. When the
+// address came from the panel, `resolution.fetch` is the pinned transport of `lib/providers/pinned.ts`: every call
+// connects to the address the guard classified and never to a second resolution of the name.
 export function embeddingsFrom(resolution: EmbeddingsResolution): EmbeddingProvider | null {
   if (resolution.mode === "keyword") {
     return null;
@@ -144,6 +156,7 @@ export function embeddingsFrom(resolution: EmbeddingsResolution): EmbeddingProvi
       baseUrl: resolution.baseUrl,
       model: resolution.model,
       dimensions: resolution.dimensions,
+      ...(resolution.fetch === undefined ? {} : { fetch: resolution.fetch }),
     });
   }
 
@@ -152,6 +165,7 @@ export function embeddingsFrom(resolution: EmbeddingsResolution): EmbeddingProvi
     model: resolution.model,
     key: resolution.key,
     dimensions: resolution.dimensions,
+    ...(resolution.fetch === undefined ? {} : { fetch: resolution.fetch }),
   });
 }
 

@@ -4,6 +4,8 @@ import { chatModelName, type ChatEnvironment, type ChatProviderName } from "../m
 import { serverChatCredentials } from "../models/providers.ts";
 import { openSecret } from "../secrets/index.ts";
 import { providerEntry } from "../providers/catalog.ts";
+import { providerFetch } from "../providers/pinned.ts";
+import type { AddressResolver } from "../providers/address.ts";
 import { sharedStore } from "../store/instance.ts";
 import type { Store } from "../store/index.ts";
 
@@ -39,6 +41,8 @@ export type ChatResolution = {
   baseUrl: string;
   keyState: KeyState;
   missing: string[];
+  /** The transport of an address the owner wrote: it validates and pins every connection (task 11.2). */
+  fetch?: typeof fetch;
 };
 
 export type EmbeddingsResolution = {
@@ -51,11 +55,15 @@ export type EmbeddingsResolution = {
   dimensions: number;
   keyState: KeyState;
   missing: string[];
+  /** The transport of an address the owner wrote: it validates and pins every connection (task 11.2). */
+  fetch?: typeof fetch;
 };
 
 export type ResolveOptions = {
   environment?: ChatEnvironment;
   store?: Store;
+  /** The resolver of the address guard, for the suite: a test classifies a controlled answer. */
+  resolve?: AddressResolver;
 };
 
 function none(): ChatResolution {
@@ -76,6 +84,32 @@ function storeOf(options: ResolveOptions, environment: ChatEnvironment): Promise
 
 function localProvider(provider: string): boolean {
   return provider === "ollama" || provider === "lmstudio";
+}
+
+// The transport of an address the owner wrote in the panel. A row without an address keeps the global `fetch`: the
+// address of the catalogue comes from the server — whoever installs wrote it or the catalogue publishes it — and it is
+// not a value the browser sent. An address of the panel is validated again on every request, because the name the
+// guard accepted when it was saved can answer something else today (the Major M-2 of
+// `katalis-dev/tasks/revision-community-12b.md`), and the connection is opened to the address that validation
+// classified and to no other one.
+function transportOf(
+  declared: string | null | undefined,
+  provider: string,
+  kind: "chat" | "embeddings",
+  environment: ChatEnvironment,
+  resolve: AddressResolver | undefined,
+): typeof fetch | undefined {
+  const address = declared?.trim() ?? "";
+
+  return address.length === 0
+    ? undefined
+    : providerFetch({
+        baseUrl: address,
+        provider,
+        kind,
+        environment,
+        ...(resolve === undefined ? {} : { resolve }),
+      });
 }
 
 export async function resolveChat(options: ResolveOptions = {}): Promise<ChatResolution> {
@@ -106,6 +140,8 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
   const provider = row.provider.trim() as ChatProviderName;
   const entry = providerEntry(provider, "chat", environment);
   const local = localProvider(provider);
+  const fetch = transportOf(row.baseUrl, provider, "chat", environment, options.resolve);
+  const transport = fetch === undefined ? {} : { fetch };
 
   if (row.keyCiphertext === null || row.keyCiphertext.length === 0) {
     return {
@@ -116,6 +152,7 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
       baseUrl: row.baseUrl?.trim() || entry?.baseUrl || "",
       keyState: local ? "set" : "missing",
       missing: [],
+      ...transport,
     };
   }
 
@@ -129,6 +166,7 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
     baseUrl: row.baseUrl?.trim() || entry?.baseUrl || "",
     keyState: opened.ok ? "set" : "unreadable",
     missing: [],
+    ...transport,
   };
 }
 
@@ -208,6 +246,8 @@ export async function resolveEmbeddings(
   const provider = row.provider.trim();
   const entry = providerEntry(provider, "embeddings", environment);
   const local = provider === "ollama";
+  const fetch = transportOf(row.baseUrl, provider, "embeddings", environment, options.resolve);
+  const transport = fetch === undefined ? {} : { fetch };
 
   if (row.keyCiphertext === null || row.keyCiphertext.length === 0) {
     return {
@@ -220,6 +260,7 @@ export async function resolveEmbeddings(
       dimensions: DEFAULT_EMBEDDING_DIMENSIONS_BY_ID[provider] ?? 0,
       keyState: local ? "set" : "missing",
       missing: [],
+      ...transport,
     };
   }
 
@@ -235,6 +276,7 @@ export async function resolveEmbeddings(
     dimensions: DEFAULT_EMBEDDING_DIMENSIONS_BY_ID[provider] ?? 0,
     keyState: opened.ok ? "set" : "unreadable",
     missing: [],
+    ...transport,
   };
 }
 

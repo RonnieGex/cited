@@ -129,6 +129,9 @@ export async function POST(request: Request): Promise<Response> {
       model: chat.model,
       key: chat.key,
       baseUrl: chat.baseUrl,
+      // The address the owner saved in the panel is pinned: the connection goes to the address the guard classified
+      // in this request and never to a second resolution of the name (task 11.2).
+      ...(chat.fetch === undefined ? {} : { fetch: chat.fetch }),
     });
 
     try {
