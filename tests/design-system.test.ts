@@ -5,7 +5,7 @@ import { homedir } from "node:os";
 import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as honesty from "../scripts/readme-graphics/honesty.mjs";
-import { decodePng } from "./png";
+import { decodePng, type DecodedPng } from "./png";
 
 // The design system of Cited: the change `brand-and-design-system`. These tests read the scenarios of
 // `openspec/changes/brand-and-design-system/specs/design-system/spec.md` that a unit test can read:
@@ -60,8 +60,42 @@ const sourceBrand = resolve(
 );
 const sourceReachable = existsSync(sourceBrand);
 const intendedLogo = /katalis[\s_-]*logo/i;
+const bannerRecord = "docs/images/readme-banner.json";
+const graphicsRecord = "docs/images/readme-graphics.json";
+
+// Fable looked at the banner and saw the mark of the maker at 19 px, the height of the `by Katalis` line, where it
+// does not read as the flame of Katalis. The mark is readable the moment it is bigger than the line it sits beside,
+// so the design asks 40 px of the banner and 64 px of the social preview, the render states what it measured and
+// fails below the bound, and this test reads that statement and measures the committed image against it.
+const flameTargets = [
+  {
+    name: "the dark banner",
+    template: "scripts/readme-banner.html",
+    image: "docs/images/readme-banner-dark.png",
+    record: bannerRecord,
+    route: "flame.rendered.dark",
+    minimum: 40,
+  },
+  {
+    name: "the light banner",
+    template: "scripts/readme-banner.html",
+    image: "docs/images/readme-banner-light.png",
+    record: bannerRecord,
+    route: "flame.rendered.light",
+    minimum: 40,
+  },
+  {
+    name: "the social preview",
+    template: "scripts/render-readme-graphics.mjs",
+    image: "docs/images/social-preview.png",
+    record: graphicsRecord,
+    route: "flame.rendered",
+    minimum: 64,
+  },
+] as const;
 
 type Cells = string[];
+type Box = { x: number; y: number; width: number; height: number };
 
 function absolute(path: string): string {
   return resolve(repositoryRoot, path);
@@ -157,6 +191,87 @@ function sourceOf(picture: string, theme: "dark" | "light"): string {
   }
 
   return /<img[^>]*src="([^"]+)"/.exec(picture)?.[1] ?? "";
+}
+
+/** The value a record carries at a dotted route, or `undefined` when it states nothing there. */
+function atRoute(record: Record<string, unknown>, route: string): unknown {
+  return route.split(".").reduce<unknown>((value, key) => {
+    if (typeof value !== "object" || value === null) {
+      return undefined;
+    }
+
+    return (value as Record<string, unknown>)[key];
+  }, record);
+}
+
+/** The height a style sheet gives the flame of the byline, in px: `1em` of the line, or its own pixels. */
+function styledFlameHeight(text: string): number {
+  const height = /\.byline\s+\.flame\s*\{[^}]*height:\s*([^;]+);/.exec(text)?.[1]?.trim() ?? "";
+  const line = Number.parseFloat(/\.byline\s*\{[^}]*font-size:\s*([\d.]+)px/.exec(text)?.[1] ?? "0");
+  const value = Number.parseFloat(height);
+
+  if (Number.isFinite(value) === false || Number.isFinite(line) === false) {
+    return Number.NaN;
+  }
+
+  return height.endsWith("em") ? value * line : value;
+}
+
+/**
+ * The rows of a box of a rendered PNG that carry the mark. The background of a row is read inside the box, on its
+ * first columns: the flame of `public/brand/` keeps a transparent margin there, so those pixels are the ground the
+ * page painted and never the mark. A row counts when at least two of its pixels are far from that ground, which is
+ * how a banner of a flat ground plus a soft glow can be read without knowing the gradient.
+ */
+function markHeight(image: DecodedPng, box: Box): number {
+  const left = Math.round(box.x);
+  const right = Math.round(box.x + box.width);
+  const top = Math.round(box.y);
+  const bottom = Math.round(box.y + box.height);
+  let longest = 0;
+  let run = 0;
+
+  for (let y = Math.max(0, top); y < Math.min(image.height, bottom); y += 1) {
+    const sample = (x: number): [number, number, number] => {
+      const at = (y * image.width + Math.max(0, Math.min(image.width - 1, x))) * 4;
+
+      return [
+        image.pixels[at] ?? 0,
+        image.pixels[at + 1] ?? 0,
+        image.pixels[at + 2] ?? 0,
+      ];
+    };
+    const [red, green, blue] = sample(left + 1);
+    const [secondRed, secondGreen, secondBlue] = sample(left + 3);
+    const background = [
+      (red + secondRed) / 2,
+      (green + secondGreen) / 2,
+      (blue + secondBlue) / 2,
+    ];
+    let painted = 0;
+
+    for (let x = Math.max(0, left); x < Math.min(image.width, right); x += 1) {
+      const at = (y * image.width + x) * 4;
+      const distance = Math.max(
+        Math.abs((image.pixels[at] ?? 0) - (background[0] ?? 0)),
+        Math.abs((image.pixels[at + 1] ?? 0) - (background[1] ?? 0)),
+        Math.abs((image.pixels[at + 2] ?? 0) - (background[2] ?? 0)),
+      );
+
+      if (distance > 24) {
+        painted += 1;
+      }
+    }
+
+    if (painted >= 2) {
+      run += 1;
+      longest = Math.max(longest, run);
+    } else {
+      run = 0;
+    }
+  }
+
+  return longest;
 }
 
 describe("the mark of the maker is the real flame", () => {
@@ -392,6 +507,38 @@ describe("the mark of the maker is the real flame", () => {
 
     for (const record of ["docs/images/readme-banner.json", "docs/images/readme-graphics.json"]) {
       expect(readText(record), record).toMatch(/katalis-flame/);
+    }
+  });
+
+  it("states the height of the flame of both banners and of the preview, and the image shows it", () => {
+    for (const target of flameTargets) {
+      const record = JSON.parse(readText(target.record)) as Record<string, unknown>;
+      const flame = (record["flame"] ?? {}) as Record<string, unknown>;
+      const rendered = atRoute(record, target.route) as Box | undefined;
+      const styled = styledFlameHeight(readText(target.template));
+      const stated = typeof rendered?.height === "number" ? rendered.height : null;
+
+      expect(
+        stated ?? 0,
+        `${target.name}: the record states ${
+          stated === null ? "no height" : `${stated}px`
+        } and ${target.template} draws the flame at ${styled}px; the design asks ${target.minimum}px`,
+      ).toBeGreaterThanOrEqual(target.minimum);
+      expect(flame["minimumHeight"], `${target.record}: the bound of the design`).toBe(target.minimum);
+
+      if (rendered === undefined) {
+        continue;
+      }
+
+      const seen = markHeight(decodePng(readBytes(target.image)), rendered);
+
+      console.log(
+        `${target.name}: the record states ${stated}px, the style sheet draws ${styled}px, ` +
+          `${target.image} shows a mark of ${seen}px`,
+      );
+
+      expect(Math.abs((stated ?? 0) - styled), `${target.name}: the record and the style sheet`).toBeLessThanOrEqual(1);
+      expect(seen, `${target.image}: the rows that carry the mark`).toBeGreaterThanOrEqual(target.minimum);
     }
   });
 
