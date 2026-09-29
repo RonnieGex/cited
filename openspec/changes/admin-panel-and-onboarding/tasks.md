@@ -43,7 +43,7 @@ secret, no customer data. No network call to a real provider in any test.
 - [x] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD` —
       report: `reports/2026-09-29-step-5-checks.md`
-- [ ] 5.2 The tables of the store after the tests and after the E2E, with their row counts — report:
+- [x] 5.2 The tables of the store after the tests and after the E2E, with their row counts — report:
       `reports/2026-09-29-step-5-checks.md`
 
 ## 6. Manual verification with curl
@@ -54,7 +54,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 7. End-to-end
 
-- [ ] 7.1 The E2E of 2.2 green; captures of each page at 1440 and 375 px — report: `reports/2026-09-29-step-7-e2e.md`
+- [x] 7.1 The E2E of 2.2 green; captures of each page at 1440 and 375 px — report: `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
 

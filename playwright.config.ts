@@ -3,11 +3,13 @@ import {
   E2E_ADDRESS,
   E2E_ADMIN_PASSWORD,
   E2E_ADMIN_SECRET,
+  E2E_BASE_URL,
   E2E_DATABASE_URL,
+  E2E_PORT,
 } from "./e2e/admin-fixtures";
 
-const port = 3100;
-const baseURL = `http://127.0.0.1:${port}`;
+const port = E2E_PORT;
+const baseURL = E2E_BASE_URL;
 const resetStore =
   "node -e \"const fs = require('node:fs'); for (const file of ['" +
   E2E_DATABASE_URL +
