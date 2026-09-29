@@ -7,7 +7,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/pluggable-models-and-ask` in `katalis-dev/community`, created by Fable from `main`
+- [x] 0.1 Work on `feature/pluggable-models-and-ask` in `katalis-dev/community`, created by Fable from `main`
       `aa52b7c`; confirm branch and base; `npm ci` — report: `reports/2026-09-29-step-0-branch.md`
 
 ## 1. The state of the base before
