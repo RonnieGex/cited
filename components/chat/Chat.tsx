@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState, type FormEvent } from "react";
-import { Button, Input, Panel } from "@/components/ui";
-import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { CitationMark, HighlightedTail } from "@/components/brand";
+import { Button, Input, Panel, focusRing } from "@/components/ui";
 import type { Lang } from "@/lib/settings/business";
 import type { Citation } from "@/lib/answer/types";
 import { askCited, type AskResult } from "@/lib/chat/client";
@@ -10,12 +10,17 @@ import { sessionId, tabOwner, type TabOwner, type TabStorage } from "@/lib/chat/
 import { PUBLIC_STRINGS, type PublicStrings } from "@/lib/i18n/public";
 import { CLOSE_MESSAGE } from "@/lib/widget/messages";
 import { CitationPanel } from "./CitationPanel";
+import { Marker } from "./Marker";
 import { Markdown } from "./Markdown";
 
 // Design decision 1 of `openspec/changes/public-page-and-widget/design.md`: one chat component used by `/` and
-// `/embed`, with the question box, the list of turns, the citation chips, the refusal style and a loading state in
+// `/embed`, with the question box, the list of turns, the citation marks, the refusal style and a loading state in
 // words. The requirement "A follow-up keeps its thread in the browser" of `specs/public-chat/spec.md` lives here: every
 // question of the tab travels with the same `sessionId`.
+//
+// Decisions 9 to 11 of `openspec/changes/brand-identity-ui/design.md`: the welcome is the headline, each turn is an entry
+// of a ledger (the question under a label, the answer with its marks, the sources in the margin), waiting shows one bar
+// and the ask form stays in reach once the thread exists. The language switch belongs to the band of the page.
 
 export type AskFn = (input: { question: string; sessionId: string }) => Promise<AskResult>;
 
@@ -45,29 +50,50 @@ function turnOf(question: string, result: AskResult): Turn {
   return { kind: "failed", question, message: result.message };
 }
 
+const label = "text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
+const entry = "border-t border-rule pt-8";
+
+function Asked({ question, strings }: { question: string; strings: PublicStrings }) {
+  return (
+    <div className="flex flex-col gap-1 lg:col-span-2">
+      <p className={label}>{strings.asked}</p>
+      <p className="text-[18px] font-semibold leading-[1.4] text-ink">{question}</p>
+    </div>
+  );
+}
+
 function AnsweredTurn({
   turn,
   strings,
+  landing,
 }: {
   turn: Extract<Turn, { kind: "answered" }>;
   strings: PublicStrings;
+  landing: boolean;
 }) {
-  const panelId = `citation-${useId()}`;
+  const id = useId();
+  const panelId = `citation-${id}`;
+  const sourcesId = `sources-${id}`;
   const [open, setOpen] = useState<number | null>(null);
   const citation = turn.citations.find((candidate) => candidate.n === open) ?? null;
+  const toggle = (n: number): void => {
+    setOpen((current) => (current === n ? null : n));
+  };
 
   return (
-    <li className="flex flex-col gap-3">
-      <p className="font-semibold text-ink">{turn.question}</p>
-      <div data-cited="answer" className="flex flex-col gap-4">
+    <li
+      data-cited="turn"
+      className={`grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1fr)_220px] ${entry}`}
+    >
+      <Asked question={turn.question} strings={strings} />
+      <div data-cited="answer" className="flex min-w-0 flex-col gap-4">
         <Markdown
           text={turn.answer}
           citationLabel={(n) => strings.citation(n)}
-          onCitation={(n) => {
-            setOpen((current) => (current === n ? null : n));
-          }}
+          onCitation={toggle}
           openCitation={open}
           citationPanelId={panelId}
+          landing={landing}
         />
         {citation === null ? null : (
           <CitationPanel
@@ -84,29 +110,41 @@ function AnsweredTurn({
             }}
           />
         )}
-        <div className="flex flex-col gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/70">
-            {strings.sources}
-          </p>
-          <ul className="flex flex-wrap gap-2">
-            {turn.citations.map((source) => (
-              <li key={source.n}>
-                <button
-                  type="button"
-                  aria-expanded={open === source.n}
-                  aria-controls={open === source.n ? panelId : undefined}
-                  onClick={() => {
-                    setOpen((current) => (current === source.n ? null : source.n));
-                  }}
-                  className="rounded-none border border-ink/20 px-3 py-1 text-[11px] font-semibold text-ink transition-colors duration-[400ms] ease-out-expo hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime focus-visible:ring-1 focus-visible:ring-ink"
-                >
-                  {`[${source.n}] ${source.document}`}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
+      <aside
+        data-cited="sources"
+        aria-labelledby={sourcesId}
+        className="flex min-w-0 flex-col gap-2 lg:col-start-2 lg:row-start-2"
+      >
+        <p id={sourcesId} className={label}>
+          {strings.sources}
+        </p>
+        <ul className="flex flex-col gap-1">
+          {turn.citations.map((source) => (
+            <li key={source.n}>
+              <button
+                type="button"
+                aria-expanded={open === source.n}
+                aria-controls={open === source.n ? panelId : undefined}
+                onClick={() => {
+                  toggle(source.n);
+                }}
+                className={`group flex w-full items-center rounded-none py-1 text-left text-ink hover:underline max-lg:min-h-11 ${focusRing}`}
+              >
+                <span aria-hidden="true" className="flex min-w-0 items-center gap-2 text-base">
+                  <CitationMark
+                    n={source.n}
+                    state={open === source.n ? "open" : "rest"}
+                    className="shrink-0 transition-colors duration-[var(--dur-fast)] group-hover:bg-[var(--primary)] group-hover:text-[var(--on-primary)]"
+                  />
+                  <span className="min-w-0 break-words text-sm">{source.document}</span>
+                </span>
+                <span className="sr-only">{`[${source.n}] ${source.document}`}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
     </li>
   );
 }
@@ -166,57 +204,83 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
     setLoading(false);
   };
 
+  const threaded = turns.length > 0;
+
   return (
-    <section
-      aria-label={strings.history}
-      className={`flex w-full flex-col gap-6 ${variant === "embed" ? "p-4" : ""}`}
-    >
-      <div className="flex justify-end">
-        <LanguageSwitch current={lang} />
-      </div>
+    <section aria-label={strings.history} className="flex w-full flex-col gap-8">
+      <p
+        data-cited="welcome"
+        className={`rise max-w-[24ch] font-semibold tracking-[-0.02em] text-ink ${
+          variant === "embed" ? "text-[22px] leading-[1.2]" : "text-[28px] leading-[1.15] lg:text-[36px]"
+        }`}
+      >
+        <HighlightedTail text={welcome} sweep />
+      </p>
 
-      <p className="max-w-[65ch] text-lg text-ink/80">{welcome}</p>
-
-      {turns.length === 0 ? null : (
+      {threaded ? (
         <ol aria-label={strings.history} className="flex flex-col gap-8">
           {turns.map((turn, index) => {
             if (turn.kind === "answered") {
-              return <AnsweredTurn key={index} turn={turn} strings={strings} />;
+              return (
+                <AnsweredTurn
+                  key={index}
+                  turn={turn}
+                  strings={strings}
+                  landing={index === turns.length - 1}
+                />
+              );
             }
 
             if (turn.kind === "refused") {
               return (
-                <li key={index} className="flex flex-col gap-3">
-                  <p className="font-semibold text-ink">{turn.question}</p>
-                  <Panel data-cited="refusal" className="flex flex-col gap-3 bg-surface">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/70">
-                      {strings.refusal}
-                    </span>
-                    <p className="text-ink/90">{turn.answer}</p>
+                <li key={index} data-cited="turn" className={`flex flex-col gap-4 ${entry}`}>
+                  <Asked question={turn.question} strings={strings} />
+                  <Panel data-cited="refusal" className="flex max-w-[65ch] items-start gap-4">
+                    <Marker tone="ink" glyph="–" />
+                    <div className="flex flex-col gap-2">
+                      <span className={label}>{strings.refusal}</span>
+                      <p className="text-[18px] leading-[1.6] text-ink">{turn.answer}</p>
+                    </div>
                   </Panel>
                 </li>
               );
             }
 
             return (
-              <li key={index} className="flex flex-col gap-3">
-                <p className="font-semibold text-ink">{turn.question}</p>
-                <p role="status" className="border-l-2 border-coral pl-4 text-ink">
-                  {turn.message ?? strings.error}
-                </p>
+              <li key={index} data-cited="turn" className={`flex flex-col gap-4 ${entry}`}>
+                <Asked question={turn.question} strings={strings} />
+                <div role="status" className="flex max-w-[65ch] items-start gap-4">
+                  <Marker tone="coral" glyph="!" />
+                  <p className="text-[18px] leading-[1.6] text-ink">{turn.message ?? strings.error}</p>
+                </div>
               </li>
             );
           })}
         </ol>
-      )}
-
-      {loading ? (
-        <p role="status" className="border-l-2 border-[var(--primary)] pl-4 text-ink/80">
-          {strings.loading}
-        </p>
       ) : null}
 
-      <form onSubmit={submit} className="flex flex-col gap-3">
+      {loading ? (
+        <div role="status" className="flex flex-col gap-3">
+          <p className="text-ink-2">{strings.loading}</p>
+          <div className="w-full max-w-[240px] bg-rule">
+            <div
+              data-cited="waiting-bar"
+              aria-hidden="true"
+              className="bar h-0.5 w-full bg-[var(--primary)]"
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <form
+        data-cited="ask"
+        onSubmit={submit}
+        className={`flex flex-col gap-3 ${
+          threaded || loading
+            ? "sticky bottom-0 z-10 border-t border-rule bg-paper pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            : ""
+        }`}
+      >
         <label htmlFor={fieldId} className="text-sm font-semibold text-ink">
           {strings.question.label}
         </label>
