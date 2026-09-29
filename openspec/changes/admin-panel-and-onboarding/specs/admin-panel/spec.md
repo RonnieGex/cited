@@ -5,8 +5,11 @@
 `/admin` and every `/api/admin/*` route SHALL require a valid session obtained with `ADMIN_PASSWORD`. Without
 `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` the panel SHALL answer `503` naming the missing variable. The session SHALL be
 a signed cookie with `httpOnly`, `secure` (outside `localhost`), `sameSite=strict` and an expiry of twelve hours; the
-password SHALL be compared in constant time; five failed attempts per IP in fifteen minutes SHALL lock the login of that
-IP for fifteen minutes.
+password SHALL be compared in constant time. `ADMIN_PASSWORD` SHALL have at least 16 characters, or the panel SHALL
+answer `503` saying so. When the address of the visitor is known (`TRUST_PROXY` set), five failed attempts from one
+address in fifteen minutes SHALL lock the login of that address for fifteen minutes; when it is not known, no attempt
+SHALL lock anyone else out, and every failed attempt SHALL take at least one second before it answers (amended by
+Fable after `revision-community-07`: a lock shared by every visitor let anyone keep the owner out).
 
 #### Scenario: No password configured
 
@@ -17,6 +20,18 @@ IP for fifteen minutes.
 
 - **WHEN** one IP fails the login five times within fifteen minutes
 - **THEN** the sixth attempt, even with the right password, answers `429` with `Retry-After`
+
+#### Scenario: One visitor cannot lock out another
+
+- **WHEN** `TRUST_PROXY=1` and one address fails five times, and another address logs in with the right password
+- **THEN** the second address gets its session
+- **AND** without `TRUST_PROXY`, twenty failed attempts never make the right password answer `429`, and each failure
+  takes at least one second
+
+#### Scenario: A short password
+
+- **WHEN** `ADMIN_PASSWORD` has fewer than 16 characters
+- **THEN** `/admin` answers `503` saying the password is too short, without its value
 
 #### Scenario: Every admin route checks the session
 

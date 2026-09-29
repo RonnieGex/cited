@@ -66,3 +66,22 @@ secret, no customer data. No network call to a real provider in any test.
       `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-07.md` in Spanish with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
+
+## 10. What the review of Codex reproduced (contract amended by Fable after `revision-community-07`)
+
+Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix, reproducing what the review
+reproduced.
+
+- [ ] 10.1 Major: `TRUST_PROXY` as a number of trusted proxies in `lib/guards/ip.ts` (the MODIFIED requirement of
+      `specs/answering/spec.md`), `.env.example` and `docs/security.md` saying the same thing — report: the one of
+      this section
+- [ ] 10.2 Major: the lock of the login only for a known address, the delay of one second per failure otherwise, and
+      the 16 characters of `ADMIN_PASSWORD` (the amended requirement and its two new scenarios) — report: the one of
+      this section
+- [ ] 10.3 Minor: `readBusiness()` returns `null` only when the table is missing and lets every other error through —
+      report: the one of this section
+- [ ] 10.4 Minors: the exact commit in every report that lacks it (no `<commit>` left), the count of commits in the
+      delivery, and the capture `login-375.png` — report: the one of this section
+- [ ] 10.5 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+      `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
+      to `katalis-dev/tasks/entrega-community-07.md` with `## Issues` — report: the one of this section
