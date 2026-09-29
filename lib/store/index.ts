@@ -534,11 +534,15 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
     },
 
     async reserveVoiceMinutes(day: string, minutes: number, limit: number): Promise<number | null> {
+      // The guard has to be in the `SELECT` and not only in the `ON CONFLICT` branch: the first reservation of a day
+      // inserts instead of updating, so a limit smaller than the reservation would let the first session through and
+      // store more minutes than the day allows.
       const counted = await client.execute({
-        sql: `INSERT INTO voice_minutes (day, minutes) VALUES (?, ?)
+        sql: `INSERT INTO voice_minutes (day, minutes)
+          SELECT ?, ? WHERE ? <= ?
           ON CONFLICT (day) DO UPDATE SET minutes = minutes + excluded.minutes WHERE minutes + excluded.minutes <= ?
           RETURNING minutes`,
-        args: [day, minutes, limit],
+        args: [day, minutes, minutes, limit, limit],
       });
       const row = counted.rows[0];
 

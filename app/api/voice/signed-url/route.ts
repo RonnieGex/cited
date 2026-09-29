@@ -6,7 +6,7 @@
  */
 
 import { sharedStore } from "../../../../lib/store/instance.ts";
-import { ELEVENLABS_API, declared } from "../../../../lib/voice/config.ts";
+import { ELEVENLABS_API, VOICE_SESSION_MINUTES, declared } from "../../../../lib/voice/config.ts";
 import { reserveSession } from "../../../../lib/voice/minutes.ts";
 import { voiceTransport } from "../../../../lib/voice/transport.ts";
 
@@ -23,7 +23,8 @@ function answer(body: unknown, status: number, headers: Record<string, string> =
   });
 }
 
-export async function GET(): Promise<Response> {  const environment = process.env;
+export async function GET(): Promise<Response> {
+  const environment = process.env;
   const key = declared(environment, "ELEVENLABS_API_KEY");
 
   if (key.length === 0) {
@@ -48,8 +49,12 @@ export async function GET(): Promise<Response> {  const environment = process.en
       return answer(
         {
           status: "limited",
+          reason: room.reason,
           limit: room.limit,
-          error: `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${room.limit}) is reached; it resets at 00:00 UTC`,
+          error:
+            room.reason === "below-session"
+              ? `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${room.limit}) is smaller than one session, which reserves ${VOICE_SESSION_MINUTES} minutes, so no session can start`
+              : `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${room.limit}) is reached; it resets at 00:00 UTC`,
         },
         429,
       );

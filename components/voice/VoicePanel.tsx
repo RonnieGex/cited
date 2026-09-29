@@ -69,6 +69,10 @@ function describeError(message: string, words: ReturnType<typeof voiceStrings>):
 }
 
 function describeFailure(failure: VoiceUrlFailure, words: ReturnType<typeof voiceStrings>): string {
+  if (failure === "limit-too-low") {
+    return words.limitTooLow;
+  }
+
   if (failure === "limited") {
     return words.limitError;
   }
