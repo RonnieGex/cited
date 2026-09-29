@@ -5,9 +5,12 @@ import type {
   KeywordMatch,
   PassageFilter,
   PassageInput,
+  ProviderKind,
+  ProviderSettingInput,
   StoreEnvironment,
   StoredDocument,
   StoredPassage,
+  StoredProviderSetting,
   VectorMatch,
 } from "./types.ts";
 
@@ -68,6 +71,27 @@ const schemaStatements = [
     welcome_en TEXT NOT NULL DEFAULT '',
     welcome_es TEXT NOT NULL DEFAULT '',
     updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS provider_settings (
+    kind TEXT PRIMARY KEY CHECK (kind IN ('chat','embeddings')),
+    provider TEXT NOT NULL,
+    model TEXT,
+    key_ciphertext TEXT,
+    key_last4 TEXT,
+    base_url TEXT,
+    mode TEXT,
+    tested_at TEXT,
+    test_latency_ms INTEGER,
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS provider_tests (
+    window_start TEXT PRIMARY KEY,
+    count INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE TABLE IF NOT EXISTS document_index (
+    document_id INTEGER PRIMARY KEY,
+    signature TEXT NOT NULL,
+    indexed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   )`,
 ];
 
@@ -138,6 +162,27 @@ function toPassage(row: Row): StoredPassage {
     position: Number(row["position"]),
     heading: row["heading"] === null || row["heading"] === undefined ? null : String(row["heading"]),
     text: String(row["text"]),
+  };
+}
+
+function toProviderSetting(row: Row): StoredProviderSetting {
+  const text = (value: unknown): string | null =>
+    value === null || value === undefined ? null : String(value);
+
+  return {
+    kind: String(row["kind"]) === "embeddings" ? "embeddings" : "chat",
+    provider: String(row["provider"]),
+    model: text(row["model"]),
+    keyCiphertext: text(row["key_ciphertext"]),
+    keyLast4: text(row["key_last4"]),
+    baseUrl: text(row["base_url"]),
+    mode: text(row["mode"]),
+    testedAt: text(row["tested_at"]),
+    testLatencyMs:
+      row["test_latency_ms"] === null || row["test_latency_ms"] === undefined
+        ? null
+        : Number(row["test_latency_ms"]),
+    updatedAt: String(row["updated_at"]),
   };
 }
 
@@ -218,6 +263,15 @@ export type Store = {
   saveBusiness(row: BusinessRowInput): Promise<void>;
   saveBusinessLogo(mime: string, bytes: Uint8Array): Promise<void>;
   readBusinessLogo(): Promise<StoredLogo | null>;
+  readProviderSetting(kind: ProviderKind): Promise<StoredProviderSetting | null>;
+  saveProviderSetting(row: ProviderSettingInput): Promise<void>;
+  deleteProviderSetting(kind: ProviderKind): Promise<number>;
+  recordProviderTest(windowStart: string): Promise<number>;
+  providerTestsInWindow(windowStart: string): Promise<number>;
+  saveIndexSignature(documentName: string, signature: string): Promise<void>;
+  countPassagesNeedingIndex(signature: string): Promise<number>;
+  listDocumentsNeedingIndex(signature: string): Promise<StoredDocument[]>;
+  countVectorized(): Promise<number>;
   listRecentTurns(limit: number): Promise<StoredTurn[]>;
   countTurns(): Promise<number>;
   deleteAllTurns(): Promise<number>;
@@ -261,6 +315,10 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
     }
 
     await transaction.execute({
+      sql: "DELETE FROM document_index WHERE document_id = ?",
+      args: [Number(previous)],
+    });
+    await transaction.execute({
       sql: "DELETE FROM passages WHERE document_id = ?",
       args: [Number(previous)],
     });
@@ -286,16 +344,24 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
         const documentId = Number(inserted.lastInsertRowid);
 
         for (const passage of passages) {
-          const stored = await transaction.execute({
-            sql: "INSERT INTO passages (document_id, position, heading, text, embedding) VALUES (?, ?, ?, ?, vector(?))",
-            args: [
-              documentId,
-              passage.position,
-              passage.heading,
-              passage.text,
-              new Uint8Array(Float32Array.from(passage.embedding).buffer),
-            ],
-          });
+          // Keyword mode stores no vector: the row keeps an empty blob and the search ranks with FTS5 alone. The
+          // `vector()` conversion needs bytes, so an empty embedding is written without it.
+          const stored =
+            passage.embedding.length === 0
+              ? await transaction.execute({
+                  sql: "INSERT INTO passages (document_id, position, heading, text, embedding) VALUES (?, ?, ?, ?, x'')",
+                  args: [documentId, passage.position, passage.heading, passage.text],
+                })
+              : await transaction.execute({
+                  sql: "INSERT INTO passages (document_id, position, heading, text, embedding) VALUES (?, ?, ?, ?, vector(?))",
+                  args: [
+                    documentId,
+                    passage.position,
+                    passage.heading,
+                    passage.text,
+                    new Uint8Array(Float32Array.from(passage.embedding).buffer),
+                  ],
+                });
 
           await transaction.execute({
             sql: "INSERT INTO passages_fts (rowid, text) VALUES (?, ?)",
@@ -669,6 +735,117 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
         mime: String(row["logo_mime"] ?? "application/octet-stream"),
         bytes: new Uint8Array(row["logo_bytes"] as ArrayBufferLike),
       };
+    },
+
+    async readProviderSetting(kind: ProviderKind): Promise<StoredProviderSetting | null> {
+      const found = await client.execute({
+        sql: "SELECT kind, provider, model, key_ciphertext, key_last4, base_url, mode, tested_at, test_latency_ms, updated_at FROM provider_settings WHERE kind = ?",
+        args: [kind],
+      });
+      const row = found.rows[0];
+
+      return row === undefined ? null : toProviderSetting(row as Row);
+    },
+
+    async saveProviderSetting(row: ProviderSettingInput): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO provider_settings (kind, provider, model, key_ciphertext, key_last4, base_url, mode, tested_at, test_latency_ms, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (kind) DO UPDATE SET
+            provider = excluded.provider,
+            model = excluded.model,
+            key_ciphertext = excluded.key_ciphertext,
+            key_last4 = excluded.key_last4,
+            base_url = excluded.base_url,
+            mode = excluded.mode,
+            tested_at = excluded.tested_at,
+            test_latency_ms = excluded.test_latency_ms,
+            updated_at = excluded.updated_at`,
+        args: [
+          row.kind,
+          row.provider,
+          row.model,
+          row.keyCiphertext,
+          row.keyLast4,
+          row.baseUrl,
+          row.mode,
+          row.testedAt,
+          row.testLatencyMs,
+        ],
+      });
+    },
+
+    async deleteProviderSetting(kind: ProviderKind): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM provider_settings WHERE kind = ?",
+        args: [kind],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async recordProviderTest(windowStart: string): Promise<number> {
+      const counted = await client.execute({
+        sql: `INSERT INTO provider_tests (window_start, count) VALUES (?, 1)
+          ON CONFLICT (window_start) DO UPDATE SET count = count + 1
+          RETURNING count`,
+        args: [windowStart],
+      });
+
+      return Number(counted.rows[0]?.["count"] ?? 0);
+    },
+
+    async providerTestsInWindow(windowStart: string): Promise<number> {
+      const found = await client.execute({
+        sql: "SELECT count FROM provider_tests WHERE window_start = ?",
+        args: [windowStart],
+      });
+
+      return Number(found.rows[0]?.["count"] ?? 0);
+    },
+
+    async saveIndexSignature(documentName: string, signature: string): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO document_index (document_id, signature, indexed_at)
+          SELECT id, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM documents WHERE name = ?
+          ON CONFLICT (document_id) DO UPDATE SET
+            signature = excluded.signature,
+            indexed_at = excluded.indexed_at`,
+        args: [signature, documentName],
+      });
+    },
+
+    async countPassagesNeedingIndex(signature: string): Promise<number> {
+      const found = await client.execute({
+        sql: `SELECT count(*) AS total FROM passages AS p
+          JOIN documents AS d ON d.id = p.document_id
+          LEFT JOIN document_index AS i ON i.document_id = d.id
+          WHERE i.signature IS NULL OR i.signature <> ?`,
+        args: [signature],
+      });
+
+      return Number(found.rows[0]?.["total"] ?? 0);
+    },
+
+    async listDocumentsNeedingIndex(signature: string): Promise<StoredDocument[]> {
+      const found = await client.execute({
+        sql: `SELECT d.id AS id, d.name AS name, d.sha256 AS sha256, d.type AS type, d.pages AS pages, d.ingested_at AS ingested_at
+          FROM documents AS d
+          LEFT JOIN document_index AS i ON i.document_id = d.id
+          WHERE i.signature IS NULL OR i.signature <> ?
+          ORDER BY d.name`,
+        args: [signature],
+      });
+
+      return found.rows.map((row) => toDocument(row as Row));
+    },
+
+    async countVectorized(): Promise<number> {
+      const found = await client.execute(
+        "SELECT count(*) AS total FROM passages WHERE length(embedding) > 0",
+      );
+
+      return Number(found.rows[0]?.["total"] ?? 0);
     },
 
     async listRecentTurns(limit: number): Promise<StoredTurn[]> {

@@ -22,7 +22,8 @@ export type AskInput = {
   question: string;
   sessionId?: string | null;
   store: Store;
-  embeddings: EmbeddingProvider;
+  /** `null` is keyword mode: the search ranks with FTS5 alone and no embeddings provider is called. */
+  embeddings: EmbeddingProvider | null;
   model: LanguageModel;
   environment?: ChatEnvironment;
   ip: string;

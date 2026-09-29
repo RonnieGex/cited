@@ -1,8 +1,9 @@
 import { askQuestion } from "../../../lib/answer/ask.ts";
 import type { AskOutcome } from "../../../lib/answer/types.ts";
-import { resolveEmbeddingsProvider } from "../../../lib/embeddings/providers.ts";
+import { embeddingsFrom } from "../../../lib/embeddings/providers.ts";
 import { clientIp } from "../../../lib/guards/ip.ts";
-import { resolveChatModel } from "../../../lib/models/providers.ts";
+import { chatModelFrom } from "../../../lib/models/providers.ts";
+import { chatProblem, resolveChat, resolveEmbeddings } from "../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
@@ -86,9 +87,24 @@ export async function POST(request: Request): Promise<Response> {
   let outcome: AskOutcome;
 
   try {
-    const embeddings = resolveEmbeddingsProvider(process.env);
-    const model = resolveChatModel(process.env);
+    // The provider of the answers and the embeddings of the search come from the resolver: the environment of the
+    // server first, the panel after it. A missing configuration answers 503 with a message that names what is missing
+    // and never a value (the requirement "The chat model is chosen by variables" of `specs/answering/spec.md`).
     const store = await sharedStore(process.env);
+    const chat = await resolveChat({ environment: process.env, store });
+    const problem = chatProblem(chat);
+
+    if (chat.provider === null || problem !== null) {
+      return answer({ status: "unavailable", error: problem }, 503);
+    }
+
+    const embeddings = embeddingsFrom(await resolveEmbeddings({ environment: process.env, store }));
+    const model = chatModelFrom({
+      provider: chat.provider,
+      model: chat.model,
+      key: chat.key,
+      baseUrl: chat.baseUrl,
+    });
 
     outcome = await askQuestion({
       question: parsed.question,

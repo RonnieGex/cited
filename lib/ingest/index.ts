@@ -54,7 +54,11 @@ type PreparedDocument = {
   passages: Array<{ position: number; heading: string | null; text: string }>;
 };
 
-async function embedAll(provider: EmbeddingProvider, texts: string[]): Promise<number[][]> {
+async function embedAll(provider: EmbeddingProvider | null, texts: string[]): Promise<number[][]> {
+  if (provider === null) {
+    return [];
+  }
+
   const vectors: number[][] = [];
 
   for (let index = 0; index < texts.length; index += embeddingBatch) {
@@ -124,6 +128,10 @@ export async function ingestPaths(paths: string[], options: IngestOptions): Prom
       { name: document.name, sha256: document.sha256, type: document.type, pages: document.pages },
       passages,
     );
+
+    if (options.signature !== undefined) {
+      await options.store.saveIndexSignature(document.name, options.signature);
+    }
 
     ingested.push({
       name: document.name,

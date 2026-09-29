@@ -39,8 +39,11 @@ export type IngestLimits = {
 
 export type IngestOptions = {
   store: Store;
-  embeddings: EmbeddingProvider;
+  /** `null` is keyword mode: the passages are stored with no vector and the search ranks with FTS5 alone. */
+  embeddings: EmbeddingProvider | null;
   limits?: IngestLimits;
+  /** The signature of the embeddings that made the vectors, written with the document for the re-index warning. */
+  signature?: string;
 };
 
 export type ChunkOptions = {

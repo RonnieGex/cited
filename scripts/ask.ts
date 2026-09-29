@@ -1,6 +1,7 @@
 import { askQuestion } from "../lib/answer/ask.ts";
-import { resolveEmbeddingsProvider } from "../lib/embeddings/providers.ts";
-import { resolveChatModel } from "../lib/models/providers.ts";
+import { embeddingsFrom } from "../lib/embeddings/providers.ts";
+import { chatModelFrom } from "../lib/models/providers.ts";
+import { chatProblem, resolveChat, resolveEmbeddings } from "../lib/settings/providers.ts";
 import { openStore } from "../lib/store/index.ts";
 import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
 
@@ -14,8 +15,23 @@ async function main(): Promise<void> {
 
   const storePath = storeLocation(process.env);
   const store = await openStore(prepareStorePath(storePath));
-  const embeddings = resolveEmbeddingsProvider(process.env);
-  const model = resolveChatModel(process.env);
+  const chat = await resolveChat({ environment: process.env, store });
+  const problem = chatProblem(chat);
+
+  if (chat.provider === null || problem !== null) {
+    console.error(`status: unavailable`);
+    console.error(problem ?? "the AI is not connected yet");
+    store.close();
+    process.exit(2);
+  }
+
+  const embeddings = embeddingsFrom(await resolveEmbeddings({ environment: process.env, store }));
+  const model = chatModelFrom({
+    provider: chat.provider,
+    model: chat.model,
+    key: chat.key,
+    baseUrl: chat.baseUrl,
+  });
   const started = Date.now();
   const outcome = await askQuestion({
     question,

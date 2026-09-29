@@ -1,7 +1,8 @@
-import { resolveEmbeddingsProvider } from "../../../../lib/embeddings/providers.ts";
 import { documentSummaries, ingestUpload } from "../../../../lib/admin/documents.ts";
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
+import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
+import { embeddingsSignature, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
@@ -43,14 +44,16 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const store = await sharedStore(process.env);
+  const resolution = await resolveEmbeddings({ environment: process.env, store });
   let report;
 
   try {
     report = await ingestUpload(
       store,
-      resolveEmbeddingsProvider(process.env),
+      embeddingsFrom(resolution),
       file.name,
       new Uint8Array(await file.arrayBuffer()),
+      embeddingsSignature(resolution),
     );
   } catch (error) {
     return json({ status: "invalid", error: messageOf(error) }, 400);

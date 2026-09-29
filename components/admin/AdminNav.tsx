@@ -23,6 +23,11 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
           </Link>
         </li>
         <li>
+          <Link className={links} href="/admin/ai">
+            {strings.navAi}
+          </Link>
+        </li>
+        <li>
           <Link className={links} href="/admin/business">
             {strings.navBusiness}
           </Link>
