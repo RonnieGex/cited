@@ -27,8 +27,9 @@ context: |
   or any other commercially licensed font file, the book of Construye, golden cases, holdout data, prompts of
   clients, prices or keys.
 
-  Languages: code, specs, tests, commits and reports are in English. `README.md` is bilingual and `LOOP_STATE.md` is
-  in Mexican Spanish.
+  Languages: code, specs, tests, commits, reports and `LOOP_STATE.md` are in English. `README.md` is the only
+  bilingual file. The delivery documents that Franc reads live outside this repository, in `katalis-dev/tasks/`, and
+  they are in Mexican Spanish.
 
   Project specs (single source of truth): every artifact and every implementation follows this context. Read and
   apply:

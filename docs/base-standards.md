@@ -27,9 +27,10 @@ known difference is the reports path: reports live in
 ## 2. Language standards
 
 - **English only** for technical artifacts: code, identifiers, error messages, logs, documentation, README (except
-  its Spanish part), specs, tests, configuration, scripts and commit messages.
-- **Exceptions**: the Spanish part of `README.md`; `LOOP_STATE.md`; the delivery documents that live in
-  `katalis-dev/tasks/`; and the manual that Franc reads, when one exists.
+  its Spanish part), specs, tests, configuration, scripts, commit messages and `LOOP_STATE.md`.
+- **Exceptions**: the Spanish part of `README.md`; `docs/katalis-sdd-standard.md`, which is a byte-identical copy of
+  the canonical standard of the suite and is therefore written in the language of the original; and the delivery
+  documents that live outside this repository, in `katalis-dev/tasks/`.
 
 ## 3. Specific standards
 
