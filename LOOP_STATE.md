@@ -1,86 +1,88 @@
 # LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: core-hybrid-search (OpenSpec)
-BRANCH: feature/core-hybrid-search
-BASE: 2e1e580 (main)
+CHANGE: cited-identity-and-readme (OpenSpec)
+BRANCH: feature/cited-identity-and-readme
+BASE: 5dec3af (main)
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
 ## Objective
 
-Execute the review round of the contract `openspec/changes/core-hybrid-search/tasks.md`, section 10, written by Fable
-after the adversarial review `katalis-dev/tasks/revision-community-02.md` (0 Blockers, 3 Majors). The three Majors were
-reproduced first and corrected tests first, in small commits, each `[x]` with its report.
+Execute `openspec/changes/cited-identity-and-readme/tasks.md`, the contract written by Fable, in order and complete
+except section 10. The product is now **Cited, by Katalis**, the name Franc chose, and the README is the calling card
+of the repository: a banner, a designed graphic per section in two themes, an honest status table, a quick start that
+runs and a Spanish twin.
 
 ## What was delivered
 
-- **10.1, Major 1**: `tests/ingest.test.ts` spies on `PDFParse#getText()` and proves zero calls for a PDF refused by
-  its page count. `parsePdf` asks `getInfo()` for the count first and only then extracts the text; `parseFile` passes
-  `limits.maxPages` down, so the check no longer runs after the extraction.
-- **10.2, Major 2**: `tests/store-remote.test.ts` doubles the libSQL client and covers both scenarios of the new
-  requirement: a remote URL with an empty `TURSO_AUTH_TOKEN` stops before a client exists, a remote URL with a token
-  creates the client with it as `authToken`, and a local `file:` URL needs none. `.env.example` and `docs/search.md`
-  name the variable and say when it is required.
-- **10.3, Major 3**: the keyword-only test uses `mantenimiento` (the keyword ranking puts its passage first and the
-  vector ranking does not) and the meaning-only test uses `¿Aceptan reprogramaciones gratuitas avisando
-  anticipadamente?` (the keyword ranking is empty). With the vector branch disabled only the meaning-only test fails;
-  with the keyword branch disabled only the keyword-only test fails; both pass with the real search. The step 3 and
-  step 4 reports whose figures contradicted the real corpus are corrected.
-- **10.4**: the battery is green on Windows and in a `node:24` Linux container with `--network none`; the round is
-  appended to `katalis-dev/tasks/entrega-community-02.md` under its own heading with `## Issues`.
+- **0.1**: the branch `feature/cited-identity-and-readme` on top of `main` `5dec3af`, `npm ci` clean.
+- **1.1, 1.2, 8.1**: the battery before and after, and the proof that the change adds no persistence and that the
+  quick start leaves no store file tracked by git.
+- **2.1**: `tests/readme.test.ts`, 29 cases covering every scenario of `project-readme` and `product-identity`, run
+  red against the old README and the old names before any implementation.
+- **3.1**: `Cited` in every tracked file outside `openspec/changes/archive/`, the MODIFIED home page requirement and
+  the two tests that assert the name.
+- **3.2**: `scripts/render-readme-banner.mjs` with `scripts/readme-banner.html`, the two banners and
+  `docs/images/readme-banner.json`.
+- **3.3**: `scripts/render-readme-graphics.mjs` with the templates of `scripts/readme-graphics/`, the nine graphics
+  in both themes, the demo drawn from the real run of the quick start, the social preview and
+  `docs/images/readme-graphics.json`.
+- **3.4**: `README.md` and its Spanish twin `README.es.md`, as decisions 3 to 8 and the copy rules of decision 7.
+- **4.1**: the whole suite, with only the two assertions of the old name updated.
+- **5.1**: every check on Windows and in a `node:24` Linux container, and the weight of `docs/images/`.
+- **6.1**: the quick start word for word on a clean clone in a container, the badges with `curl.exe`, and both
+  READMEs through the GitHub Markdown API without a token.
+- **7.1**: both READMEs rendered by the Markdown API with their local images, nine captures with Playwright at 1280
+  and 400 px in light and dark, and `npm run test:e2e` green.
+- **9.1**: `docs/readme-assets.md`, plus the standards and the development guide that had to follow the change.
+- **9.2**: `katalis-dev/tasks/entrega-community-03.md`, in Spanish, with the captures, every graphic in both themes
+  and `## Issues`.
 
-The report with every command, commit and real output is
-`openspec/changes/core-hybrid-search/reports/2026-09-29-step-10-review-round.md`. The four boxes 10.1 to 10.4 are `[x]`
-and the diff of `tasks.md` is four `[ ]` converted into `[x]`: the text of no task was edited.
+The contract is marked: fifteen boxes `[x]` with their reports, and the four of section 10 untouched because they are
+Fable's.
+
+## The defects found and closed
+
+1. **The quick start did not run as written**: the empty template of the environment made the ingest fail with
+   `EMBEDDINGS_PROVIDER must be one of openai, ollama, fake`. The two commands now carry the provider in front.
+2. **GitHub did not render the badges**: they were inside a raw HTML block, where GitHub does not parse markdown. They
+   are plain markdown now.
+3. **The contract test broke on Linux**: `git ls-files` lists the agent symbolic links and a link to a directory makes
+   `readFileSync` throw `EISDIR`. The test now reads only regular tracked files.
+4. **Two reports carried a local path** and `tests/personal-paths.test.ts` caught them; the paths were replaced.
+5. **A first attempt at the rename mangled nineteen files**; the diff caught it before any commit and the work was
+   redone with a checked script.
 
 ## State of the tree
 
-The tree is clean on `feature/core-hybrid-search`. `main` still points at `2e1e580`, no remote was contacted, nothing
-was pushed and nothing was archived.
-
-## Commits of the round (all on feature/core-hybrid-search, none in main)
-
-| SHA | Message |
-|---|---|
-| `e033c8b` | chore(core-hybrid-search): open the review round of the contract |
-| `ee7f411` | test(core-hybrid-search): spy the pdf text extraction before the page limit |
-| `dc81a18` | fix(core-hybrid-search): refuse a pdf by its page count before extracting text |
-| `5eaed5f` | test(core-hybrid-search): prove a remote store needs and uses its token |
-| `ce205c5` | feat(core-hybrid-search): authenticate a remote libSQL store with its token |
-| `17a2989` | docs(core-hybrid-search): document the page count check and the store token |
-| `2435664` | test(core-hybrid-search): isolate the keyword-only and meaning-only rankings |
-| `c66d71a` | docs(core-hybrid-search): correct the corpus figures of the search reports |
-| `f119d0c` | docs(core-hybrid-search): report the review round of the contract |
-| `f79d62c` | chore(core-hybrid-search): mark the review round of the contract |
-
-The closing commit carries this state file; a commit cannot list its own hash, so the table stops at the ten commits of
-the work itself.
+The tree is clean on `feature/cited-identity-and-readme` at `c67d1f8`. `main` still points at `5dec3af`, no remote was
+contacted, nothing was pushed and nothing was archived.
 
 ## Closing battery
 
-Windows 11, Node `v24.11.0`, clean tree: `npm test` 10 files and 72 tests passed, `npm run typecheck`, `npm run lint`,
-`npm audit --audit-level=high` (0 vulnerabilities), `npm run secrets:scan` (62 commits, no leaks found),
-`openspec validate --all --strict` (4 passed) and `git diff --check main...HEAD` all exit 0. Linux x64, image
-`node@sha256:64af3819f9275802414d7cdc38c27e9d82bd564dec4d4da87d008255d36c63b4`, Node `v24.21.0`, native clone of the
-closing tree outside the repository: `npm ci` installed 496 packages with 0 vulnerabilities and `npm test` passed 10
-files and 72 tests with `--network none`.
+Windows 11, Node `v24.11.0`: `npm test` 11 files and 101 tests passed, `npm run typecheck`, `npm run lint`,
+`npm run build`, `npm run test:e2e` (1 test), `npm audit --audit-level=high` (0 vulnerabilities),
+`npm run secrets:scan` (77 commits, no leaks found), `openspec validate --all --strict` (5 passed) and
+`git diff --check main...HEAD` all exit 0. Linux x64, image `node:24`, Node `v24.21.0`, clean tree outside the
+repository: `npm ci` exit 0 and `npm test` 11 files and 101 tests with `--network none`. The images of the README
+weigh 0.445 MB against a budget of 3 MB.
 
 ## Hard rules respected
 
-- No `.env` file was opened: only the tracked template with empty values, which the task asks to keep updated.
+- No `.env` file was opened: only the tracked template with empty values.
 - No push, no remote, no commit in `main`, no archive.
-- No call to a real provider and no call to Turso: the suite uses the deterministic fake provider, one HTTP double on
-  `127.0.0.1` and a doubled libSQL client module.
-- No secret, no client data and no text of the Construye book in any file; no personal path in any tracked file.
+- No call to a real provider and no call to Turso: the deterministic `fake` provider ran every command.
+- No secret, no customer data and no text of the Construye book in any file; no personal path in any tracked file.
 - No `MEMORY.md` in any commit.
-- UTF-8 with LF in every file written or modified; `git ls-files --eol` reports no CRLF and no mixed ending.
+- No font file enters the repository: Outfit is loaded from Google Fonts at render time.
+- UTF-8 with LF in every file written or modified; `git ls-files --eol` reports no `crlf`, no `mixed` and no `bom`.
 
 ## Pending and out of scope
 
-- **NOT DONE**: the GitHub pipeline, because a push is forbidden here; the equivalent battery ran locally on Windows
-  and in the disposable `node:24` container.
-- **NOT DONE, reserved for Fable and Codex**: the independent confirmation of the three Majors, the archive of the
-  change and its merge. Archiving needs the explicit OK of Franc.
-- **UNKNOWN**: the behaviour of a real Turso database (the contract of the client is proved with a double, never the
-  network) and the quality of a real embeddings provider on a real corpus, which the plan already names as a risk.
+- **NOT DONE, reserved for Fable**: section 10 of the contract (rename the GitHub repository to `cited`, update the
+  remote and prove that the old URL redirects), the independent review, the merge and the archive.
+- **NOT DONE**: the GitHub pipeline itself, because a push is forbidden here; the equivalent battery ran locally on
+  Windows and in the disposable `node:24` container.
+- **UNKNOWN**: how the CI badge will render once the repository is public, and the behaviour of GitHub under themes
+  and widths beyond the 1280 and 400 px of the captures.
