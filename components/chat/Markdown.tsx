@@ -76,7 +76,7 @@ function renderInline(nodes: InlineNode[], options: RenderOptions): ReactNode[] 
         onClick={() => {
           options.onCitation?.(node.n);
         }}
-        className="mx-1 inline-block rounded-none border border-ink/20 px-1 align-baseline text-[11px] font-semibold text-ink transition-colors duration-[400ms] ease-out-expo hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime focus-visible:ring-1 focus-visible:ring-ink"
+        className="mx-1 inline-block rounded-none border border-ink/20 px-1 align-baseline text-[11px] font-semibold text-ink transition-colors duration-[400ms] ease-out-expo hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime focus-visible:ring-1 focus-visible:ring-ink"
       >
         {`[${node.n}]`}
       </button>

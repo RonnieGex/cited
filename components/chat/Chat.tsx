@@ -96,7 +96,7 @@ function AnsweredTurn({
                   onClick={() => {
                     setOpen((current) => (current === source.n ? null : source.n));
                   }}
-                  className="rounded-none border border-ink/20 px-3 py-1 text-[11px] font-semibold text-ink transition-colors duration-[400ms] ease-out-expo hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime focus-visible:ring-1 focus-visible:ring-ink"
+                  className="rounded-none border border-ink/20 px-3 py-1 text-[11px] font-semibold text-ink transition-colors duration-[400ms] ease-out-expo hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime focus-visible:ring-1 focus-visible:ring-ink"
                 >
                   {`[${source.n}] ${source.document}`}
                 </button>
@@ -181,7 +181,7 @@ export function Chat({ lang, welcome, variant = "page", ask, storage }: ChatProp
       )}
 
       {loading ? (
-        <p role="status" className="text-ink/80">
+        <p role="status" className="border-l-2 border-[var(--primary)] pl-4 text-ink/80">
           {strings.loading}
         </p>
       ) : null}
@@ -201,7 +201,7 @@ export function Chat({ lang, welcome, variant = "page", ask, storage }: ChatProp
               setQuestion(event.target.value);
             }}
           />
-          <Button type="submit" disabled={loading} className="sm:w-auto">
+          <Button type="submit" variant="brand" disabled={loading} className="sm:w-auto">
             {strings.question.submit}
           </Button>
         </div>

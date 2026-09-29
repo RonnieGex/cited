@@ -71,7 +71,7 @@ Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before ea
 reproduced.
 
 - [x] 10.1 `LanguageSwitch` takes the prop `current` (design decision 8 as amended) — report: the one of this section
-- [ ] 10.2 The primary color paints the ask button and the accents, scenario "The color reaches the page" — report: the
+- [x] 10.2 The primary color paints the ask button and the accents, scenario "The color reaches the page" — report: the
       one of this section
 - [ ] 10.3 `/embed` posts a message to its parent on `Escape`, and `widget.js` closes only for a message from its own
       origin, scenario "Escape inside the iframe" — report: the one of this section
