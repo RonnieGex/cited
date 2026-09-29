@@ -284,18 +284,19 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
         <label htmlFor={fieldId} className="text-sm font-semibold text-ink">
           {strings.question.label}
         </label>
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex items-stretch gap-3">
           <Input
             id={fieldId}
             name="question"
             value={question}
             autoComplete="off"
             placeholder={strings.question.placeholder}
+            className="min-w-0 flex-1 max-sm:px-4"
             onChange={(event) => {
               setQuestion(event.target.value);
             }}
           />
-          <Button type="submit" variant="brand" disabled={loading} className="sm:w-auto">
+          <Button type="submit" variant="brand" disabled={loading} className="shrink-0 max-sm:px-5">
             {strings.question.submit}
           </Button>
         </div>
