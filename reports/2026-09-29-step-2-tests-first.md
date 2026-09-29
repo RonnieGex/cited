@@ -133,7 +133,7 @@ check, so the build of the base is sound and the failure is the missing route, n
 
 ## Commits of this task
 
-- `1c1b7dc` the red tests, the declaration of `inventedLogos` and the axe dependency.
+- `a8ec583` the red tests, the declaration of `inventedLogos` and the axe dependency.
 
 ## Files
 
