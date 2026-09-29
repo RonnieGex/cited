@@ -195,6 +195,33 @@ export function meanLuminance(image: DecodedPng): number {
   return total / count;
 }
 
+export type Box = { x: number; y: number; width: number; height: number };
+
+/** The mean relative luminance of the pixels inside a box, clamped to the image. */
+export function meanLuminanceIn(image: DecodedPng, box: Box): number {
+  const left = Math.max(0, Math.min(image.width - 1, Math.round(box.x)));
+  const top = Math.max(0, Math.min(image.height - 1, Math.round(box.y)));
+  const right = Math.max(left + 1, Math.min(image.width, Math.round(box.x + box.width)));
+  const bottom = Math.max(top + 1, Math.min(image.height, Math.round(box.y + box.height)));
+  let total = 0;
+  let count = 0;
+
+  for (let y = top; y < bottom; y += 1) {
+    for (let x = left; x < right; x += 1) {
+      const at = (y * image.width + x) * 4;
+
+      total += relativeLuminance(
+        image.pixels[at] ?? 0,
+        image.pixels[at + 1] ?? 0,
+        image.pixels[at + 2] ?? 0,
+      );
+      count += 1;
+    }
+  }
+
+  return total / count;
+}
+
 export function transparentShare(image: DecodedPng): number {
   let transparent = 0;
   let count = 0;

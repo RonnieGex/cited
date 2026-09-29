@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { decodePng, meanLuminance, transparentShare } from "./png";
+import { decodePng, meanLuminance, meanLuminanceIn, transparentShare } from "./png";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const imagesDirectory = "docs/images";
@@ -10,7 +10,27 @@ const formerName = /katalis[\s-]+responde[\s-]+community/i;
 const archivedChanges = "openspec/changes/archive/";
 const contractItself = "openspec/changes/cited-identity-and-readme/";
 
-const statusStates = ["Available", "Planned"] as const;
+// Decision 11: the Spanish twin is a translation, so its headings, its status words and its yes/no are Spanish and a
+// contract test cannot compare them with the English words literally.
+const twinSections: Record<string, string> = {
+  "Why Cited": "Por qué Cited",
+  Status: "Estado",
+  "How it works": "Cómo funciona",
+  "See it work": "Míralo funcionar",
+  Roadmap: "Hoja de ruta",
+  Voice: "Voz",
+  "Quick start": "Arranque rápido",
+  Configuration: "Configuración",
+  Security: "Seguridad",
+  Contributing: "Cómo contribuir",
+  License: "Licencia",
+};
+const statusStates: Record<string, string> = {
+  Available: "Available",
+  Planned: "Planned",
+  Disponible: "Available",
+  Siguiente: "Planned",
+};
 const plannedChanges = [
   "design-system-shared",
   "pluggable-models-and-ask",
@@ -81,9 +101,34 @@ const pngSignature = "89504e470d0a1a0a";
 
 // Decision 10 of the design: a dark canvas is ink with the lime glow and a light canvas is off-white, measured as the
 // mean relative luminance of the decoded pixels. The footer mark is a transparent asset, not a canvas.
+// Decision 11 amends it: the terminal of the demo is dark in both themes, so the canvas bound of the light variant
+// cannot hold for `demo-light.png` (a dark terminal has to stay under 19% of the canvas for the mean to reach 0.80 and
+// the real run of the quick start does not fit there). That file leaves the canvas list and is measured inside the
+// terminal area instead.
 const artDirection = {
   darkMaximum: 0.3,
   lightMinimum: 0.8,
+  terminalMaximum: 0.3,
+  roadmapMaximumHeight: 720,
+  canvases: [
+    "readme-banner-dark.png",
+    "readme-banner-light.png",
+    "reason-sources-dark.png",
+    "reason-sources-light.png",
+    "reason-citations-dark.png",
+    "reason-citations-light.png",
+    "reason-voice-dark.png",
+    "reason-voice-light.png",
+    "how-it-works-dark.png",
+    "how-it-works-light.png",
+    "demo-dark.png",
+    "demo-light.png",
+    "roadmap-dark.png",
+    "roadmap-light.png",
+    "voice-teaser-dark.png",
+    "voice-teaser-light.png",
+    "social-preview.png",
+  ],
   darkCanvases: [
     "readme-banner-dark.png",
     "reason-sources-dark.png",
@@ -101,10 +146,10 @@ const artDirection = {
     "reason-citations-light.png",
     "reason-voice-light.png",
     "how-it-works-light.png",
-    "demo-light.png",
     "roadmap-light.png",
     "voice-teaser-light.png",
   ],
+  terminalCanvases: ["demo-light.png"],
   marks: ["katalis-logo.png", "katalis-logo-dark.png"],
 };
 
@@ -236,8 +281,9 @@ function h2Titles(text: string): string[] {
 }
 
 function sectionNamed(text: string, name: string): Section {
+  const titles = [slug(name), slug(twinSections[name] ?? name)];
   const found = sectionsOf(text).filter(
-    (section) => section.level === 2 && slug(section.title) === slug(name),
+    (section) => section.level === 2 && titles.includes(slug(section.title)),
   );
 
   expect(found.length, `the README has one level-two section "${name}"`).toBe(1);
@@ -255,14 +301,17 @@ function beforeFirstCodeBlock(text: string): string {
   return index === -1 ? text : text.slice(0, index);
 }
 
-function statusRows(text: string): Array<{ capability: string; state: string; reference: string }> {
+type StatusRow = { capability: string; state: string; word: string; reference: string };
+
+function statusRows(text: string): StatusRow[] {
   return sectionNamed(text, "Status")
     .lines.map((line) => tableRow(line))
     .filter((cells): cells is string[] => cells !== null && cells.length === 3)
-    .filter((cells) => (statusStates as readonly string[]).includes(cells[1] ?? ""))
+    .filter((cells) => statusStates[cells[1] ?? ""] !== undefined)
     .map((cells) => ({
       capability: cells[0] ?? "",
-      state: cells[1] ?? "",
+      state: statusStates[cells[1] ?? ""] ?? "",
+      word: cells[1] ?? "",
       reference: cells[2] ?? "",
     }));
 }
@@ -474,6 +523,56 @@ describe("README, the status table", () => {
   });
 });
 
+describe("README, the promise of an answer", () => {
+  // Decision 11: nothing outside a `Next` tag says "answer", "respuesta" or "page". The search returns passages with
+  // their document, their heading and their position, and that is what the copy promises until the change that drafts
+  // an answer lands.
+  const answerWords = /\b(answers?|answered|page|pages)\b|respuestas?|p[áa]ginas?/i;
+  const nextTag = /next|siguiente/i;
+
+  function offenders(lines: Array<[string, string]>): string[] {
+    return lines
+      .filter(([, line]) => nextTag.test(line) === false && answerWords.test(line))
+      .map(([where, line]) => `${where}: ${line.trim()}`);
+  }
+
+  it("speaks of answers only in a line that carries Next", () => {
+    const graphics = (recorded(graphicsRecordPath)["graphics"] ?? []) as Array<
+      Record<string, unknown>
+    >;
+    const social = recorded(graphicsRecordPath)["social"] as Record<string, unknown>;
+    const spoken: Array<[string, string]> = [
+      ["the tagline", String(recorded(bannerRecordPath)["tagline"] ?? "")],
+      ["the social preview", String(social["tagline"] ?? "")],
+      ...graphics.map(
+        (entry): [string, string] => [
+          `the headline of ${String(entry["name"])}`,
+          String(entry["headline"] ?? ""),
+        ],
+      ),
+    ];
+
+    for (const file of ["README.md", "README.es.md"]) {
+      const text = readText(file);
+      const outside = text
+        .replace(bodyOf(text, "Status"), " ")
+        .replace(bodyOf(text, "Roadmap"), " ");
+
+      for (const line of prose(outside).split("\n")) {
+        if (line.trim().length > 0) {
+          spoken.push([`${file}`, line]);
+        }
+      }
+
+      for (const picture of pictureBlocks(text)) {
+        spoken.push([`the alt of an image of ${file}`, altOf(picture)]);
+      }
+    }
+
+    expect(offenders(spoken)).toEqual([]);
+  });
+});
+
 describe("README, the quick start and the configuration", () => {
   it("names only scripts of package.json, and runs the sample corpus with no key", () => {
     const manifest = JSON.parse(readText("package.json")) as { scripts: Record<string, string> };
@@ -533,8 +632,40 @@ describe("README, the quick start and the configuration", () => {
 });
 
 describe("README, the Spanish twin", () => {
-  it("has the same sections in the same order", () => {
-    expect(h2Titles(readText("README.es.md"))).toEqual(h2Titles(readText("README.md")));
+  it("has the same sections in the same order, each one in its language", () => {
+    const english = Object.keys(twinSections).map((name) => slug(name));
+    const spanish = Object.keys(twinSections).map((name) => slug(twinSections[name] as string));
+
+    expect(h2Titles(readText("README.md"))).toEqual(english);
+    expect(h2Titles(readText("README.es.md"))).toEqual(spanish);
+  });
+
+  it("is translated, not only mirrored", () => {
+    const english = readText("README.md");
+    const spanish = readText("README.es.md");
+    const englishSections = h2Titles(english);
+    const mirrored = h2Titles(spanish).filter((title, index) => title === englishSections[index]);
+
+    expect(mirrored).toEqual([]);
+
+    const rows = statusRows(spanish);
+
+    expect(rows.length).toBeGreaterThanOrEqual(4);
+    expect(
+      rows
+        .filter((row) => ["Disponible", "Siguiente"].includes(row.word) === false)
+        .map((row) => `${row.capability} ${row.word}`),
+    ).toEqual([]);
+    expect(rows.map((row) => row.state)).toEqual(statusRows(english).map((row) => row.state));
+
+    const configuration = configurationRows(spanish);
+
+    expect(configuration.length).toBeGreaterThanOrEqual(10);
+    expect(
+      configuration
+        .filter((row) => row.readToday !== "sí" && row.readToday !== "no")
+        .map((row) => `${row.variable} ${row.readToday}`),
+    ).toEqual([]);
   });
 
   it("has the same code blocks", () => {
@@ -680,6 +811,49 @@ describe("README, its graphics", () => {
     expect(roadmap.length).toBe(spanish.length);
   });
 
+  it("keeps the roadmap 1280 px wide and 720 px high at most", () => {
+    const record = recorded(graphicsRecordPath);
+    const limits = record["artDirection"] as Record<string, number>;
+    const drawn = record["graphics"] as Array<Record<string, unknown>>;
+    const entry = drawn.find((candidate) => candidate["name"] === "roadmap");
+
+    expect(limits["roadmapMaximumHeight"]).toBe(artDirection.roadmapMaximumHeight);
+
+    for (const path of [graphics.roadmap.dark, graphics.roadmap.light]) {
+      const size = pngSize(path);
+
+      expect(size.width, path).toBe(1280);
+      expect(size.height, path).toBeLessThanOrEqual(artDirection.roadmapMaximumHeight);
+      expect(size.height, path).toBe(entry?.["height"]);
+    }
+  });
+
+  it("keeps the terminal of the demo dark in both themes", () => {
+    const record = recorded(graphicsRecordPath);
+    const limits = record["artDirection"] as Record<string, number>;
+    const demo = record["demo"] as Record<string, unknown>;
+    const terminal = demo["terminal"] as
+      | { x: number; y: number; width: number; height: number }
+      | undefined;
+
+    expect(limits["terminalMaximum"]).toBe(artDirection.terminalMaximum);
+    expect(terminal, "the record carries the box of the terminal").toBeDefined();
+
+    for (const path of [graphics.demo.dark, graphics.demo.light]) {
+      const image = decodePng(readFileSync(resolve(repositoryRoot, path)));
+      const box = terminal ?? { x: 0, y: 0, width: 0, height: 0 };
+      const inside = meanLuminanceIn(image, box);
+      const share = (box.width * box.height) / (image.width * image.height);
+
+      console.log(
+        `${path}: the terminal is ${(share * 100).toFixed(1)}% of the canvas at ${inside.toFixed(3)}`,
+      );
+
+      expect(share, path).toBeGreaterThan(0.3);
+      expect(inside, path).toBeLessThanOrEqual(artDirection.terminalMaximum);
+    }
+  });
+
   it("carries a social preview of 1280 by 640 with the name, the tagline and the byline", () => {
     const social = recorded(graphicsRecordPath)["social"] as Record<string, unknown>;
     const tagline = recorded(bannerRecordPath)["tagline"] as string;
@@ -726,7 +900,10 @@ describe("README, the art direction of its graphics", () => {
     files.map((name) => {
       const image = decodePng(readFileSync(resolve(directory, name)));
 
-      return [name, { luminance: meanLuminance(image), transparent: transparentShare(image) }];
+      return [
+        name,
+        { image, luminance: meanLuminance(image), transparent: transparentShare(image) },
+      ];
     }),
   );
 
@@ -743,7 +920,7 @@ describe("README, the art direction of its graphics", () => {
     console.log(`The luminance of every PNG of ${imagesDirectory}:\n${table}`);
 
     expect(files).toEqual(
-      [...artDirection.darkCanvases, ...artDirection.lightCanvases, ...artDirection.marks].sort(),
+      [...artDirection.canvases, ...artDirection.marks].sort(),
     );
 
     const lightDark = artDirection.darkCanvases
@@ -755,12 +932,34 @@ describe("README, the art direction of its graphics", () => {
     const paintedMarks = artDirection.marks
       .map((name) => ({ name, value: measured.get(name)?.transparent ?? 0 }))
       .filter((entry) => entry.value < 0.05);
+    const exempted = artDirection.canvases.filter(
+      (name) =>
+        name.endsWith("-light.png") && artDirection.lightCanvases.includes(name) === false,
+    );
 
     expect(lightDark.map((entry) => `${entry.name} ${entry.value.toFixed(3)}`)).toEqual([]);
     expect(darkLight.map((entry) => `${entry.name} ${entry.value.toFixed(3)}`)).toEqual([]);
     expect(paintedMarks.map((entry) => `${entry.name} transparent ${entry.value.toFixed(3)}`)).toEqual(
       [],
     );
+    expect(exempted, "only the demo of the dark terminal leaves the light bound").toEqual(
+      artDirection.terminalCanvases,
+    );
+  });
+
+  it("measures the terminal area of every exempt canvas", () => {
+    const record = recorded(graphicsRecordPath);
+    const demo = record["demo"] as Record<string, unknown>;
+    const terminal = demo["terminal"] as { x: number; y: number; width: number; height: number };
+
+    for (const name of artDirection.terminalCanvases) {
+      const image = measured.get(name)?.image;
+      const value = image === undefined ? 1 : meanLuminanceIn(image, terminal);
+
+      console.log(`${name}: the terminal measures ${value.toFixed(3)}`);
+
+      expect(value, name).toBeLessThanOrEqual(artDirection.terminalMaximum);
+    }
   });
 });
 
