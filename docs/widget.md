@@ -54,8 +54,11 @@ and the one of `/`, which nobody frames: the same policy with `frame-ancestors '
 ## 4. The conversation
 
 Every question carries a `sessionId` of the tab, kept in `sessionStorage` under `cited-session`, so a follow-up inside
-the same tab continues the thread and a new tab starts clean. The id is created with `crypto.randomUUID()` in the
-browser: the installation stores no identifier of the visitor beyond the hash of the address the route already uses.
+the same tab continues the thread and a new tab starts clean. The tab keeps the mark `cited-tab=<id>` in `window.name`
+as well, and the id of the storage is believed only when the two agree: a tab opened with `window.open` inherits the
+`sessionStorage` of its opener, and not its `window.name`, so it starts a conversation of its own. The id is created
+with `crypto.randomUUID()` in the browser: the installation stores no identifier of the visitor beyond the hash of the
+address the route already uses.
 
 ## 5. The language
 

@@ -157,12 +157,15 @@ describe("the chat of the public page", () => {
 
   it("keeps the session id the tab already carries, in Spanish too", async () => {
     const storage = new MemoryStorage();
+    // The tab owns the thread: since the scenario "A tab opened from the page", the id of the storage is believed
+    // only when the mark of the window says the same (`lib/chat/session.ts`).
+    const owner = { read: () => "the-thread-of-this-tab", write: () => {} };
 
     storage.setItem(SESSION_KEY, "the-thread-of-this-tab");
 
     const { ask, calls } = askWith({ status: "refused", answer: "No encuentro eso." });
 
-    render(<Chat lang="es" welcome="Pregúntanos." ask={ask} storage={storage} />);
+    render(<Chat lang="es" welcome="Pregúntanos." ask={ask} storage={storage} owner={owner} />);
 
     fireEvent.change(screen.getByLabelText(PUBLIC_STRINGS.es.question.label), {
       target: { value: "¿Venden submarinos?" },

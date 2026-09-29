@@ -6,7 +6,7 @@ import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import type { Lang } from "@/lib/settings/business";
 import type { Citation } from "@/lib/answer/types";
 import { askCited, type AskResult } from "@/lib/chat/client";
-import { sessionId, type TabStorage } from "@/lib/chat/session";
+import { sessionId, tabOwner, type TabOwner, type TabStorage } from "@/lib/chat/session";
 import { PUBLIC_STRINGS, type PublicStrings } from "@/lib/i18n/public";
 import { CLOSE_MESSAGE } from "@/lib/widget/messages";
 import { CitationPanel } from "./CitationPanel";
@@ -25,6 +25,7 @@ export type ChatProps = {
   variant?: "page" | "embed";
   ask?: AskFn;
   storage?: TabStorage | null;
+  owner?: TabOwner | null;
 };
 
 type Turn =
@@ -110,7 +111,7 @@ function AnsweredTurn({
   );
 }
 
-export function Chat({ lang, welcome, variant = "page", ask, storage }: ChatProps) {
+export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: ChatProps) {
   const strings = PUBLIC_STRINGS[lang];
   const fieldId = useId();
   const [question, setQuestion] = useState("");
@@ -153,7 +154,12 @@ export function Chat({ lang, welcome, variant = "page", ask, storage }: ChatProp
     setQuestion("");
     setLoading(true);
 
-    const session = sessionId(storage ?? window.sessionStorage);
+    // The tab owns the thread only when the id of the storage and the mark of its window agree: a tab opened from
+    // another inherits the storage of its opener and not its `window.name`, so it starts a conversation of its own.
+    const session = sessionId(
+      storage ?? window.sessionStorage,
+      owner ?? tabOwner(window),
+    );
     const result = await asked({ question: text, sessionId: session });
 
     setTurns((current) => [...current, turnOf(text, result)]);

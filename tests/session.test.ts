@@ -1,8 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { SESSION_KEY, sessionId } from "@/lib/chat/session";
+import { SESSION_KEY, sessionId, type TabOwner } from "@/lib/chat/session";
 
 // Decision 6 of `openspec/changes/public-page-and-widget/design.md`: `crypto.randomUUID()` in session storage under
 // `cited-session`, so a follow-up keeps its thread in the tab and a new tab starts clean.
+//
+// The scenario "A tab opened from the page" needs the owner mark as well, and it has its own file
+// (`tests/session-opened-tab.test.ts`): the id of the storage is believed only when the mark of the window agrees.
+// `MemoryOwner` is that mark without a browser, which is what `tabOwner(window)` reads and writes in `window.name`.
 
 class MemoryStorage {
   readonly values = new Map<string, string>();
@@ -18,6 +22,18 @@ class MemoryStorage {
   }
 }
 
+class MemoryOwner implements TabOwner {
+  mark: string | null = null;
+
+  read(): string | null {
+    return this.mark;
+  }
+
+  write(mark: string): void {
+    this.mark = mark;
+  }
+}
+
 const uuidV4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 describe("the session of a tab", () => {
@@ -27,30 +43,34 @@ describe("the session of a tab", () => {
 
   it("creates one id per tab, keeps it and writes it once", () => {
     const storage = new MemoryStorage();
-    const first = sessionId(storage);
+    const owner = new MemoryOwner();
+    const first = sessionId(storage, owner);
 
     expect(first).toMatch(uuidV4);
     expect(storage.getItem(SESSION_KEY)).toBe(first);
+    expect(owner.read()).toBe(first);
 
-    const second = sessionId(storage);
+    const second = sessionId(storage, owner);
 
     expect(second).toBe(first);
     expect(storage.written).toEqual([SESSION_KEY]);
   });
 
   it("starts a new tab with a different id", () => {
-    const one = sessionId(new MemoryStorage());
-    const other = sessionId(new MemoryStorage());
+    const one = sessionId(new MemoryStorage(), new MemoryOwner());
+    const other = sessionId(new MemoryStorage(), new MemoryOwner());
 
     expect(other).not.toBe(one);
   });
 
   it("keeps the id the tab already carries", () => {
     const storage = new MemoryStorage();
+    const owner = new MemoryOwner();
 
     storage.values.set(SESSION_KEY, "the-thread-of-this-tab");
+    owner.mark = "the-thread-of-this-tab";
 
-    expect(sessionId(storage)).toBe("the-thread-of-this-tab");
+    expect(sessionId(storage, owner)).toBe("the-thread-of-this-tab");
     expect(storage.written).toEqual([]);
   });
 
@@ -61,14 +81,14 @@ describe("the session of a tab", () => {
     empty.setItem(SESSION_KEY, "");
     blank.setItem(SESSION_KEY, "   ");
 
-    expect(sessionId(empty)).toMatch(uuidV4);
-    expect(sessionId(blank)).toMatch(uuidV4);
+    expect(sessionId(empty, new MemoryOwner())).toMatch(uuidV4);
+    expect(sessionId(blank, new MemoryOwner())).toMatch(uuidV4);
   });
 
   it("takes the id from the factory it is given", () => {
     const create = vi.fn(() => "made-up");
 
-    expect(sessionId(new MemoryStorage(), create)).toBe("made-up");
+    expect(sessionId(new MemoryStorage(), new MemoryOwner(), create)).toBe("made-up");
     expect(create).toHaveBeenCalledTimes(1);
   });
 });

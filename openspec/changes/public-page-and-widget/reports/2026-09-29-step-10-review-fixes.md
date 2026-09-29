@@ -204,6 +204,76 @@ Chromium opens the widget on the allowed origin, puts the focus on the question 
 `Escape`, finds no iframe and finds the focus back on the button. Full logs:
 `katalis-dev/tasks/_community-08-step10-103-green.log` and `_community-08-step10-103-e2e-green.log`.
 
+## 10.4 A tab opened from another starts its own session
+
+### The reproduction of the review
+
+```text
+{"first":"8a679cd4-7d56-4ac4-a0ec-0bdfe732e2cf",
+ "copied":"8a679cd4-7d56-4ac4-a0ec-0bdfe732e2cf"}
+Expected copied not to be first
+```
+
+### The red state, before the fix
+
+`tests/session-opened-tab.test.ts` pins the owner mark of the tab and the rule of `sessionId`; `e2e/public-chat.spec.ts`
+opens a real second tab with `window.open` from the page and reads what the two tabs send. Red before this fix:
+
+```powershell
+npx vitest run tests/session-opened-tab.test.ts
+```
+
+```text
+ FAIL  tests/session-opened-tab.test.ts > the mark of the tab > reads and writes its own mark inside window.name, next to what the page already carries
+TypeError: tabOwner is not a function
+
+ FAIL  tests/session-opened-tab.test.ts > the session of a tab opened from another > starts its own conversation although the session storage came copied
+TypeError: tabOwner is not a function
+
+ FAIL  tests/session-opened-tab.test.ts > the session of a tab opened from another > keeps the id the tab already carries when the mark says the tab owns it
+TypeError: tabOwner is not a function
+```
+
+The E2E red of the opened tab, measured by Chromium, is in the section "The red run of the browser" below.
+
+### The fix
+
+- `lib/chat/session.ts`: `sessionId(storage, owner, create?)` believes the stored id only when the mark of the tab
+  agrees with it, and writes both when it does not. `tabOwner(window)` is the mark `cited-tab=<id>` inside
+  `window.name`, read and written next to whatever the page already carries there; a new tab of `window.open` inherits
+  neither the mark nor, therefore, the thread.
+- `components/chat/Chat.tsx` passes `owner ?? tabOwner(window)`, so the browser keeps its own mark and the tests can
+  inject one.
+- `tests/session.test.ts` and the test of the chat that kept a thread now hand the owner its mark: the id of the
+  storage alone is no longer evidence of ownership, which is the defect the review reproduced. The assertions of both
+  tests are the same as before.
+- `docs/widget.md` says how the tab keeps its thread.
+
+```powershell
+npx vitest run tests/session.test.ts tests/session-opened-tab.test.ts tests/chat.test.tsx
+npm run typecheck
+npx playwright test e2e/public-chat.spec.ts -g "a tab opened from the page"
+```
+
+```text
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+```
+
+```text
+✓ Types generated successfully
+TYPE_CHECK_EXIT=0
+```
+
+```text
+the opener tab carries 0c345a87-c0d5-4971-a9f4-491fb9c86b2e; the tab it opened carries e443dd8b-e0ae-4e78-8346-2d98e38dd93f and asked with e443dd8b-e0ae-4e78-8346-2d98e38dd93f
+1 passed (2.9s)
+```
+
+The tab opened from the page carries its own id and asks with it, and the first tab keeps the thread it had. Full logs:
+`katalis-dev/tasks/_community-08-step10-104-green.log`, `_community-08-step10-red-session.log` and
+`_community-08-step10-104-e2e-green.log`.
+
 ## The red run of the browser, for 10.2, 10.3 and 10.4
 
 One build of the branch with the fix of 10.1 only (the build type checks the tests, and the red tests of 10.1 do not

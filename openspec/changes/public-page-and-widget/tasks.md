@@ -75,7 +75,7 @@ reproduced.
       one of this section
 - [x] 10.3 `/embed` posts a message to its parent on `Escape`, and `widget.js` closes only for a message from its own
       origin, scenario "Escape inside the iframe" — report: the one of this section
-- [ ] 10.4 A tab opened from another starts its own session (for example an owner mark kept in `window.name`, which a
+- [x] 10.4 A tab opened from another starts its own session (for example an owner mark kept in `window.name`, which a
       new tab does not inherit, next to the id in `sessionStorage`), scenario "A tab opened from the page" — report:
       the one of this section
 - [ ] 10.5 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
