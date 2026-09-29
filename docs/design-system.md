@@ -6,8 +6,13 @@ components. The change `brand-and-design-system` is what put it here, and
 own copy of the tokens today; when `@katalis/ui-tokens` v0.2.0 exists without a licensed font, this file moves to the
 shared package and the values do not change.
 
-Everything below is checked by a test: `tests/design-system.test.ts` for the files, the tokens and the font, and
-`e2e/design-system.spec.ts` for the computed font and the route `/kit`.
+The change `brand-identity-ui` added the identity of the product on top of it (section 5): the product tokens, the
+citation mark and the highlighter, and the motion. `DESIGN.md` at the root of the repository records the whole visual
+system in the format the design tools read, so every later screen starts from it.
+
+Everything below is checked by a test: `tests/design-system.test.ts` for the files, the tokens and the font,
+`tests/design-md.test.ts` for section 5 and for `DESIGN.md`, `tests/brand-static.test.ts` for the bans over the code,
+and `e2e/design-system.spec.ts` and `e2e/brand.spec.ts` for the computed font, the contrast and the route `/kit`.
 
 ## 1. The flame of Katalis
 
@@ -140,7 +145,7 @@ They take their colors, their corners and their curve from the tokens, so a chan
 
 | Component | What it is |
 |---|---|
-| `Button` | `variant="primary"` is the ink button, uppercase and bold, with the ink of the system on paper; `variant="secondary"` is the paper button with a hairline |
+| `Button` | `variant="primary"` is the ink button, uppercase and bold, with the ink of the system on paper; `variant="secondary"` is the paper button with a hairline; `variant="brand"` takes the color of the business and `variant="ghost"` is for controls on ink; `size="sm"` is the compact size, and on a phone every size keeps 44 px |
 | `Panel` | the warm paper surface of `--surface`, a one pixel hairline and no shadow at rest |
 | `Input` | a full width field on paper, with the hairline of the system |
 | `Chip` | a small label in microcaps, for the state of a capability |
@@ -155,3 +160,77 @@ reference anyone who forks the repository can open.
 
 The eyebrow of `SectionTitle` uses the ink at 70% instead of the 40% of Construye: at 11 px, 40% of the ink on paper
 is 2.5:1, below the 4.5:1 that level AA asks for, and the axe check of `/kit` would refuse it.
+
+## 5. The product tokens and the two devices
+
+The change `brand-identity-ui` (`openspec/changes/brand-identity-ui/design.md`, decisions 1 to 5) adds to the tokens of
+Construye and never changes one of them. The five product tokens are declared in the same `:root` of `app/tokens.css`,
+and `--ink-2` and `--rule` also reach Tailwind as `text-ink-2` and `border-rule`. They have no counterpart in
+Construye, so their table has three cells and this record is what `tests/design-md.test.ts` compares with the
+stylesheet:
+
+| Token | Value in Cited | Where it is used |
+|---|---|---|
+| `--ink-2` | `#57534E` | secondary text: labels, table heads, captions. 7.63:1 on paper and 7.30:1 on the warm surface |
+| `--rule` | `color-mix(in srgb, var(--ink) 12%, var(--paper))` | dividers and table lines, `#E3E3E3` on paper (1.28:1). Never the border of a control: that is `--border` |
+| `--dur-fast` | `180ms` | the color change of a citation mark and of a navigation link |
+| `--dur-base` | `320ms` | a citation mark landing and a source note opening |
+| `--dur-slow` | `640ms` | the highlighter painting itself in |
+
+The measured contrast of the roles, on their real grounds: ink on paper 17.93:1, ink on lime 14.70:1, paper on ink
+17.93:1, `text-paper/80` on ink 11.74:1, `text-paper/70` 9.14:1 and `text-paper/60` 7.02:1 (the quiet numerals of the
+navigation are text and reach 4.5:1). Lime on paper is 1.22:1, so lime is never text on paper and never carries a
+meaning alone: the number, the word or the shape says it too.
+
+### The citation mark
+
+The first device: a lime square with the number of a source. `components/brand/CitationMark.tsx` draws it and
+`citationMarkClass` gives the same look to the buttons of an answer and of the sources list, so a button and a span
+are identical. The measures are in `em` of the mark, so it fits a sentence, the wordmark and the navigation:
+
+| Measure | Value |
+|---|---|
+| Width | `min-width: 1.5em` |
+| Height | `1.3em` |
+| Padding | `0 0.3em` |
+| Type | Outfit 700 at `0.72em` of its context, tabular numerals, `vertical-align: 0.1em` |
+| Corners | square |
+| Rest | lime ground, ink text (14.70:1) |
+| Open or current | ink ground, lime number |
+| On ink (`tone="ink"`) | a quiet outline with paper text at 60%; the open mark is ink with a lime number and a lime outline |
+
+`Wordmark` is the word `Cited` in Outfit 800 with `letter-spacing: -0.04em`, followed by a mark that says 1, in three
+sizes (20, 36 and 56 px) and two tones (ink text on paper, paper text on ink). It is the only logo of the product besides
+the real flame of Katalis, and it is never a heading.
+
+### The highlighter
+
+The second device: lime painted behind the words that matter, in `app/brand.css`.
+
+| Class | What it does |
+|---|---|
+| `.hl` | `linear-gradient(transparent 55%, var(--lime) 55%)`, no repeat, `background-size: 100% 100%`, `padding: 0 0.08em`, `box-decoration-break: clone` |
+| `.hl-on-ink` | the variant for an ink ground: a solid lime block with ink text, because the half-height marker would put paper text over lime (1.1:1); used together with `.hl` |
+| `.hl-sweep` | paints the highlighter in once, from `0% 100%` to `100% 100%`, in `--dur-slow` on `--ease-out-expo` |
+
+`highlightLast(text, words)` of `lib/brand/highlight.ts` picks the words to paint: the last three when the text has six
+or more words, all of them otherwise. The welcome headline and the tagline carry it, and the excerpt of an open citation
+is painted whole.
+
+### The motion
+
+Every keyframe of the product lives in `app/brand.css` and animates only `transform`, `opacity` and the paint size of the
+highlighter; at most two things move at once in any view.
+
+| Class | Keyframe | What moves | Time |
+|---|---|---|---|
+| `.hl-sweep` | `hl-sweep` | the `background-size` of the highlighter | `--dur-slow` (640ms), once |
+| `.mark-land` | `mark-land` | the marks of an answer that just arrived: `translateY(0.35em) scale(0.85)` and `opacity` to rest, staggered by `calc(var(--i) * 40ms)` | `--dur-base` (320ms) |
+| `.note-in` | `note-in` | a source note that opens: `translateX(-8px)` and `opacity` to rest | `--dur-base` (320ms) |
+| `.rise` | `rise` | the welcome headline: `translateY(12px)` and `opacity` to rest, once | 480ms |
+| `.bar` | `bar` | the waiting bar: `scaleX` 0 to 1, alternating, from the left | 1.6s, infinite (the only animation over 700ms: it says "still working") |
+
+The last block of the file is `@media (prefers-reduced-motion: reduce)`: every animation and every transition of the
+product is removed (`animation: none`, `transition: none`) and the highlighter is painted in its final state at once.
+`tests/brand-static.test.ts` reads the stylesheet for its keyframes and for that block, and `e2e/brand.spec.ts` checks
+the computed result in a browser.
