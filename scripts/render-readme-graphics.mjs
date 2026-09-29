@@ -49,12 +49,14 @@ const font = {
 
 // The mark of the maker (design decision 3): the flame of `public/brand/` beside `by Katalis` in the social preview,
 // the same flame the banner and the foot of the README use. It is embedded as a data URI because the pages are set
-// with `setContent` and have no base address.
+// with `setContent` and have no base address. Section 10 of the contract: at the height of the line the mark measured
+// 20 px and did not read as the flame of Katalis, so the styles of this script draw it at 68 px and the render fails
+// below 64.
 const flame = {
   dark: "public/brand/katalis-flame-192.png",
   ink: "public/brand/katalis-flame-ink-192.png",
-  height: "1em",
-  where: "at the height of the by Katalis line, to its left",
+  minimumHeight: 64,
+  where: "beside the by Katalis line, to its left, taller than the line",
 };
 
 const absolute = (relative) => resolve(root, relative);
@@ -563,7 +565,7 @@ const styles = `
 }
 .byline .flame {
   display: block;
-  height: 1em;
+  height: 68px;
   width: auto;
 }
 .rule {
@@ -877,6 +879,8 @@ async function auditFlame(page, graphic, theme) {
       line: Number.parseFloat(getComputedStyle(line).fontSize),
       toTheLeft: mark.right <= text.left + 0.5,
       middle: Math.abs(mark.top + mark.height / 2 - (text.top + text.height / 2)),
+      x: mark.x,
+      y: mark.y,
     };
   });
 
@@ -884,9 +888,9 @@ async function auditFlame(page, graphic, theme) {
     throw new Error(`${graphic.name} (${theme}) draws no flame beside by Katalis.`);
   }
 
-  if (Math.abs(placed.height - placed.line) > 0.5) {
+  if (placed.height < flame.minimumHeight) {
     throw new Error(
-      `${graphic.name} (${theme}) draws the flame ${placed.height}px high and the by Katalis line is ${placed.line}px.`,
+      `${graphic.name} (${theme}) draws the flame ${placed.height}px high; the mark of the maker reads at ${flame.minimumHeight}px or more beside by Katalis.`,
     );
   }
 
@@ -901,8 +905,16 @@ async function auditFlame(page, graphic, theme) {
   }
 
   console.log(
-    `${graphic.name} (${theme}): the flame is ${placed.width.toFixed(1)} by ${placed.height.toFixed(1)}px beside a line of ${placed.line}px`,
+    `${graphic.name} (${theme}): the flame is ${placed.width.toFixed(1)} by ${placed.height.toFixed(1)}px beside a line of ${placed.line}px, the floor ${flame.minimumHeight}px`,
   );
+
+  return {
+    x: Math.round(placed.x * 100) / 100,
+    y: Math.round(placed.y * 100) / 100,
+    width: Math.round(placed.width * 100) / 100,
+    height: Math.round(placed.height * 100) / 100,
+    line: placed.line,
+  };
 }
 
 async function emptyBand(buffer, plain, width, height) {
@@ -982,7 +994,7 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
   const audit_ = await audit(page, graphic, theme);
 
   if (graphic.name === social.name) {
-    await auditFlame(page, graphic, theme);
+    flame.rendered = await auditFlame(page, graphic, theme);
   }
 
   mkdirSync(dirname(absolute(target)), { recursive: true });

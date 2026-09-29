@@ -16,13 +16,15 @@ const mark = "[1]";
 const tagline = "Ask your own documents. Get the passage and where it came from.";
 const byline = "by Katalis";
 // The mark of the maker (design decision 3): the flame of `public/brand/`, the original on the ink of the dark theme
-// and its ink variant on the paper of the light one, at the height of the `by Katalis` line and to its left. It is
-// embedded as a data URI because the page is set with `setContent` and has no base address.
+// and its ink variant on the paper of the light one, beside the `by Katalis` line and to its left. It is embedded as a
+// data URI because the page is set with `setContent` and has no base address. Section 10 of the contract: at the height
+// of the line the mark measured 19 px and did not read as the flame of Katalis, so the style sheet of the template
+// draws it at 48 px and the render fails below 40.
 const flame = {
   dark: "public/brand/katalis-flame-192.png",
   light: "public/brand/katalis-flame-ink-192.png",
-  height: "1em",
-  where: "at the height of the by Katalis line, to its left",
+  minimumHeight: 40,
+  where: "beside the by Katalis line, to its left, taller than the line",
 };
 const font = {
   name: outfit.name,
@@ -40,6 +42,7 @@ const tokens = {
 const absolute = (relative) => resolve(root, relative);
 const template = readFileSync(absolute(templatePath), "utf8");
 const dataUri = (path) => `data:image/png;base64,${readFileSync(absolute(path)).toString("base64")}`;
+const round = (value) => Math.round(value * 100) / 100;
 
 function fill(values) {
   return Object.entries(values).reduce(
@@ -100,6 +103,8 @@ async function screenshot(browser, target, theme) {
       toTheLeft: mark.right <= text.left + 0.5,
       middle: Math.abs(mark.top + mark.height / 2 - (text.top + text.height / 2)),
       width: mark.width,
+      x: mark.x,
+      y: mark.y,
     };
   });
 
@@ -107,9 +112,9 @@ async function screenshot(browser, target, theme) {
     throw new Error(`The ${theme} banner draws no flame beside by Katalis.`);
   }
 
-  if (Math.abs(placed.height - placed.line) > 0.5) {
+  if (placed.height < flame.minimumHeight) {
     throw new Error(
-      `The flame of the ${theme} banner is ${placed.height}px high and the by Katalis line is ${placed.line}px.`,
+      `The flame of the ${theme} banner is ${placed.height}px high; the mark of the maker reads at ${flame.minimumHeight}px or more beside by Katalis.`,
     );
   }
 
@@ -126,17 +131,26 @@ async function screenshot(browser, target, theme) {
   await page.screenshot({ path: absolute(target), type: "png" });
   await page.close();
   console.log(
-    `rendered ${target} (the flame is ${placed.width.toFixed(1)} by ${placed.height.toFixed(1)}px, the line ${placed.line}px)`,
+    `rendered ${target} (the flame is ${placed.width.toFixed(1)} by ${placed.height.toFixed(1)}px, the line ${placed.line}px, the floor ${flame.minimumHeight}px)`,
   );
+
+  return {
+    x: round(placed.x),
+    y: round(placed.y),
+    width: round(placed.width),
+    height: round(placed.height),
+    line: placed.line,
+  };
 }
 
 mkdirSync(dirname(absolute(recordPath)), { recursive: true });
 
 const browser = await chromium.launch();
+const rendered = {};
 
 try {
-  await screenshot(browser, bannerPath, "dark");
-  await screenshot(browser, bannerLightPath, "light");
+  rendered.dark = await screenshot(browser, bannerPath, "dark");
+  rendered.light = await screenshot(browser, bannerLightPath, "light");
 } finally {
   await browser.close();
 }
@@ -153,7 +167,13 @@ const record = {
   darkBackground: tokens.ink,
   lightBackground: tokens.offWhite,
   lightMarkOutline: tokens.ink,
-  flame,
+  flame: {
+    dark: flame.dark,
+    light: flame.light,
+    minimumHeight: flame.minimumHeight,
+    where: flame.where,
+    rendered,
+  },
   font,
   tokens,
 };
