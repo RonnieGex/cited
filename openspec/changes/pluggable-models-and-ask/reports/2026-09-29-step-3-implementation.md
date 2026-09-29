@@ -155,3 +155,78 @@ marker has no citation, and the refusal is English or Spanish with the question.
 
 PASS. The prompt, the citation parser and the localized refusal exist and behave as decision 2 to 4 say; their tests
 run as soon as the core of 3.3 exists.
+
+## 3.3 Guards, counters and conversations in the store (decision 5)
+
+### The schema
+
+Three tables join `documents`, `passages` and `passages_fts`:
+
+| Table | Columns |
+|---|---|
+| `rate_limits` | `ip_hash`, `window_start`, `count`, primary key `(ip_hash, window_start)` |
+| `model_calls` | `day`, `count`, `day` as primary key |
+| `conversations` | `session_id`, `turn`, `question`, `answer`, `created_at`, primary key `(session_id, turn)` and an index on `created_at` |
+
+`recordQuestion` and `recordModelCall` count with `INSERT ... ON CONFLICT DO UPDATE ... RETURNING count`, so one
+statement both increments and returns the new value. `appendTurn` numbers the turn with
+`(SELECT COALESCE(MAX(turn), 0) + 1 ...)`. `deleteConversationsBefore`, `deleteRateLimitsBefore` and
+`deleteModelCallsBefore` return the number of rows they removed.
+
+### The code
+
+- `lib/guards/limits.ts`: the five limits of decision 5 with their defaults (1000, 30, 500, 600, 30). A value that is
+  empty, zero, negative or not an integer keeps the default.
+- `lib/guards/ip.ts`: `hashIp` is SHA-256 of `salt:address`; the salt is `ADMIN_SESSION_SECRET` and, when it is
+  missing, a random value drawn once per process, as the design says. `clientIp` reads `x-forwarded-for` (then
+  `x-real-ip`) only when `TRUST_PROXY` is `1` or `true`; otherwise the request is served directly and the bucket is
+  the constant `direct`, because a header a client can write must not decide the rate limit.
+- `lib/guards/window.ts`: the UTC hour window, the UTC day, the `Retry-After` in seconds and the cutoff of the
+  retention.
+- `lib/guards/retention.ts`: `purgeStore` runs at most once an hour (`PURGE_INTERVAL_MS`), deletes the conversations
+  older than `CONVERSATION_RETENTION_DAYS`, the rate-limit windows of past hours and the model-call rows of past days.
+- `lib/store/path.ts` and `lib/store/instance.ts`: the resolution of the store path moves from `scripts/lib/` to
+  `lib/store/` so the route can use it, and `sharedStore` opens the store once per process and per location.
+  `scripts/ingest.ts` and `scripts/search.ts` follow the move.
+- `lib/answer/ask.ts`: the single function the route and the command line share. The order of the guards is the
+  cheapest first: the length, the purge, the rate limit of the hour, the daily limit, the search and only then the
+  model call, which is counted **before** it is made so that a failing provider still spends the day's budget.
+  `generateText` runs with `maxOutputTokens` of `MAX_ANSWER_TOKENS`, a temperature of `0.2` and the messages of
+  `buildMessages` (the system rules travel as a message, which the SDK allows with `allowSystemInMessages: true`).
+  A model reply that is exactly `NO_ANSWER`, or one whose citations are all invalid, becomes the localized refusal
+  and the text of the model is not returned.
+
+### The red that turns green
+
+```
+> npx vitest run tests/guards.test.ts tests/answer.test.ts tests/models.test.ts
+
+ Test Files  3 passed (3)
+      Tests  39 passed (39)
+   Duration  8.86s
+```
+
+That is the 8 tests of the provider, the 13 of the guards and the 18 of the answer: the price of the tune-up comes
+back from `cafe-la-horquilla.md` with its `[1]`, an invented `[99]` is removed, an answer without a marker and a
+`NO_ANSWER` are refused without returning the text of the model, the empty store refuses without a model call, the
+planted instruction travels inside a `<passage>` and the system prompt never comes back in an answer, the second
+question of a session carries the first one and its answer, only the last six turns travel, and the model receives
+`MAX_ANSWER_TOKENS` and `0.2`.
+
+### Two tests of step 2 were wrong and were corrected here
+
+- `sends at most the last six turns of the session` asked with an empty store: the search finds no passage, the core
+  refuses without calling the model, and the test never saw a prompt. The store now carries one document, so the
+  model is called and the prompt can be read.
+- `marks a planted instruction as a passage` expected `<passage n="1" document="notas.md">`; the document has a
+  Markdown heading, so the real delimiter carries `heading="Notas"`. The expectation now asserts the document and
+  lets the heading be there.
+
+Both are test defects, not failures of the implementation; the suite of the change is green with them corrected.
+
+`npx tsc --noEmit` reports only the missing `@/app/api/ask/route` of the next step, and `npm run lint` is clean.
+
+## Verdict 3.3
+
+PASS. The store carries the counters and the conversations, the guards hold the limits of decision 5 and the core
+`askQuestion` answers, cites and refuses as the spec says.

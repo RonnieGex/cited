@@ -1,7 +1,7 @@
 import { resolveEmbeddingsProvider } from "../lib/embeddings/providers.ts";
 import { hybridSearch } from "../lib/search/index.ts";
 import { openStore } from "../lib/store/index.ts";
-import { prepareStorePath, storeLocation } from "./lib/store-path.ts";
+import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
 
 const question = process.argv.slice(2).join(" ").trim();
 

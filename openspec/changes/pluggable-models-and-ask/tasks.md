@@ -26,7 +26,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 - [x] 3.1 Providers and their licenses (decision 1) — report: `reports/2026-09-29-step-3-implementation.md`
 - [x] 3.2 Prompt, citations and refusal (decisions 2 to 4) — report: `reports/2026-09-29-step-3-implementation.md`
-- [ ] 3.3 Guards, counters and conversations in the store (decision 5) — report:
+- [x] 3.3 Guards, counters and conversations in the store (decision 5) — report:
       `reports/2026-09-29-step-3-implementation.md`
 - [ ] 3.4 The route and the CLI (decisions 6 and 7) — report: `reports/2026-09-29-step-3-implementation.md`
 
