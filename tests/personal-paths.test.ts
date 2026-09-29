@@ -1,5 +1,14 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readlinkSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
@@ -9,7 +18,10 @@ const repositoryRoot = resolve(import.meta.dirname, "..");
 const homePath = new RegExp("[A-Za-z]:[\\\\/]+Users[\\\\/]+[^\\\\/\\s`\"')]+", "i");
 const homePrefix = new RegExp("[A-Za-z]:[\\\\/]+Users[\\\\/]", "i");
 
-const ruleDefiningContracts = ["openspec/changes/bootstrap/tasks.md"];
+const ruleDefiningContracts = [
+  "openspec/changes/bootstrap/tasks.md",
+  "openspec/changes/archive/2026-09-29-bootstrap/tasks.md",
+];
 
 const driveLetter = "C:";
 const homeDirectory = "Users";
@@ -17,8 +29,11 @@ const developmentHome = `${driveLetter}\\${homeDirectory}\\dev`;
 const developmentHomePrefix = `${driveLetter}\\${homeDirectory}\\`;
 
 const symlinkMode = "120000";
+const regularFileModes = ["100644", "100755"];
 const gitDefaults = ["-c", "core.autocrlf=false", "-c", "init.defaultBranch=main"];
 const fixtureRoots: string[] = [];
+
+type TrackedEntry = { mode: string; path: string };
 
 afterAll(() => {
   for (const root of fixtureRoots) {
@@ -77,34 +92,63 @@ function fixtureRepo(
   return root;
 }
 
-function trackedFiles(root: string): string[] {
-  const output = execFileSync("git", ["ls-files", "-z"], {
+function trackedEntries(root: string): TrackedEntry[] {
+  const output = execFileSync("git", ["ls-files", "-s", "-z"], {
     cwd: root,
     encoding: "utf8",
   });
 
-  return output.split("\0").filter((path) => path.length > 0);
+  return output
+    .split("\0")
+    .filter((record) => record.length > 0)
+    .map((record) => {
+      const separator = record.indexOf("\t");
+      const [mode = ""] = record.slice(0, separator).split(" ");
+
+      return { mode, path: record.slice(separator + 1) };
+    });
 }
 
-function textOf(root: string, path: string): string | null {
-  const bytes = readFileSync(resolve(root, path));
+function fileText(absolute: string): string | null {
+  const bytes = readFileSync(absolute);
 
   return bytes.includes(0) ? null : bytes.toString("utf8");
 }
 
+function textOf(root: string, entry: TrackedEntry): string | null {
+  const absolute = resolve(root, entry.path);
+
+  if (entry.mode === symlinkMode) {
+    return lstatSync(absolute).isSymbolicLink() ? readlinkSync(absolute) : fileText(absolute);
+  }
+
+  if (regularFileModes.includes(entry.mode)) {
+    return fileText(absolute);
+  }
+
+  return null;
+}
+
+function textOfPath(root: string, path: string): string | null {
+  const entry = trackedEntries(root).find((candidate) => candidate.path === path);
+
+  return entry === undefined ? null : textOf(root, entry);
+}
+
 function offenders(root: string, pattern: RegExp, exempt: readonly string[] = []): string[] {
-  return trackedFiles(root)
-    .filter((path) => !exempt.includes(path))
-    .filter((path) => {
-      const text = textOf(root, path);
+  return trackedEntries(root)
+    .filter((entry) => !exempt.includes(entry.path))
+    .filter((entry) => {
+      const text = textOf(root, entry);
 
       return text !== null && pattern.test(text);
-    });
+    })
+    .map((entry) => entry.path);
 }
 
 describe("tracked files", () => {
   it("are listed by git", () => {
-    expect(trackedFiles(repositoryRoot).length).toBeGreaterThan(0);
+    expect(trackedEntries(repositoryRoot).length).toBeGreaterThan(0);
   });
 
   it("carry no home directory of a development machine", () => {
@@ -116,7 +160,12 @@ describe("tracked files", () => {
   });
 
   it("are read by the target of the link when git tracks them as a symbolic link", () => {
-    expect(textOf(repositoryRoot, ".claude/agents")?.replaceAll("\\", "/")).toBe("../ai-specs/agents");
+    const link = trackedEntries(repositoryRoot).find((entry) => entry.path === ".claude/agents");
+
+    expect(link?.mode).toBe(symlinkMode);
+    expect(textOfPath(repositoryRoot, ".claude/agents")?.replaceAll("\\", "/")).toBe(
+      "../ai-specs/agents",
+    );
   });
 
   it("report a tracked symbolic link whose target carries a home directory", () => {

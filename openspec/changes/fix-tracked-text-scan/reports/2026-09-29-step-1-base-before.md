@@ -46,8 +46,9 @@ does: the second defect of the proposal is already visible here. On Windows the 
 files, so the `EISDIR` of CI does not hide the second offender, and the suite fails on
 `openspec/changes/archive/2026-09-29-bootstrap/tasks.md`. That file is tracked at `3ff834f`
 (`100644 4aa9be099cc9d5770af62ba8084cde2cb8803caf openspec/changes/archive/2026-09-29-bootstrap/tasks.md`) and its
-line 48 carries the literal `C:\Users\` prefix of the home-path rule, so the exemption list of the test, which names
-only `openspec/changes/bootstrap/tasks.md`, no longer matches it. See the issue BROKEN 1 of the delivery.
+line 48 quotes the home prefix of the rule itself, the drive letter followed by a backslash, the segment `Users` and a
+backslash, so the exemption list of the test, which names only `openspec/changes/bootstrap/tasks.md`, no longer
+matches it. See the issue BROKEN 1 of the delivery.
 
 The same run on the working tree of `ecd9bb0` prints the identical single offender: the change folder added by Fable
 (`proposal.md`, `tasks.md`, `specs/`, `.openspec.yaml`) carries no home path.
