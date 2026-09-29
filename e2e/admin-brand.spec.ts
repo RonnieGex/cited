@@ -151,6 +151,37 @@ function links(page: Page) {
   return page.locator(`${sidebar} nav a`);
 }
 
+// The keyboard, from a fresh load: the first Tab lands on the wordmark (nothing moved the starting point of the focus), and
+// each next Tab lands on the next section, which the bar brings whole into the screen by itself; nothing here scrolls it.
+async function tabThroughTheBar(page: Page, label: string, minimumHeight: number): Promise<void> {
+  const wordmark = page.locator(`${sidebar} [data-brand="wordmark"]`);
+
+  await page.keyboard.press("Tab");
+  await expect(wordmark, `${label}: the first Tab focuses the wordmark`).toBeFocused();
+
+  const mark = await wordmark.boundingBox();
+
+  console.log(`${label}: the wordmark target ${JSON.stringify(mark)}`);
+  expect(mark?.height ?? 0, `${label}: the wordmark is a target of ${minimumHeight} px`).toBeGreaterThanOrEqual(minimumHeight);
+
+  for (let index = 0; index < 4; index += 1) {
+    const link = links(page).nth(index);
+
+    await page.keyboard.press("Tab");
+    await expect(link, `${label}: Tab ${index + 2} focuses link ${index + 1}`).toBeFocused();
+    await expect(link, `${label}: link ${index + 1} is whole on the screen when it has the focus`).toBeInViewport({
+      ratio: 1,
+    });
+
+    const target = await link.boundingBox();
+
+    console.log(`${label}: link ${index + 1} focused at ${JSON.stringify(target)}`);
+    expect(target?.height ?? 0, `${label}: link ${index + 1} is a target of ${minimumHeight} px`).toBeGreaterThanOrEqual(
+      minimumHeight,
+    );
+  }
+}
+
 test("the navigation at 1440 px: an ink column with the numbered sections, the current one marked, every text at 4.5:1", async ({
   page,
 }) => {
@@ -297,16 +328,7 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
 
   await expect(links(page)).toHaveCount(4);
 
-  for (let index = 0; index < 4; index += 1) {
-    const link = links(page).nth(index);
-
-    await link.scrollIntoViewIfNeeded();
-    await expect(link, `link ${index + 1} is reachable by scrolling the bar`).toBeInViewport();
-
-    const target = await link.boundingBox();
-
-    expect(target?.height ?? 0, `link ${index + 1}: 44 px of height on a phone`).toBeGreaterThanOrEqual(43.5);
-  }
+  await tabThroughTheBar(page, "375", 43.5);
 
   await expect(links(page).nth(2)).toHaveAttribute("aria-current", "page");
 
@@ -329,6 +351,26 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
   expect(signOut?.height ?? 0, "sign out: 44 px of height on a phone").toBeGreaterThanOrEqual(43.5);
 
   await axe(page, "/admin/documents at 375");
+});
+
+test("the keyboard starts at the wordmark at 1440 px and walks the bar whole at 320 px, in Spanish", async ({
+  page,
+  context,
+}) => {
+  await context.addCookies([{ name: "cited-lang", value: "es", url: E2E_BASE_URL }]);
+  await signInThroughTheApi(page);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  expect((await page.goto("/admin/documents"))?.status()).toBe(200);
+  await tabThroughTheBar(page, "1440", 24);
+
+  await page.setViewportSize({ width: 320, height: 812 });
+  expect((await page.goto("/admin/documents"))?.status()).toBe(200);
+  await tabThroughTheBar(page, "320", 43.5);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    "the page does not scroll sideways at 320 px",
+  ).toBe(true);
 });
 
 // Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,

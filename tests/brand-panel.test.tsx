@@ -1,6 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AdminLayout from "@/app/admin/layout";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ConversationsPanel } from "@/components/admin/ConversationsPanel";
@@ -326,5 +326,96 @@ describe("the dates of the conversations (decision 19)", () => {
     expect(times[0]?.textContent).toBe(formatWhen(stored, "es", "UTC"));
     expect(times[0]?.textContent ?? "").not.toMatch(/[TZ]/);
     expect(screen.queryByText(stored)).toBeNull();
+  });
+});
+
+// Findings of the review of step 12: on a phone the bar scrolls sideways, so a link reached with Tab has to come into view,
+// and the mount must not call `scrollIntoView`, which in Chromium moves the starting point of the sequential focus to the
+// current link and makes the first Tab skip the wordmark and the sections before it (WCAG 2.4.3).
+describe("the keyboard in the bar that scrolls sideways", () => {
+  const measures = ["scrollWidth", "clientWidth", "offsetLeft", "offsetWidth"] as const;
+  const saved = measures.map((key) => [key, Object.getOwnPropertyDescriptor(HTMLElement.prototype, key)] as const);
+  const scrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, "scrollIntoView");
+
+  function measure(values: Record<(typeof measures)[number], number>): void {
+    for (const key of measures) {
+      Object.defineProperty(HTMLElement.prototype, key, { configurable: true, get: () => values[key] });
+    }
+  }
+
+  afterEach(() => {
+    for (const [key, descriptor] of saved) {
+      if (descriptor === undefined) {
+        delete (HTMLElement.prototype as unknown as Record<string, unknown>)[key];
+      } else {
+        Object.defineProperty(HTMLElement.prototype, key, descriptor);
+      }
+    }
+
+    if (scrollIntoView === undefined) {
+      delete (Element.prototype as unknown as Record<string, unknown>)["scrollIntoView"];
+    } else {
+      Object.defineProperty(Element.prototype, "scrollIntoView", scrollIntoView);
+    }
+
+    vi.restoreAllMocks();
+  });
+
+  it("never calls scrollIntoView when it mounts, so the first Tab starts at the top of the page", () => {
+    const scrolled = vi.fn();
+
+    Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, writable: true, value: scrolled });
+    render(<AdminNav lang="en" strings={english} />);
+
+    expect(scrolled).not.toHaveBeenCalled();
+  });
+
+  it("scrolls only the list, and only when it overflows, to center the current section", () => {
+    measure({ scrollWidth: 600, clientWidth: 375, offsetLeft: 300, offsetWidth: 150 });
+    render(<AdminNav lang="en" strings={english} />);
+
+    const nav = within(sidebar()).getByRole("navigation");
+
+    expect(nav.scrollLeft).toBe(300 - (375 - 150) / 2);
+  });
+
+  it("leaves the list where it is when every section fits", () => {
+    measure({ scrollWidth: 192, clientWidth: 192, offsetLeft: 0, offsetWidth: 150 });
+    render(<AdminNav lang="en" strings={english} />);
+
+    expect(within(sidebar()).getByRole("navigation").scrollLeft).toBe(0);
+  });
+
+  it("brings a link reached with the keyboard into view, sideways and only as far as needed", () => {
+    const scrolled = vi.fn();
+
+    Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, writable: true, value: scrolled });
+    render(<AdminNav lang="en" strings={english} />);
+
+    const setup = within(sidebar()).getByRole("link", { name: new RegExp(english.navSetup) });
+
+    fireEvent.focus(setup);
+
+    expect(scrolled).toHaveBeenCalledTimes(1);
+    expect(scrolled).toHaveBeenCalledWith({ inline: "nearest", block: "nearest" });
+    expect(scrolled.mock.contexts[0]).toBe(setup);
+  });
+
+  it("keeps a focused link clear of the edges of the list and fades the edges where the list scrolls", () => {
+    render(<AdminNav lang="en" strings={english} />);
+
+    const nav = within(sidebar()).getByRole("navigation");
+
+    expect(nav.className).toContain("scroll-px-6");
+    expect(nav.className).toMatch(/max-lg:\[mask-image:/);
+  });
+
+  it("gives the wordmark a target of 44 px on a phone and 24 px from 1024 px without moving the word", () => {
+    render(<AdminNav lang="en" strings={english} />);
+
+    const wordmark = sidebar().querySelector('[data-brand="wordmark"]');
+    const classes = (wordmark?.className ?? "").split(/\s+/);
+
+    expect(classes).toEqual(expect.arrayContaining(["py-1", "-my-1", "max-lg:py-3", "max-lg:-my-3"]));
   });
 });

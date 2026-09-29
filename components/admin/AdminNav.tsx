@@ -50,11 +50,16 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
   const pathname = usePathname();
   const list = useRef<HTMLElement>(null);
 
-  // On a phone the sections scroll sideways: the current one is brought into view, sideways only.
+  // On a phone the sections scroll sideways: the current one is centered by scrolling the list itself, and only when it
+  // overflows. `scrollIntoView` is not used here: in Chromium it moves the starting point of the sequential focus to the
+  // current link, and the first Tab would skip the wordmark and every section before it.
   useEffect(() => {
-    list.current
-      ?.querySelector('[aria-current="page"]')
-      ?.scrollIntoView?.({ inline: "center", block: "nearest" });
+    const nav = list.current;
+    const current = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+
+    if (nav && current && nav.scrollWidth > nav.clientWidth) {
+      nav.scrollLeft = current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2;
+    }
   }, [pathname]);
 
   return (
@@ -62,11 +67,15 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
       data-admin="sidebar"
       className="flex flex-col gap-4 bg-ink px-6 py-5 text-paper lg:sticky lg:top-0 lg:h-screen lg:gap-10 lg:py-8"
     >
-      <Wordmark size="sm" tone="ink" href="/admin" className="self-start" />
+      {/* The padding makes the link a target of 44 px on a phone and 24 px from 1024 px; the negative margin keeps the word
+          where it was. */}
+      <Wordmark size="sm" tone="ink" href="/admin" className="-my-1 self-start py-1 max-lg:-my-3 max-lg:py-3" />
+      {/* A link reached with Tab is brought into view and kept 24 px clear of the edges, which fade where the list scrolls
+          so a section cut by the edge reads as more to scroll, not as broken. */}
       <nav
         ref={list}
         aria-label={strings.panelEyebrow}
-        className="-mx-6 overflow-x-auto px-6 lg:mx-0 lg:overflow-visible lg:px-0"
+        className="-mx-6 scroll-px-6 overflow-x-auto px-6 max-lg:[mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)] lg:mx-0 lg:overflow-visible lg:px-0"
       >
         <ol className="flex w-max gap-1 lg:w-auto lg:flex-col">
           {SECTIONS.map((section, index) => {
@@ -77,6 +86,7 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
                 <Link
                   href={section.href}
                   aria-current={current ? "page" : undefined}
+                  onFocus={(event) => event.currentTarget.scrollIntoView?.({ inline: "nearest", block: "nearest" })}
                   className={`${link} ${current ? "bg-paper/10 text-paper" : "text-paper/80 hover:text-paper"}`}
                 >
                   <CitationMark n={index + 1} tone="ink" state={current ? "open" : "rest"} />
