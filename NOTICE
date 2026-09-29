@@ -7,3 +7,6 @@ This product includes software developed at Katalis (https://katalis.dev).
 
 It is distributed under the Apache License, Version 2.0. A copy of the license is in the LICENSE file of this
 repository. A fork keeps this file and its attribution line, as section 4 (d) of the license requires.
+
+The third-party files this repository serves or ships as verbatim copies of a package, with their licenses next to them
+and their name, version, license and origin, are listed in THIRD_PARTY_NOTICES.md.

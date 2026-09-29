@@ -25,3 +25,8 @@ public/fonts/outfit/OFL.txt -whitespace
 # lives here and not in the file, so the verbatim text stays verbatim and `git diff --check` does not report it as an
 # error of this repository.
 public/voice/worklets/*.js -whitespace
+
+# The license texts of the same packages travel with the same rule: the two copies are the `LICENSE` of
+# `@elevenlabs/client` and the `LICENSE.md` of `@alexanderolsen/libsamplerate-js`, byte for byte, and
+# `tests/third-party-notices.test.ts` compares them with the installed packages.
+public/voice/worklets/LICENSE-* -whitespace
