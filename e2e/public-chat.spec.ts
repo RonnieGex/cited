@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 // Every scenario of `openspec/changes/public-page-and-widget/specs/public-chat/spec.md` that a browser can prove,
 // against the application served by `npm run start` with the corpus of `samples/` ingested by the deterministic

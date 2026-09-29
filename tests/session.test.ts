@@ -48,7 +48,7 @@ describe("the session of a tab", () => {
   it("keeps the id the tab already carries", () => {
     const storage = new MemoryStorage();
 
-    storage.setItem(SESSION_KEY, "the-thread-of-this-tab");
+    storage.values.set(SESSION_KEY, "the-thread-of-this-tab");
 
     expect(sessionId(storage)).toBe("the-thread-of-this-tab");
     expect(storage.written).toEqual([]);
