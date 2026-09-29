@@ -76,7 +76,7 @@ licensed font file.
 
 ## 10. After the merge (Fable only)
 
-- [ ] 10.1 Rename the GitHub repository to `cited`, update the remote, and prove that the old URL redirects — report:
+- [x] 10.1 Rename the GitHub repository to `cited`, update the remote, and prove that the old URL redirects — report:
       `reports/2026-09-29-step-10-rename.md`
 
 ## 11. Art direction, second pass (contract written by Fable after the first renders)
