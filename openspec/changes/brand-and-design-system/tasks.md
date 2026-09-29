@@ -85,12 +85,12 @@ application; the README images keep their two themes), so the dark part of Major
 the controls is in scope. Fable accepts the edit of `design.md` in `dd174e9` (a personal path became a relative one).
 Report: `openspec/changes/brand-and-design-system/reports/2026-09-29-step-11-contrast.md`.
 
-- [ ] 11.1 Move the eleven reports of `reports/` into `openspec/changes/brand-and-design-system/reports/` with `git mv`,
+- [x] 11.1 Move the eleven reports of `reports/` into `openspec/changes/brand-and-design-system/reports/` with `git mv`,
       fix every reference to them, and remove the empty `reports/` — report: the one of this section
-- [ ] 11.2 Tests first: a Playwright test that measures the computed colors of `/kit` for the scenario "The controls can
+- [x] 11.2 Tests first: a Playwright test that measures the computed colors of `/kit` for the scenario "The controls can
       be seen", red against the 1.53:1 border of `Input` — report: the one of this section
-- [ ] 11.3 Darken the border token of the controls (and the focus indicator if it fails) until the test is green,
+- [x] 11.3 Darken the border token of the controls (and the focus indicator if it fails) until the test is green,
       keeping the look; `Panel` unchanged — report: the one of this section
-- [ ] 11.4 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
+- [x] 11.4 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
       --strict`, `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-04.md` with
       `## Issues` — report: the one of this section
