@@ -21,7 +21,7 @@ git diff 2c3e2ae..5b7fc46 -- tests/personal-paths.test.ts
      cwd: root,
      encoding: "utf8",
    });
- 
+
 -  return output.split("\0").filter((path) => path.length > 0);
 +  return output
 +    .split("\0")
@@ -33,15 +33,15 @@ git diff 2c3e2ae..5b7fc46 -- tests/personal-paths.test.ts
 +      return { mode, path: record.slice(separator + 1) };
 +    });
  }
- 
+
 -function textOf(root: string, path: string): string | null {
 -  const bytes = readFileSync(resolve(root, path));
 +function fileText(absolute: string): string | null {
 +  const bytes = readFileSync(absolute);
- 
+
    return bytes.includes(0) ? null : bytes.toString("utf8");
  }
- 
+
 +function textOf(root: string, entry: TrackedEntry): string | null {
 +  const absolute = resolve(root, entry.path);
 +
@@ -61,7 +61,7 @@ git diff 2c3e2ae..5b7fc46 -- tests/personal-paths.test.ts
 +
 +  return entry === undefined ? null : textOf(root, entry);
 +}
- 
+
 -const ruleDefiningContracts = ["openspec/changes/bootstrap/tasks.md"];
 +const ruleDefiningContracts = [
 +  "openspec/changes/bootstrap/tasks.md",
