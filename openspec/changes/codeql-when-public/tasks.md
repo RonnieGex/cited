@@ -31,16 +31,16 @@ blocking, unless the evidence is missing or contradicts the mark. Reports: `repo
 
 ## 5. Run the checks
 
-- [ ] 5.1 `npm run typecheck`, `npm run lint`, gitleaks over the history, `openspec validate --all --strict`,
+- [x] 5.1 `npm run typecheck`, `npm run lint`, gitleaks over the history, `openspec validate --all --strict`,
       `git diff --check`, `actionlint` if installed — report: `reports/2026-09-29-step-5-checks.md`
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 Not applicable: no route changes; say so with the changed-file list — report: `reports/2026-09-29-step-6-curl.md`
+- [x] 6.1 Not applicable: no route changes; say so with the changed-file list — report: `reports/2026-09-29-step-6-curl.md`
 
 ## 7. End-to-end
 
-- [ ] 7.1 Not applicable: the page does not change; say so — report: `reports/2026-09-29-step-7-e2e.md`
+- [x] 7.1 Not applicable: the page does not change; say so — report: `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
 
