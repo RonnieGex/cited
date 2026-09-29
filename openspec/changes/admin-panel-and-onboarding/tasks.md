@@ -18,9 +18,9 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 2. Tests first
 
-- [ ] 2.1 Red unit and route tests for every scenario of `specs/admin-panel/spec.md` — report:
+- [x] 2.1 Red unit and route tests for every scenario of `specs/admin-panel/spec.md` — report:
       `reports/2026-09-29-step-2-tests-first.md`
-- [ ] 2.2 Red E2E: login, lockout, setup page without values, business form, logo refusal, upload, list and delete a
+- [x] 2.2 Red E2E: login, lockout, setup page without values, business form, logo refusal, upload, list and delete a
       document, conversations and delete all, an axe check of each page — report:
       `reports/2026-09-29-step-2-tests-first.md`
 
