@@ -25,7 +25,7 @@ secret, no customer data, no licensed font.
 
 ## 3. Implementation
 
-- [ ] 3.1 The flame files and the ink variants with their script and record (decisions 1 and 2) — report:
+- [x] 3.1 The flame files and the ink variants with their script and record (decisions 1 and 2) — report:
       `reports/2026-09-29-step-3-implementation.md`
 - [ ] 3.2 The flame in the README foot of both languages, the banner and the social preview re-rendered with it, the
       invented logo removed and refused by the guard (decision 3) — report:
