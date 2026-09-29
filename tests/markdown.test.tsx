@@ -181,7 +181,8 @@ describe("the Markdown renderer", () => {
 
     const marker = screen.getByRole("button", { name: "Citation 1" });
 
-    expect(marker).toHaveTextContent("[1]");
+    // The lime mark shows the number of the source; its name says Citation n.
+    expect(marker.textContent).toBe("1");
 
     fireEvent.click(marker);
 

@@ -46,12 +46,13 @@ beforeEach(() => {
 
 describe("the public page", () => {
   it("names the product when no business setting exists yet", async () => {
-    render(await Home());
+    const { container } = render(await Home());
 
     expect(screen.getAllByRole("main")).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Cited");
     expect(screen.getByLabelText(PUBLIC_STRINGS.en.question.label)).toBeInTheDocument();
-    expect(screen.getByText(PUBLIC_STRINGS.en.welcome)).toBeInTheDocument();
+    // The welcome is the headline and its last words sit in the highlighter, so its text is split across two nodes.
+    expect(container.querySelector('[data-cited="welcome"]')).toHaveTextContent(PUBLIC_STRINGS.en.welcome);
     expect(screen.getByText(PUBLIC_STRINGS.en.footer)).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Katalis" })).toHaveAttribute(
       "src",
