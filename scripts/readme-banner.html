@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cited banner, {{THEME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" />
+    <style>
+      :root {
+        color-scheme: {{THEME}};
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 320px;
+      }
+      body {
+        position: relative;
+        overflow: hidden;
+        background: {{BACKGROUND}};
+        color: {{TEXT}};
+        font-family: Outfit, "Segoe UI", Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+      }
+      .glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(520px 220px at 50% 46%, {{GLOW}}, transparent 70%);
+      }
+      .rule {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: #ddf469;
+      }
+      .mark-line {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .wordmark {
+        font-size: 132px;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        line-height: 0.9;
+      }
+      .mark {
+        font-size: 40px;
+        font-weight: 600;
+        color: #ddf469;
+        -webkit-text-stroke: {{MARK_OUTLINE}};
+        margin-top: 4px;
+      }
+      .tagline {
+        position: relative;
+        font-size: 27px;
+        font-weight: 300;
+        letter-spacing: 0.01em;
+        opacity: {{TAGLINE_OPACITY}};
+      }
+      .byline {
+        position: relative;
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        opacity: {{BYLINE_OPACITY}};
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <div class="rule"></div>
+    <div class="mark-line">
+      <span class="wordmark">Cited</span>
+      <span class="mark">[1]</span>
+    </div>
+    <div class="tagline">{{TAGLINE}}</div>
+    <div class="byline">by Katalis</div>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "wordmark": "Cited",
+  "mark": "[1]",
+  "tagline": "Answers from your own documents, with the page they came from.",
+  "byline": "by Katalis",
+  "width": 1280,
+  "height": 320,
+  "dark": "docs/images/readme-banner-dark.png",
+  "light": "docs/images/readme-banner-light.png",
+  "darkBackground": "#171717",
+  "lightBackground": "#F7F6F2",
+  "lightMarkOutline": "#171717",
+  "font": {
+    "name": "Outfit",
+    "source": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
+    "loadedAtRenderTime": true,
+    "fileInRepository": false
+  },
+  "tokens": {
+    "ink": "#171717",
+    "lime": "#DDF469",
+    "offWhite": "#F7F6F2"
+  }
+}
