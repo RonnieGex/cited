@@ -34,9 +34,10 @@ const passwordTooShort = "admin_password_too_short";
 const shortPassword = "doce-letras!";
 const methods = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 
-const routes = import.meta.glob<Record<string, Record<string, unknown>>>("../app/api/admin/**/route.ts", {
-  eager: true,
-});
+const routes = import.meta.glob("../app/api/admin/**/route.ts", { eager: true }) as Record<
+  string,
+  Record<string, unknown>
+>;
 
 const pages: Array<{ name: string; element: ReactElement }> = [
   { name: "/admin/ai", element: <AdminAi /> },

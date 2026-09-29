@@ -240,3 +240,122 @@ nothing at all. The `.env not found. Continuing without it.` line is Node and no
 `.env` (`Test-Path .env` is `False`), which is why the script can be run through `npm run store:state` without opening
 a file of secrets.
 
+## 12.3 Minor: every `[x]` of the round in the commit of its evidence, and gitleaks commit by commit
+
+The Minor of the third review asked two things of this section: that every `[x]` is marked in the same commit as the
+report that supports it — the Linux container run included — and that the table of gitleaks of the report lists every
+commit of the round up to the final HEAD, read after the last commit.
+
+| Casilla | Commit that marks it | The evidence inside that same commit |
+| --- | --- | --- |
+| 12.1 | `2709134` | the red run, in its own commit `0effde0` immediately before, and the green run, in this report |
+| 12.2 | `a978752` | the red run, in its own commit `33c443c` immediately before, and the green run, in this report |
+| 12.3 | the closing commit | this table and the one of gitleaks below |
+| 12.4 | the closing commit | the battery of Windows and the run of the `node:24` container, in this report |
+
+The state of the loop in RUNNING travelled in `cb5a558`, before the red test of 12.1, as in the earlier rounds.
+
+### gitleaks, one commit at a time
+
+```text
+$ gitleaks git --log-opts "<the sha> -1" --redact --no-banner
+```
+
+| Commit | What it carries | gitleaks over that commit |
+| --- | --- | --- |
+| `cb5a558` | the state of the loop in RUNNING | no leaks found |
+| `0effde0` | 12.1: the walk of every route and every page, red | no leaks found |
+| `2709134` | 12.1: the code, the words of the owner and the log | no leaks found |
+| `33c443c` | 12.2: the reader that has to fail with code 2, red | no leaks found |
+| `a978752` | 12.2: the reader fails with code 2 | no leaks found |
+| the closing commit | 12.3 and 12.4: this report, the marks and the state of the loop | no leaks found (`gitleaks git --pre-commit --staged -c .gitleaks.toml`, over the staged tree, which is byte for byte the tree of the commit) |
+
+The hook of the repository (`.githooks/pre-commit`) ran for every commit of the round and refused none of them. A
+commit cannot contain the scan of its own hash, so the closing one is registered with the scan of its staged tree —
+the same bytes it commits — and the scan of `HEAD -1` after the commit, the final HEAD and
+`git rev-list --count main..HEAD` are recorded in the delivery `katalis-dev/tasks/entrega-community-12.md`, which is
+outside the repository and is written once the closing commit exists.
+
+## 12.4 The battery and the delivery
+
+### Windows
+
+Run over the working tree that becomes the closing commit, after the two typing errors of the new test file were
+fixed (see below):
+
+```text
+$ npm test
+ Test Files  56 passed (56)
+      Tests  489 passed (489)
+
+$ npm run typecheck
+✓ Types generated successfully
+(exit 0)
+
+$ npm run lint
+(no output, exit 0)
+
+$ npm run test:e2e
+  30 passed
+
+$ npm audit --audit-level=high
+found 0 vulnerabilities
+
+$ npx openspec validate --all --strict
+Totals: 11 passed, 0 failed (11 items)
+
+$ git diff --check main...HEAD
+(no output, exit 0)
+```
+
+The durations of the runs and the timing table of vitest are left out of this transcription because they change
+between two runs of the same tree; every command is written above, so they can be read again at any time.
+
+The first `npm run typecheck` of this battery found two typing errors of the new test file of 12.1 —
+`import.meta.glob` with a type argument this version of Vite does not take, and the index of the module by method —
+which vitest never sees, because it runs the files with the transpiler and without a type check. Both are fixed in
+the closing commit, and the battery above is the run over the tree with the fix.
+
+### In a `node:24` Linux container, over the exact tree of the closing commit
+
+Everything this commit carries is staged first (`git add -A`), so the tree of the commit that is about to exist is the
+one of the staging area, read with `git write-tree`. A temporary copy outside the repository receives the 541 tracked
+files of the worktree and commits them: it is a clone
+(`git clone --no-hardlinks --branch feature/provider-keys-in-panel`) and not a plain copy of the files, because some
+tests read `git ls-files` and a linked worktree of Windows has a `.git` that is a file pointing to a path of the host,
+which the container cannot resolve. The tree of that local commit and the tree of the staging area are then the same
+hash, and that is what says that what the container reads is what the closing commit writes. The hash is not
+transcribed here on purpose: writing it inside this report would change the tree it names. The delivery records it
+next to the closing HEAD.
+
+```text
+$ git -C <the worktree> write-tree                       (the tree of the closing commit)
+$ git -C <the copy> rev-parse HEAD^{tree}                 (the tree the container reads)
+(both hashes are the same)
+
+$ docker run --rm -v "<the copy>:/app" -w /app node:24 sh -c "npm ci --no-audit --no-fund && node --version && npx vitest run --reporter=dot"
+v24.21.0
+
+ Test Files  56 passed (56)
+      Tests  487 passed | 2 skipped (489)
+```
+
+`git -C <the copy> status --porcelain` is empty after the run: the container wrote nothing tracked, only the
+`node_modules` it installed. The copy is discarded when the round closes.
+
+A first attempt mounted the worktree itself, with an anonymous volume over `node_modules` so that the `npm ci` of the
+container could not touch the install of the host: the tree was the same before and after the run, but eight tests of
+`tests/design-system.test.ts`, `tests/personal-paths.test.ts` and `tests/readme.test.ts` failed inside the container
+for the reason above (`git ls-files` over the `.git` of a linked worktree). The copy with a real `.git` is what the
+earlier rounds used, and it is what this run uses.
+
+The two skipped tests are the two of `tests/design-system.test.ts` that were already skipped on Linux before this
+change. `node:24` carries Node v24.21.0, newer than the `>=24.15.0` of `package.json`, which is what the contract
+asks for.
+
+### The delivery
+
+`katalis-dev/tasks/entrega-community-12.md` (outside the repository, which is why it changes no count of this round)
+receives the round in Spanish with its `## Issues`, the closing HEAD and `git rev-list --count main..HEAD` read after
+the last commit, with the command next to the number. The report of the round is this file; the state of the loop
+closes in DONE with it.
