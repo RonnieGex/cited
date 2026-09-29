@@ -54,6 +54,7 @@ stays `[BLOCKED]` and reserved for Fable; the text of no task and no line of the
 
 | SHA | Message |
 |---|---|
+| `bf461eb` | docs(codeql-when-public): report the documentation step and mark the contract |
 | `36deb70` | docs(codeql-when-public): state when CodeQL runs and report the state after |
 | `10aafd4` | docs(codeql-when-public): report the checks and the steps that do not apply |
 | `59c369b` | docs(codeql-when-public): report the green suite on both platforms |
@@ -102,4 +103,13 @@ real output: `2026-09-29-step-0-branch.md`, `-step-1-base-before.md`, `-step-2-t
 
 ## Closing
 
-Delivery in `katalis-dev/tasks/entrega-community-00g.md`, in Mexican Spanish, with its `## Issues` section.
+The closing battery ran on `bf461eb`, the commit that marks the last task, with a clean tree, and every check is
+green on the two platforms: `npm test` 3 files and 13 tests passed; `npm run typecheck`, `npm run lint` and
+`git diff --check` with exit code 0; `openspec validate --all --strict` with 4 passed and 0 failed; `npm run build`
+green on Windows; and gitleaks over the whole history, with the command and the release of the pipeline, 37 commits
+scanned and no leaks found on Windows and in the `node:24` container. `git ls-files --eol` reports no CRLF and no
+mixed line ending, every file written by this change is UTF-8 without BOM, `main` and `refs/remotes/origin/main` still
+point at `efdda14`, and `openspec/changes/archive/` keeps its two earlier entries, without this change.
+
+The commit that carries this file records the closing battery; its SHA is named in the delivery
+`katalis-dev/tasks/entrega-community-00g.md`, in Mexican Spanish, with its `## Issues` section.
