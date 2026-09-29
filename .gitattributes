@@ -18,3 +18,10 @@
 # `docs/design-system.md` records and `tests/design-system.test.ts` compares. The exception lives here and not in the
 # file, so the verbatim text stays verbatim and `git diff --check` does not report it as an error of this repository.
 public/fonts/outfit/OFL.txt -whitespace
+
+# The worklets of the voice session are the files of the installed packages, copied byte for byte by
+# `npm run worklets:voice` and compared with them by `tests/voice-worklets.test.tsx`: the trailing spaces of
+# `raw-audio-processor.js` are the ones ElevenLabs published, and trimming them would break the copy. The exception
+# lives here and not in the file, so the verbatim text stays verbatim and `git diff --check` does not report it as an
+# error of this repository.
+public/voice/worklets/*.js -whitespace
