@@ -8,13 +8,31 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" />
     <style>
       :root {
-        color-scheme: {{THEME}};
+        --background: {{BACKGROUND}};
+        --text: {{TEXT}};
+        --muted: {{MUTED}};
+        --muted-soft: {{MUTED_SOFT}};
         --hairline: {{HAIRLINE}};
         --panel: {{PANEL}};
         --panel-strong: {{PANEL_STRONG}};
-        --header: {{HEADER}};
-        --muted-soft: {{MUTED_SOFT}};
-        --mark-outline: {{MARK_OUTLINE}};
+        --card-fill: {{CARD_FILL}};
+        --card-border: {{CARD_BORDER}};
+        --card-shadow: {{CARD_SHADOW}};
+        --bar-background: {{BAR_BACKGROUND}};
+        --bar-text: {{BAR_TEXT}};
+        --bar-dot: {{BAR_DOT}};
+        --terminal-fill: {{TERMINAL_FILL}};
+        --terminal-border: {{TERMINAL_BORDER}};
+        --screen-text: {{SCREEN_TEXT}};
+        --hit-background: {{HIT_BACKGROUND}};
+        --hit-text: {{HIT_TEXT}};
+        --next-background: {{NEXT_BACKGROUND}};
+        --next-text: {{NEXT_TEXT}};
+        --next-border: {{NEXT_BORDER}};
+        --lime: {{LIME}};
+        --mark: {{MARK}};
+        --lime-edge: {{LIME_EDGE}};
+        --on-lime: {{ON_LIME}};
       }
       * {
         box-sizing: border-box;
@@ -37,42 +55,17 @@
       .tone {
         position: absolute;
         inset: 0;
-        background: radial-gradient(620px 260px at 12% 0%, {{GLOW}}, transparent 70%);
+        background: {{GLOW}};
       }
       .frame {
         position: absolute;
         inset: 0;
         border: 1px solid {{HAIRLINE}};
       }
-      .next {
-        display: inline-block;
-        padding: 3px 12px 2px;
-        border-radius: 999px;
-        background: {{NEXT_BACKGROUND}};
-        color: {{NEXT_TEXT}};
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-      }
-      .eyebrow {
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        color: {{MUTED}};
-      }
-      .dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: {{DOT}};
-        display: inline-block;
-      }
       {{STYLES}}
     </style>
   </head>
-  <body>
+  <body data-theme="{{THEME}}">
     <div class="tone"></div>
     <div class="frame"></div>
     {{CONTENT}}
