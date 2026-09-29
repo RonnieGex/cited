@@ -8,12 +8,12 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/admin-panel-and-onboarding`, created by Fable from `main` after `pluggable-models-and-ask`
+- [x] 0.1 Work on `feature/admin-panel-and-onboarding`, created by Fable from `main` after `pluggable-models-and-ask`
       and `brand-and-design-system`; confirm branch and base; `npm ci` — report: `reports/2026-09-29-step-0-branch.md`
 
 ## 1. The state of the base before
 
-- [ ] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status`; the tables
+- [x] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status`; the tables
       of the store — report: `reports/2026-09-29-step-1-base-before.md`
 
 ## 2. Tests first
