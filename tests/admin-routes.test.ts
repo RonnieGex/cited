@@ -40,15 +40,18 @@ function request(
 }
 
 describe("POST /api/admin/login", () => {
-  it("answers 503 naming the missing variable when the panel has no password", async () => {
+  it("answers 503 with the code of an installation that is not finished and never a variable name", async () => {
     await environmentOf({ ADMIN_PASSWORD: "", ADMIN_SESSION_SECRET: "" });
 
     const response = await login(request("/api/admin/login", { password: "lo-que-sea" }));
-    const body = (await response.json()) as { status: string; error: string };
+    const body = (await response.json()) as { status: string; reason: string; error: string };
 
     expect(response.status).toBe(503);
-    expect(body.error).toContain("ADMIN_PASSWORD");
-    expect(body.error).toContain("ADMIN_SESSION_SECRET");
+    expect(body.status).toBe("panel_not_configured");
+    expect(body.reason).toBe("panel_not_configured");
+    expect(body.error).not.toContain("ADMIN_PASSWORD");
+    expect(body.error).not.toContain("ADMIN_SESSION_SECRET");
+    expect(body.error.toLowerCase()).toContain("install");
   });
 
   it("answers 401 to a wrong password and 200 with the signed cookie to the right one", async () => {
@@ -248,9 +251,12 @@ describe("every admin route checks the session", () => {
     await environmentOf({ ...configured(), ADMIN_PASSWORD: "" });
 
     const unconfigured = await setup(new Request("http://localhost/api/admin/setup"));
+    const refused = await unconfigured.text();
 
     expect(unconfigured.status).toBe(503);
-    expect(await unconfigured.text()).toContain("ADMIN_PASSWORD");
+    expect(refused).toContain("panel_not_configured");
+    expect(refused).not.toContain("ADMIN_PASSWORD");
+    expect(refused.toLowerCase()).toContain("install");
 
     const environment = await environmentOf(configured());
     const token = sessionToken(ADMIN_SECRET, new Date());
