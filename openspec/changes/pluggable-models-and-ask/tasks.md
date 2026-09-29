@@ -19,7 +19,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 2. Tests first
 
-- [ ] 2.1 Red tests for every scenario of `specs/answering/spec.md` with the fake provider — report:
+- [x] 2.1 Red tests for every scenario of `specs/answering/spec.md` with the fake provider — report:
       `reports/2026-09-29-step-2-tests-first.md`
 
 ## 3. Implementation in small steps
