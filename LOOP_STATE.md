@@ -1,76 +1,78 @@
 # LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: pluggable-models-and-ask (OpenSpec)
-ROUND: section 10 of the contract, "What the review of Codex reproduced" (tasks 10.1 to 10.7)
-BRANCH: feature/pluggable-models-and-ask
-BASE: aa52b7c (main)
-HEAD AT THE START OF THE ROUND: 0ca819d ("Close the forged header, the racing limit, the open delimiter and the
-retired defaults": the delta specs and the tasks of this section, written by Fable)
-HEAD AT THE END OF THE ROUND: 7803e58 ("Narrow the outcome of the forged delimiter test before its citations"); the
-closing commit carries this file, the report of the round and the seven checkboxes
+CHANGE: public-page-and-widget (OpenSpec)
+ROUND: section 10, "What the review of Codex reproduced" (contract amended by Fable after `revision-community-08`)
+BRANCH: feature/public-page-and-widget
+BASE: 7c4f4ff (main, "Merge brand-and-design-system")
+HEAD AT THE START OF THE ROUND: b487ac1 ("Name the prop of the language switch, and ask for the color, the Escape and
+the new tab": the amended decision 8 and the new requirement, written by Fable)
+HEAD AT THE END OF THE ROUND: the closing commit, which carries this file, the section 10.5 of the report and the last
+checkbox of the contract
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
-## Objective
+## Objective of this round
 
-Close the findings of `katalis-dev/tasks/revision-community-05.md` (1 Blocker, 4 Major, 1 Minor, all reproduced by
-Codex), tests first and red before each fix, reproducing what the review reproduced, with a real report per `[x]` in
-`openspec/changes/pluggable-models-and-ask/reports/2026-09-29-step-10-review-fixes.md`.
+Close the four Major that Codex reproduced in `katalis-dev/tasks/revision-community-08.md`, tests first and red before
+each fix, reproducing exactly what the review reproduced, and only then repeat the battery.
 
 ## What was delivered
 
-- **10.1 Blocker**: `openspec/specs/answering/spec.md` removed and `openspec/specs/project-readme/spec.md` restored to
-  the text of `main`; the README test follows the amended scenario "Available means specified and merged" with
-  `capabilityOf`, `openChangeSpecs` and `specIsDelivered`; `openspec archive pluggable-models-and-ask -y` succeeds on a
-  throwaway clone (`+ 7`, `~ 2`, `Specs updated successfully`), never in this worktree.
-- **10.2 Major 1**: `lib/guards/ip.ts` takes the last value of `x-forwarded-for`, the one the trusted proxy appended.
-- **10.3 Major 2**: `reserveModelCall(day, limit)` reserves the call with one `INSERT ... ON CONFLICT ... WHERE
-  count < ? RETURNING count` before `generateText`; eight concurrent questions with `DAILY_MODEL_CALL_LIMIT=1` make
-  exactly one call and the counter of the day ends at 1.
-- **10.4 Major 3**: `lib/answer/prompt.ts` escapes the text, the document name and the heading of a passage, so no
-  document can open or close a delimiter and no citation leaves the passages the store has.
-- **10.5 Major 4**: `DEFAULT_CHAT_MODELS` and the table of `docs/answering.md` name the model every provider still
-  served on 2026-09-29 with its official source and the date: `gpt-4o-mini`, `claude-haiku-4-5-20251001`,
-  `gemini-3.8-flash`, `deepseek-flash`, `openai/gpt-oss-120b`, `openai/gpt-4o-mini`, `llama3.1`, `local-model`,
-  `fake`.
-- **10.6 Minor 1**: the cleanup of the suite has a 60 s margin (`vitest.config.mts` and the `afterAll` of
-  `tests/answer.test.ts`, which closes every client before the first delete); `npm test` passes five times in a row and
-  under load.
-- **10.7**: the full battery on Windows and in a `node:24` Linux container, and the round appended to
-  `katalis-dev/tasks/entrega-community-05.md` in Spanish with `## Issues`.
+- **10.1**: `components/i18n/LanguageSwitch.tsx` takes the one prop `current` of design decision 8 as amended, so the
+  file this lane owns can replace the stand-in of the parallel lane without breaking `npm run typecheck`. The red state
+  was the real diagnostic of the review at a JSX call site: `Type '{ current: Lang; }' is not assignable to type
+  'IntrinsicAttributes & LanguageSwitchProps'`.
+- **10.2**: the primary color of the settings paints the ask button and the accents of `/` and `/embed`, through the
+  new `brand` variant of `components/ui/Button.tsx` and two accents in `components/chat/`. Chromium measured
+  `rgb(23, 23, 23)` before the fix (the ink the button kept) and `rgb(221, 244, 105)`, then `rgb(29, 78, 216)` with the
+  accepted business color of the fixture, after it.
+- **10.3**: `Escape` inside the iframe closes the widget and returns the focus to its button. `lib/widget/messages.ts`
+  is the one protocol, `components/chat/Chat.tsx` posts it from `/embed`, and `lib/widget/script.ts` closes only for a
+  message from its own origin and of that shape. `public/widget.js` was rebuilt (2466 bytes of 5120).
+- **10.4**: a tab opened from the page starts its own conversation. The tab keeps the mark `cited-tab=<id>` in
+  `window.name`, which `window.open` does not inherit, next to the id in `sessionStorage`, and `lib/chat/session.ts`
+  believes the stored id only when the two agree.
+- **10.5**: the whole battery, the round in `katalis-dev/tasks/entrega-community-08.md` (Spanish, with its own
+  `## Issues`) and this file in `DONE`.
 
 ## Evidence
 
-- 12 commits: the red test of each finding in a commit of its own and the fix in the next one (`91d6e9d`, `012dabd`,
-  `ad06a3f`, `5ae2ea5`, `03ebfa2`, `684052b`, `81c1803`, `f8f75d5`, `f60d002`, `be92eb3`, `b699670`, `7803e58`).
-- One report with the exact command, the commit and the output of every `[x]`:
-  `reports/2026-09-29-step-10-review-fixes.md`.
-- `npm test`: 16 files and 172 tests green on Windows (Node v24.11.0), five runs in a row, and in a `node:24` Linux
-  container (v24.21.0) from a clean clone; `npm run typecheck`, `npm run lint`, `npm run test:e2e`,
-  `npm audit --audit-level=high`, gitleaks (197 commits, `no leaks found`), `openspec validate --all --strict`
-  (7 items) and `git diff --check main...HEAD` green.
-- The archive of the change succeeds on a throwaway clone of the branch; in this worktree nothing was archived.
+- Seven commits of this round against the contract: `a40927e` (RUNNING), `0850f7c` (the four red tests and their
+  report), `17a6182`, `e3eef0c`, `8047f31`, `8ab05c6` and the closing commit.
+- One report for the section, `openspec/changes/public-page-and-widget/reports/2026-09-29-step-10-review-fixes.md`,
+  with the red reproduction and the green run of each point, the exact commands, the outputs and the commits.
+- `npm test`: 27 files and 277 tests green on Windows 11 (Node v24.11.0); before this round, 26 and 264.
+- `npm run test:e2e`: 15 tests green (12 before), axe 0 violations on `/` (24 rules), `/embed` (23) and `/kit` (21).
+- `npm run typecheck`, `npm run lint`, `openspec validate --all --strict` (9 items), `git diff --check main...HEAD` and
+  `node scripts/build-widget.mjs` (2466 bytes), all clean.
+- gitleaks: 246 commits, 2.66 MB, `no leaks found`.
 
 ## The issues that stay open
 
-- The OpenRouter page is rendered by the browser and its fetched text does not state the lifecycle of the model; the
-  source and the verification are the ones of the review.
-- The LM Studio row points at the official OpenAI-compatibility page (the review calls `local-model` a local
-  identifier, not a published model) and `fake` points at this repository.
-- The Claude default is the pinned snapshot `claude-haiku-4-5-20251001`; the alias lives on a page the review does not
-  cite.
-- The escaping makes a model echo entities when a document carries `<`, `>` or `&`; the citations keep the real text.
-- The defaults age again; the test pins them but nothing checks the pages by itself.
-- The stability of the cleanup was measured here, not on every machine.
+- `docs/images/chat-page.png` is a real capture of the interface before this round: it shows the ask button in ink, and
+  the button carries the fill of the brand from 10.2 on. It was not re-rendered, and `tests/readme.test.ts` measures its
+  luminance and not its content.
+- `--primary` and `--on-primary` are inline style attributes of the two public pages; the kit has no fallback for a
+  consumer outside them, because the design system belongs to another change.
+- The close message travels with `targetOrigin: "*"`: only an origin of `frame-ancestors` can frame `/embed`, the
+  message carries no data, and the widget checks the origin of what it receives.
+- The owner mark lives in `window.name`: if another script of the same origin erased it, the tab would start a new
+  conversation, which is the safe fall.
+- `e2e/widget.spec.ts` needs one port per test (3210 and 3212, both in `ALLOWED_ORIGINS`), because the tests of a file
+  run in parallel.
+- The independent adversarial review of this correction, the push, the merge, the archive and the deploy were not
+  executed and were not authorized: they are Codex's or Fable's.
 
 ## Hard rules respected
 
-- No `.env` file was opened (the repository has none: `Test-Path .env` is `False`, and the Linux clone reported the
-  same).
+- No `.env` file was opened (this worktree has none; only `.env.example` is tracked as the public template).
 - No push, no remote, no commit in `main`, no archive in this worktree, no deploy.
-- The other worktree (`community-ui`, `feature/brand-and-design-system`) was not touched.
-- No call to a real provider and no call to Turso: the deterministic `fake` ran every command.
+- The other worktree (`community`, `feature/admin-panel-and-onboarding`) was not touched; its `AdminNav.tsx` was read
+  once to pin the interface the owner has to match.
+- No test called a real provider: the deterministic `fake` ran every command.
+- No personal path in a versioned file; the logs of the round live outside the repository, in `katalis-dev/tasks/`.
 - `MEMORY.md` is in no commit.
 - UTF-8 with LF in every file written or modified.
-- The text of no task was edited: only its checkboxes; `design.md` and the specs were not touched by this round.
+- The text of no task was edited: only its checkboxes; `design.md` and the two delta specs were not touched, and
+  neither was the text of sections 0 to 9.
