@@ -42,12 +42,15 @@ Anyone can ask a question, so the endpoint is treated as hostile input.
 
 ## 2. The administration panel
 
-- `ADMIN_PASSWORD` is required: without it the panel does not start, and the app says so instead of serving an open
-  panel. **Done** in `admin-panel-and-onboarding`.
+- `ADMIN_PASSWORD` is required and has at least sixteen characters: without it, or with a shorter one, the panel does
+  not start, and the app says so instead of serving an open or a weak panel. **Done** in `admin-panel-and-onboarding`.
 - The session lives in a cookie that is `httpOnly`, `sameSite=strict` and `secure` outside `localhost`, signed with
   `ADMIN_SESSION_SECRET`, and the password is compared in constant time. **Done** in `admin-panel-and-onboarding`.
-- Access attempts are limited: five failures from one address within fifteen minutes lock that address for fifteen
-  minutes, with `Retry-After`. **Done** in `admin-panel-and-onboarding`.
+- Access attempts are limited by address: five failures from one known address within fifteen minutes lock that
+  address for fifteen minutes, with `Retry-After`. The address is known only when `TRUST_PROXY` declares how many
+  proxies sit in front and the forwarding chain carries the address that many places from the right; without a known
+  address no attempt locks anybody and every failed attempt takes at least one second. **Done** in
+  `admin-panel-and-onboarding`.
 - Every data fetch of the panel is behind the same session, every mutation also checks the origin of the request, and
   nothing is hidden only in the interface. **Done** in `admin-panel-and-onboarding`.
 

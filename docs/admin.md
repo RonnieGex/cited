@@ -10,15 +10,16 @@ documents the assistant answers from, without touching the terminal. It is serve
 public questions: one process, one store.
 
 ```
-ADMIN_PASSWORD=una-clave-larga
+ADMIN_PASSWORD=una-clave-bastante-larga
 ADMIN_SESSION_SECRET=un-secreto-largo
 EMBEDDINGS_PROVIDER=fake
 CHAT_PROVIDER=fake
 npm run dev
 ```
 
-The panel lives in `/admin`. Without `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` it refuses to start with `503` and
-names the variable that is missing; it never shows a value of the environment, only whether it is set.
+The panel lives in `/admin`. Without `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET`, or with an `ADMIN_PASSWORD` shorter
+than sixteen characters, it refuses to start with `503` and names the variable or the rule that fails; it never shows
+a value of the environment, only whether it is set.
 
 ## Pages
 
@@ -45,8 +46,11 @@ The cookie is `Path=/`, `HttpOnly`, `SameSite=Strict`, twelve hours long, and `S
 password is compared in constant time, over the SHA-256 of both sides, so the comparison leaks neither the content
 nor the length. `POST /api/admin/logout` clears the cookie.
 
-Five failed attempts from one address within fifteen minutes lock that address for fifteen minutes: the sixth
-attempt answers `429` with `Retry-After`, even when it carries the right password. The failures live in the store, in
+Five failed attempts from one known address within fifteen minutes lock that address for fifteen minutes: the sixth
+attempt answers `429` with `Retry-After`, even when it carries the right password. The address is known only when
+`TRUST_PROXY` declares how many proxies sit in front and the forwarding chain carries the address that many places
+from the right; without a known address no attempt is counted, so nobody can lock the owner out, and every failed
+attempt takes at least one second before it answers. The failures live in the store, in
 `login_attempts(ip_hash, window_start, count)`, with the same salted hash of the address the public questions use, so
 no address is kept in clear. A successful login clears the failures of that address, and an expired window is
 forgotten with the next attempt.

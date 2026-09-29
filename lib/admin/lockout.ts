@@ -2,6 +2,7 @@ import type { Store } from "../store/index.ts";
 
 export const LOGIN_MAX_FAILURES = 5;
 export const LOGIN_WINDOW_MINUTES = 15;
+export const UNKNOWN_ADDRESS_DELAY_MS = 1000;
 
 const windowMs = LOGIN_WINDOW_MINUTES * 60 * 1000;
 

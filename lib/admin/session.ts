@@ -2,6 +2,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE = "cited_admin";
 export const SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
+export const ADMIN_PASSWORD_MIN_LENGTH = 16;
 
 export type AdminEnvironment = Record<string, string | undefined>;
 
@@ -9,6 +10,7 @@ export type AdminConfig = {
   password: string;
   secret: string;
   missing: string[];
+  shortPassword: boolean;
 };
 
 const requiredVariables = ["ADMIN_PASSWORD", "ADMIN_SESSION_SECRET"];
@@ -18,10 +20,14 @@ function read(environment: AdminEnvironment, name: string): string {
 }
 
 export function adminConfig(environment: AdminEnvironment): AdminConfig {
+  const password = read(environment, "ADMIN_PASSWORD");
+  const secret = read(environment, "ADMIN_SESSION_SECRET");
+
   return {
-    password: read(environment, "ADMIN_PASSWORD"),
-    secret: read(environment, "ADMIN_SESSION_SECRET"),
+    password,
+    secret,
     missing: requiredVariables.filter((name) => read(environment, name).length === 0),
+    shortPassword: password.length > 0 && password.length < ADMIN_PASSWORD_MIN_LENGTH,
   };
 }
 

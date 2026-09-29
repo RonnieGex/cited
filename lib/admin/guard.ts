@@ -1,8 +1,20 @@
-import { SESSION_COOKIE, adminConfig, cookieFrom, verifySession, type AdminEnvironment } from "./session.ts";
+import {
+  ADMIN_PASSWORD_MIN_LENGTH,
+  SESSION_COOKIE,
+  adminConfig,
+  cookieFrom,
+  verifySession,
+  type AdminConfig,
+  type AdminEnvironment,
+} from "./session.ts";
+
+export type AdminBlock =
+  | { status: "unconfigured"; missing: string[] }
+  | { status: "short-password"; minimum: number };
 
 export type AdminGuard =
   | { status: "ok" }
-  | { status: "unconfigured"; missing: string[] }
+  | AdminBlock
   | { status: "unauthorized" }
   | { status: "forbidden" };
 
@@ -10,6 +22,36 @@ const mutations = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 export function missingAdminVariables(environment: AdminEnvironment): string[] {
   return adminConfig(environment).missing;
+}
+
+function blockOf(config: AdminConfig): AdminBlock | null {
+  if (config.missing.length > 0) {
+    return { status: "unconfigured", missing: config.missing };
+  }
+
+  if (config.shortPassword) {
+    return { status: "short-password", minimum: ADMIN_PASSWORD_MIN_LENGTH };
+  }
+
+  return null;
+}
+
+export function adminBlock(environment: AdminEnvironment): AdminBlock | null {
+  return blockOf(adminConfig(environment));
+}
+
+export function adminProblem(environment: AdminEnvironment): string | null {
+  const block = adminBlock(environment);
+
+  if (block === null) {
+    return null;
+  }
+
+  if (block.status === "unconfigured") {
+    return `the panel needs ${block.missing.join(" and ")}: fill the variable in the environment of the server and start it again`;
+  }
+
+  return `ADMIN_PASSWORD has fewer than ${block.minimum} characters: choose a longer password in the environment of the server and start it again`;
 }
 
 function ownOrigins(request: Request): string[] {
@@ -39,9 +81,10 @@ export function guardSession(
   now: Date = new Date(),
 ): AdminGuard {
   const config = adminConfig(environment);
+  const block = blockOf(config);
 
-  if (config.missing.length > 0) {
-    return { status: "unconfigured", missing: config.missing };
+  if (block !== null) {
+    return block;
   }
 
   return verifySession(config.secret, token, now) ? { status: "ok" } : { status: "unauthorized" };

@@ -26,6 +26,16 @@ export function guardResponse(guarded: Exclude<AdminGuard, { status: "ok" }>): R
     );
   }
 
+  if (guarded.status === "short-password") {
+    return json(
+      {
+        status: "unconfigured",
+        error: `ADMIN_PASSWORD has fewer than ${guarded.minimum} characters; choose a longer password in the environment of the server, never with a value in the repository`,
+      },
+      503,
+    );
+  }
+
   if (guarded.status === "forbidden") {
     return json(
       { status: "forbidden", error: "the request does not come from the panel" },
