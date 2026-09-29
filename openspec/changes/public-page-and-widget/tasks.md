@@ -51,7 +51,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 7. End-to-end
 
-- [ ] 7.1 The E2E of 2.2 green; captures of `/` with an answer and its open citation, and of the widget open on a test
+- [x] 7.1 The E2E of 2.2 green; captures of `/` with an answer and its open citation, and of the widget open on a test
       page, at 1440 and 375 px — report: `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
