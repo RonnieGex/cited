@@ -6,7 +6,7 @@ ROUND: section 12, review round (tasks 12.1 to 12.6)
 BRANCH: feature/cited-identity-and-readme
 BASE: 5dec3af (main)
 HEAD AT THE START OF THE ROUND: 6400c01
-HEAD AT THE END OF THE ROUND: 95459db
+HEAD AT THE END OF THE ROUND: 00bcd9b
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
@@ -52,7 +52,7 @@ way means giving up the real demo in the light variant.
 
 ## State of the tree
 
-The tree is clean on `feature/cited-identity-and-readme` at `95459db`. `main` still points at `5dec3af`, no remote was
+The tree is clean on `feature/cited-identity-and-readme` at `00bcd9b`. `main` still points at `5dec3af`, no remote was
 contacted, nothing was pushed and nothing was archived. Section 12 carries its six boxes marked with the report of the
 round; section 10 stays untouched because it is Fable's.
 
