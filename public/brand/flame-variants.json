@@ -1,0 +1,32 @@
+{
+  "source": {
+    "file": "public/brand/katalis-flame-512.png",
+    "width": 512,
+    "height": 512,
+    "bytes": 166575,
+    "sha256": "eb66069b2dc7a346a98dcee5ebbbcbfd0024880f5db0236225576d1572443c54"
+  },
+  "color": "#171717",
+  "operations": [
+    "keep the alpha of every pixel of the original",
+    "recolor every pixel to the ink #171717 with the shading of the original preserved as luminance",
+    "resize the recolored original to 192 and 64 px"
+  ],
+  "outputs": [
+    {
+      "file": "public/brand/katalis-flame-ink-192.png",
+      "width": 192,
+      "height": 192,
+      "bytes": 10123,
+      "sha256": "0ca17c874233dac4acf304fd45083a2ce58119d8fbc29149a786cdda4f2460ae"
+    },
+    {
+      "file": "public/brand/katalis-flame-ink-64.png",
+      "width": 64,
+      "height": 64,
+      "bytes": 2735,
+      "sha256": "b3e035c4e282d804e213670840ac1e94d68be336aceb117eb8cc6cd6069f0458"
+    }
+  ],
+  "script": "scripts/render-flame-variants.mjs"
+}
