@@ -76,7 +76,7 @@ Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before ea
       policy") — report: the one of this section
 - [x] 10.3 Major: the minute cap as amended (requirement "The minute cap never lets a session exceed it"), and the panel
       saying that a limit below five allows no session — report: the one of this section
-- [ ] 10.4 Minor: the policy trimmed to what the implemented session uses (`connect-src` and `media-src`), with the
+- [x] 10.4 Minor: the policy trimmed to what the implemented session uses (`connect-src` and `media-src`), with the
       reason of each directive left — report: the one of this section
 - [ ] 10.5 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round

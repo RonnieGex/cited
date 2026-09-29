@@ -360,3 +360,82 @@ npm test
 and the panel says so in the two languages of the product.
 
 **Commit.** `9f002d4` carries the fix; the red tests are in `e7b9d69` and this section travels with the mark.
+
+## 10.4 The policy trimmed to what the implemented session uses
+
+**Task.** Minor of the review: `connect-src` allowed `https://api.elevenlabs.io` although the browser never calls the
+HTTPS API — it asks this origin for the signed URL and opens `wss://api.elevenlabs.io` — and `media-src 'self' blob:`
+did not match the path the SDK takes, because the answer plays through the `MediaStream` the SDK assigns to the
+`srcObject` of an audio element, which is not a fetch. The policy and its test fixed the widening instead of proving the
+need.
+
+**What a real browser says.** A throwaway probe with the Chromium of the suite (a script outside the repository) compared
+the paths of the SDK under the policy of this page: the same-origin `addModule` loads, the jsDelivr URL is blocked (which
+is the Major of 10.2), and a `blob:` module loads because `'strict-dynamic'` trusts the script that creates it — not
+because of `worker-src blob:`, which was therefore decoration. The trimmed policy keeps the same-origin route, which is
+the one the session uses since 10.2.
+
+**The red, before the fix.**
+
+```powershell
+npx vitest run tests/csp.test.ts
+```
+
+```text
+ ❯ tests/csp.test.ts (11 tests | 1 failed) 13ms
+ FAIL  tests/csp.test.ts > the policy of the page > names the endpoints of the voice session, and only them
+AssertionError: expected ''self' https://api.elevenlabs.io ws…' to be ''self' wss://api.elevenlabs.io'
+Expected: "'self' wss://api.elevenlabs.io"
+Received: "'self' https://api.elevenlabs.io wss://api.elevenlabs.io"
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Duration  1.45s
+```
+
+**The fix.** `lib/headers/csp.ts` now carries one line per directive with its reason, and three of them changed:
+
+- `connect-src 'self' wss://api.elevenlabs.io`: the socket the signed URL opens, and nothing else of the provider. The
+  HTTPS endpoint is not named because the browser never calls it; the routes of the server do.
+- `worker-src 'self'`: the processors are files of `public/voice/worklets/` and the session hands the SDK their paths,
+  so the page requests no `blob:` module.
+- no `media-src`: the answer is a `MediaStream` on a `srcObject`, not a fetch, so the directive had no consumer; its
+  absence leaves the floor of `default-src 'self'`, which is stricter.
+
+The other directives keep their reason in the same block (`default-src` as the floor, `script-src` with the nonce,
+`style-src` with the inline colours of the business, `img-src`, `font-src`, the four of the strict floor and
+`frame-ancestors`).
+
+**The green, after the fix.**
+
+```powershell
+npx vitest run tests/csp.test.ts
+```
+
+```text
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Duration  1.44s
+```
+
+The test now also proves the requirement literally: the policy names no `http(s)://` host at all, exactly one `wss://`
+host, and the string `jsdelivr` appears nowhere in it. And the audio of 10.2 still loads under the trimmed policy: the
+browser test was run again over a build with the new header.
+
+```powershell
+npm run build:e2e
+npx playwright test e2e/voice.spec.ts --grep "audio worklets"
+```
+
+```text
+the worklets: /voice/worklets/raw-audio-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/audio-concat-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/libsamplerate.worklet.js 200 application/javascript; charset=UTF-8; /voice/worklets/raw-audio-processor.js: loaded; /voice/worklets/audio-concat-processor.js: loaded; /voice/worklets/libsamplerate.worklet.js: loaded
+  1 passed (6.2s)
+```
+
+**Tests touched.** `tests/csp.test.ts`: the test that fixed the widened directives is amended, with its comment, to the
+three trimmed ones and to the two new assertions about hosts.
+
+**Verdict.** 10.4 is done: the policy names the ElevenLabs connection the session uses and no other, and every directive
+that stays says why.
+
+**Commit.** `3a81342` carries the policy and its test; the mark and this section travel together. `aa0b8a9` keeps the
+copies of the worklets out of the lint, which the 2 MB resampler made noisy (242 warnings, no error).
