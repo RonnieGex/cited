@@ -142,7 +142,7 @@ export function Chat({ lang, welcome, variant = "page", ask, storage }: ChatProp
       className={`flex w-full flex-col gap-6 ${variant === "embed" ? "p-4" : ""}`}
     >
       <div className="flex justify-end">
-        <LanguageSwitch lang={lang} />
+        <LanguageSwitch current={lang} />
       </div>
 
       <p className="max-w-[65ch] text-lg text-ink/80">{welcome}</p>

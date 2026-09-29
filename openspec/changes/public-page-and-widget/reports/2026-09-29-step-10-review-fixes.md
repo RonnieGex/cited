@@ -56,6 +56,29 @@ tests/i18n.test.tsx(153,18): error TS2339: Property 'current' does not exist on 
 The same diagnostic as the review, with the `IntrinsicAttributes` of a JSX call site in front of the type. Full log:
 `katalis-dev/tasks/_community-08-step10-red-unit.log` and `_community-08-step10-red-typecheck.log`.
 
+### The fix
+
+`components/i18n/LanguageSwitch.tsx` declares the one prop of design decision 8 as amended:
+`LanguageSwitchProps = { current: Lang; reload?: () => void; className?: string }`, and the body reads `current`
+everywhere the prop used to be named `lang`. The chat that consumes it (`components/chat/Chat.tsx`) calls
+`<LanguageSwitch current={lang} />`. The exported type keeps its name, so the stand-in of the parallel lane can be
+replaced by this file without touching that lane.
+
+```powershell
+npx vitest run tests/i18n.test.tsx
+npm run typecheck
+```
+
+```text
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+```
+
+```text
+âœ“ Types generated successfully
+TYPE_CHECK_EXIT=0
+```
+
 ## 10.2 The primary color paints the ask button and the accents
 
 ### The reproduction of the review
@@ -78,13 +101,13 @@ consumes the two variables; `e2e/public-chat.spec.ts` measures the computed colo
 
 ```text
  FAIL  tests/public-page.test.tsx > the public page > carries the name, the primary color and the welcome of the business
-AssertionError: the ask button takes the fill of the settings: expected 'inline-flex items-center justify-cent…' to contain 'bg-[var(--primary)]'
+AssertionError: the ask button takes the fill of the settings: expected 'inline-flex items-center justify-centâ€¦' to contain 'bg-[var(--primary)]'
 
  FAIL  tests/chat.test.tsx > the chat of the public page > paints the ask button and the accents with the primary color of the settings
-AssertionError: the fill of the ask button: expected 'inline-flex items-center justify-cent…' to contain 'bg-[var(--primary)]'
+AssertionError: the fill of the ask button: expected 'inline-flex items-center justify-centâ€¦' to contain 'bg-[var(--primary)]'
 ```
 
-The measured E2E red of the two pages is written down before the fix of this point.
+The measured E2E red of the two pages is in ## The red run of the browser, for 10.2, 10.3 and 10.4.
 
 ## 10.3 `Escape` inside the iframe
 
@@ -104,10 +127,34 @@ posts nothing. Red at `b487ac1`:
 
 ```text
  FAIL  tests/widget.test.ts > the widget script > closes when the embed asks it to, and only through its own protocol and origin
-AssertionError: its own embed closes it: expected <iframe …(4)></iframe> to be null
+AssertionError: its own embed closes it: expected <iframe â€¦(4)></iframe> to be null
 
  FAIL  tests/chat.test.tsx > the chat inside the widget > asks its parent to close when Escape is pressed inside the iframe
-AssertionError: expected [] to deeply equal [ { data: { …(2) }, target: '*' } ]
+AssertionError: expected [] to deeply equal [ { data: { â€¦(2) }, target: '*' } ]
 ```
 
-The E2E red, with the focus inside the iframe, is measured and written down before the fix of this point.
+## The red run of the browser, for 10.2, 10.3 and 10.4
+
+One build of the branch with the fix of 10.1 only (the build type checks the tests, and the red tests of 10.1 do not
+compile), served by `npm run start` with the deterministic providers, and one run of the three new browser tests before
+any fix of the color, the `Escape` or the opened tab:
+
+```powershell
+npx playwright test e2e/public-chat.spec.ts e2e/widget.spec.ts -g "the color reaches the page|a tab opened from the page|Escape inside the iframe"
+```
+
+```text
+/: --primary is #ddf469, the ask button is rgb(23, 23, 23) with the text rgb(255, 255, 255), and with a business color rgb(23, 23, 23) with the text rgb(255, 255, 255)
+the opener tab carries 384f0183-bb2f-4ba9-9755-37c4c05bd9c9; the tab it opened carries 384f0183-bb2f-4ba9-9755-37c4c05bd9c9 and asked with 384f0183-bb2f-4ba9-9755-37c4c05bd9c9
+  3 failed
+    [chromium] â€º e2e\public-chat.spec.ts:133:5 â€º the color reaches the page: the ask button is painted with the primary color of the settings
+    [chromium] â€º e2e\public-chat.spec.ts:193:5 â€º a tab opened from the page starts its own conversation
+    [chromium] â€º e2e\widget.spec.ts:64:5 â€º Escape inside the iframe closes the widget and returns the focus to its button
+```
+
+The three reproductions of the review, measured by Chromium: the variable is declared and nobody paints it (`rgb(23, 23, 23)`
+is the ink the button keeps); the tab opened from the page carries the id of its opener, which is the
+`{"first": â€¦, "copied": â€¦}` of the review; and the iframe survives `Escape` (`frames after Escape: 1`). Full log:
+`katalis-dev/tasks/_community-08-step10-red-e2e.log`.
+
+The E2E red, with the focus inside the iframe, is in ## The red run of the browser, for 10.2, 10.3 and 10.4.

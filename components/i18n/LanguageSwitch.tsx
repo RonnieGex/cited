@@ -20,13 +20,13 @@ function chooseLanguage(chosen: Lang, reload: () => void): void {
 }
 
 export type LanguageSwitchProps = {
-  lang: Lang;
+  current: Lang;
   reload?: () => void;
   className?: string;
 };
 
-export function LanguageSwitch({ lang, reload, className = "" }: LanguageSwitchProps) {
-  const strings = PUBLIC_STRINGS[lang];
+export function LanguageSwitch({ current, reload, className = "" }: LanguageSwitchProps) {
+  const strings = PUBLIC_STRINGS[current];
 
   return (
     <div
@@ -43,14 +43,14 @@ export function LanguageSwitch({ lang, reload, className = "" }: LanguageSwitchP
           )}
           <button
             type="button"
-            aria-pressed={option.lang === lang}
+            aria-pressed={option.lang === current}
             onClick={() => {
-              if (option.lang !== lang) {
+              if (option.lang !== current) {
                 chooseLanguage(option.lang, reload ?? (() => window.location.reload()));
               }
             }}
             className={`rounded-none text-ink/60 transition-colors duration-[400ms] ease-out-expo hover:text-ink ${
-              option.lang === lang ? "text-ink underline" : ""
+              option.lang === current ? "text-ink underline" : ""
             } ${focusRing}`}
           >
             {option.label}
