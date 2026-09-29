@@ -1,12 +1,19 @@
 # LOOP_STATE · Katalis Responde Community
 
-STATUS: DONE
+STATUS: RUNNING
 CHANGE: bootstrap (OpenSpec 0)
 BRANCH: feature/bootstrap
 AGENT: deepseek-harness
 DATE: 2026-09-28
 
-## What was delivered
+## Round 2: the review fixes (in progress)
+
+`revision-community-00.md` returned FAIL with five majors and three minors. Fable corrected the contract
+(`openspec/changes/bootstrap/tasks.md`) and amended section 3 of the plan about `SECURITY.md`. This round executes the
+open tasks 2.8, 2.9, 5.3, 6.8, 7.5, 7.6, 9.6, 13.1 and 13.2, with the evidence in
+`openspec/changes/bootstrap/reports/2026-09-28-step-9-review-fixes.md`. Nothing is claimed until it is verified.
+
+## Round 1: what was delivered
 
 Change `bootstrap` of the plan `tasks/plan-rag-abierto.md` (v2, approved by Franc on 2026-09-28), complete and green:
 
