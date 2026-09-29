@@ -1,7 +1,7 @@
 # Step 11: the integration of the panel with the public page
 
 Date: 2026-09-29
-Repository: `C:\Users\Franc\Documents\katalis-dev\community`
+Repository: the `community` worktree of the suite, quoted as `.` in every command below
 Branch: `feature/admin-panel-and-onboarding` (never a commit on `main`)
 HEAD at the start of the round: `2f03670` ("Ask for the integration of the panel with the public page on main")
 `main` merged: `ee966f0` ("Merge public-page-and-widget"), the change `public-page-and-widget` already archived there
