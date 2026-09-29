@@ -45,7 +45,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 `npm run build && npm run start` with the fake providers and the sample corpus; `curl.exe` of `/api/ask` for:
+- [x] 6.1 `npm run build && npm run start` with the fake providers and the sample corpus; `curl.exe` of `/api/ask` for:
       an answered question with its citations, a refused one, 1001 characters (400), the 31st question of an IP (429 with
       `Retry-After`), a missing key with `CHAT_PROVIDER=openai` (503 naming the variable) — report:
       `reports/2026-09-29-step-6-curl.md`
