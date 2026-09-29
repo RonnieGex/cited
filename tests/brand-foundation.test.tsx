@@ -197,6 +197,11 @@ describe("CitationMark and citationMarkClass (decision 3)", () => {
     }
   });
 
+  it("keeps an open mark ink under the pointer: the hover of the business color paints only a mark at rest", () => {
+    expect(citationMarkClass("rest")).toContain("hover:bg-[var(--primary)]");
+    expect(citationMarkClass("open")).not.toContain("hover:");
+  });
+
   it("takes the color of the business on hover and the focus ring of the kit, for the marks that are buttons", () => {
     const rest = citationMarkClass("rest");
 

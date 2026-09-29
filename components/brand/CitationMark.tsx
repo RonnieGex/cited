@@ -31,7 +31,11 @@ const shape =
  * the pages that declare `--primary` and `--on-primary` (the public page and the embed) use it as a button.
  */
 export function citationMarkClass(state: CitationMarkState = "rest"): string {
-  return `${shape} ${look.paper[state]} cursor-pointer transition-colors duration-[var(--dur-fast)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] ${focusRing}`;
+  // The hover paints only a mark at rest: an open mark stays ink with its lime number while the pointer is still on it
+  // after the click, so the reader keeps seeing which passage is open.
+  const hover = state === "rest" ? "hover:bg-[var(--primary)] hover:text-[var(--on-primary)]" : "";
+
+  return `${shape} ${look.paper[state]} cursor-pointer transition-colors duration-[var(--dur-fast)] ${hover} ${focusRing}`;
 }
 
 export type CitationMarkProps = {
