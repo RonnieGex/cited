@@ -45,7 +45,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 `npm run build && npm run start` with the fake providers and the sample corpus; `curl.exe -I` of `/`,
+- [x] 6.1 `npm run build && npm run start` with the fake providers and the sample corpus; `curl.exe -I` of `/`,
       `/embed` and `/widget.js` with their headers; `curl.exe` of `/api/ask` from the page's flow — report:
       `reports/2026-09-29-step-6-curl.md`
 
