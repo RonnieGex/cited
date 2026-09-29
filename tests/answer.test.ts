@@ -106,6 +106,8 @@ beforeAll(async () => {
   });
 });
 
+// Every libSQL client is closed before the first delete, and the cleanup of a loaded Windows machine needs more than
+// the 10 s default of the runner: a deletion retried by libSQL costs 2 s per root at worst.
 afterAll(async () => {
   for (const store of stores) {
     store.close();
@@ -129,7 +131,7 @@ afterAll(async () => {
       continue;
     }
   }
-});
+}, 60_000);
 
 describe("the prompt that Cited sends", () => {
   it("keeps the rules, the passages and the question apart", () => {
