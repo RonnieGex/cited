@@ -108,6 +108,28 @@ describe("the policy of the page", () => {
     );
   });
 
+  // Amended by the change `elevenlabs-voice-agent` and trimmed by its task 10.4: the browser asks this server for the
+  // signed URL and opens the WebSocket session of ElevenLabs with it, so `connect-src` names that socket and nothing
+  // else of the provider — the HTTPS endpoint of the API belongs to the routes of the server, which are the only ones
+  // that hold the key. The processors and the resampler of the session are files of this origin, and the session hands
+  // the SDK their paths, so `worker-src` is `'self'` and no `blob:` module is requested; there is no `media-src`
+  // either, because the answer plays through the `MediaStream` the SDK assigns to the `srcObject` of an audio element,
+  // which is not a fetch. `script-src` is not touched: the nonce with `strict-dynamic` stays as it was, and it needs no
+  // third-party host.
+  it("names the endpoints of the voice session, and only them", () => {
+    const policy = policyOf({ nonce: "abc123", pathname: "/" });
+    const directive = (name: string): string | undefined =>
+      new RegExp(`${name} ([^;]+)`).exec(policy)?.[1];
+
+    expect(directive("connect-src")).toBe("'self' wss://api.elevenlabs.io");
+    expect(directive("worker-src")).toBe("'self'");
+    expect(directive("media-src")).toBeUndefined();
+    expect(directive("script-src")).toBe("'self' 'nonce-abc123' 'strict-dynamic'");
+    expect(policy).not.toContain("jsdelivr");
+    expect(policy.match(/https?:\/\/[^\s;]+/g) ?? []).toEqual([]);
+    expect(policy.match(/wss?:\/\/[^\s;]+/g) ?? []).toEqual(["wss://api.elevenlabs.io"]);
+  });
+
   it("hands Next a nonce it can read, base64 and different every time", () => {
     const one = nonceOf();
     const other = nonceOf();

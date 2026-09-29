@@ -477,6 +477,23 @@ const styles = `
   font-weight: 600;
   line-height: 1.25;
 }
+/* The roadmap has to carry every available row of the status table inside the 720px of decision 11, and the change
+   elevenlabs-voice-agent moved the voice row from the second column to the first: its board is a little denser than
+   the page of every other graphic, and nothing of it goes below the 16px of the smallest text. */
+.roadmap {
+  padding: 28px 52px;
+  gap: 18px;
+}
+.roadmap .column {
+  gap: 7px;
+}
+.roadmap .row {
+  padding: 6px 14px;
+  gap: 2px;
+}
+.roadmap .row-capability {
+  line-height: 1.2;
+}
 .row-detail {
   display: flex;
   align-items: center;

@@ -68,7 +68,7 @@ const graphics = {
   "reason-voice": {
     dark: `${imagesDirectory}/reason-voice-dark.png`,
     light: `${imagesDirectory}/reason-voice-light.png`,
-    planned: true,
+    planned: false,
   },
   "how-it-works": {
     dark: `${imagesDirectory}/how-it-works-dark.png`,
@@ -88,7 +88,7 @@ const graphics = {
   "voice-teaser": {
     dark: `${imagesDirectory}/voice-teaser-dark.png`,
     light: `${imagesDirectory}/voice-teaser-light.png`,
-    planned: true,
+    planned: false,
   },
 };
 const socialPreview = `${imagesDirectory}/social-preview.png`;
@@ -662,10 +662,11 @@ describe("README, the status table", () => {
     const rows = statusRows(readText("README.md"));
 
     expect(rows.length).toBeGreaterThanOrEqual(4);
-    expect(rows.filter((row) => row.state === "Available").length).toBeGreaterThanOrEqual(4);
+    expect(rows.filter((row) => row.state === "Available").length).toBeGreaterThanOrEqual(5);
     // The integration of `public-page-and-widget` with `admin-panel-and-onboarding` moved the two rows of those lanes
-    // from Planned to Available, so the floor of the planned rows follows the table that is left.
-    expect(rows.filter((row) => row.state === "Planned").length).toBeGreaterThanOrEqual(4);
+    // from Planned to Available, and `elevenlabs-voice-agent` moved the voice one, so the floor of the planned rows
+    // follows the table that is left: the shared design system, the hardening and the deploy.
+    expect(rows.filter((row) => row.state === "Planned").length).toBeGreaterThanOrEqual(3);
 
     for (const row of rows) {
       if (row.state === "Available") {
@@ -696,7 +697,9 @@ describe("README, the status table", () => {
       .filter((line) => plannedMark.test(line) === false)
       .join("\n");
 
-    for (const phrase of ["voice agent", "admin panel", "one-click deploy"]) {
+    // Amended by `elevenlabs-voice-agent`: the voice agent is Available now, so the words that still need a `Next` tag
+    // outside the status table and the roadmap are the ones of a capability the table marks Planned.
+    for (const phrase of ["admin panel", "one-click deploy"]) {
       expect(untagged.toLowerCase(), phrase).not.toContain(phrase);
     }
 
@@ -1400,7 +1403,10 @@ describe("README, the flow and the foot", () => {
     expect(mermaid).toMatch(/Ingest/i);
     expect(mermaid).toMatch(/libSQL/i);
     expect(mermaid).toMatch(/Reciprocal Rank Fusion/i);
-    expect(mermaid).toContain("(next)");
+    // Amended by `elevenlabs-voice-agent`: the voice agent and the widget are available now, so no node of the flow is
+    // marked `(next)`. The capabilities that are still planned are not part of the flow of an answer.
+    expect(mermaid).toMatch(/Voice agent/i);
+    expect(mermaid).not.toContain("(next)");
   });
 
   it("closes with the license and the foot of Katalis", () => {

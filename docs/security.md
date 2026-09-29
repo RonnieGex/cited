@@ -60,19 +60,28 @@ The API key belongs to the person who forks the project, so an abuse spends thei
 
 - A limit of questions per IP address. **Done** in `pluggable-models-and-ask`.
 - A configurable daily cap of model calls and of voice minutes. **Done** in `pluggable-models-and-ask` for the model
-  calls; the voice minutes are **Planned** in `elevenlabs-voice-agent`.
+  calls and in `elevenlabs-voice-agent` for the voice minutes: a session reserves five minutes of the UTC day before
+  the signed URL is asked for, and the day answers `429` when the cap of `DAILY_VOICE_MINUTE_LIMIT` is reached.
 - A cap of tokens per answer. **Done** in `pluggable-models-and-ask`.
 - The panel shows whether each key is present and offers a test button; the key is never shown again and never stored
   in the database. **Done** in `admin-panel-and-onboarding`.
 
-## 4. The widget and the voice agent, both planned
+## 4. The widget and the voice agent
 
-- An allowlist of domains for the widget, applied both in CORS and in the voice provider. **Planned** in
-  `public-page-and-widget` and `elevenlabs-voice-agent`.
+- An allowlist of domains for the widget, applied both in CORS and in the voice provider. **Done** in
+  `public-page-and-widget` for `frame-ancestors`, and in `elevenlabs-voice-agent` for the agent: the allowlist of
+  `platform_settings.auth` carries the hostname of the installation and the ones of `ALLOWED_ORIGINS`, and nothing
+  else, so no other site can start a conversation with the agent.
 - The voice key never reaches the browser: the browser asks the server for a signed URL that expires in 15 minutes.
-  **Planned** in `elevenlabs-voice-agent`.
-- The tool the voice agent calls requires a secret of its own installation, sent as a Bearer token. **Planned** in
-  `elevenlabs-voice-agent`.
+  **Done** in `elevenlabs-voice-agent`: `GET /api/voice/signed-url` is the only reader of `ELEVENLABS_API_KEY` and it
+  answers the URL alone.
+- The tool the voice agent calls requires a secret of its own installation, sent as a Bearer token. **Done** in
+  `elevenlabs-voice-agent`: `POST /api/voice/tool` compares `VOICE_TOOL_SECRET` in constant time and refuses every call
+  of an installation that declares none.
+- The microphone of the public site and of the widget needs `connect-src` for the two endpoints of ElevenLabs, and
+  `worker-src` with `blob:` for the audio worklet the SDK loads when no path is given. **Done** in
+  `elevenlabs-voice-agent`, and `tests/csp.test.ts` pins the three directives whole. `script-src` keeps its nonce with
+  `strict-dynamic`.
 
 ## 5. Uploaded content
 

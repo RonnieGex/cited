@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { cookies } from "next/headers";
 import { Chat } from "@/components/chat";
+import { VoiceLauncher } from "@/components/voice";
 import { LANG_COOKIE } from "@/lib/i18n/language";
 import { readPublicBrand } from "@/lib/public/brand";
 
@@ -25,6 +26,7 @@ export default async function Embed() {
       <div className="mx-auto flex w-full max-w-[560px] flex-col gap-6">
         <h1 className="text-lg font-bold tracking-[-0.02em] text-ink">{brand.name}</h1>
         <Chat lang={brand.lang} welcome={brand.welcome} variant="embed" />
+        <VoiceLauncher lang={brand.lang} />
       </div>
     </main>
   );

@@ -41,6 +41,19 @@ const schemaStatements = [
     day TEXT PRIMARY KEY,
     count INTEGER NOT NULL DEFAULT 0
   )`,
+  `CREATE TABLE IF NOT EXISTS voice_minutes (
+    day TEXT PRIMARY KEY,
+    minutes INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE TABLE IF NOT EXISTS voice_agent (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    agent_id TEXT NOT NULL DEFAULT '',
+    secret_id TEXT NOT NULL DEFAULT '',
+    tool_id TEXT NOT NULL DEFAULT '',
+    sources_tool_id TEXT NOT NULL DEFAULT '',
+    language TEXT NOT NULL DEFAULT 'en',
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
   `CREATE TABLE IF NOT EXISTS conversations (
     session_id TEXT NOT NULL,
     turn INTEGER NOT NULL,
@@ -188,6 +201,23 @@ export type StoredLogo = {
   bytes: Uint8Array;
 };
 
+export type StoredVoiceAgent = {
+  agentId: string;
+  secretId: string;
+  toolId: string;
+  sourcesToolId: string;
+  language: string;
+  updatedAt: string;
+};
+
+export type VoiceAgentRowInput = {
+  agentId: string;
+  secretId: string;
+  toolId: string;
+  sourcesToolId: string;
+  language: string;
+};
+
 export type Store = {
   readonly path: string;
   replaceDocument(document: DocumentInput, passages: PassageInput[]): Promise<void>;
@@ -205,6 +235,11 @@ export type Store = {
   questionsInWindow(ipHash: string, windowStart: string): Promise<number>;
   reserveModelCall(day: string, limit: number): Promise<number | null>;
   modelCallsOn(day: string): Promise<number>;
+  reserveVoiceMinutes(day: string, minutes: number, limit: number): Promise<number | null>;
+  voiceMinutesOn(day: string): Promise<number>;
+  deleteVoiceMinutesBefore(day: string): Promise<number>;
+  readVoiceAgent(): Promise<StoredVoiceAgent | null>;
+  saveVoiceAgent(row: VoiceAgentRowInput): Promise<void>;
   appendTurn(turn: TurnInput): Promise<number>;
   turnsOf(sessionId: string, limit: number): Promise<StoredTurn[]>;
   deleteConversationsBefore(iso: string): Promise<number>;
@@ -496,6 +531,75 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
       });
 
       return Number(found.rows[0]?.["count"] ?? 0);
+    },
+
+    async reserveVoiceMinutes(day: string, minutes: number, limit: number): Promise<number | null> {
+      // The guard has to be in the `SELECT` and not only in the `ON CONFLICT` branch: the first reservation of a day
+      // inserts instead of updating, so a limit smaller than the reservation would let the first session through and
+      // store more minutes than the day allows.
+      const counted = await client.execute({
+        sql: `INSERT INTO voice_minutes (day, minutes)
+          SELECT ?, ? WHERE ? <= ?
+          ON CONFLICT (day) DO UPDATE SET minutes = minutes + excluded.minutes WHERE minutes + excluded.minutes <= ?
+          RETURNING minutes`,
+        args: [day, minutes, minutes, limit, limit],
+      });
+      const row = counted.rows[0];
+
+      return row === undefined ? null : Number(row["minutes"]);
+    },
+
+    async voiceMinutesOn(day: string): Promise<number> {
+      const found = await client.execute({
+        sql: "SELECT minutes FROM voice_minutes WHERE day = ?",
+        args: [day],
+      });
+
+      return Number(found.rows[0]?.["minutes"] ?? 0);
+    },
+
+    async deleteVoiceMinutesBefore(day: string): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM voice_minutes WHERE day < ?",
+        args: [day],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async readVoiceAgent(): Promise<StoredVoiceAgent | null> {
+      const found = await client.execute(
+        "SELECT agent_id, secret_id, tool_id, sources_tool_id, language, updated_at FROM voice_agent WHERE id = 1",
+      );
+      const row = found.rows[0];
+
+      if (row === undefined || String(row["agent_id"]).length === 0) {
+        return null;
+      }
+
+      return {
+        agentId: String(row["agent_id"]),
+        secretId: String(row["secret_id"] ?? ""),
+        toolId: String(row["tool_id"] ?? ""),
+        sourcesToolId: String(row["sources_tool_id"] ?? ""),
+        language: String(row["language"] ?? "en"),
+        updatedAt: String(row["updated_at"]),
+      };
+    },
+
+    async saveVoiceAgent(row: VoiceAgentRowInput): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO voice_agent (id, agent_id, secret_id, tool_id, sources_tool_id, language, updated_at)
+          VALUES (1, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (id) DO UPDATE SET
+            agent_id = excluded.agent_id,
+            secret_id = excluded.secret_id,
+            tool_id = excluded.tool_id,
+            sources_tool_id = excluded.sources_tool_id,
+            language = excluded.language,
+            updated_at = excluded.updated_at`,
+        args: [row.agentId, row.secretId, row.toolId, row.sourcesToolId, row.language],
+      });
     },
 
     async appendTurn(turn: TurnInput): Promise<number> {

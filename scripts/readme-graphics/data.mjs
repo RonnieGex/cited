@@ -61,8 +61,8 @@ export const statusRows = [
   },
   {
     capability: "Voice agent with ElevenLabs, created in one click",
-    state: "Planned",
-    reference: "elevenlabs-voice-agent",
+    state: "Available",
+    reference: "openspec/specs/voice-agent/spec.md",
   },
   {
     capability: "Shared design system",
