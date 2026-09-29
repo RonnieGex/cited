@@ -30,4 +30,20 @@ describe("readBusiness and the failures of the store", () => {
 
     await expect(readBusiness()).rejects.toThrow("TURSO_AUTH_TOKEN");
   });
+
+  it("lets a missing table that is not business through", async () => {
+    store.failure = "SQLITE_ERROR: no such table: documents";
+
+    const { readBusiness } = await import("@/lib/settings/business");
+
+    await expect(readBusiness()).rejects.toThrow("no such table: documents");
+  });
+
+  it("lets a missing table whose name starts with business through", async () => {
+    store.failure = "SQLITE_ERROR: no such table: business_logo";
+
+    const { readBusiness } = await import("@/lib/settings/business");
+
+    await expect(readBusiness()).rejects.toThrow("no such table: business_logo");
+  });
 });
