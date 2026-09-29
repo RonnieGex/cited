@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -10,6 +11,11 @@ import { afterAll, describe, expect, it } from "vitest";
 // state of the store (`scripts/store-state.ts`, task 10.6) called `openStore()` before reading, and `openStore()`
 // creates every table the schema declares. The "before" it printed was therefore the state *after* the current code
 // had migrated the file, which is exactly what the evidence of 10.6 must not be.
+//
+// Task 12.2 of the contract and the Major M-2 of `katalis-dev/tasks/revision-community-12c.md`: a `store:state` over a
+// file that does not exist printed `exists: false` and finished with code 0, so a command of evidence could support a
+// box with a store that was not there. It has to fail clearly: code 2 and `store not found: <path>` on stderr,
+// creating nothing.
 //
 // The reader has to open the file with `node:sqlite` and `readOnly: true`, never with the libSQL client, and it must
 // not create a database that is not there. This file runs the real script in a child process — the command of the
@@ -46,6 +52,10 @@ function scratch(): string {
   roots.push(root);
 
   return root;
+}
+
+function hashOf(path: string): string {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 // Two tables of the version before this change, with the columns the schema declared then. Nothing else: a reader
@@ -85,13 +95,26 @@ afterAll(() => {
 });
 
 describe("the reader of the state of the store", () => {
-  it("does not create a store that is not there", () => {
+  it("fails clearly on a store that is not there, creating nothing", () => {
     const path = join(scratch(), "no-existe.sqlite");
     const result = reader(path);
 
-    expect(result.status, result.stderr).toBe(0);
-    expect(result.stdout).toContain("exists: false");
+    expect(result.status, result.stderr).toBe(2);
+    expect(result.stderr).toContain(`store not found: ${path}`);
     expect(existsSync(path)).toBe(false);
+  });
+
+  it("leaves the bytes of an existing store exactly as they were", () => {
+    const path = join(scratch(), "store-intact.sqlite");
+
+    storeOfTheVersionBefore(path);
+
+    const before = hashOf(path);
+    const result = reader(path);
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toContain("exists: true");
+    expect(hashOf(path)).toBe(before);
   });
 
   it("leaves the tables of the version before exactly as they were", () => {
