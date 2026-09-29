@@ -11,7 +11,14 @@ import type { VoiceFakeApi } from "../tests/fakes/elevenlabs-react";
 const signedUrl = "wss://api.elevenlabs.io/v1/convai/conversation?signed=e2e";
 const sentinel = "no-recibe-la-llave";
 
-test.use({ permissions: ["microphone"] });
+// The microphone has to exist for the session to open: Chromium is launched with its fake capture device and the
+// permission is granted, so no test depends on the hardware of the machine that runs the suite.
+test.use({
+  permissions: ["microphone"],
+  launchOptions: {
+    args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"],
+  },
+});
 
 interface Chunk {
   url: string;
@@ -89,14 +96,17 @@ test("the microphone button opens the panel and the Orb arrives on demand", asyn
   await page.getByTestId("voice-launcher").click();
   await expect(page.getByTestId("voice-orb")).toBeVisible();
 
-  console.log(`the texture of the Orb before the panel opens: ${before}; after: ${hasMarker(chunks, "perlin-noise")}`);
-
   expect(before, "the texture of the Orb is not in the first load of the page").toBe(false);
+
   await expect
     .poll(() => hasMarker(chunks, "perlin-noise"), {
       message: "the chunk of the Orb has to arrive after the panel opens",
     })
     .toBe(true);
+
+  console.log(
+    `the texture of the Orb: before the panel opens ${before}, after it ${hasMarker(chunks, "perlin-noise")}, in ${chunks.length} scripts`,
+  );
 });
 
 test("the panel shows the four states in words", async ({ page }) => {

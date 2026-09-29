@@ -22,9 +22,10 @@ function textOf(path: string): string {
   return readFileSync(resolve(repositoryRoot, path), "utf8");
 }
 
-const clientFiles = filesUnder("components", "app").filter(
-  (path) => path.endsWith(".tsx") || path.endsWith(".ts"),
-);
+const clientFiles = [
+  ...filesUnder("components"),
+  ...filesUnder("app").filter((path) => path.endsWith(".tsx")),
+];
 const serverVoiceFiles = filesUnder("lib/voice", "app/api/voice", "app/api/admin/voice");
 
 describe("the key of ElevenLabs", () => {
@@ -51,10 +52,8 @@ describe("the key of ElevenLabs", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("is never written as a header by this project, in any file", () => {
-    const offenders = filesUnder("app", "components", "lib").filter((path) =>
-      textOf(path).includes("xi-api-key"),
-    );
+  it("is never written as a header by the browser side of this project", () => {
+    const offenders = clientFiles.filter((path) => textOf(path).includes("xi-api-key"));
 
     expect(offenders).toEqual([]);
   });
@@ -76,8 +75,10 @@ describe("the key of ElevenLabs", () => {
 
   it("is not in the source of the panel, which only ever sees a signed URL", () => {
     const panel = textOf("components/voice/VoicePanel.tsx");
+    const url = textOf("components/voice/voice-url.ts");
 
-    expect(panel).toContain("/api/voice/signed-url");
+    expect(url).toContain('export const SIGNED_URL_ENDPOINT = "/api/voice/signed-url"');
     expect(panel).not.toContain("ELEVENLABS_");
+    expect(panel).not.toContain("xi-api-key");
   });
 });

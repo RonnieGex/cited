@@ -83,13 +83,14 @@ describe("the voice panel", () => {
     await waitFor(() => {
       expect(window.__katalisVoiceFake).toBeDefined();
     });
+    expect(screen.getByTestId("voice-state")).toHaveTextContent(en.idle);
+
+    await start();
 
     act(() => {
       fake().setStatus("connecting");
     });
     expect(screen.getByTestId("voice-state")).toHaveTextContent(en.connecting);
-
-    await start();
 
     act(() => {
       fake().setStatus("connected");
@@ -176,7 +177,9 @@ describe("the voice panel", () => {
     await waitFor(() => {
       expect(screen.getAllByTestId("voice-message")).toHaveLength(1);
     });
-    expect(screen.getByTestId("voice-state")).toHaveTextContent(en.ready);
+    expect(fake().startCalls[0]?.textOnly).toBe(true);
+    // The session without a microphone is connected: the primary control is the one that finishes it.
+    expect(screen.getByTestId("voice-end")).toBeInTheDocument();
   });
 
   it("draws the citation chips the agent reports, named by section, and drops somebody else's page", async () => {
@@ -231,7 +234,7 @@ describe("the voice panel", () => {
       expect(screen.getAllByTestId("voice-message")).toHaveLength(1);
     });
     expect(fake().startCalls.at(-1)?.textOnly).toBe(true);
-    expect(screen.getByTestId("voice-state")).toHaveTextContent(en.ready);
+    expect(screen.getByTestId("voice-end")).toBeInTheDocument();
   });
 
   it("says in words that the day is spent when the server answers 429", async () => {

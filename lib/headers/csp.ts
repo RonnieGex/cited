@@ -71,13 +71,19 @@ export function contentSecurityPolicy(input: {
     ...(input.development ? ["'unsafe-eval'"] : []),
   ].join(" ");
 
+  // The voice panel opens the WebSocket session of ElevenLabs with the signed URL this server asks for, so `connect-src`
+  // names the endpoints of the provider and nothing else. The SDK loads its audio worklet from a blob when no path is
+  // given, which `worker-src` has to allow, and it plays the answer through an audio context, which is `media-src`.
+  // Decision 2 of `openspec/changes/elevenlabs-voice-agent/design.md` and `docs/voice-agent.md`.
   return [
     "default-src 'self'",
     `script-src ${script}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self'",
-    "connect-src 'self'",
+    "connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io",
+    "worker-src 'self' blob:",
+    "media-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

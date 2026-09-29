@@ -130,7 +130,15 @@ afterAll(async () => {
 
   for (const root of roots) {
     await new Promise((wake) => setTimeout(wake, 100));
-    rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      try {
+        rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+        break;
+      } catch {
+        await new Promise((wake) => setTimeout(wake, 200));
+      }
+    }
   }
 });
 

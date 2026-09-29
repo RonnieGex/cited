@@ -85,10 +85,6 @@ async function rows(path: string, sql: string): Promise<Array<Record<string, unk
   return result;
 }
 
-function signRequest(headers: Record<string, string> = {}): Request {
-  return new Request("http://localhost/api/voice/signed-url", { method: "GET", headers });
-}
-
 afterEach(() => {
   useVoiceTransport(null);
 });
@@ -106,7 +102,15 @@ afterAll(async () => {
 
   for (const root of roots) {
     await new Promise((wake) => setTimeout(wake, 100));
-    rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      try {
+        rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+        break;
+      } catch {
+        await new Promise((wake) => setTimeout(wake, 200));
+      }
+    }
   }
 });
 
@@ -124,7 +128,7 @@ describe("GET /api/voice/signed-url", () => {
       DAILY_VOICE_MINUTE_LIMIT: String(minuteLimit),
     });
 
-    const response = await GET(signRequest());
+    const response = await GET();
     const body = (await response.json()) as Record<string, unknown>;
     const text = JSON.stringify(body);
     const asked = double.callsTo("GET", "/v1/convai/conversation/get-signed-url");
@@ -167,7 +171,7 @@ describe("GET /api/voice/signed-url", () => {
 
     useVoiceTransport(double.transport);
 
-    const response = await GET(signRequest());
+    const response = await GET();
     const asked = double.callsTo("GET", "/v1/convai/conversation/get-signed-url");
 
     expect(response.status).toBe(200);
@@ -189,7 +193,7 @@ describe("GET /api/voice/signed-url", () => {
 
     useVoiceTransport(double.transport);
 
-    const response = await GET(signRequest());
+    const response = await GET();
     const text = await response.text();
 
     expect(response.status).toBe(503);
@@ -209,7 +213,7 @@ describe("GET /api/voice/signed-url", () => {
       DAILY_VOICE_MINUTE_LIMIT: String(minuteLimit),
     });
 
-    const response = await GET(signRequest());
+    const response = await GET();
     const text = await response.text();
 
     expect(response.status).toBe(503);
@@ -234,7 +238,7 @@ describe("GET /api/voice/signed-url", () => {
 
     useVoiceTransport(double.transport);
 
-    const response = await GET(signRequest());
+    const response = await GET();
     const text = await response.text();
 
     expect(response.status).toBe(503);
@@ -259,9 +263,9 @@ describe("the daily cap of voice minutes", () => {
 
     useVoiceTransport(double.transport);
 
-    const first = await GET(signRequest());
-    const second = await GET(signRequest());
-    const third = await GET(signRequest());
+    const first = await GET();
+    const second = await GET();
+    const third = await GET();
     const day = new Date().toISOString().slice(0, 10);
     const counted = await rows(path, `SELECT minutes FROM voice_minutes WHERE day = '${day}'`);
 
@@ -296,7 +300,7 @@ describe("the daily cap of voice minutes", () => {
 
     useVoiceTransport(double.transport);
 
-    const response = await GET(signRequest());
+    const response = await GET();
 
     expect(response.status).toBe(429);
     expect(double.calls).toHaveLength(0);

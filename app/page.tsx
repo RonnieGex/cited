@@ -2,6 +2,7 @@ import Image from "next/image";
 import { cookies } from "next/headers";
 import type { CSSProperties } from "react";
 import { Chat } from "@/components/chat";
+import { VoiceLauncher } from "@/components/voice";
 import { LANG_COOKIE } from "@/lib/i18n/language";
 import { PUBLIC_STRINGS } from "@/lib/i18n/public";
 import { FLAME, LOGO_ENDPOINT, PRODUCT_NAME, readPublicBrand } from "@/lib/public/brand";
@@ -47,6 +48,8 @@ export default async function Home() {
         </header>
 
         <Chat lang={brand.lang} welcome={brand.welcome} />
+
+        <VoiceLauncher lang={brand.lang} />
 
         <footer className="flex items-center gap-3 border-t border-ink/10 pt-6 text-sm text-ink/80">
           <Image src={FLAME} alt="Katalis" width={64} height={64} unoptimized className="h-8 w-auto" />
