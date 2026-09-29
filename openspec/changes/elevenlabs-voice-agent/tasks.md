@@ -59,7 +59,7 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 9. Documentation
 
-- [ ] 9.1 `docs/voice-agent.md` (the one-click agent, the variables, the allowlist, the minute cap, the privacy note);
+- [x] 9.1 `docs/voice-agent.md` (the one-click agent, the variables, the allowlist, the minute cap, the privacy note);
       the README status row, a capture and a short section; the Spanish twin — report: `reports/2026-09-29-step-9-docs.md`
-- [ ] 9.2 The delivery `katalis-dev/tasks/entrega-community-09.md` in Spanish with `## Issues` — report:
+- [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-09.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
