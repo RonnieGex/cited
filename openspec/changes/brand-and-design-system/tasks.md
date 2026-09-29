@@ -35,7 +35,7 @@ secret, no customer data, no licensed font.
 
 ## 4. Review and update of the existing tests
 
-- [ ] 4.1 The whole suite; say which test changed and why — report: `reports/2026-09-29-step-4-existing-tests.md`
+- [x] 4.1 The whole suite; say which test changed and why — report: `reports/2026-09-29-step-4-existing-tests.md`
 
 ## 5. Run the checks
 
