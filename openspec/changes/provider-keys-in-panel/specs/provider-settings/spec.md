@@ -105,11 +105,11 @@ exceed it.
 
 ### Requirement: The address that was validated is the address that is connected to
 
-For every request the server makes to an address the owner supplied (the test, and every chat or embeddings call that
-uses it), the host SHALL be resolved once, every resolved address SHALL be classified, and the connection SHALL be
-opened to the address that was classified and never to a second resolution of the name; addresses SHALL be classified in
-every notation, including IPv4 mapped into IPv6 in dotted or hexadecimal form, unique local, link-local, NAT64 and 6to4
-addresses that embed a private IPv4.
+The server SHALL connect only to the address it classified: for every request to an address the owner supplied (the
+test, and every chat or embeddings call that uses it) the host SHALL be resolved once, every resolved address SHALL be
+classified, and the connection SHALL be opened to the address that was classified and never to a second resolution of
+the name; addresses SHALL be classified in every notation, including IPv4 mapped into IPv6 in dotted or hexadecimal
+form, unique local, link-local, NAT64 and 6to4 addresses that embed a private IPv4.
 
 #### Scenario: A name that changes its answer
 
