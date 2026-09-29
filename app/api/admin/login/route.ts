@@ -21,10 +21,12 @@ export const runtime = "nodejs";
 const invalidPassword = { status: "invalid", error: "the password is not the one of the panel" };
 
 async function waitBeforeAnswering(startedAt: number): Promise<void> {
-  const remaining = UNKNOWN_ADDRESS_DELAY_MS - (Date.now() - startedAt);
+  let remaining = UNKNOWN_ADDRESS_DELAY_MS - (Date.now() - startedAt);
 
-  if (remaining > 0) {
+  while (remaining > 0) {
     await new Promise((wake) => setTimeout(wake, remaining));
+
+    remaining = UNKNOWN_ADDRESS_DELAY_MS - (Date.now() - startedAt);
   }
 }
 
