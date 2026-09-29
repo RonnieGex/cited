@@ -218,12 +218,12 @@ exit=0
   The search over every report of the change read `(no line)` here, and the review `revision-community-07b` (RISK 1)
   reproduced why that output is not the truth: the marker it looks for is written by this very report, which names it
   in the row of its list of findings, in this paragraph and in the command itself, so the search finds those mentions
-  and never the nine reports that were corrected. Task 11.3 of the contract fixes the evidence with the command that
-  excludes the report that records the correction, which is the one that answers for the nine, and whose real output
-  is this:
+  and never the nine reports that were corrected. Task 11.3 of the contract fixes the evidence with the search that
+  looks only at the reports of steps 0 to 9 (the single digit of `step-N-` in their name is what leaves this one and
+  every later one out), which are exactly the reports the correction touched, and whose real output is this:
 
 ```
-$ Get-ChildItem openspec/changes/admin-panel-and-onboarding/reports/*.md | Where-Object { $_.Name -ne '2026-09-29-step-10-review-fixes.md' } | Select-String -Pattern '<commit>|the commit that carries'
+$ Get-ChildItem openspec/changes/admin-panel-and-onboarding/reports/*.md | Where-Object { $_.BaseName -match 'step-[0-9]-' } | Select-String -Pattern '<commit>|the commit that carries'
 (no line)
 ```
 
