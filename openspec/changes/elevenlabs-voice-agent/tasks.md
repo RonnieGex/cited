@@ -78,6 +78,6 @@ Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before ea
       saying that a limit below five allows no session — report: the one of this section
 - [x] 10.4 Minor: the policy trimmed to what the implemented session uses (`connect-src` and `media-src`), with the
       reason of each directive left — report: the one of this section
-- [ ] 10.5 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 10.5 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`; append the round
       to `katalis-dev/tasks/entrega-community-09.md` with `## Issues` — report: the one of this section

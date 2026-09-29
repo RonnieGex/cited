@@ -439,3 +439,123 @@ that stays says why.
 
 **Commit.** `3a81342` carries the policy and its test; the mark and this section travel together. `aa0b8a9` keeps the
 copies of the worklets out of the lint, which the 2 MB resampler made noisy (242 warnings, no error).
+
+## 10.5 The battery, and the round of the delivery
+
+**Task.** `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+`npm run test:e2e`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`, and the round
+appended to `katalis-dev/tasks/entrega-community-09.md` with `## Issues`.
+
+**Windows.**
+
+```powershell
+npm test
+```
+
+```text
+ Test Files  49 passed (49)
+      Tests  438 passed (438)
+   Duration  15.58s (tests 48%, environment 31%, setup 10%, import 7%, transform 3%, worker 1%)
+```
+
+```powershell
+npm run typecheck
+```
+
+```text
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+(tsc --noEmit: no diagnostic)
+```
+
+```powershell
+npm run lint
+```
+
+```text
+> eslint .
+(no diagnostic)
+```
+
+The lint was clean before the copies of the worklets landed and came back with 242 warnings (no error) the moment they
+did, all of them inside the 2 MB resampler: `eslint.config.mjs` now ignores `public/voice/worklets/**` beside
+`.next/**`, with the reason written there — the copies are compared byte for byte with the installed packages and are
+not ours to fix (`aa0b8a9`).
+
+```powershell
+npm run test:e2e
+```
+
+```text
+verify-no-test-sdk: mode=test-build roots=.next, .next\static, .next\server
+the worklets: /voice/worklets/raw-audio-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/audio-concat-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/libsamplerate.worklet.js 200 application/javascript; charset=UTF-8; /voice/worklets/raw-audio-processor.js: loaded; /voice/worklets/audio-concat-processor.js: loaded; /voice/worklets/libsamplerate.worklet.js: loaded
+the voice panel: axe 0 violations, 24 rules passed
+  29 passed (15.3s)
+```
+
+The suite has 29 browser tests now, one more than the 28 of round 9: the worklets of 10.2. **The first run of the whole
+suite was not green**: `e2e/widget.spec.ts:44` (the widget answers a chat question) failed on its 5 s timeout of the
+answer. It is not a file this round touched, it passes alone (725 ms) and it passed in the run above (678 ms), with the
+same build, and the second whole run was green; it is recorded here as a flake of the suite under load and not as a
+defect of this round.
+
+```powershell
+npm run secrets:scan
+```
+
+```text
+314 commits scanned.
+scanned ~5540255 bytes (5.54 MB) in 2.41s
+no leaks found
+exit=0
+```
+
+```powershell
+npm run openspec:validate
+```
+
+```text
+Totals: 11 passed, 0 failed (11 items)
+```
+
+```powershell
+git diff --check main...HEAD
+```
+
+```text
+(no line; exit 0)
+```
+
+The check was red for the first time with the copies of the worklets: `raw-audio-processor.js` carries five lines with
+trailing spaces, published like that by ElevenLabs. `.gitattributes` gives `public/voice/worklets/*.js` the
+`-whitespace` exception (`708062f`), in the same place and with the same reason as the one the verbatim licence of
+Outfit already had, so the copies stay byte for byte and the check of this repository stays green.
+
+**The Linux container.** `node:24` (24.21.0, npm 11.19.0), the worktree mounted with its own `node_modules` volume so
+the Windows tree is not touched:
+
+```powershell
+docker run --rm -v "<worktree>:/app" -v katalis-nm-node24:/app/node_modules -w /app node:24 bash -lc "node --version; npm --version; npm ci --no-audit --no-fund; npm test"
+```
+
+```text
+v24.21.0
+11.19.0
+added 581 packages in 43s
+ Test Files  49 passed (49)
+      Tests  436 passed | 2 skipped (438)
+   Duration  16.93s
+```
+
+The lock file regenerated inside `node:24` for 10.2 installs with `npm ci` on both platforms; the two skipped tests are
+the two the round 9 already saw skipped on Linux (the ones of the case-insensitive file system of Windows).
+
+**The delivery.** `katalis-dev/tasks/entrega-community-09.md` gained the round 10, in Spanish, with its `## Issues`.
+
+**Verdict.** 10.5 is done: the whole battery is green on Windows and in the container, the round is delivered, and the
+four findings of `revision-community-09.md` are closed with their evidence.
+
+**Commit.** The report of this section and the mark of 10.5 travel in the commit that follows `708062f`; the closing
+commit carries `LOOP_STATE.md` in `DONE`.
