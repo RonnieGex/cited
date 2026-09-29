@@ -50,6 +50,25 @@ const schemaStatements = [
     PRIMARY KEY (session_id, turn)
   )`,
   `CREATE INDEX IF NOT EXISTS conversations_created ON conversations (created_at)`,
+  `CREATE TABLE IF NOT EXISTS login_attempts (
+    ip_hash TEXT NOT NULL,
+    window_start TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (ip_hash, window_start)
+  )`,
+  `CREATE TABLE IF NOT EXISTS business (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    name TEXT NOT NULL,
+    logo_mime TEXT,
+    logo_bytes BLOB,
+    primary_color TEXT,
+    tone TEXT NOT NULL DEFAULT '',
+    language TEXT NOT NULL DEFAULT 'en',
+    forbidden_topics TEXT NOT NULL DEFAULT '',
+    welcome_en TEXT NOT NULL DEFAULT '',
+    welcome_es TEXT NOT NULL DEFAULT '',
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
 ];
 
 const searchableToken = /[\p{L}\p{N}]+/gu;
@@ -137,6 +156,38 @@ export type TurnInput = {
   createdAt?: string;
 };
 
+export type LoginAttempts = {
+  windowStart: string;
+  count: number;
+};
+
+export type StoredBusiness = {
+  name: string;
+  hasLogo: boolean;
+  primaryColor: string | null;
+  tone: string;
+  language: string;
+  forbiddenTopics: string;
+  welcomeEn: string;
+  welcomeEs: string;
+  updatedAt: string;
+};
+
+export type BusinessRowInput = {
+  name: string;
+  primaryColor: string | null;
+  tone: string;
+  language: string;
+  forbiddenTopics: string;
+  welcomeEn: string;
+  welcomeEs: string;
+};
+
+export type StoredLogo = {
+  mime: string;
+  bytes: Uint8Array;
+};
+
 export type Store = {
   readonly path: string;
   replaceDocument(document: DocumentInput, passages: PassageInput[]): Promise<void>;
@@ -159,6 +210,17 @@ export type Store = {
   deleteConversationsBefore(iso: string): Promise<number>;
   deleteRateLimitsBefore(iso: string): Promise<number>;
   deleteModelCallsBefore(day: string): Promise<number>;
+  recordLoginFailure(ipHash: string, windowStart: string): Promise<number>;
+  loginAttempts(ipHash: string, sinceIso: string): Promise<LoginAttempts | null>;
+  clearLoginFailures(ipHash: string): Promise<void>;
+  deleteLoginAttemptsBefore(iso: string): Promise<number>;
+  readBusiness(): Promise<StoredBusiness | null>;
+  saveBusiness(row: BusinessRowInput): Promise<void>;
+  saveBusinessLogo(mime: string, bytes: Uint8Array): Promise<void>;
+  readBusinessLogo(): Promise<StoredLogo | null>;
+  listRecentTurns(limit: number): Promise<StoredTurn[]>;
+  countTurns(): Promise<number>;
+  deleteAllTurns(): Promise<number>;
   close(): void;
 };
 
@@ -487,6 +549,151 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
         sql: "DELETE FROM model_calls WHERE day < ?",
         args: [day],
       });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async recordLoginFailure(ipHash: string, windowStart: string): Promise<number> {
+      const counted = await client.execute({
+        sql: `INSERT INTO login_attempts (ip_hash, window_start, count) VALUES (?, ?, 1)
+          ON CONFLICT (ip_hash, window_start) DO UPDATE SET count = count + 1
+          RETURNING count`,
+        args: [ipHash, windowStart],
+      });
+
+      return Number(counted.rows[0]?.["count"] ?? 0);
+    },
+
+    async loginAttempts(ipHash: string, sinceIso: string): Promise<LoginAttempts | null> {
+      const found = await client.execute({
+        sql: "SELECT window_start, count FROM login_attempts WHERE ip_hash = ? AND window_start >= ? ORDER BY window_start DESC LIMIT 1",
+        args: [ipHash, sinceIso],
+      });
+      const row = found.rows[0];
+
+      return row === undefined
+        ? null
+        : { windowStart: String(row["window_start"]), count: Number(row["count"]) };
+    },
+
+    async clearLoginFailures(ipHash: string): Promise<void> {
+      await client.execute({
+        sql: "DELETE FROM login_attempts WHERE ip_hash = ?",
+        args: [ipHash],
+      });
+    },
+
+    async deleteLoginAttemptsBefore(iso: string): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM login_attempts WHERE window_start < ?",
+        args: [iso],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async readBusiness(): Promise<StoredBusiness | null> {
+      const found = await client.execute(
+        "SELECT name, (logo_bytes IS NOT NULL) AS has_logo, primary_color, tone, language, forbidden_topics, welcome_en, welcome_es, updated_at FROM business WHERE id = 1",
+      );
+      const row = found.rows[0];
+
+      if (row === undefined) {
+        return null;
+      }
+
+      return {
+        name: String(row["name"]),
+        hasLogo: Number(row["has_logo"] ?? 0) === 1,
+        primaryColor:
+          row["primary_color"] === null || row["primary_color"] === undefined
+            ? null
+            : String(row["primary_color"]),
+        tone: String(row["tone"]),
+        language: String(row["language"]),
+        forbiddenTopics: String(row["forbidden_topics"]),
+        welcomeEn: String(row["welcome_en"]),
+        welcomeEs: String(row["welcome_es"]),
+        updatedAt: String(row["updated_at"]),
+      };
+    },
+
+    async saveBusiness(row: BusinessRowInput): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO business (id, name, primary_color, tone, language, forbidden_topics, welcome_en, welcome_es, updated_at)
+          VALUES (1, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (id) DO UPDATE SET
+            name = excluded.name,
+            primary_color = excluded.primary_color,
+            tone = excluded.tone,
+            language = excluded.language,
+            forbidden_topics = excluded.forbidden_topics,
+            welcome_en = excluded.welcome_en,
+            welcome_es = excluded.welcome_es,
+            updated_at = excluded.updated_at`,
+        args: [
+          row.name,
+          row.primaryColor,
+          row.tone,
+          row.language,
+          row.forbiddenTopics,
+          row.welcomeEn,
+          row.welcomeEs,
+        ],
+      });
+    },
+
+    async saveBusinessLogo(mime: string, bytes: Uint8Array): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO business (id, name, logo_mime, logo_bytes, updated_at)
+          VALUES (1, '', ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (id) DO UPDATE SET
+            logo_mime = excluded.logo_mime,
+            logo_bytes = excluded.logo_bytes,
+            updated_at = excluded.updated_at`,
+        args: [mime, bytes],
+      });
+    },
+
+    async readBusinessLogo(): Promise<StoredLogo | null> {
+      const found = await client.execute(
+        "SELECT logo_mime, logo_bytes FROM business WHERE id = 1 AND logo_bytes IS NOT NULL",
+      );
+      const row = found.rows[0];
+
+      if (row === undefined) {
+        return null;
+      }
+
+      return {
+        mime: String(row["logo_mime"] ?? "application/octet-stream"),
+        bytes: new Uint8Array(row["logo_bytes"] as ArrayBufferLike),
+      };
+    },
+
+    async listRecentTurns(limit: number): Promise<StoredTurn[]> {
+      const found = await client.execute({
+        sql: "SELECT session_id, turn, question, answer, created_at FROM conversations ORDER BY created_at DESC, session_id DESC, turn DESC LIMIT ?",
+        args: [limit],
+      });
+
+      return found.rows.map((row) => ({
+        sessionId: String(row["session_id"]),
+        turn: Number(row["turn"]),
+        question: String(row["question"]),
+        answer: String(row["answer"]),
+        createdAt: String(row["created_at"]),
+      }));
+    },
+
+    async countTurns(): Promise<number> {
+      const found = await client.execute("SELECT count(*) AS total FROM conversations");
+
+      return Number(found.rows[0]?.["total"] ?? 0);
+    },
+
+    async deleteAllTurns(): Promise<number> {
+      const deleted = await client.execute("DELETE FROM conversations");
 
       return Number(deleted.rowsAffected);
     },
