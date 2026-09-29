@@ -7,20 +7,20 @@ secret, no customer data, no licensed font.
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/brand-and-design-system` in the worktree `katalis-dev/community-ui`, created by Fable from
+- [x] 0.1 Work on `feature/brand-and-design-system` in the worktree `katalis-dev/community-ui`, created by Fable from
       `main` `aa52b7c`; confirm branch and base; `npm ci` — report: `reports/2026-09-29-step-0-branch.md`
 
 ## 1. The state of the base before
 
-- [ ] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status`; the change
+- [x] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status`; the change
       adds no persistence — report: `reports/2026-09-29-step-1-base-before.md`
 
 ## 2. Tests first
 
-- [ ] 2.1 Red tests for every scenario of `specs/design-system/spec.md` that a unit test can read (hashes of the flame,
+- [x] 2.1 Red tests for every scenario of `specs/design-system/spec.md` that a unit test can read (hashes of the flame,
       the variant record, no invented logo, the tokens against the recorded values, the font files and their names) —
       report: `reports/2026-09-29-step-2-tests-first.md`
-- [ ] 2.2 Red E2E for the computed font of `html`, `body` and a paragraph, no request to an external font host, and
+- [x] 2.2 Red E2E for the computed font of `html`, `body` and a paragraph, no request to an external font host, and
       `/kit` with its components and an axe check — report: `reports/2026-09-29-step-2-tests-first.md`
 
 ## 3. Implementation
