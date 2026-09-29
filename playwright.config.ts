@@ -10,14 +10,15 @@ import {
 
 const port = E2E_PORT;
 const panelBaseURL = E2E_BASE_URL;
-const resetStore =
+const reset = (databaseUrl: string): string =>
   "node -e \"const fs = require('node:fs'); for (const file of ['" +
-  E2E_DATABASE_URL +
+  databaseUrl +
   "', '" +
-  E2E_DATABASE_URL +
+  databaseUrl +
   "-wal', '" +
-  E2E_DATABASE_URL +
+  databaseUrl +
   "-shm']) { fs.rmSync(file, { force: true }); }\"";
+const resetStore = reset(E2E_DATABASE_URL);
 
 // The two suites keep their own server and their own store, because each one needs a state the other one breaks: the
 // public page answers from the corpus of `samples/` that the suite ingests, and the panel uploads, lists and deletes
@@ -35,6 +36,18 @@ const widgetSites = "http://127.0.0.1:3210,http://127.0.0.1:3212";
 const environment = Object.fromEntries(
   Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
 );
+
+// The panel where the owner connects the AI (`e2e/providers.spec.ts`) keeps its own server and its own store: it is
+// the only one that starts with no `CHAT_PROVIDER` and no `EMBEDDINGS_PROVIDER`, so the panel is the source of the
+// provider, and its store is empty at the start of the run. The key of the encryption is generated here, never
+// committed, and the store it protects is disposable. The provider of the tests is the local double that the spec
+// itself serves on port 3216: `OPENAI_BASE_URL` points the OpenAI entry of the catalogue at it, so the panel tests a
+// real HTTP round trip and no test reaches a real provider.
+const keysPort = 3214;
+const keysBaseURL = `http://127.0.0.1:${keysPort}`;
+const keysDatabaseURL = ".data/e2e-keys.sqlite";
+const keysEncryptionKey = Buffer.alloc(32, 7).toString("base64");
+const providerDoubleBaseURL = "http://127.0.0.1:3216/v1";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -55,11 +68,21 @@ export default defineConfig({
     },
     {
       name: "public",
-      testIgnore: "**/admin.spec.ts",
+      testIgnore: ["**/admin.spec.ts", "**/providers.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: publicBaseURL,
         trace: "on-first-retry",
+      },
+    },
+    {
+      name: "keys",
+      testMatch: "**/providers.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: keysBaseURL,
+        trace: "on-first-retry",
+        extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
       },
     },
   ],
@@ -94,6 +117,22 @@ export default defineConfig({
         ALLOWED_ORIGINS: widgetSites,
         RATE_LIMIT_PER_IP_PER_HOUR: "1000",
         DAILY_MODEL_CALL_LIMIT: "1000",
+      },
+    },
+    {
+      command: `${reset(keysDatabaseURL)} && npm start -- --port ${keysPort}`,
+      url: keysBaseURL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000,
+      env: {
+        ADMIN_PASSWORD: E2E_ADMIN_PASSWORD,
+        ADMIN_SESSION_SECRET: E2E_ADMIN_SECRET,
+        DATABASE_URL: keysDatabaseURL,
+        TRUST_PROXY: "1",
+        ENCRYPTION_KEY: keysEncryptionKey,
+        OPENAI_BASE_URL: providerDoubleBaseURL,
+        AFFILIATE_LINKS: "off",
+        HOSTED_OFFER_URL: "https://katalis.dev/cited",
       },
     },
   ],

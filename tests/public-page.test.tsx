@@ -17,9 +17,17 @@ import type { Business } from "@/lib/settings/business";
 
 let business: Business | null = null;
 let langCookie: string | undefined;
+let notReady = false;
 
 vi.mock("@/lib/settings/business.ts", () => ({
   readBusiness: async () => business,
+}));
+
+// The scenario "Nothing configured anywhere" of `specs/answering/spec.md`: the page asks the resolver whether the
+// assistant is ready, and the test decides the answer instead of opening a store.
+vi.mock("@/lib/settings/providers.ts", () => ({
+  resolveChat: async () => ({ source: "panel", provider: "deepseek", model: "deepseek-flash" }),
+  chatProblem: () => (notReady ? "the AI is not connected yet: connect your AI in the panel" : null),
 }));
 
 vi.mock("next/headers", () => ({
@@ -42,6 +50,7 @@ const workshop: Business = {
 beforeEach(() => {
   business = null;
   langCookie = undefined;
+  notReady = false;
 });
 
 describe("the public page", () => {
@@ -133,6 +142,21 @@ describe("the public page", () => {
 
     expect(screen.getByLabelText(PUBLIC_STRINGS.en.question.label)).toBeInTheDocument();
     expect(screen.getByText("Ask us anything.")).toBeInTheDocument();
+  });
+
+  it("says the assistant is not ready when nobody connected a chat provider", async () => {
+    notReady = true;
+    business = workshop;
+
+    render(await Home());
+
+    expect(screen.getByText(PUBLIC_STRINGS.es.notReadyTitle)).toBeInTheDocument();
+    expect(screen.getByText(PUBLIC_STRINGS.es.notReadyBody)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PUBLIC_STRINGS.es.notReadyPanel })).toHaveAttribute(
+      "href",
+      "/admin",
+    );
+    expect(screen.queryByLabelText(PUBLIC_STRINGS.es.question.label)).toBeNull();
   });
 });
 
