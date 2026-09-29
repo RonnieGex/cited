@@ -14,6 +14,7 @@
   --surface: #FAFAF9;
   --surface-dark: #1C1917;
   --paper: #FFFFFF;
+  --border: color-mix(in srgb, var(--ink) 50%, var(--paper));
   --radius: 0;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -26,6 +27,7 @@
   --color-surface: var(--surface);
   --color-surface-dark: var(--surface-dark);
   --color-paper: var(--paper);
+  --color-border: var(--border);
   --radius-none: var(--radius);
   --ease-out-expo: var(--ease-out-expo);
   --font-sans: "Outfit", system-ui, sans-serif;

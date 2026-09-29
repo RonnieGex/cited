@@ -88,6 +88,27 @@ The names are Cited's own, because this repository carries its copy until `@kata
 a licensed font; the values are Construye's to the character. Two conventions of the reference travel with the values:
 the corner radius is zero everywhere, and one curve covers every transition of the system.
 
+### The hairline of the controls
+
+The border of `Input` and of the secondary `Button` is not decoration: it is the visual information that identifies a
+control, and WCAG 2.2 asks 3:1 of it (1.4.11, non-text contrast). The hairline of the reference, `--stroke:
+rgba(0, 0, 0, 0.08)` of Construye, is 1.19:1 on paper and cannot carry a control, so the system declares its own,
+derived from the two colours of Construye and with no colour of its own:
+
+| Token | Value in Cited | Where it comes from | Value there |
+|---|---|---|---|
+| `--border` | `color-mix(in srgb, var(--ink) 50%, var(--paper))` | the ink of Construye at half on its paper, `#8B8B8B`: 3.41:1 on the paper and 3.26:1 on the warm surface, both over the 3:1 of the rule | no such token |
+
+`Panel` keeps its `border-ink/10` and `Chip` its `border-ink/20`. The scenario of the delta exempts the border and the
+fill of the panel, because the content of the panel does not depend on seeing its edge, and the `Chip` is the same
+case: it is a label and not a control, its word carries it and its edge is as decorative as the hairline of the panel.
+
+The focus indicator of the kit is the 2 px lime outline of decision 6 with the one pixel edge of ink that the design
+pairs with it. Measured on the rendered `/kit` with the computed colours, the lime is 1.22:1 on the paper and the edge
+is 17.93:1: the 3:1 the scenario asks is reached by the edge, which is what keeps the focus visible without giving up
+the lime of the design. `e2e/design-system.spec.ts` measures both parts, so neither the outline nor the edge can
+disappear without the test saying so.
+
 ## 3. Outfit
 
 The family of the product is **Outfit**, the variable font of weights 100 to 900, under the SIL Open Font License. It
@@ -126,7 +147,7 @@ They take their colors, their corners and their curve from the tokens, so a chan
 | `SectionTitle` | the microcaps eyebrow over a level of heading, with the tracking of the system |
 
 `focusRing`, in `components/ui/focus.ts`, is the focus of the kit: a 2 px lime outline with offset, as decision 6
-asks, plus a one pixel edge of ink. Lime on paper is 1.07:1, so the outline alone would be invisible on the ground
+asks, plus a one pixel edge of ink. Lime on paper is 1.22:1, so the outline alone would be invisible on the ground
 most screens use; the edge is what keeps the focus visible without giving up the lime of the design.
 
 The route `/kit` shows one example of each component, in Spanish, the language of the first market. It is the

@@ -6,7 +6,7 @@ const base =
 
 const variants = {
   primary: "bg-ink text-paper hover:bg-surface-dark",
-  secondary: "border border-ink/20 bg-paper text-ink hover:bg-surface",
+  secondary: "border border-border bg-paper text-ink hover:bg-surface",
 } as const;
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
