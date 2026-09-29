@@ -48,13 +48,7 @@ const plannedChanges = [
   "security-hardening",
   "docs-deploy-and-launch",
 ];
-const activeSpecs = [
-  "openspec/specs/answering/spec.md",
-  "openspec/specs/app-skeleton/spec.md",
-  "openspec/specs/knowledge-search/spec.md",
-  "openspec/specs/repository-bootstrap/spec.md",
-  "openspec/specs/supply-chain-security/spec.md",
-];
+
 
 const banner = {
   dark: `${imagesDirectory}/readme-banner-dark.png`,
@@ -217,6 +211,35 @@ function trackedFiles(): TrackedFile[] {
   });
 
   return trackedCache;
+}
+
+// Amended by Fable in `pluggable-models-and-ask`, scenario "Available means specified and merged": a row marked
+// `Available` links the spec of its capability, and that spec either exists in `openspec/specs/` or is added by an
+// open change under `openspec/changes/` as `specs/<capability>/spec.md`. The file of the spec in force appears when
+// that change is archived, and is never written by hand before.
+const specLink = /^openspec\/specs\/([^/]+)\/spec\.md$/;
+
+function capabilityOf(link: string): string | null {
+  return specLink.exec(link)?.[1] ?? null;
+}
+
+function openChangeSpecs(capability: string): string[] {
+  const root = resolve(repositoryRoot, "openspec/changes");
+
+  return readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== "archive")
+    .map((entry) => `openspec/changes/${entry.name}/specs/${capability}/spec.md`)
+    .filter((path) => existsSync(resolve(repositoryRoot, path)));
+}
+
+function specIsDelivered(link: string): boolean {
+  const capability = capabilityOf(link);
+
+  if (capability === null) {
+    return false;
+  }
+
+  return existsSync(resolve(repositoryRoot, link)) || openChangeSpecs(capability).length > 0;
 }
 
 function slug(title: string): string {
@@ -619,9 +642,16 @@ describe("README, the status table", () => {
     for (const row of rows) {
       if (row.state === "Available") {
         const linked = newlines("\\]\\(([^)]+)\\)").exec(row.reference)?.[1] ?? row.reference;
+        const capability = capabilityOf(linked);
+        const delivering = openChangeSpecs(capability ?? "");
+        const inForce = existsSync(resolve(repositoryRoot, linked));
 
-        expect(activeSpecs, row.capability).toContain(linked);
-        expect(existsSync(resolve(repositoryRoot, linked)), row.capability).toBe(true);
+        expect(capability, row.capability).not.toBeNull();
+        expect(inForce || delivering.length > 0, row.capability).toBe(true);
+        expect(
+          inForce && delivering.length > 0,
+          `${row.capability}: a spec an open change still adds is never written by hand`,
+        ).toBe(false);
       } else {
         expect(plannedChanges, row.capability).toContain(row.reference.replaceAll("`", "").trim());
       }
@@ -1036,7 +1066,9 @@ describe("README, its links and its images", () => {
     for (const path of ["README.md", "README.es.md"]) {
       for (const target of [...linksOf(readText(path)), ...imagesOf(readText(path))]) {
         if (!/^(https?:|mailto:|#)/.test(target)) {
-          expect(existsSync(resolve(repositoryRoot, target)), `${path} -> ${target}`).toBe(true);
+          expect(specIsDelivered(target) || existsSync(resolve(repositoryRoot, target)), `${path} -> ${target}`).toBe(
+            true,
+          );
         }
       }
     }
