@@ -72,5 +72,7 @@ Evidence rule as above. Report: `reports/2026-09-29-step-10-flame-size.md`. Comm
       a test asserts at least 40 px in both banners and 64 px in the social preview; red against the current 19 px
 - [ ] 10.2 Re-render both banners and the social preview with the flame at those sizes, beside `by Katalis`, keeping the
       luminance and the honesty tests green; the README foot stays at 48 px
-- [ ] 10.3 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`; append the
+- [ ] 10.3 `.gitattributes` marks `public/fonts/outfit/OFL.txt` with `-whitespace`, so the licence stays byte for byte and
+      `git diff --check main...HEAD` exits 0; show both
+- [ ] 10.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`; append the
       round to `katalis-dev/tasks/entrega-community-04.md` with the new images and `## Issues`
