@@ -54,15 +54,16 @@ The whole file, where the amended assertion fails too:
       Tests  2 failed | 40 passed (42)
 ```
 
-The second red run is the guard itself. `rendered/cited-readme/round-5-14.1-guard-mutant.mjs` loads
-`scripts/readme-graphics/honesty.mjs`, mutates one route of the committed record **in memory** and calls
-`assertHonestRecord`; it writes no file. Run from the repository root:
+The second red run is the guard itself. `rendered/cited-readme/round-5-14.1-guard-mutant.mjs`, the sibling `rendered/`
+directory of the suite, outside the repository, loads `scripts/readme-graphics/honesty.mjs`, mutates one route of the
+committed record **in memory** and calls `assertHonestRecord`; it writes no file. Run from the repository root, where
+`..\rendered\` is that directory:
 
 ```text
-> node C:\Users\Franc\Documents\katalis-dev\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.caption
+> node ..\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.caption
 demo.caption: accepted
 exit 0
-> node C:\Users\Franc\Documents\katalis-dev\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.drawn.ingest[0]
+> node ..\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.drawn.ingest[0]
 demo.drawn.ingest[0]: accepted
 exit 0
 ```
@@ -98,12 +99,12 @@ Green after the change, same two commands:
 > npx vitest run tests/readme.test.ts --reporter=verbose
  Test Files  1 passed (1)
       Tests  42 passed (42)
-> node C:\Users\Franc\Documents\katalis-dev\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.caption
+> node ..\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.caption
 Error: docs/images/readme-graphics.json (demo.caption) would record a planned answer as a capability of today; mark it
 with Next, planned or the change that delivers it:
 demo.caption: Cited answers a question and shows the page it came from.
 exit 1
-> node C:\Users\Franc\Documents\katalis-dev\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.drawn.ingest[0]
+> node ..\rendered\cited-readme\round-5-14.1-guard-mutant.mjs scripts/readme-graphics/honesty.mjs docs/images/readme-graphics.json demo.drawn.ingest[0]
 Error: docs/images/readme-graphics.json (demo.drawn.ingest[0]) would record a planned answer as a capability of today;
 mark it with Next, planned or the change that delivers it:
 demo.drawn.ingest[0]: Cited answers a question and shows the page it came from.
@@ -121,7 +122,13 @@ exit 1
 | `npm run openspec:validate` | 5 passed, 0 failed, exit 0 |
 | `git diff --check main...HEAD` | exit 0 |
 | `git status --short --branch` at the end | `## feature/cited-identity-and-readme`, clean tree |
-| Files of the round | 4: `LOOP_STATE.md`, `honesty.mjs`, `honesty.d.mts`, `tests/readme.test.ts`; no PNG changed |
+| Files of the round | 5: `LOOP_STATE.md`, `honesty.mjs`, `honesty.d.mts`, `tests/readme.test.ts` and this report; no PNG changed |
+
+The first version of this report spelled the path of the mutant scripts as the absolute path of the machine, and
+`tests/personal-paths.test.ts` reads every tracked file of the repository: it refused the committed home directory
+(`2 failed | 112 passed (114)`). The report now writes that path as `..\rendered\`, which is the same directory without
+the home prefix, and `npm test` is green again at 11 files and 114 tests. The run that found it is kept in
+`rendered/cited-readme/round-5-14.3-home-path.log`.
 
 ## Reproduction of the Major, with the record mutated on disk
 
