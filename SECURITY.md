@@ -18,9 +18,10 @@ and there is no bounty. Credit is given in the advisory unless you ask otherwise
 
 ## State of the project
 
-This repository is under construction. It carries a repository bootstrap, a page that names the product and nothing
-else; the ask endpoint, the panel, the widget and the voice agent arrive in later changes. A report about a control
-that `docs/security.md` lists as planned is still welcome, and it is more useful after the change that builds it.
+This repository is under construction. It already carries the ingestion and the hybrid search, the answers with their
+citations, the panel, the public chat with its widget and the voice agent created in one click; the hardening pass and
+the one-click deployment arrive in later changes. A report about a control that `docs/security.md` lists as planned is
+still welcome, and it is more useful after the change that builds it.
 
 ## What this project assumes
 

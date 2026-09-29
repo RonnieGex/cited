@@ -24,15 +24,16 @@ prometerle algo a alguien.
 
 ## Por qué Cited
 
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited lee solo los documentos que le señalas" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Cada pasaje de Cited lleva su documento, su encabezado y su posición" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voz con ElevenLabs, planeada para el siguiente cambio" width="400"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited lee solo los documentos que le señalas" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Cada pasaje de Cited lleva su documento, su encabezado y su posición" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voz con ElevenLabs, creada en un clic desde el panel de Cited" width="400"></picture> |
 |---|---|---|
 
 1. **Solo tus documentos.** La ingesta lee los archivos que le señalas, y nada más: ni web, ni memoria del modelo,
    nada inventado.
 2. **Cada pasaje conserva su fuente.** Documento, encabezado y posición viajan con el texto, así que quien lee puede
    abrir el documento y llegar al pasaje en lugar de confiar en un resumen.
-3. **Háblale.** Cited ya responde con los pasajes que encontró y numera cada afirmación; platicar con los mismos
-   documentos con ElevenLabs llega en un cambio posterior, y por eso la tarjeta que lo muestra dice `Next`.
+3. **Háblale.** Cited responde con los pasajes que encontró y numera cada afirmación, por escrito y en voz alta: el
+   micrófono del sitio público abre un agente de voz construido sobre los mismos documentos, y el dueño crea ese
+   agente en un clic desde el panel.
 
 ## Estado
 
@@ -47,7 +48,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 | Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Disponible | [answering](openspec/specs/answering/spec.md) |
 | El panel: la configuración, el negocio, los documentos y las conversaciones | Disponible | [admin-panel](openspec/specs/admin-panel/spec.md) |
 | Chat público del negocio, con el widget que cualquier sitio puede incrustar | Disponible | [public-chat](openspec/specs/public-chat/spec.md) |
-| Agente de voz con ElevenLabs, creado en un clic | Siguiente | `elevenlabs-voice-agent` |
+| Agente de voz con ElevenLabs, creado en un clic | Disponible | [voice-agent](openspec/specs/voice-agent/spec.md) |
 | Design system compartido | Siguiente | `design-system-shared` |
 | Endurecimiento de seguridad y pruebas de abuso | Siguiente | `security-hardening` |
 | Despliegue en un clic, con imagen de Docker y documentación bilingüe | Siguiente | `docs-deploy-and-launch` |
@@ -68,7 +69,7 @@ flowchart LR
   C --> D[Reciprocal Rank Fusion]
   D --> E[Respuesta con citas numeradas]
   D --> F[Widget para el sitio]
-  D --> G[Agente de voz (next)]
+  D --> G[Agente de voz]
 ```
 
 </details>
@@ -105,16 +106,27 @@ deterministas.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/roadmap-dark.png"><img src="docs/images/roadmap-light.png" alt="El roadmap de Cited: lo que puedes correr hoy y lo que agrega cada siguiente cambio" width="1280"></picture>
 
-Los cambios del plan llegan en este orden: el design system compartido, luego la voz con ElevenLabs, luego el
-endurecimiento, luego los despliegues y la documentación.
+Los cambios del plan llegan en este orden: la voz con ElevenLabs, que ya está en el repositorio, luego el design
+system compartido, luego el endurecimiento, luego los despliegues y la documentación.
 
 ## Voz
 
 **Háblale a tus documentos.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/voice-teaser-dark.png"><img src="docs/images/voice-teaser-light.png" alt="Agente de voz de Cited, planeado para el cambio de ElevenLabs" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/voice-teaser-dark.png"><img src="docs/images/voice-teaser-light.png" alt="El agente de voz de Cited: el dueño lo crea en un clic y quien visita le habla a los documentos" width="1280"></picture>
 
-`elevenlabs-voice-agent` está planeado, no construido: lleva `Next` en cada gráfica que lo muestra.
+El botón del micrófono del sitio público y del widget abre el panel de voz: el Orb, el estado en palabras, la
+transcripción en vivo con la pregunta escrita repetida una sola vez y las fichas de fuentes nombradas por documento y
+sección. La sesión habla con el agente que el dueño crea con un botón del panel, y ese agente responde por
+`/api/voice/tool` desde los mismos documentos y el mismo proceso que el chat escrito. La llave de ElevenLabs nunca
+llega al navegador: el documento le pide a este servidor una URL firmada de quince minutos, y el día tiene un tope de
+minutos. `docs/voice-agent.md` explica el agente de un clic, los dos idiomas, la lista de orígenes permitidos y el
+tope.
+
+La imagen de abajo es una captura real del panel a 1440 px, tomada por `scripts/render-voice-captures.mjs` sobre la
+compilación del SDK de pruebas, que es la que maneja la suite de navegador:
+
+<img src="docs/images/voice/panel.png" alt="El panel de voz de Cited: el Orb, el estado Respondiendo, la transcripción con una pregunta y su respuesta, y dos fichas de fuentes" width="860">
 
 ## Arranque rápido
 
@@ -146,7 +158,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 29 ms, rss 114 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 27 ms, rss 109 MB
 ```
 
 ```
@@ -169,7 +181,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 79 MB
+8 results, 5 ms, rss 74 MB
 ```
 
 ```
@@ -181,7 +193,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 46 ms, rss 100 MB
+citations 1, 38 ms, rss 97 MB
 ```
 
 El almacén vive en `.data/katalis.sqlite`, que git ignora. `docs/search.md` explica el esquema, el troceado y el
@@ -220,10 +232,11 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `TRUST_PROXY` | el número de proxies delante: `1` para Traefik solo, `2` para una CDN delante de Traefik; la dirección del visitante es esa cantidad de lugares desde la derecha de `x-forwarded-for`, y sin él la cabecera no se confía | sí |
 | `ADMIN_SESSION_SECRET` | secreto que sala el hash de la dirección del visitante y firma la sesión del panel | sí |
 | `ADMIN_PASSWORD` | contraseña del panel, la que abre `/admin` | sí |
-| `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, planificado en `elevenlabs-voice-agent` | no |
-| `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | modelo del agente de voz, planificado en `elevenlabs-voice-agent` | no |
-| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs, planificada en `elevenlabs-voice-agent` | no |
-| `DAILY_VOICE_MINUTE_LIMIT` | los minutos de voz de un día, planificado en `elevenlabs-voice-agent` | no |
+| `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer | sí |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs: la llave del dueño y, si quieres, el agente que fija | sí |
+| `ELEVENLABS_VOICE_ID` | voz opcional del agente de voz; sin ella, la voz predeterminada de la cuenta | no |
+| `DAILY_VOICE_MINUTE_LIMIT` | los minutos de voz de un día UTC, 30 por omisión | sí |
+| `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | dos nombres que la plantilla reserva y ningún código lee: la búsqueda usa `EMBEDDINGS_MODEL` y `EMBEDDINGS_API_KEY` | no |
 | `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, separados por comas; solo su propio origen cuando está vacío | sí |
 
 Una fila marcada `no` es un nombre que el repositorio ya reserva y que ningún código lee todavía. Ninguna llave tiene
