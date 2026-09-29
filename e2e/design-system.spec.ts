@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { decodePng } from "../tests/png";
 
 // The three scenarios of `openspec/changes/brand-and-design-system/specs/design-system/spec.md` that need a browser:
 // the computed font of `html`, of `body` and of a paragraph with no request to a font host outside the app; the public
@@ -26,6 +27,7 @@ type Pixel = [number, number, number];
 
 type Sampled = {
   label: string;
+  selector: string;
   border: string;
   borderWidth: number;
   background: string;
@@ -248,15 +250,18 @@ test("the controls can be seen: 3:1 of the border and of the focus, 4.5:1 of eve
       const element = elementOf(selector);
       const style = getComputedStyle(element);
       const ground = groundOf(element);
+      // A background is painted under the border of its own element, so the border is composited on it.
+      const behind = over(style.backgroundColor, ground);
 
       return {
         label,
+        selector,
         border: style.borderTopColor,
         borderWidth: Number.parseFloat(style.borderTopWidth),
         background: style.backgroundColor,
         ground,
-        borderOverGround: over(style.borderTopColor, ground),
-        backgroundOverGround: over(style.backgroundColor, ground),
+        borderOverGround: over(style.borderTopColor, behind),
+        backgroundOverGround: behind,
       };
     };
 
@@ -383,6 +388,49 @@ test("the controls can be seen: 3:1 of the border and of the focus, 4.5:1 of eve
       seen(control.borderOverGround),
       `${control.label}: the border is the hairline of the system and not a colour of its own`,
     ).toBe(seen(measured.hairline.overGround));
+
+    // The review of Codex measured the pixels Chromium paints and not the computed colour, so the same check lives
+    // here: a frame of eight pixels around the top left corner of the control, decoded from a screenshot of the real
+    // page, has to carry the hairline that the computation above composited. A computed colour the browser did not
+    // paint cannot pass.
+    const box = await page.locator(control.selector).boundingBox();
+
+    expect(box, `${control.label}: the box of the control`).not.toBeNull();
+
+    const frame = decodePng(
+      await page.screenshot({
+        clip: {
+          x: Math.floor(box?.x ?? 0) - 2,
+          y: Math.floor(box?.y ?? 0) - 2,
+          width: 8,
+          height: 8,
+        },
+      }),
+    );
+    const painted = new Map<string, number>();
+
+    for (let at = 0; at < frame.pixels.length; at += 4) {
+      const color = seen([
+        frame.pixels[at] ?? 0,
+        frame.pixels[at + 1] ?? 0,
+        frame.pixels[at + 2] ?? 0,
+      ]);
+
+      painted.set(color, (painted.get(color) ?? 0) + 1);
+    }
+
+    const hairline = seen(control.borderOverGround);
+
+    console.log(
+      `the rendered frame of ${control.label}: ${[...painted]
+        .map(([color, count]) => `${color} x${count}`)
+        .join(", ")}; the hairline is painted ${painted.get(hairline) ?? 0} times`,
+    );
+
+    expect(
+      painted.get(hairline) ?? 0,
+      `${control.label}: the rendered page paints the hairline of the system on its border`,
+    ).toBeGreaterThan(0);
   }
 
   // The scenario exempts the border and the fill of `Panel`, because the content of the panel does not depend on
