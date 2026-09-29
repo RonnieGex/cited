@@ -18,9 +18,10 @@
   },
   "font": {
     "name": "Outfit",
-    "source": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
+    "source": "public/fonts/outfit/outfit-latin.woff2",
+    "license": "public/fonts/outfit/OFL.txt",
     "loadedAtRenderTime": true,
-    "fileInRepository": false
+    "fileInRepository": true
   },
   "tokens": {
     "ink": "#171717",

@@ -5,6 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { roadmap, states, statusRows, tokens } from "./readme-graphics/data.mjs";
+import { outfit, outfitFace } from "./readme-graphics/font.mjs";
 import { assertHonestRecord } from "./readme-graphics/honesty.mjs";
 import { graphics, social } from "./readme-graphics/manifest.mjs";
 import { patchReadmeQuickStart, terminalLines, withoutNpmNoise } from "./readme-graphics/quickstart.mjs";
@@ -39,10 +40,11 @@ const minimumContrast = 4.5;
 const terminalMaximum = 0.3;
 const maximumRoadmapHeight = 720;
 const font = {
-  name: "Outfit",
-  source: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
+  name: outfit.name,
+  source: outfit.subset,
+  license: outfit.license,
   loadedAtRenderTime: true,
-  fileInRepository: false,
+  fileInRepository: true,
 };
 
 // The mark of the maker (design decision 3): the flame of `public/brand/` beside `by Katalis` in the social preview,
@@ -693,6 +695,7 @@ function html(content, theme, width, height) {
     NEXT_BORDER: values.NEXT_BORDER,
     LIME_EDGE: values.LIME_EDGE,
     CARD_SHADOW: values.CARD_SHADOW,
+    FONT_FACE: outfitFace(absolute),
     STYLES: styles,
     CONTENT: content,
     WIDTH: width,

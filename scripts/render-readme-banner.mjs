@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { assertHonestRecord } from "./readme-graphics/honesty.mjs";
+import { outfit, outfitFace } from "./readme-graphics/font.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templatePath = "scripts/readme-banner.html";
@@ -24,10 +25,11 @@ const flame = {
   where: "at the height of the by Katalis line, to its left",
 };
 const font = {
-  name: "Outfit",
-  source: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
+  name: outfit.name,
+  source: outfit.subset,
+  license: outfit.license,
   loadedAtRenderTime: true,
-  fileInRepository: false,
+  fileInRepository: true,
 };
 const tokens = {
   ink: "#171717",
@@ -59,6 +61,7 @@ function html(theme) {
     BYLINE_OPACITY: dark ? "0.62" : "0.58",
     TAGLINE: tagline,
     FLAME: dataUri(dark ? flame.dark : flame.light),
+    FONT_FACE: outfitFace(absolute),
   });
 }
 
