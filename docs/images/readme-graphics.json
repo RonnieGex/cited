@@ -84,7 +84,7 @@
       "light": "docs/images/reason-citations-light.png",
       "width": 400,
       "height": 300,
-      "headline": "Every answer shows its page.",
+      "headline": "Every passage keeps its source.",
       "copy": "Document, heading and position.",
       "shows": "Available",
       "label": null,
@@ -153,7 +153,7 @@
   ],
   "social": {
     "name": "Cited",
-    "tagline": "Answers from your own documents, with the page they came from.",
+    "tagline": "Ask your own documents. Get the passage and where it came from.",
     "byline": "by Katalis",
     "file": "docs/images/social-preview.png",
     "width": 1280,
@@ -177,8 +177,11 @@
   },
   "artDirection": {
     "decision": 10,
+    "amendedBy": 11,
     "darkMaximum": 0.3,
     "lightMinimum": 0.8,
+    "terminalMaximum": 0.3,
+    "maximumRoadmapHeight": 720,
     "minimumFontSize": 16,
     "minimumHeadline": {
       "wide": 44,
@@ -195,13 +198,19 @@
   },
   "demo": {
     "exitCode": 0,
+    "terminal": {
+      "x": 52,
+      "y": 186.53125,
+      "width": 1176,
+      "height": 337.46875
+    },
     "ingest": {
       "command": "EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/",
-      "output": "ingested README.txt (txt, no pages, 1 passages)\ningested bike-workshop-policies.md (md, no pages, 5 passages)\ningested cafe-la-horquilla.md (md, no pages, 4 passages)\ningested notas-del-negocio.txt (txt, no pages, 1 passages)\ndocuments 4, passages 11, skipped 0, store .data/katalis.sqlite, 37 ms, rss 109 MB"
+      "output": "ingested README.txt (txt, no pages, 1 passages)\ningested bike-workshop-policies.md (md, no pages, 5 passages)\ningested cafe-la-horquilla.md (md, no pages, 4 passages)\ningested notas-del-negocio.txt (txt, no pages, 1 passages)\ndocuments 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB"
     },
     "search": {
       "command": "EMBEDDINGS_PROVIDER=fake npm run search -- \"¿Cuánto cuesta una afinación de bicicleta?\"",
-      "output": "question: ¿Cuánto cuesta una afinación de bicicleta?\nstore: .data/katalis.sqlite\n1. cafe-la-horquilla.md [Precios] position 2 score 0.032522\n   Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.\n2. cafe-la-horquilla.md [Políticas] position 3 score 0.032522\n   Políticas Aceptamos efectivo y tarjeta. El taller recibe bicicletas hasta una hora antes del cierre. Si una reparación necesita refacciones, avisamos por teléfono antes de empezar.\n3. notas-del-negocio.txt [no heading] position 0 score 0.031746\n   Café La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferenci\n4. cafe-la-horquilla.md [Café La Horquilla] position 0 score 0.030331\n   Café La Horquilla Somos un café y taller de bicicletas en el centro de la ciudad. Abrimos de martes a domingo.\n5. bike-workshop-policies.md [Guarantee] position 4 score 0.015625\n   Guarantee Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number.\n6. bike-workshop-policies.md [Bookings and cancellations] position 1 score 0.015385\n   Bookings and cancellations A repair booking is free. Cancel or move your appointment at least 24 hours before the agreed time and there is no charge. A late cancellation costs 50 pesos, and a dropped appointment costs the full estimate.\n7. bike-workshop-policies.md [Groups and events] position 3 score 0.015152\n   Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.\n8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925\n   Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.\n8 results, 5 ms, rss 74 MB"
+      "output": "question: ¿Cuánto cuesta una afinación de bicicleta?\nstore: .data/katalis.sqlite\n1. cafe-la-horquilla.md [Precios] position 2 score 0.032522\n   Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.\n2. cafe-la-horquilla.md [Políticas] position 3 score 0.032522\n   Políticas Aceptamos efectivo y tarjeta. El taller recibe bicicletas hasta una hora antes del cierre. Si una reparación necesita refacciones, avisamos por teléfono antes de empezar.\n3. notas-del-negocio.txt [no heading] position 0 score 0.031746\n   Café La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferenci\n4. cafe-la-horquilla.md [Café La Horquilla] position 0 score 0.030331\n   Café La Horquilla Somos un café y taller de bicicletas en el centro de la ciudad. Abrimos de martes a domingo.\n5. bike-workshop-policies.md [Guarantee] position 4 score 0.015625\n   Guarantee Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number.\n6. bike-workshop-policies.md [Bookings and cancellations] position 1 score 0.015385\n   Bookings and cancellations A repair booking is free. Cancel or move your appointment at least 24 hours before the agreed time and there is no charge. A late cancellation costs 50 pesos, and a dropped appointment costs the full estimate.\n7. bike-workshop-policies.md [Groups and events] position 3 score 0.015152\n   Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.\n8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925\n   Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.\n8 results, 6 ms, rss 77 MB"
     },
     "drawn": {
       "ingest": [
@@ -209,7 +218,7 @@
         "ingested bike-workshop-policies.md (md, no pages, 5 passages)",
         "ingested cafe-la-horquilla.md (md, no pages, 4 passages)",
         "ingested notas-del-negocio.txt (txt, no pages, 1 passages)",
-        "documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 37 ms, rss 109 MB"
+        "documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 28 ms, rss 113 MB"
       ],
       "search": [
         "question: ¿Cuánto cuesta una afinación de bicicleta?",
