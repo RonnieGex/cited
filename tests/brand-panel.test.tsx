@@ -1,7 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import AdminBusiness from "@/app/admin/business/page";
+import AdminConversations from "@/app/admin/conversations/page";
+import AdminDocuments from "@/app/admin/documents/page";
 import AdminLayout from "@/app/admin/layout";
+import AdminSetup from "@/app/admin/page";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ConversationsPanel } from "@/components/admin/ConversationsPanel";
 import { adminStrings, formatWhen } from "@/lib/i18n/admin";
@@ -27,6 +31,34 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@/lib/admin/guard", () => ({
   guardSession: () => guarded,
+}));
+
+vi.mock("@/lib/store/instance", () => ({
+  sharedStore: async () => ({}),
+}));
+
+vi.mock("@/lib/admin/documents", () => ({
+  documentSummaries: async () => [
+    { name: "cafe-la-horquilla.md", type: "md", pages: null, ingestedAt: "2026-09-29T10:00:00.000Z", passages: 4 },
+  ],
+}));
+
+vi.mock("@/lib/admin/conversations", () => ({
+  conversationSummaries: async () => [],
+}));
+
+vi.mock("@/lib/settings/business", async (original) => ({
+  ...(await original<typeof import("@/lib/settings/business")>()),
+  readBusiness: async () => ({
+    name: "Café La Horquilla",
+    hasLogo: false,
+    primaryColor: "#171717",
+    tone: "cercano y breve",
+    language: "es" as const,
+    forbiddenTopics: [],
+    welcome: { en: "Welcome", es: "Bienvenido" },
+    updatedAt: "2026-09-29T00:00:00.000Z",
+  }),
 }));
 
 const english = adminStrings("en");
@@ -417,5 +449,85 @@ describe("the keyboard in the bar that scrolls sideways", () => {
     const classes = (wordmark?.className ?? "").split(/\s+/);
 
     expect(classes).toEqual(expect.arrayContaining(["py-1", "-my-1", "max-lg:py-3", "max-lg:-my-3"]));
+  });
+});
+
+// Findings of the review of step 12: the sign-in declares its own language like the signed-in branch, the Setup chips are
+// the plain kit chip (lime marks a citation, a verified step or the current place, never a value that is merely present),
+// and no screen restates the product name or its own title.
+describe("the language, the chips and the headings of the panel", () => {
+  it("declares the language of the panel on the sign-in shell, in English and in Spanish", async () => {
+    guarded = { status: "unauthorized" };
+    await layout();
+    expect(document.querySelector('[data-admin="auth"]')?.getAttribute("lang")).toBe("en");
+  });
+
+  it("declares Spanish on the sign-in shell when the panel speaks Spanish", async () => {
+    guarded = { status: "unauthorized" };
+    langCookie = "es";
+    await layout();
+    expect(document.querySelector('[data-admin="auth"]')?.getAttribute("lang")).toBe("es");
+  });
+
+  it("declares the language on the unconfigured shell too", async () => {
+    guarded = { status: "unconfigured", missing: ["ADMIN_PASSWORD"] };
+    langCookie = "es";
+    await layout();
+    expect(document.querySelector('[data-admin="auth"]')?.getAttribute("lang")).toBe("es");
+  });
+
+  it("titles the sign-in plainly, with no eyebrow that repeats the name of the product", async () => {
+    guarded = { status: "unauthorized" };
+    await layout();
+
+    expect(english.signInTitle).toBe("Sign in to your panel");
+    expect(spanish.signInTitle).toBe("Entra a tu panel");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(english.signInTitle);
+    expect(screen.queryByText(english.panelEyebrow)).toBeNull();
+  });
+
+  it("drops the eyebrow of the unconfigured page", async () => {
+    guarded = { status: "unconfigured", missing: ["ADMIN_PASSWORD"] };
+    await layout();
+
+    expect(screen.queryByText(english.panelEyebrow)).toBeNull();
+  });
+
+  it("paints the Setup chips with the plain kit chip, never lime and never an important override", async () => {
+    vi.stubEnv("CHAT_PROVIDER", "fake");
+    render(await AdminSetup());
+    vi.unstubAllEnvs();
+
+    const chips = screen.getAllByText(new RegExp(`^(${english.configured}|${english.missing})$`));
+
+    expect(chips.some((chip) => chip.textContent === english.configured)).toBe(true);
+
+    for (const chip of chips) {
+      expect(chip.className, chip.textContent ?? "").not.toMatch(/lime/);
+      expect(chip.className, chip.textContent ?? "").not.toMatch(/!(\s|$)/);
+    }
+  });
+
+  it("titles every page of the panel once, with no eyebrow above the h1", async () => {
+    for (const page of [AdminSetup, AdminBusiness, AdminDocuments, AdminConversations]) {
+      const { unmount } = render(await page());
+
+      expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+      expect(screen.queryByText(english.panelEyebrow)).toBeNull();
+      unmount();
+    }
+  });
+
+  it("keeps the heading inside the Documents and Conversations boxes for the reader of the screen only", async () => {
+    for (const [page, title] of [
+      [AdminDocuments, english.documentsTitle],
+      [AdminConversations, english.conversationsTitle],
+    ] as const) {
+      const { unmount } = render(await page());
+      const inner = screen.getByRole("heading", { level: 2, name: title });
+
+      expect(inner.parentElement?.className).toContain("sr-only");
+      unmount();
+    }
   });
 });

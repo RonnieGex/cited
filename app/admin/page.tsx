@@ -14,7 +14,7 @@ export default async function AdminSetup() {
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.setupTitle}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.setupIntro}</p>
@@ -34,7 +34,7 @@ export default async function AdminSetup() {
             {group.variables.map((variable) => (
               <li className={row} key={variable.name}>
                 <span className="font-mono text-sm text-ink">{variable.name}</span>
-                <Chip className={variable.configured ? "border-ink! bg-lime!" : "text-ink-2!"}>
+                <Chip>
                   {variable.configured ? strings.configured : strings.missing}
                 </Chip>
               </li>

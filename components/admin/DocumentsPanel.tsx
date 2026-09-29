@@ -98,7 +98,10 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
       )}
 
       <Panel className="overflow-x-auto">
-        <SectionTitle level="h2">{strings.documentsTitle}</SectionTitle>
+        {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
+        <SectionTitle className="sr-only" level="h2">
+          {strings.documentsTitle}
+        </SectionTitle>
         {list.length === 0 ? (
           <p className="mt-4 text-sm text-ink/80">{strings.noDocuments}</p>
         ) : (

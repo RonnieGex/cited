@@ -16,9 +16,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
 
   if (guarded.status === "unconfigured") {
     return (
-      <AuthShell strings={strings}>
+      <AuthShell lang={lang} strings={strings}>
         <Panel className="flex flex-col gap-4">
-          <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+          <SectionTitle level="h1">
             {strings.unconfiguredTitle}
           </SectionTitle>
           <p className="text-ink/80">
@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
 
   if (guarded.status === "unauthorized") {
     return (
-      <AuthShell strings={strings}>
+      <AuthShell lang={lang} strings={strings}>
         <LoginForm strings={strings} />
       </AuthShell>
     );

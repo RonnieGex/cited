@@ -14,7 +14,7 @@ export default async function AdminConversations() {
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.conversationsTitle}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.conversationsIntro}</p>

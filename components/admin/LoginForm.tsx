@@ -57,7 +57,7 @@ export function LoginForm({ strings, onSignedIn }: LoginFormProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.signInTitle}
       </SectionTitle>
       <form className="flex flex-col gap-4" onSubmit={submit}>

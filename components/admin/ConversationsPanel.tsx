@@ -52,7 +52,10 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
         role="region"
         tabIndex={0}
       >
-        <SectionTitle level="h2">{strings.conversationsTitle}</SectionTitle>
+        {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
+        <SectionTitle className="sr-only" level="h2">
+          {strings.conversationsTitle}
+        </SectionTitle>
         {list.length === 0 ? (
           <p className="mt-4 text-sm text-ink/80">{strings.noConversations}</p>
         ) : (

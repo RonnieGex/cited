@@ -3,6 +3,7 @@ import { BuiltByKatalis } from "@/components/admin/BuiltByKatalis";
 import { Wordmark } from "@/components/brand";
 import { highlightLast } from "@/lib/brand/highlight";
 import type { AdminStrings } from "@/lib/i18n/admin";
+import type { Lang } from "@/lib/settings/business";
 
 // Decision 8 of `openspec/changes/brand-identity-ui/design.md`: the shell of every page of the panel that has no session,
 // the sign-in and the page that says the server is not ready. Two halves from 1024 px (ink with the wordmark, the tagline
@@ -12,15 +13,17 @@ import type { AdminStrings } from "@/lib/i18n/admin";
 // the lower half of the line) would put the paper text of the ink ground over lime, which is 1.1:1.
 
 export type AuthShellProps = {
+  /** The language of the panel, declared on the shell like the signed-in branch does, since the root follows the business. */
+  lang: Lang;
   strings: AdminStrings;
   children: ReactNode;
 };
 
-export function AuthShell({ strings, children }: AuthShellProps) {
+export function AuthShell({ lang, strings, children }: AuthShellProps) {
   const { lead, tail } = highlightLast(strings.tagline);
 
   return (
-    <main data-admin="auth" className="grid min-h-screen bg-paper text-ink lg:grid-cols-2">
+    <main data-admin="auth" lang={lang} className="grid min-h-screen bg-paper text-ink lg:grid-cols-2">
       <div className="flex flex-col justify-between gap-12 bg-ink px-6 py-10 text-paper lg:px-16 lg:py-16">
         <Wordmark size="md" tone="ink" />
         <p
