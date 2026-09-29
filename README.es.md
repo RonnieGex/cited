@@ -45,7 +45,8 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 | Embeddings por una API compatible con OpenAI u Ollama | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Archivo libSQL local o Turso | Disponible | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Disponible | [answering](openspec/specs/answering/spec.md) |
-| Panel de administración, página pública y widget en español e inglés | Siguiente | `admin-and-public-ui` |
+| Chat público del negocio, con el widget que cualquier sitio puede incrustar | Disponible | [public-chat](openspec/specs/public-chat/spec.md) |
+| Panel de administración y alta del negocio en español e inglés | Siguiente | `admin-and-public-ui` |
 | Agente de voz con ElevenLabs, creado en un clic | Siguiente | `elevenlabs-voice-agent` |
 | Design system compartido | Siguiente | `design-system-shared` |
 | Endurecimiento de seguridad y pruebas de abuso | Siguiente | `security-hardening` |
@@ -55,7 +56,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 
 **De una carpeta de documentos a un pasaje citado.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="Cómo funciona Cited: documentos, pasajes, libSQL, Reciprocal Rank Fusion y la respuesta con sus citas numeradas, con el widget y la voz marcados Next" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="Cómo funciona Cited: documentos, pasajes, libSQL, Reciprocal Rank Fusion y la respuesta con sus citas numeradas, con la voz marcada Next" width="1280"></picture>
 
 <details>
 <summary>El mismo flujo como diagrama de texto</summary>
@@ -66,7 +67,7 @@ flowchart LR
   B --> C[libSQL: FTS5 y vectores nativos]
   C --> D[Reciprocal Rank Fusion]
   D --> E[Respuesta con citas numeradas]
-  D --> F[Widget para el sitio (next)]
+  D --> F[Widget para el sitio]
   D --> G[Agente de voz (next)]
 ```
 
@@ -82,15 +83,20 @@ La imagen la dibuja `scripts/render-readme-graphics.mjs` con la salida de los co
 no puede mostrar un resultado que el código no produzca: el mismo corpus, la misma búsqueda y la misma respuesta con
 su cita.
 
+**El chat público, como se ve hoy.** Esta no está dibujada: es una captura real de `/` con una pregunta respondida y la
+cita abierta, tomada por `scripts/render-readme-captures.mjs` de la aplicación servida por `npm run start` con el
+corpus de muestra y los proveedores deterministas.
+
+<img src="docs/images/chat-page.png" alt="El chat público de Cited: una pregunta respondida en español con su cita numerada, el extracto del pasaje con su documento y su encabezado, el selector English | Español y el campo de la pregunta" width="1280">
+
 ## Hoja de ruta
 
 **Lo que corre hoy y lo que viene después.**
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/roadmap-dark.png"><img src="docs/images/roadmap-light.png" alt="El roadmap de Cited: lo que puedes correr hoy y lo que agrega cada siguiente cambio" width="1280"></picture>
 
-Los cambios del plan llegan en este orden: el design system compartido, luego redactar una respuesta y numerar sus
-citas, luego el panel y la página pública, luego la voz con ElevenLabs, luego el endurecimiento, luego los despliegues
-y la documentación.
+Los cambios del plan llegan en este orden: el design system compartido, luego el panel y el alta del negocio, luego la
+voz con ElevenLabs, luego el endurecimiento, luego los despliegues y la documentación.
 
 ## Voz
 
@@ -130,7 +136,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 43 ms, rss 107 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 41 ms, rss 111 MB
 ```
 
 ```
@@ -153,7 +159,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 5 ms, rss 72 MB
+8 results, 6 ms, rss 75 MB
 ```
 
 ```
@@ -165,7 +171,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 41 ms, rss 93 MB
+citations 1, 39 ms, rss 95 MB
 ```
 
 El almacén vive en `.data/katalis.sqlite`, que git ignora. `docs/search.md` explica el esquema, el troceado y el
@@ -208,7 +214,7 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | modelo del agente de voz, planificado en `elevenlabs-voice-agent` | no |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs, planificada en `elevenlabs-voice-agent` | no |
 | `DAILY_VOICE_MINUTE_LIMIT` | los minutos de voz de un día, planificado en `elevenlabs-voice-agent` | no |
-| `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, planificado en `admin-and-public-ui` | no |
+| `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, separados por comas; solo su propio origen cuando está vacío | sí |
 
 Una fila marcada `no` es un nombre que el repositorio ya reserva y que ningún código lee todavía. Ninguna llave tiene
 valor en este repositorio, y git ignora `.env`.

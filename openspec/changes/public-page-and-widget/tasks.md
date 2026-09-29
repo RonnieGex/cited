@@ -60,7 +60,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 9. Documentation
 
-- [ ] 9.1 `docs/widget.md` (the snippet, `ALLOWED_ORIGINS`, the headers); the README status rows and a real capture of
+- [x] 9.1 `docs/widget.md` (the snippet, `ALLOWED_ORIGINS`, the headers); the README status rows and a real capture of
       the chat; the Spanish twin — report: `reports/2026-09-29-step-9-docs.md`
 - [ ] 9.2 The delivery `katalis-dev/tasks/entrega-community-08.md` in Spanish with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`

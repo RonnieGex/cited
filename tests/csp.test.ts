@@ -4,6 +4,7 @@ import {
   contentSecurityPolicy,
   frameAncestors,
   nonceOf,
+  policyFor,
 } from "@/lib/headers/csp";
 
 // Design decision 5 of `openspec/changes/public-page-and-widget/design.md`: `/embed` sends
@@ -114,5 +115,27 @@ describe("the policy of the page", () => {
     expect(one).toMatch(/^[A-Za-z0-9+/]+=*$/);
     expect(one.length).toBeGreaterThanOrEqual(20);
     expect(other).not.toBe(one);
+  });
+
+  it("takes the allowed origins of the environment, which is where the code reads them", () => {
+    const embed = policyFor({
+      pathname: "/embed",
+      environment: { ALLOWED_ORIGINS: "https://shop.example" },
+      development: false,
+      nonce: "n",
+    });
+    const home = policyFor({
+      pathname: "/",
+      environment: { ALLOWED_ORIGINS: "https://shop.example" },
+      development: false,
+      nonce: "n",
+    });
+
+    expect(embed).toContain("frame-ancestors 'self' https://shop.example");
+    expect(home).toContain("frame-ancestors 'self'");
+    expect(home).not.toContain("https://shop.example");
+    expect(policyFor({ pathname: "/embed", environment: {}, development: false, nonce: "n" })).toContain(
+      "frame-ancestors 'self'",
+    );
   });
 });

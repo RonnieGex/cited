@@ -48,7 +48,7 @@ export const graphics = [
     copy: null,
     shows: "Available",
     label: null,
-    alt: "How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer with its numbered citations, with the widget and the voice marked Next",
+    alt: "How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer with its numbered citations, with the voice marked Next",
   },
   {
     name: "demo",

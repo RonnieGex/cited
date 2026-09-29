@@ -49,7 +49,12 @@ export const statusRows = [
     reference: "openspec/specs/answering/spec.md",
   },
   {
-    capability: "Admin panel, public page and widget in Spanish and English",
+    capability: "Public chat of the business, with the widget any site can embed",
+    state: "Available",
+    reference: "openspec/specs/public-chat/spec.md",
+  },
+  {
+    capability: "Admin panel and onboarding in Spanish and English",
     state: "Planned",
     reference: "admin-and-public-ui",
   },

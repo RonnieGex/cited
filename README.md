@@ -44,7 +44,8 @@ Every row is either available today or planned, and each planned row names the c
 | Embeddings through an OpenAI-compatible API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Local libSQL file or Turso | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Answers with citations from any model provider, spend limits | Available | [answering](openspec/specs/answering/spec.md) |
-| Admin panel, public page and widget in Spanish and English | Planned | `admin-and-public-ui` |
+| Public chat of the business, with the widget any site can embed | Available | [public-chat](openspec/specs/public-chat/spec.md) |
+| Admin panel and onboarding in Spanish and English | Planned | `admin-and-public-ui` |
 | Voice agent with ElevenLabs, created in one click | Planned | `elevenlabs-voice-agent` |
 | Shared design system | Planned | `design-system-shared` |
 | Security hardening and abuse tests | Planned | `security-hardening` |
@@ -54,7 +55,7 @@ Every row is either available today or planned, and each planned row names the c
 
 **From a folder of documents to a cited passage.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer with its numbered citations, with the widget and the voice marked Next" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer with its numbered citations, with the voice marked Next" width="1280"></picture>
 
 <details>
 <summary>The same flow as a text diagram</summary>
@@ -65,7 +66,7 @@ flowchart LR
   B --> C[libSQL: FTS5 and native vectors]
   C --> D[Reciprocal Rank Fusion]
   D --> E[Answer with numbered citations]
-  D --> F[Web widget (next)]
+  D --> F[Web widget]
   D --> G[Voice agent (next)]
 ```
 
@@ -81,15 +82,20 @@ The image is drawn by `scripts/render-readme-graphics.mjs` from the output of th
 cannot show a result the code does not produce: the same corpus, the same search and the same answer with its
 citation.
 
+**The public chat, as it looks today.** This one is not drawn: it is a real capture of `/` with a question answered and
+the citation open, taken by `scripts/render-readme-captures.mjs` from the application served by `npm run start` with
+the sample corpus and the deterministic providers.
+
+<img src="docs/images/chat-page.png" alt="The public chat of Cited: a question answered in Spanish with its numbered citation, the excerpt of the passage with its document and its heading, the switch English | Español and the question box" width="1280">
+
 ## Roadmap
 
 **What runs today, and what comes next.**
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/roadmap-dark.png"><img src="docs/images/roadmap-light.png" alt="The roadmap of Cited: what is available today and what each next change adds" width="1280"></picture>
 
-The changes of the plan arrive in this order: the shared design system, then drafting an answer and numbering its
-citations, then the panel and the public page, then the voice with ElevenLabs, then the hardening, then the deploys
-and the docs.
+The changes of the plan arrive in this order: the shared design system, then the panel and the onboarding, then the
+voice with ElevenLabs, then the hardening, then the deploys and the docs.
 
 ## Voice
 
@@ -129,7 +135,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 43 ms, rss 107 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 41 ms, rss 111 MB
 ```
 
 ```
@@ -152,7 +158,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 5 ms, rss 72 MB
+8 results, 6 ms, rss 75 MB
 ```
 
 ```
@@ -164,7 +170,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 41 ms, rss 93 MB
+citations 1, 39 ms, rss 95 MB
 ```
 
 The store lives in `.data/katalis.sqlite`, which git ignores. `docs/search.md` explains the schema, the chunking and
@@ -207,7 +213,7 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | model of the voice agent, planned in `elevenlabs-voice-agent` | no |
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs, planned in `elevenlabs-voice-agent` | no |
 | `DAILY_VOICE_MINUTE_LIMIT` | the voice minutes of one day, planned in `elevenlabs-voice-agent` | no |
-| `ALLOWED_ORIGINS` | origins allowed to embed the widget, planned in `admin-and-public-ui` | no |
+| `ALLOWED_ORIGINS` | origins allowed to embed the widget, comma separated; only its own origin when it is empty | yes |
 
 A row marked `no` is a name the repository already reserves and no code reads yet. No key has a value in this
 repository, and `.env` is ignored by git.

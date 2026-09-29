@@ -1,10 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  allowedOrigins,
-  contentSecurityPolicy,
-  frameAncestors,
-  nonceOf,
-} from "./lib/headers/csp.ts";
+import { nonceOf, policyFor } from "./lib/headers/csp.ts";
 
 // Design decision 5 of `openspec/changes/public-page-and-widget/design.md`: the two public documents send their
 // `Content-Security-Policy`, with the nonce of Next in the request so the framework scripts of the page carry it. The
@@ -12,13 +7,11 @@ import {
 
 export function proxy(request: NextRequest): NextResponse {
   const nonce = nonceOf();
-  const policy = contentSecurityPolicy({
-    nonce,
-    ancestors: frameAncestors(
-      request.nextUrl.pathname,
-      allowedOrigins(process.env["ALLOWED_ORIGINS"]),
-    ),
+  const policy = policyFor({
+    pathname: request.nextUrl.pathname,
+    environment: process.env,
     development: process.env.NODE_ENV !== "production",
+    nonce,
   });
   const headers = new Headers(request.headers);
 

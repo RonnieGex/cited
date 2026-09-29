@@ -120,6 +120,7 @@ const artDirection = {
   canvases: [
     "readme-banner-dark.png",
     "readme-banner-light.png",
+    "chat-page.png",
     "reason-sources-dark.png",
     "reason-sources-light.png",
     "reason-citations-dark.png",
@@ -149,6 +150,7 @@ const artDirection = {
   ],
   lightCanvases: [
     "readme-banner-light.png",
+    "chat-page.png",
     "reason-sources-light.png",
     "reason-citations-light.png",
     "reason-voice-light.png",

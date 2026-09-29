@@ -39,6 +39,26 @@ export function nonceOf(): string {
   return Buffer.from(crypto.randomUUID()).toString("base64");
 }
 
+export type CspEnvironment = Record<string, string | undefined>;
+
+// The environment is read here, in `lib/`, and not in the proxy: the configuration of the README names the variables the
+// code reads under `lib/`, `scripts/` or `app/`, and `ALLOWED_ORIGINS` is one of them.
+export function policyFor(input: {
+  pathname: string;
+  environment: CspEnvironment;
+  development: boolean;
+  nonce: string;
+}): string {
+  return contentSecurityPolicy({
+    nonce: input.nonce,
+    ancestors: frameAncestors(
+      input.pathname,
+      allowedOrigins(input.environment["ALLOWED_ORIGINS"]),
+    ),
+    development: input.development,
+  });
+}
+
 export function contentSecurityPolicy(input: {
   nonce: string;
   ancestors: readonly string[];
