@@ -26,6 +26,10 @@ Two findings of the spike shaped the store:
 The store lives in one file. By default it is `.data/katalis.sqlite`, which `.gitignore` excludes: back it up by
 copying it. `TURSO_DATABASE_URL` wins over `DATABASE_URL`, so the same code runs against a local file or Turso.
 
+A remote URL (`libsql://`, `https://` or `wss://`) authenticates with `TURSO_AUTH_TOKEN`: the token travels to the
+libSQL client as `authToken`, and an empty value stops the run before any query, with a message that names the variable
+and never a value. A local `file:` URL needs no token.
+
 ### Schema
 
 | Table | Columns |
@@ -45,7 +49,8 @@ inside one transaction, so the count of passages of a document is the same after
   `notes.pdf` that holds plain text is ingested as plain text; a file whose content is not an accepted type is refused
   and the report says so.
 - **Limits before parsing.** A file above 20 MB is refused before it is read (`MAX_FILE_BYTES`), and a PDF above 500
-  pages is refused before its text is extracted (`MAX_PAGES`). The report names the limit that was crossed.
+  pages is refused from its page count before any of its text is extracted (`MAX_PAGES`). The report names the limit
+  that was crossed.
 - **A file that cannot be parsed is reported and skipped**, with no passage of it in the store, and the rest of the
   folder is ingested.
 - A run reports one line per document (`ingested <name> (<type>, <pages>, <passages> passages)`) and one line per
