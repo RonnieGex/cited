@@ -25,6 +25,13 @@
 /blob-report
 /.playwright
 
+# The local store: a file that is copied to back it up, never committed
+/.data/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+
 # Generated types
 next-env.d.ts
 *.tsbuildinfo
