@@ -245,7 +245,9 @@ describe("the conversations panel", () => {
 
     render(
       <ConversationsPanel
+        lang="en"
         strings={english}
+        timeZone="UTC"
         conversations={[
           {
             sessionId: "sesion-a",

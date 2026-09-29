@@ -8,7 +8,8 @@ import { sharedStore } from "@/lib/store/instance";
 
 export default async function AdminConversations() {
   const stored = await cookies();
-  const strings = adminStrings(resolveLang(stored.get(LANG_COOKIE)?.value, "en"));
+  const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
+  const strings = adminStrings(lang);
   const store = await sharedStore(process.env);
 
   return (
@@ -19,7 +20,9 @@ export default async function AdminConversations() {
       <p className="max-w-[65ch] text-ink/80">{strings.conversationsIntro}</p>
       <ConversationsPanel
         conversations={await conversationSummaries(store)}
+        lang={lang}
         strings={strings}
+        timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
       />
     </div>
   );

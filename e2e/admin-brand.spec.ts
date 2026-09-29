@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { adminStrings } from "../lib/i18n/admin";
+import { adminStrings, formatWhen } from "../lib/i18n/admin";
 import { E2E_ADMIN_PASSWORD, E2E_BASE_URL } from "./admin-fixtures";
 
 // The scenarios of `openspec/changes/brand-identity-ui/specs/admin-panel/spec.md`: the navigation at 1440 and at 375 px
@@ -329,6 +329,77 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
   expect(signOut?.height ?? 0, "sign out: 44 px of height on a phone").toBeGreaterThanOrEqual(43.5);
 
   await axe(page, "/admin/documents at 375");
+});
+
+// Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,
+// so it never touches the document that `admin.spec.ts` uploads and deletes; the two files run in parallel against the same
+// store, and the delete-all of `admin.spec.ts` may clear the turn between the question and the page, so the pair is retried.
+test("the conversations in Spanish print each date as a time an owner reads, with the stored value in dateTime", async ({
+  page,
+  context,
+}) => {
+  const hydration: string[] = [];
+
+  page.on("console", (message) => {
+    if (message.type() === "error" && /hydrat/i.test(message.text())) {
+      hydration.push(message.text());
+    }
+  });
+
+  await context.addCookies([{ name: "cited-lang", value: "es", url: E2E_BASE_URL }]);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signInThroughTheApi(page);
+
+  const name = "e2e-fechas-del-taller.md";
+  const uploaded = await page.request.post("/api/admin/documents", {
+    headers: { origin: E2E_BASE_URL },
+    multipart: {
+      document: {
+        name,
+        mimeType: "text/markdown",
+        buffer: Buffer.from("# Horario del taller\n\nEl taller de bicicletas abre los sábados de diez a dos.\n"),
+      },
+    },
+  });
+
+  expect(uploaded.status(), "the document of this spec is ingested").toBe(200);
+
+  const question = "¿El taller de bicicletas abre los sábados?";
+  const row = page.getByRole("row").filter({ hasText: question }).first();
+
+  await expect(async () => {
+    const asked = await page.request.post("/api/ask", {
+      data: { question, sessionId: `e2e-fechas-${Date.now()}` },
+    });
+
+    expect(asked.status()).toBe(200);
+    await page.goto("/admin/conversations");
+    await expect(row).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+
+  const time = row.locator("time");
+
+  await expect(time, "the date cell is a time element").toHaveCount(1);
+
+  const stored = (await time.getAttribute("datetime")) ?? "";
+  const shown = ((await time.textContent()) ?? "").trim();
+
+  console.log(`the date of the turn: dateTime="${stored}", text="${shown}"`);
+  expect(stored, "dateTime carries the stored ISO value").toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+  expect(shown, "the visible text has no T and no Z").not.toMatch(/[TZ]/);
+  expect(shown, "the date and hour formatted for es").toBe(
+    formatWhen(stored, "es", Intl.DateTimeFormat().resolvedOptions().timeZone),
+  );
+  expect(hydration, "the server and the browser print the same date").toEqual([]);
+
+  await axe(page, "/admin/conversations in Spanish");
+
+  const removed = await page.request.post("/api/admin/documents/delete", {
+    headers: { origin: E2E_BASE_URL },
+    data: { name },
+  });
+
+  expect(removed.status(), "the document of this spec is removed").toBe(200);
 });
 
 test.describe("the sign-in", () => {

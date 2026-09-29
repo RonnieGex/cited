@@ -217,3 +217,18 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
 export function adminStrings(lang: Lang): AdminStrings {
   return ADMIN_STRINGS[lang];
 }
+
+/**
+ * A stored ISO date as an owner reads it (decision 19 of `openspec/changes/brand-identity-ui/design.md`): the medium date
+ * and the short hour in the language of the panel. The zone is explicit so that the server and the browser print the same
+ * text and the hydration of a client component matches.
+ */
+export function formatWhen(iso: string, lang: Lang, timeZone: string): string {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+
+  return new Intl.DateTimeFormat(lang, { dateStyle: "medium", timeStyle: "short", timeZone }).format(date);
+}

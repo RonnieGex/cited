@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AdminLayout from "@/app/admin/layout";
 import { AdminNav } from "@/components/admin/AdminNav";
-import { adminStrings } from "@/lib/i18n/admin";
+import { ConversationsPanel } from "@/components/admin/ConversationsPanel";
+import { adminStrings, formatWhen } from "@/lib/i18n/admin";
 
 // Task 3.3 of `openspec/changes/brand-identity-ui` (decisions 7 and 8 of `design.md`, the hooks of decision 17): the panel
 // is a workspace with an ink side navigation whose sections are numbered like citations, the sign-in is a split screen with
@@ -285,5 +286,45 @@ describe("the unconfigured page, in the same shell", () => {
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(spanish.unconfiguredTitle);
     expect(document.querySelector('[data-admin="tagline"]')?.textContent).toBe(spanish.tagline);
+  });
+});
+
+// Scenario "Dates read like dates" of `specs/admin-panel/spec.md` and decision 19 of `design.md`: the When column prints a
+// `time` whose `dateTime` is the stored ISO value and whose text is the date and hour in the language of the panel. The zone
+// is explicit, so the text rendered on the server and the text hydrated in the browser are the same.
+describe("the dates of the conversations (decision 19)", () => {
+  const stored = "2026-09-29T15:49:00.000Z";
+  const turn = {
+    sessionId: "sesion-a",
+    turn: 1,
+    question: "¿Cuánto cuesta?",
+    answer: "380 pesos [1]",
+    status: "answered" as const,
+    citations: [1],
+    createdAt: stored,
+  };
+
+  it("formats a stored value with the medium date and the short hour of the language, in the given zone", () => {
+    const expected = new Intl.DateTimeFormat("es", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(
+      new Date(stored),
+    );
+
+    expect(formatWhen(stored, "es", "UTC")).toBe(expected);
+    expect(formatWhen(stored, "es", "UTC")).toMatch(/2026/);
+    expect(formatWhen(stored, "es", "UTC")).toMatch(/15:49/);
+    expect(formatWhen(stored, "es", "UTC")).not.toMatch(/[TZ]/);
+    expect(formatWhen(stored, "en", "UTC")).toMatch(/Sep 29, 2026/);
+  });
+
+  it("renders the When cell of Spanish as a time element with the ISO value and a date without T or Z", () => {
+    render(<ConversationsPanel conversations={[turn]} lang="es" strings={spanish} timeZone="UTC" />);
+
+    const times = document.querySelectorAll("table time");
+
+    expect(times).toHaveLength(1);
+    expect(times[0]?.getAttribute("dateTime")).toBe(stored);
+    expect(times[0]?.textContent).toBe(formatWhen(stored, "es", "UTC"));
+    expect(times[0]?.textContent ?? "").not.toMatch(/[TZ]/);
+    expect(screen.queryByText(stored)).toBeNull();
   });
 });

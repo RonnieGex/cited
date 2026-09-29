@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { Button, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { ConversationSummary } from "@/lib/admin/conversations";
-import type { AdminStrings } from "@/lib/i18n/admin";
+import { formatWhen, type AdminStrings } from "@/lib/i18n/admin";
+import type { Lang } from "@/lib/settings/business";
 
 export type ConversationsPanelProps = {
   strings: AdminStrings;
   conversations: ConversationSummary[];
+  lang: Lang;
+  /** The zone the dates are printed in; the page passes the zone of the server so the hydrated text matches. */
+  timeZone: string;
 };
 
 type Answer = { status?: string; error?: string; conversations?: ConversationSummary[] };
@@ -15,7 +19,7 @@ type Answer = { status?: string; error?: string; conversations?: ConversationSum
 const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
 const head = "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
 
-export function ConversationsPanel({ strings, conversations }: ConversationsPanelProps) {
+export function ConversationsPanel({ strings, conversations, lang, timeZone }: ConversationsPanelProps) {
   const [list, setList] = useState(conversations);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -80,7 +84,9 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
                   <td className={cell}>
                     {turn.citations.length === 0 ? "—" : turn.citations.join(", ")}
                   </td>
-                  <td className={`${cell} whitespace-nowrap tabular-nums`}>{turn.createdAt}</td>
+                  <td className={`${cell} whitespace-nowrap tabular-nums`}>
+                    <time dateTime={turn.createdAt}>{formatWhen(turn.createdAt, lang, timeZone)}</time>
+                  </td>
                 </tr>
               ))}
             </tbody>
