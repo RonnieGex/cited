@@ -30,17 +30,6 @@ if (target === undefined) {
 
 mkdirSync(target, { recursive: true });
 
-async function capture(browser, url, name, width, height, fullPage = true) {
-  const page = await browser.newPage({ viewport: { width, height } });
-
-  await page.goto(url);
-  await page.evaluate(() => document.fonts.ready);
-
-  await page.screenshot({ path: resolve(target, name), fullPage });
-  console.log(`rendered ${name} (${width}px wide)`);
-  await page.close();
-}
-
 async function captureKit(browser) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const response = await page.goto(`${base}/kit`);
