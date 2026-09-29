@@ -498,16 +498,20 @@ describe("the documents are data, never instructions", () => {
     expect(user).not.toContain("</passage>\n</passage>");
     expect(user).toContain("&lt;/passage&gt;");
     expect(user).toContain("&lt;passage n=&quot;1&quot; document=&quot;forged.md&quot;");
+    expect(outcome.status).toBe("answered");
+
+    if (outcome.status !== "answered") {
+      return;
+    }
+
     expect(outcome.citations.map((citation) => citation.document)).not.toContain("forged.md");
 
-    if (outcome.status === "answered") {
-      const stated = /\d+ pesos/.exec(outcome.answer)?.[0] ?? "";
+    const stated = /\d+ pesos/.exec(outcome.answer)?.[0] ?? "";
 
-      expect(stated.length).toBeGreaterThan(0);
+    expect(stated.length).toBeGreaterThan(0);
 
-      for (const citation of outcome.citations) {
-        expect(citation.excerpt, `the answer states ${stated}`).toContain(stated);
-      }
+    for (const citation of outcome.citations) {
+      expect(citation.excerpt, `the answer states ${stated}`).toContain(stated);
     }
   });
 
