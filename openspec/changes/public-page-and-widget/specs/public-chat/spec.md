@@ -62,3 +62,24 @@ chosen language, falling back to the other when that one is empty.
 - **WHEN** `/` is opened with no cookie, a business whose language is `en`, and a browser that prefers Spanish
 - **THEN** the page, the question box and the welcome message are in English with `lang="en"`
 - **AND** after choosing `Español` they are in Spanish, and a question written in Spanish is answered in Spanish
+
+### Requirement: The brand color is seen and the widget closes from inside
+
+The primary color of the settings SHALL paint the ask button and the accents of `/` and `/embed` (the lime of Cited
+when there is none or when it fails AA); `Escape` SHALL close the widget also when the focus is inside its iframe and
+SHALL return the focus to the button; a tab opened from another SHALL start its own conversation.
+
+#### Scenario: The color reaches the page
+
+- **WHEN** the settings carry a primary color that passes AA
+- **THEN** the computed background of the ask button of `/` and `/embed` is that color
+
+#### Scenario: Escape inside the iframe
+
+- **WHEN** the widget is open and the focus is on the question box inside the iframe, and `Escape` is pressed
+- **THEN** the widget closes and the focus returns to its button
+
+#### Scenario: A tab opened from the page
+
+- **WHEN** a conversation has started and the page opens itself in a new tab with `window.open`
+- **THEN** the new tab sends a different `sessionId`, and the first tab keeps its own

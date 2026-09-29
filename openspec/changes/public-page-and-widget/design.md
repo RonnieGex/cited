@@ -24,7 +24,9 @@
      because the table is missing). The logo is served by `/api/brand/logo`, also owned by the panel.
    - `lib/i18n/language.ts` and `components/i18n/LanguageSwitch.tsx`, owned by `public-page-and-widget`:
      `export const LANG_COOKIE = "cited-lang"`; `export function resolveLang(cookie: string | undefined, fallback:
-     Lang): Lang`; `LanguageSwitch` renders `English | Español` in that order as two buttons with `aria-pressed`, and
+     Lang): Lang`; `LanguageSwitch({ current }: { current: Lang })` (the one prop, named `current`; amended by Fable after
+     `revision-community-08`, because the first text named no prop and the lanes chose different ones) renders
+     `English | Español` in that order as two buttons with `aria-pressed`, and
      writes the cookie (`path=/`, `sameSite=lax`, one year) before reloading the page in the chosen language. `Lang` is
      imported from `lib/settings/business.ts`.
    Strings live in `lib/i18n/admin.ts` (panel) and `lib/i18n/public.ts` (public page and widget), one file per lane.

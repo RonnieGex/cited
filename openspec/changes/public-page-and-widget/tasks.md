@@ -64,3 +64,20 @@ secret, no customer data. No network call to a real provider in any test.
       the chat; the Spanish twin — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-08.md` in Spanish with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
+
+## 10. What the review of Codex reproduced (contract amended by Fable after `revision-community-08`)
+
+Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix, reproducing what the review
+reproduced.
+
+- [ ] 10.1 `LanguageSwitch` takes the prop `current` (design decision 8 as amended) — report: the one of this section
+- [ ] 10.2 The primary color paints the ask button and the accents, scenario "The color reaches the page" — report: the
+      one of this section
+- [ ] 10.3 `/embed` posts a message to its parent on `Escape`, and `widget.js` closes only for a message from its own
+      origin, scenario "Escape inside the iframe" — report: the one of this section
+- [ ] 10.4 A tab opened from another starts its own session (for example an owner mark kept in `window.name`, which a
+      new tab does not inherit, next to the id in `sessionStorage`), scenario "A tab opened from the page" — report:
+      the one of this section
+- [ ] 10.5 `npm test`, `npm run typecheck`, `npm run lint`, `npm run test:e2e`, gitleaks, `openspec validate --all
+      --strict`, `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-08.md` with
+      `## Issues` — report: the one of this section
