@@ -109,7 +109,7 @@ const artDirection = {
   darkMaximum: 0.3,
   lightMinimum: 0.8,
   terminalMaximum: 0.3,
-  roadmapMaximumHeight: 720,
+  maximumRoadmapHeight: 720,
   canvases: [
     "readme-banner-dark.png",
     "readme-banner-light.png",
@@ -817,13 +817,13 @@ describe("README, its graphics", () => {
     const drawn = record["graphics"] as Array<Record<string, unknown>>;
     const entry = drawn.find((candidate) => candidate["name"] === "roadmap");
 
-    expect(limits["roadmapMaximumHeight"]).toBe(artDirection.roadmapMaximumHeight);
+    expect(limits["maximumRoadmapHeight"]).toBe(artDirection.maximumRoadmapHeight);
 
     for (const path of [graphics.roadmap.dark, graphics.roadmap.light]) {
       const size = pngSize(path);
 
       expect(size.width, path).toBe(1280);
-      expect(size.height, path).toBeLessThanOrEqual(artDirection.roadmapMaximumHeight);
+      expect(size.height, path).toBeLessThanOrEqual(artDirection.maximumRoadmapHeight);
       expect(size.height, path).toBe(entry?.["height"]);
     }
   });

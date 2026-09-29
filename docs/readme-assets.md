@@ -50,8 +50,9 @@ What it does, in order:
 2. it renders every template of `scripts/readme-graphics/` with Playwright in light and dark and optimizes each PNG
    with `sharp` when it is installed (`next` brings it);
 3. it writes the record with the size, the headline and the copy each graphic draws, the state it shows, its `Next`
-   label when it shows a planned capability, the bounds of the second art direction, the roadmap rows, the tagline,
-   the font, the tokens and the demo;
+   label when it shows a planned capability, the bounds of the second art direction and the ones decision 11 amends
+   (the terminal of the demo at 0.30 or less inside its own box, the roadmap 720 px high at most), the box of the
+   terminal of the demo, the roadmap rows, the tagline, the font, the tokens and the demo;
 4. it patches the two output blocks of the quick start in `README.md` and `README.es.md` with what the commands
    printed, so the README cannot show a result the code does not produce. The block is found by the script it runs, so
    running the renderer twice is safe.
@@ -77,9 +78,12 @@ five dark variants once came out painted white.
 
 The two variants of a graphic carry the same content: the dark one is ink with the lime glow and the light one is
 off-white, both measured. In the light theme a lime mark carries an ink edge or an ink inner mark, because lime on
-off-white is 1.07:1. The one place where the light variant does not follow the dark one is the terminal of the demo,
-which is dark on ink and paper on off-white: a dark terminal would have to stay under 19% of the canvas to keep the
-light variant at 0.80 or more of mean luminance, and the real run of the quick start does not fit there.
+off-white is 1.07:1. **The terminal of the demo is dark in both themes**, as decision 11 asks: commands in lime and
+output in off-white on the ink of the terminal, in the light variant too. A dark terminal has to stay under 19% of a
+1280 × 560 canvas for the light variant to keep a mean luminance of 0.80, and the real run of the quick start does not
+fit there, so `demo-light.png` is the one light canvas outside the canvas bound: the test measures it inside the
+terminal area instead (0.30 or less, which the render prints and enforces), and `readme-graphics.json` records the box
+of that terminal so the measurement cannot drift away from the image.
 
 The templates share `scripts/readme-graphics/base.html` and the brand styles of the script, and they read the tokens
 and the roadmap rows from `scripts/readme-graphics/data.mjs`. **That file is the single source of the status table**: a
@@ -140,6 +144,7 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 
 The banner is the heaviest single file at about 100 KB. When a graphic is added, keep it under the budget and prefer
 flat colors and text: the palette of 256 colors of `sharp` is what keeps the set small while the lime glow and the orb
-keep their gradients. The PNG of a graphic is also measured against the luminance bounds of decision 10 (0.30 or less
-for a dark variant and for the social preview, 0.80 or more for a light variant), so a graphic that forgets to paint
-its theme fails the test even if it is small.
+keep their gradients. The PNG of a graphic is also measured against the luminance bounds of decision 10 (0.30 or less for a dark variant and
+for the social preview, 0.80 or more for every light variant except `demo-light.png`, whose dark terminal is measured
+inside its own area), and the roadmap is 1280 px wide and 720 px high at most, which the render enforces, so a graphic
+that forgets to paint its theme or a roadmap that grows past the limit fails the test even if it is small.

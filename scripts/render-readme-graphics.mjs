@@ -35,6 +35,8 @@ const minimumHeadline = { wide: 44, card: 30 };
 const minimumArtShare = 0.4;
 const maximumEmptyBand = 0.25;
 const minimumContrast = 4.5;
+const terminalMaximum = 0.3;
+const maximumRoadmapHeight = 720;
 const font = {
   name: "Outfit",
   source: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
@@ -57,7 +59,7 @@ const themes = {
     CARD_FILL: "rgba(247, 246, 242, 0.05)",
     CARD_BORDER: "rgba(247, 246, 242, 0.24)",
     CARD_SHADOW: "0 18px 40px rgba(0, 0, 0, 0.45)",
-    BAR_BACKGROUND: "rgba(247, 246, 242, 0.09)",
+    BAR_BACKGROUND: "rgba(247, 246, 242, 0.05)",
     BAR_TEXT: "rgba(247, 246, 242, 1)",
     BAR_DOT: "rgba(247, 246, 242, 0.34)",
     TERMINAL_FILL: "rgba(247, 246, 242, 0.04)",
@@ -86,14 +88,14 @@ const themes = {
     CARD_FILL: "#FFFFFF",
     CARD_BORDER: "rgba(23, 23, 23, 0.16)",
     CARD_SHADOW: "0 14px 34px rgba(23, 23, 23, 0.12)",
-    BAR_BACKGROUND: tokens.ink,
+    BAR_BACKGROUND: "rgba(247, 246, 242, 0.05)",
     BAR_TEXT: "rgba(247, 246, 242, 1)",
     BAR_DOT: "rgba(247, 246, 242, 0.34)",
-    TERMINAL_FILL: tokens.offWhite,
-    TERMINAL_BORDER: "rgba(23, 23, 23, 0.2)",
-    SCREEN_TEXT: tokens.ink,
-    HIT_BACKGROUND: tokens.lime,
-    HIT_TEXT: tokens.ink,
+    TERMINAL_FILL: tokens.ink,
+    TERMINAL_BORDER: "rgba(23, 23, 23, 0.35)",
+    SCREEN_TEXT: tokens.offWhite,
+    HIT_BACKGROUND: "transparent",
+    HIT_TEXT: tokens.lime,
     NEXT_BACKGROUND: "transparent",
     NEXT_TEXT: tokens.ink,
     NEXT_BORDER: tokens.ink,
@@ -159,7 +161,7 @@ function contrastRatio(foreground, background) {
 function contrastPairs(theme) {
   const card = over(theme.CARD_FILL, theme.BACKGROUND);
   const terminal = over(theme.TERMINAL_FILL, theme.BACKGROUND);
-  const bar = over(theme.BAR_BACKGROUND, theme.BACKGROUND);
+  const bar = over(theme.BAR_BACKGROUND, terminal);
   const hit = over(theme.HIT_BACKGROUND, terminal);
 
   return [
@@ -778,12 +780,23 @@ async function audit(page, graphic, theme) {
           ? 0
           : element.getBoundingClientRect().height / card.getBoundingClientRect().height;
       });
+    const terminal = document.querySelector(".terminal");
+    const terminalBox = terminal === null ? null : terminal.getBoundingClientRect();
 
     return {
       smallest: sizes.length === 0 ? minimumFontSize : Math.min(...sizes),
       headlines,
       outside,
       art,
+      terminal:
+        terminalBox === null
+          ? null
+          : {
+              x: terminalBox.x,
+              y: terminalBox.y,
+              width: terminalBox.width,
+              height: terminalBox.height,
+            },
     };
   });
 
@@ -811,6 +824,12 @@ async function audit(page, graphic, theme) {
         `${graphic.name} (${theme}) gives its illustration ${(share * 100).toFixed(1)}% of the card.`,
       );
     }
+  }
+
+  if (graphic.name === "roadmap" && graphic.height > maximumRoadmapHeight) {
+    throw new Error(
+      `${graphic.name} (${theme}) is ${graphic.height}px high; decision 11 allows ${maximumRoadmapHeight}px.`,
+    );
   }
 
   return found;
@@ -851,6 +870,29 @@ async function emptyBand(buffer, plain, width, height) {
   return longest;
 }
 
+async function meanInside(buffer, box, width, height) {
+  const drawn = await sharp(buffer).ensureAlpha().raw().toBuffer();
+  const left = Math.max(0, Math.min(width - 1, Math.round(box.x)));
+  const top = Math.max(0, Math.min(height - 1, Math.round(box.y)));
+  const right = Math.max(left + 1, Math.min(width, Math.round(box.x + box.width)));
+  const bottom = Math.max(top + 1, Math.min(height, Math.round(box.y + box.height)));
+  let total = 0;
+  let count = 0;
+
+  for (let y = top; y < bottom; y += 1) {
+    for (let x = left; x < right; x += 1) {
+      const at = (y * width + x) * 4;
+
+      total +=
+        (0.2126 * (drawn[at] ?? 0) + 0.7152 * (drawn[at + 1] ?? 0) + 0.0722 * (drawn[at + 2] ?? 0)) /
+        255;
+      count += 1;
+    }
+  }
+
+  return total / count;
+}
+
 async function render(browser, graphic, content, theme, target, backgrounds) {
   const page = await browser.newPage({
     viewport: { width: graphic.width, height: graphic.height },
@@ -873,6 +915,7 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
   const png = await page.screenshot({ type: "png" });
   const allowed = Math.floor(graphic.height * maximumEmptyBand);
   let band = { length: 0, start: 0 };
+  let inside = null;
 
   if (sharp !== null) {
     if (backgrounds.has(background) === false) {
@@ -895,6 +938,16 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
         `${graphic.name} (${theme}) leaves ${band.length}px of empty background from y=${band.start}; the limit is ${allowed}px.`,
       );
     }
+
+    if (audit_.terminal !== null) {
+      inside = await meanInside(png, audit_.terminal, graphic.width, graphic.height);
+
+      if (inside > terminalMaximum) {
+        throw new Error(
+          `${graphic.name} (${theme}) draws its terminal at ${inside.toFixed(3)}; decision 11 asks for ${terminalMaximum} or less.`,
+        );
+      }
+    }
   }
 
   const optimized =
@@ -912,9 +965,15 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
     facts.push(`illustration ${Math.round(Math.min(...audit_.art) * 100)}% of the card`);
   }
 
+  if (inside !== null) {
+    facts.push(`terminal luminance ${inside.toFixed(3)}`);
+  }
+
   await writeFile(absolute(target), optimized);
   await page.close();
   console.log(`rendered ${target} (${facts.join(", ")})`);
+
+  return audit_;
 }
 
 const asked = process.argv.slice(2);
@@ -971,6 +1030,7 @@ const contents = new Map(
 const browser = await chromium.launch();
 const backgrounds = new Map();
 const written = [];
+let terminalBox = null;
 
 try {
   for (const graphic of graphics) {
@@ -979,7 +1039,16 @@ try {
     }
 
     for (const theme of ["dark", "light"]) {
-      await render(browser, graphic, contents.get(graphic.name), theme, graphic[theme], backgrounds);
+      const measured = await render(
+        browser,
+        graphic,
+        contents.get(graphic.name),
+        theme,
+        graphic[theme],
+        backgrounds,
+      );
+
+      terminalBox = measured.terminal ?? terminalBox;
     }
 
     written.push({
@@ -1055,8 +1124,11 @@ if (asked.length > 0) {
         tokens,
         artDirection: {
           decision: 10,
+          amendedBy: 11,
           darkMaximum: 0.3,
           lightMinimum: 0.8,
+          terminalMaximum,
+          maximumRoadmapHeight,
           minimumFontSize,
           minimumHeadline,
           minimumArtShare,
@@ -1070,6 +1142,7 @@ if (asked.length > 0) {
         },
         demo: {
           exitCode: 0,
+          terminal: terminalBox,
           ingest: { command: ingestCommand, output: ingest },
           search: { command: searchCommand, output: search },
           drawn: {
