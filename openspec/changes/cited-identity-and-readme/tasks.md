@@ -90,9 +90,9 @@ Evidence rule as above. Report: `reports/2026-09-29-step-11-art-direction.md`. C
 - [x] 11.2 Re-design the templates of the graphics as design decision 10 says, card by card, and re-render every
       graphic in both themes and the social preview; `docs/images/readme-graphics.json` records the new texts; the
       README headlines follow the new ones
-- [ ] 11.3 Re-capture the four first screens of 7.1 and one full page of `README.md` in dark; put every graphic of
+- [x] 11.3 Re-capture the four first screens of 7.1 and one full page of `README.md` in dark; put every graphic of
       both themes and the captures in the delivery, side by side with the first version, and say for each rule of
       decision 10 how it is met
-- [ ] 11.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
+- [x] 11.4 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
       `git diff --check main...HEAD`, the total weight of `docs/images/` at 3 MB or less; append the round to
       `katalis-dev/tasks/entrega-community-03.md` under its own heading with `## Issues`

@@ -220,3 +220,58 @@ voice-teaser-light.png luminance 0.919 transparent 0.000
 
 Every dark canvas is between 0.151 and 0.250, every light canvas between 0.855 and 0.948, and the two marks are 79% of
 transparent pixels.
+
+## 11.3 The captures and the delivery
+
+`rendered/cited-readme/capture-readme.mjs` (outside the repository, next to its output) sent both READMEs to the public
+Markdown API without a token, pointed every image at the local file and captured with Playwright. The first version of
+every capture was copied to `rendered/cited-readme/round-1-captures/` before the run, and the first version of every
+graphic to `rendered/cited-readme/round-1-images/`, so the delivery can show both side by side.
+
+```
+> node rendered/cited-readme/capture-readme.mjs
+rendered README.md through the Markdown API: 21133 chars of HTML
+rendered README.es.md through the Markdown API: 21480 chars of HTML
+captured readme-en at 1280 px in light
+captured readme-en at 1280 px in dark
+captured readme-en at 400 px in light
+captured readme-en at 400 px in dark
+captured readme-es at 1280 px in light
+captured readme-es at 1280 px in dark
+captured readme-es at 400 px in light
+captured readme-es at 400 px in dark
+captured the full page of README.md at 1280 in dark
+9 captures in rendered/cited-readme/
+```
+
+`katalis-dev/tasks/entrega-community-03.md` carries the round under its own heading (`## 10. Segunda ronda de dirección
+de arte`), with every graphic of both themes next to its first version, the four first screens of `README.md` and the
+full page in dark next to their first version, one row per rule of decision 10 with its measurement, and its own
+`## Issues de la segunda ronda`.
+
+## 11.4 The checks of the round
+
+Windows 11, Node `v24.11.0`:
+
+| Check | Result |
+|---|---|
+| `npm test` | 11 files, **103 tests passed** |
+| `npm run typecheck` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run secrets:scan` | 95 commits, `no leaks found` |
+| `openspec validate --all --strict` | 5 passed, 0 failed |
+| `git diff --check main...HEAD` | exit 0 |
+| Weight of `docs/images/` | 19 files, **0.675 MB** against the 3 MB budget |
+| `git ls-files --eol` | no `crlf`, no `mixed`, no `bom` |
+
+The round is committed in small steps on `feature/cited-identity-and-readme`: the test first (`ae4a054`), the theme and
+the type (`9f67b1c`), the remaining graphics (`76fe142`), the recorded headlines and the README (`a99fbd1`), this
+report with the marks of 11.1 and 11.2 (`af24165`), and the captures with the delivery round last.
+
+## Verdict of the section
+
+PASS. 11.1 to 11.4 are executed in order with the test first, every `[x]` has the command, the commit and the output
+in this report, the graphics of both themes and the social preview were re-rendered against the rules of decision 10,
+the README follows the recorded headlines, the captures are new and the delivery carries the round with its issues.
+One rule of decision 10 is traded for another in the light variant of the demo, and that trade is written down in the
+report and in the delivery.
