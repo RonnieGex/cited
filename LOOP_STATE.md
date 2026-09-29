@@ -43,10 +43,18 @@ because `.claude/agents`, `.codex/agents` and `.cursor/agents` are tracked links
 All the twelve boxes of the contract are `[x]`, every one with its report; the text of no task and no line of the spec
 delta was edited.
 
+Two findings of the closing battery were corrected before the delivery: `git diff --check 3ff834f..HEAD` flagged the
+blank lines of the diff quoted in the step 3 report (removed in `a845370`), and one of the scenarios that build a
+fixture hit the default timeout of Vitest on a loaded machine (the three now declare `{ timeout: fixtureTimeout }`,
+with `fixtureTimeout = 30_000`, in `14611c3`).
+
 ## Commits (all on feature/fix-tracked-text-scan, none in main)
 
 | SHA | Message |
 |---|---|
+| `14611c3` | test(fix-tracked-text-scan): give the fixture scenarios an explicit timeout |
+| `a845370` | docs(fix-tracked-text-scan): drop the trailing whitespace of the step 3 report |
+| `cb0ab96` | chore(fix-tracked-text-scan): close the state file as done |
 | `1f0e541` | docs(fix-tracked-text-scan): report the steps and mark the contract |
 | `9d41fac` | docs(fix-tracked-text-scan): note the symlink modes behind the scan |
 | `5b7fc46` | fix(fix-tracked-text-scan): decide the tracked-path scan from the git mode |
@@ -54,8 +62,11 @@ delta was edited.
 | `c332309` | chore(fix-tracked-text-scan): set the state file to running and report the base state |
 
 `ecd9bb0` ("Specify the cross-platform fix of the personal-path scan") is the commit of Fable that carries the
-contract, and the branch starts there. The verification of step 5 ran on `9d41fac`; the last commit of the branch adds
-this file.
+contract, and the branch starts there. The verification of step 5 ran on `9d41fac`, and the whole battery ran again on
+the closing tree: `npm test` 9 passed, `npm run typecheck`, `npm run lint`, gitleaks over every commit, `openspec
+validate --all --strict`, `git diff --check 3ff834f..HEAD`, the end-to-end suite and the disposable Linux container,
+all green. The closing commit, the exact command of every run and its real output are in the delivery
+`katalis-dev/tasks/entrega-community-00d.md`, and the last commit of the branch adds this file.
 
 ## Evidence
 
