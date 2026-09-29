@@ -76,6 +76,9 @@ test("the kit renders every component, answers 200 and passes axe", async ({ pag
   const primary = page.locator('[data-kit="button-primary"]');
 
   await primary.focus();
+  // The button carries `transition-colors` with the curve of the system, and the outline fades in with it: the
+  // measurement waits for the transition to land instead of reading a colour halfway.
+  await page.waitForTimeout(600);
 
   const focus = await page.evaluate(() => {
     const element = document.activeElement;
