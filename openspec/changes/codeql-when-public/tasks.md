@@ -26,7 +26,7 @@ blocking, unless the evidence is missing or contradicts the mark. Reports: `repo
 
 ## 4. Review and update of the existing tests
 
-- [ ] 4.1 The whole suite green on Windows and in a `node:24` Linux container; say which tests changed — report:
+- [x] 4.1 The whole suite green on Windows and in a `node:24` Linux container; say which tests changed — report:
       `reports/2026-09-29-step-4-existing-tests.md`
 
 ## 5. Run the checks
