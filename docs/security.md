@@ -54,13 +54,14 @@ Anyone can ask a question, so the endpoint is treated as hostile input.
 
 The API key belongs to the person who forks the project, so an abuse spends their money.
 
-- A limit of questions per IP address. **Planned** in `pluggable-models-and-ask`.
-- A configurable daily cap of model calls and of voice minutes. **Planned** in `pluggable-models-and-ask`.
-- A cap of tokens per answer. **Planned** in `pluggable-models-and-ask`.
+- A limit of questions per IP address. **Done** in `pluggable-models-and-ask`.
+- A configurable daily cap of model calls and of voice minutes. **Done** in `pluggable-models-and-ask` for the model
+  calls; the voice minutes are **Planned** in `elevenlabs-voice-agent`.
+- A cap of tokens per answer. **Done** in `pluggable-models-and-ask`.
 - The panel shows whether each key is present and offers a test button; the key is never shown again and never stored
   in the database. **Planned** in `admin-and-public-ui`.
 
-## 4. The widget and the voice agent
+## 4. The widget and the voice agent, both planned
 
 - An allowlist of domains for the widget, applied both in CORS and in the voice provider. **Planned** in
   `admin-and-public-ui` and `elevenlabs-voice-agent`.

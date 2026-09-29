@@ -1,10 +1,14 @@
-export const answerWords = /\b(answers?|answered|pages?)\b|respuestas?|p[áa]ginas?/i;
+export const pageWords = /\bpages?\b|p[áa]ginas?/i;
+
+export const plannedWords =
+  /\bvoice\s+agent\b|\bagente\s+de\s+voz\b|\badmin\s+panel\b|\bpanel\s+de\s+administraci[óo]n\b|\bwidget\b|one-click\s+deploy|despliegue\s+en\s+un\s+clic|\bDocker\s+image\b|\bimagen\s+de\s+Docker\b/i;
 
 export const plannedMark = new RegExp(
   [
     "\\bnext\\b(?!\\.js)",
     "\\bplanned\\b",
     "\\bplanead[oa]s?\\b",
+    "\\bplanificad[oa]s?\\b",
     "\\bsiguiente\\b",
     "design-system-shared",
     "pluggable-models-and-ask",
@@ -107,7 +111,10 @@ export function untaggedClaims(record) {
   const evidence = capturedEvidence(record);
 
   return statements(record, "", [], evidence)
-    .filter(([, text]) => plannedMark.test(text) === false && answerWords.test(text))
+    .filter(
+      ([, text]) =>
+        plannedMark.test(text) === false && (pageWords.test(text) || plannedWords.test(text)),
+    )
     .map(([route, text]) => `${route}: ${text}`);
 }
 
@@ -116,7 +123,7 @@ export function assertHonestRecord(record, label) {
 
   if (claims.length > 0) {
     throw new Error(
-      `${label} would record a planned answer as a capability of today; mark it with Next, planned or the change that delivers it:\n${claims.join("\n")}`,
+      `${label} would record a planned capability as a capability of today, or a page that a passage does not keep; mark it with Next, planned or the change that delivers it:\n${claims.join("\n")}`,
     );
   }
 }

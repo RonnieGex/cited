@@ -61,7 +61,7 @@ secret, no customer data. No network call to a real provider in any test.
 
 ## 9. Documentation and the README
 
-- [ ] 9.1 `docs/answering.md`: the flow, the prompt, the citations, the refusal, the providers and their variables and
+- [x] 9.1 `docs/answering.md`: the flow, the prompt, the citations, the refusal, the providers and their variables and
       licenses, the guards and their defaults, the IP hash; `.env.example` with `CHAT_PROVIDER`, `TRUST_PROXY` and the
       defaults in comments — report: `reports/2026-09-29-step-9-docs.md`
 - [ ] 9.2 The README, its Spanish twin and the graphics as design decision 8, with the modified requirement of

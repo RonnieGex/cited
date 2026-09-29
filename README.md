@@ -184,7 +184,7 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs, reserved | no |
 | `MAX_QUESTION_CHARS`, `RATE_LIMIT_PER_IP_PER_HOUR`, `DAILY_MODEL_CALL_LIMIT`, `DAILY_VOICE_MINUTE_LIMIT`, `MAX_ANSWER_TOKENS` | spend limits and abuse protection, reserved | no |
 | `CONVERSATION_RETENTION_DAYS` | days a conversation is kept, reserved | no |
-| `ALLOWED_ORIGINS` | origins allowed to embed the widget, reserved | no |
+| `ALLOWED_ORIGINS` | origins allowed to embed the widget, planned in `admin-and-public-ui` | no |
 
 A row marked `no` is a name the repository already reserves and no code reads yet. No key has a value in this
 repository, and `.env` is ignored by git.

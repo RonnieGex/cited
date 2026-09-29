@@ -6,7 +6,9 @@ import {
   assertHonestRecord,
   capturedOutput,
   isCapturedOutput,
+  pageWords,
   plannedMark,
+  plannedWords,
   untaggedClaims,
 } from "../scripts/readme-graphics/honesty.mjs";
 import { decodePng, meanLuminance, meanLuminanceIn, transparentShare } from "./png";
@@ -638,25 +640,27 @@ describe("README, the status table", () => {
 });
 
 describe("README, the promise of an answer", () => {
-  // Decision 11: nothing outside a `Next` tag says "answer", "respuesta" or "page". The search returns passages with
-  // their document, their heading and their position, and that is what the copy promises until the change that drafts
-  // an answer lands. Amended by Fable after `revision-community-03b.md`: the scenario also reads every text field of
-  // the two records and every Markdown file under `docs/`; in `docs/` a page counts only where the sentence cites it,
-  // because a PDF has pages and the interface is a page, and both of those exist today.
-  const answerWords = /\b(answers?|answered|page|pages)\b|respuestas?|p[áa]ginas?/i;
-  const answerClaims = /\b(answers?|answered)\b|respuestas?/i;
-  const pageWords = /\bpages?\b|\bp[áa]ginas?\b/i;
+  // Decision 11, amended by Fable in `pluggable-models-and-ask`: the answer with citations is available from this
+  // change on, so "answer" and "respuesta" stopped being words that need a `Next` tag. What still needs one is a
+  // capability the status table marks Planned (the voice agent, the panel, the widget, the deploy), and what is
+  // refused everywhere is a page: a passage of Cited keeps its document, its heading and its position, never a page.
+  // The scenario reads every text field of the two records and every Markdown file under `docs/`; in `docs/` a page
+  // counts only where the sentence cites it, because a PDF has pages and the interface is a page, and both exist.
   const citationCue =
     /\b(cite[sd]?|citing|citation|show[sn]?|give[sn]?|return(?:s|ed)?|point(?:s)? to|came from|come[s]? from)\b/i;
   const records = [graphicsRecordPath, bannerRecordPath];
 
   function offenders(
     lines: Statement[],
-    words: RegExp,
+    words: RegExp | null,
     cites: (line: string) => boolean = () => false,
   ): string[] {
     return lines
-      .filter(([, line]) => plannedMark.test(line) === false && (words.test(line) || cites(line)))
+      .filter(
+        ([, line]) =>
+          plannedMark.test(line) === false &&
+          ((words !== null && words.test(line)) || cites(line)),
+      )
       .map(([where, line]) => `${where}: ${line.trim()}`);
   }
 
@@ -709,7 +713,7 @@ describe("README, the promise of an answer", () => {
     return found;
   }
 
-  it("speaks of answers only in a line that carries Next", () => {
+  it("claims no page and no planned capability without its tag", () => {
     const graphics = (recorded(graphicsRecordPath)["graphics"] ?? []) as Array<
       Record<string, unknown>
     >;
@@ -749,10 +753,11 @@ describe("README, the promise of an answer", () => {
     expect([
       ...offenders(
         docsMarkdown().flatMap((name) => markdownStatements(name, readText(name))),
-        answerClaims,
+        plannedWords,
         citesAPage,
       ),
-      ...offenders(spoken, answerWords),
+      ...offenders(spoken, pageWords),
+      ...offenders(spoken, plannedWords),
     ]).toEqual([]);
   });
 
@@ -804,7 +809,7 @@ describe("the records of the render", () => {
     }
 
     expect(() => assertHonestRecord({ graphics: [{ alt: claim }] }, graphicsRecordPath)).toThrow(
-      /planned answer as a capability of today/,
+      /planned capability as a capability of today/,
     );
   });
 

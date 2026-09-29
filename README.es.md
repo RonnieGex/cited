@@ -176,7 +176,7 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `DATABASE_URL` | ruta del archivo libSQL local, `.data/katalis.sqlite` por defecto | sí |
 | `TURSO_DATABASE_URL` | URL de una base libSQL remota; gana sobre el archivo local | sí |
 | `TURSO_AUTH_TOKEN` | token de la base remota, obligatorio cuando la URL es remota | sí |
-| `ADMIN_PASSWORD` | contraseña del panel de administración, reservada | no |
+| `ADMIN_PASSWORD` | contraseña del panel de administración, planificada en `admin-and-public-ui` | no |
 | `ADMIN_SESSION_SECRET` | secreto que firma la sesión del panel, reservado | no |
 | `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, reservado | no |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `LMSTUDIO_BASE_URL` | credenciales de los proveedores de chat, reservadas para `pluggable-models-and-ask` | no |
@@ -184,7 +184,7 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | la voz con ElevenLabs, reservado | no |
 | `MAX_QUESTION_CHARS`, `RATE_LIMIT_PER_IP_PER_HOUR`, `DAILY_MODEL_CALL_LIMIT`, `DAILY_VOICE_MINUTE_LIMIT`, `MAX_ANSWER_TOKENS` | límites de gasto y protección contra abuso, reservados | no |
 | `CONVERSATION_RETENTION_DAYS` | días que se guarda una conversación, reservado | no |
-| `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, reservado | no |
+| `ALLOWED_ORIGINS` | orígenes permitidos para incrustar el widget, planificado en `admin-and-public-ui` | no |
 
 Una fila marcada `no` es un nombre que el repositorio ya reserva y que ningún código lee todavía. Ninguna llave tiene
 valor en este repositorio, y git ignora `.env`.

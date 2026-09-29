@@ -1,4 +1,5 @@
-export declare const answerWords: RegExp;
+export declare const pageWords: RegExp;
+export declare const plannedWords: RegExp;
 export declare const plannedMark: RegExp;
 export declare const capturedOutput: string;
 export declare function isCapturedOutput(record: unknown, route: string, value: unknown): boolean;
