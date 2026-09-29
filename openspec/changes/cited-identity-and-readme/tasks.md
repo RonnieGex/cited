@@ -135,9 +135,9 @@ reserved for Fable.
 
 Evidence rule as above. Report: `reports/2026-09-29-step-14-review-round.md`. Commit in small steps.
 
-- [ ] 14.1 Tests first: a present-tense answer claim in any text field under `demo` other than the captured output
+- [x] 14.1 Tests first: a present-tense answer claim in any text field under `demo` other than the captured output
       lines turns the test red and makes the render guard exit non-zero; paste both red runs
-- [ ] 14.2 Replace the prefix exclusion of `demo` in `honesty.mjs` and `tests/readme.test.ts` by an exemption of the
+- [x] 14.2 Replace the prefix exclusion of `demo` in `honesty.mjs` and `tests/readme.test.ts` by an exemption of the
       captured output lines only, as the amended scenario says; green
-- [ ] 14.3 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
+- [x] 14.3 `npm test`, `npm run typecheck`, `npm run lint`, gitleaks, `openspec validate --all --strict`,
       `git diff --check main...HEAD`; append the round to `katalis-dev/tasks/entrega-community-03.md` with `## Issues`
