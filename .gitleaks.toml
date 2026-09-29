@@ -20,3 +20,9 @@ id = "katalis-planted-example-key"
 description = "Known AWS example key, planted on purpose to prove that the local hook and the pipeline refuse a commit that carries a secret."
 regex = '''AKIAIOSFODNN7EXAMPLE'''
 tags = ["katalis", "test"]
+
+  [[rules.allowlists]]
+  description = "The change reports quote the planted key on purpose, because they document the proof that the hook refuses it. This allows the synthetic rule only: every default rule keeps scanning those files."
+  paths = [
+    '''^openspec/changes/.*/reports/''',
+  ]

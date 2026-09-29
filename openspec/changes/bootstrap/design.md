@@ -24,9 +24,12 @@ none of that is true in an application that is one Next.js process in TypeScript
    ESLint `^9`, React `19.2.8` and `@types/node ^20`. TypeScript 7 and ESLint 10 are published, but the combination
    the Next.js team tests and ships is the one this repository uses: a fork has to install and run, not to be the
    first to find out.
-4. **The layout types are explicit.** `app/layout.tsx` types its props as `{ children: ReactNode }` instead of using
-   the generated `LayoutProps<"/">` global. The generated route types only exist after `next build`, and the type
-   check must be able to run on a fresh clone before the first build.
+4. **The layout types follow the framework of Next.js 16.** `app/layout.tsx` types its props as `LayoutProps<"/">`,
+   the global helper that Next.js 16 generates (`node_modules/next/dist/docs/01-app/01-getting-started/03-layouts-and-pages.md`).
+   The type script runs `next typegen` before `tsc --noEmit`, so the helper exists on a fresh clone and the check does
+   not depend on a previous build. The first version of the file typed the props as `{ children: ReactNode }` to avoid
+   the generated types; the bundled documentation of the installed version was read before this change and the
+   convention of the framework replaced it.
 5. **Vitest runs over jsdom and React Testing Library.** The unit smoke test renders the page and asserts its text,
    which is the cheapest test that fails when the app stops rendering. Playwright runs the same assertion against the
    real server, so the two layers do not test the same thing twice: one tests the component, the other tests the
