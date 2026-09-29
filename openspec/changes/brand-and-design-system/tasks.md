@@ -39,7 +39,7 @@ secret, no customer data, no licensed font.
 
 ## 5. Run the checks
 
-- [ ] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`, the
       luminance tests of the graphics — report: `reports/2026-09-29-step-5-checks.md`
 
