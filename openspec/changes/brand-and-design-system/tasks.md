@@ -50,7 +50,7 @@ secret, no customer data, no licensed font.
 
 ## 7. End-to-end
 
-- [ ] 7.1 The E2E of 2.2 green; captures of `/kit` at 1440 and 375 px; the rendered README (GitHub Markdown API, images
+- [x] 7.1 The E2E of 2.2 green; captures of `/kit` at 1440 and 375 px; the rendered README (GitHub Markdown API, images
       pointed at the local files) first screen and foot, light and dark — report: `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
