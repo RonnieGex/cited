@@ -10,9 +10,7 @@ import { adminStrings } from "@/lib/i18n/admin";
 
 vi.mock("@/components/i18n/LanguageSwitch", () => ({
   LanguageSwitch: ({ current }: { current: string }) => (
-    <button type="button" data-testid="language-switch">
-      {`English | Español (${current})`}
-    </button>
+    <button type="button">{`English | Español (${current})`}</button>
   ),
 }));
 

@@ -136,14 +136,17 @@ describe("the documents of the panel", () => {
   it("keeps the ingestion of the command line as the only path", async () => {
     setEnvironment({ ...configured(), CHAT_PROVIDER: "fake", EMBEDDINGS_PROVIDER: "fake" });
 
-    const source = readFileSync(join(repositoryRoot, "lib", "ingest", "index.ts"), "utf8");
+    const ingest = readFileSync(join(repositoryRoot, "lib", "ingest", "index.ts"), "utf8");
+    const panel = readFileSync(join(repositoryRoot, "lib", "admin", "documents.ts"), "utf8");
     const route = readFileSync(
       join(repositoryRoot, "app", "api", "admin", "documents", "route.ts"),
       "utf8",
     );
 
-    expect(source).toContain("export async function ingestPaths");
-    expect(route).toContain("ingestPaths");
+    expect(ingest).toContain("export async function ingestPaths");
+    expect(panel).toContain('from "../ingest/index.ts"');
+    expect(panel).toContain("ingestPaths([path]");
+    expect(route).toContain("ingestUpload");
     expect(route).not.toContain("chunkText(");
   });
 });
@@ -168,7 +171,7 @@ describe("the conversations of the panel", () => {
       question: "¿Aceptan cheques?",
       answer: REFUSALS.es,
     });
-    await store.recordQuestion(hashIp("203.0.113.5", ADMIN_SECRET), new Date().toISOString());
+    await store.recordQuestion(hashIp("203.0.113.5", ADMIN_SECRET), hourWindowStart(new Date()));
     await store.reserveModelCall(day, 10);
 
     const listed = await conversations(
