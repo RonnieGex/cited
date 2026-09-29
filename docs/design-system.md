@@ -129,4 +129,3 @@ reference anyone who forks the repository can open.
 
 The eyebrow of `SectionTitle` uses the ink at 70% instead of the 40% of Construye: at 11 px, 40% of the ink on paper
 is 2.5:1, below the 4.5:1 that level AA asks for, and the axe check of `/kit` would refuse it.
-

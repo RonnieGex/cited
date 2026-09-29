@@ -290,4 +290,3 @@ Whoever wants to render the graphics needs no network and no Google Fonts:
 - `3765e9c` the flame at the foot, in the banner and in the preview, the invented logo removed and the guard (3.2).
 - `265fd6b` the tokens, the Outfit files, the kit and the route `/kit` (3.3).
 - `644dff3` the two renderers on the Outfit of the repository and the graphics rendered again (3.3).
-

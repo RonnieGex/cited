@@ -12,7 +12,7 @@ $ npm test
 > cited@0.1.0 test
 > vitest run
 
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community-ui
+ RUN  v5.0.2 <root>
 
  Test Files  12 passed (12)
       Tests  131 passed (131)
