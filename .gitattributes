@@ -12,3 +12,9 @@
 *.woff2 binary
 *.ttf binary
 *.otf binary
+
+# The license of Outfit is the file its authors published, copied byte for byte from the official Google Fonts
+# repository: line 21 ends with a space, and trimming it would change the license and break the SHA-256 that
+# `docs/design-system.md` records and `tests/design-system.test.ts` compares. The exception lives here and not in the
+# file, so the verbatim text stays verbatim and `git diff --check` does not report it as an error of this repository.
+public/fonts/outfit/OFL.txt -whitespace
