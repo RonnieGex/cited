@@ -8,6 +8,7 @@ export type PublicStrings = {
   question: { label: string; placeholder: string; submit: string };
   loading: string;
   refusal: string;
+  asked: string;
   sources: string;
   citation: (n: number) => string;
   document: string;
@@ -30,6 +31,7 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     },
     loading: "Looking it up in the documents…",
     refusal: "Not in the documents",
+    asked: "You asked",
     sources: "Sources",
     citation: (n) => `Citation ${n}`,
     document: "Document",
@@ -50,6 +52,7 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     },
     loading: "Buscando en los documentos…",
     refusal: "No está en los documentos",
+    asked: "Preguntaste",
     sources: "Fuentes",
     citation: (n) => `Cita ${n}`,
     document: "Documento",

@@ -1,9 +1,12 @@
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
+import { citationMarkClass } from "@/components/brand";
 import { parseMarkdown, type BlockNode, type InlineNode } from "@/lib/markdown/parse";
 
 // Design decision 2 of `openspec/changes/public-page-and-widget/design.md`: the answer is painted from the allowlisted
 // tree of `lib/markdown/parse.ts`, never from HTML. A `[n]` marker is a button when the answer carries citations, and
-// the chip opens the excerpt, the document and the heading.
+// the chip opens the excerpt, the document and the heading. Decisions 3 and 10 of
+// `openspec/changes/brand-identity-ui/design.md`: the marker is a lime citation mark with the number of the source; when
+// the answer has just arrived (`landing`) each mark lands in turn, staggered by its position through `--i`.
 
 export type MarkdownProps = {
   text: string;
@@ -11,6 +14,8 @@ export type MarkdownProps = {
   onCitation?: (n: number) => void;
   openCitation?: number | null;
   citationPanelId?: string;
+  /** The answer arrived a moment ago: its marks land, one after the other. Off for the answers already read. */
+  landing?: boolean;
 };
 
 type RenderOptions = {
@@ -18,6 +23,9 @@ type RenderOptions = {
   onCitation?: (n: number) => void;
   openCitation?: number | null;
   citationPanelId?: string;
+  landing: boolean;
+  /** The marks painted so far, so that `--i` counts across paragraphs and lists. */
+  marks: { painted: number };
 };
 
 function renderInline(nodes: InlineNode[], options: RenderOptions): ReactNode[] {
@@ -64,6 +72,10 @@ function renderInline(nodes: InlineNode[], options: RenderOptions): ReactNode[] 
       return <Fragment key={index}>{`[${node.n}]`}</Fragment>;
     }
 
+    const stagger = options.marks.painted;
+
+    options.marks.painted += 1;
+
     return (
       <button
         key={index}
@@ -76,9 +88,12 @@ function renderInline(nodes: InlineNode[], options: RenderOptions): ReactNode[] 
         onClick={() => {
           options.onCitation?.(node.n);
         }}
-        className="mx-1 inline-block rounded-none border border-ink/20 px-1 align-baseline text-[11px] font-semibold text-ink transition-colors duration-[400ms] ease-out-expo hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-[var(--on-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime focus-visible:ring-1 focus-visible:ring-ink"
+        style={{ "--i": stagger } as CSSProperties}
+        className={`mx-1 ${citationMarkClass(options.openCitation === node.n ? "open" : "rest")}${
+          options.landing ? " mark-land" : ""
+        }`}
       >
-        {`[${node.n}]`}
+        {node.n}
       </button>
     );
   });
@@ -110,7 +125,7 @@ function renderBlocks(blocks: BlockNode[], options: RenderOptions): ReactNode[] 
     }
 
     return (
-      <p key={index} className="leading-relaxed">
+      <p key={index}>
         {renderInline(block.children, options)}
       </p>
     );
@@ -123,14 +138,17 @@ export function Markdown({
   onCitation,
   openCitation,
   citationPanelId,
+  landing = false,
 }: MarkdownProps) {
   return (
-    <div className="flex flex-col gap-3 text-ink">
+    <div className="flex max-w-[65ch] flex-col gap-3 text-[18px] leading-[1.6] text-ink">
       {renderBlocks(parseMarkdown(text), {
         citationLabel,
         onCitation,
         openCitation,
         citationPanelId,
+        landing,
+        marks: { painted: 0 },
       })}
     </div>
   );

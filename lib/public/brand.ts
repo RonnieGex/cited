@@ -15,6 +15,8 @@ export const FLAME = "/brand/katalis-flame-ink-64.png";
 
 export type PublicBrand = {
   lang: Lang;
+  /** A business is configured: the band wears its color and its name. Without one the band is ink with the wordmark. */
+  branded: boolean;
   name: string;
   hasLogo: boolean;
   primary: string;
@@ -29,6 +31,7 @@ export async function readPublicBrand(cookie: string | undefined): Promise<Publi
 
   return {
     lang,
+    branded: business !== null,
     name: business?.name.trim() || PRODUCT_NAME,
     hasLogo: business?.hasLogo === true,
     primary,
