@@ -33,7 +33,7 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 4. Review and update of the existing tests
 
-- [ ] 4.1 The whole suite; say which test changed and why — report: `reports/2026-09-29-step-4-existing-tests.md`
+- [x] 4.1 The whole suite; say which test changed and why — report: `reports/2026-09-29-step-4-existing-tests.md`
 
 ## 5. Run the checks
 

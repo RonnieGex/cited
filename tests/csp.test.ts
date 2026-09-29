@@ -108,6 +108,23 @@ describe("the policy of the page", () => {
     );
   });
 
+  // Amended by the change `elevenlabs-voice-agent`: the voice panel opens the WebSocket session of ElevenLabs with a
+  // signed URL this server hands out, so `connect-src` names the two endpoints of the provider and nothing else. The
+  // SDK loads its audio worklet from a blob and plays the answer through an audio context, which is `worker-src` and
+  // `media-src`. `script-src` is not touched: the nonce with `strict-dynamic` stays as it was.
+  it("names the endpoints of the voice session, and only them", () => {
+    const policy = policyOf({ nonce: "abc123", pathname: "/" });
+    const directive = (name: string): string | undefined =>
+      new RegExp(`${name} ([^;]+)`).exec(policy)?.[1];
+
+    expect(directive("connect-src")).toBe(
+      "'self' https://api.elevenlabs.io wss://api.elevenlabs.io",
+    );
+    expect(directive("worker-src")).toBe("'self' blob:");
+    expect(directive("media-src")).toBe("'self' blob:");
+    expect(directive("script-src")).toBe("'self' 'nonce-abc123' 'strict-dynamic'");
+  });
+
   it("hands Next a nonce it can read, base64 and different every time", () => {
     const one = nonceOf();
     const other = nonceOf();
