@@ -4,14 +4,14 @@ blocking, unless the evidence is missing or contradicts the mark. Reports: `repo
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/codeql-when-public`, created by Fable from `main` (`efdda14`) with this contract; confirm
+- [x] 0.1 Work on `feature/codeql-when-public`, created by Fable from `main` (`efdda14`) with this contract; confirm
       branch and base — report: `reports/2026-09-29-step-0-branch.md`
 
 ## 1. The state of the base before
 
-- [ ] 1.1 `npm test`, `openspec validate --all --strict`, and the failing CodeQL run `36511364255` quoted from
+- [x] 1.1 `npm test`, `openspec validate --all --strict`, and the failing CodeQL run `36511364255` quoted from
       `gh run view --log-failed` (the upload error) — report: `reports/2026-09-29-step-1-base-before.md`
-- [ ] 1.2 The state of the database: none exists in this repository; prove it — report:
+- [x] 1.2 The state of the database: none exists in this repository; prove it — report:
       `reports/2026-09-29-step-1-base-before.md`
 
 ## 2. Tests first
