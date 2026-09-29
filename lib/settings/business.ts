@@ -57,8 +57,11 @@ function messageOf(error: unknown): string {
   return typeof error === "string" ? error : "";
 }
 
+const missingBusinessTable =
+  /no such table:\s*(?:[A-Za-z_][A-Za-z0-9_]*\.)?["'`[]?business(?![A-Za-z0-9_])/i;
+
 function tableMissing(error: unknown): boolean {
-  return /no such table/i.test(messageOf(error));
+  return missingBusinessTable.test(messageOf(error));
 }
 
 export async function readBusiness(
