@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, lstatSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { decodePng, meanLuminance, transparentShare } from "./png";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const imagesDirectory = "docs/images";
@@ -77,6 +78,35 @@ const graphicsRecordPath = `${imagesDirectory}/readme-graphics.json`;
 const imageHosts = ["https://img.shields.io/", "https://github.com/"];
 const maximumImageWeight = 3 * 1024 * 1024;
 const pngSignature = "89504e470d0a1a0a";
+
+// Decision 10 of the design: a dark canvas is ink with the lime glow and a light canvas is off-white, measured as the
+// mean relative luminance of the decoded pixels. The footer mark is a transparent asset, not a canvas.
+const artDirection = {
+  darkMaximum: 0.3,
+  lightMinimum: 0.8,
+  darkCanvases: [
+    "readme-banner-dark.png",
+    "reason-sources-dark.png",
+    "reason-citations-dark.png",
+    "reason-voice-dark.png",
+    "how-it-works-dark.png",
+    "demo-dark.png",
+    "roadmap-dark.png",
+    "voice-teaser-dark.png",
+    "social-preview.png",
+  ],
+  lightCanvases: [
+    "readme-banner-light.png",
+    "reason-sources-light.png",
+    "reason-citations-light.png",
+    "reason-voice-light.png",
+    "how-it-works-light.png",
+    "demo-light.png",
+    "roadmap-light.png",
+    "voice-teaser-light.png",
+  ],
+  marks: ["katalis-logo.png", "katalis-logo-dark.png"],
+};
 
 const binaryExtensions = new Set([
   ".png",
@@ -671,6 +701,53 @@ describe("README, its graphics", () => {
         true,
       );
     }
+  });
+});
+
+describe("README, the art direction of its graphics", () => {
+  const directory = resolve(repositoryRoot, imagesDirectory);
+  const files = readdirSync(directory)
+    .filter((name) => name.endsWith(".png"))
+    .sort();
+  const measured = new Map(
+    files.map((name) => {
+      const image = decodePng(readFileSync(resolve(directory, name)));
+
+      return [name, { luminance: meanLuminance(image), transparent: transparentShare(image) }];
+    }),
+  );
+
+  it("keeps every canvas in the luminance bounds of the second art direction", () => {
+    const table = files
+      .map(
+        (name) =>
+          `${name} luminance ${(measured.get(name)?.luminance ?? 0).toFixed(3)} transparent ${(
+            measured.get(name)?.transparent ?? 0
+          ).toFixed(3)}`,
+      )
+      .join("\n");
+
+    console.log(`The luminance of every PNG of ${imagesDirectory}:\n${table}`);
+
+    expect(files).toEqual(
+      [...artDirection.darkCanvases, ...artDirection.lightCanvases, ...artDirection.marks].sort(),
+    );
+
+    const lightDark = artDirection.darkCanvases
+      .map((name) => ({ name, value: measured.get(name)?.luminance ?? 1 }))
+      .filter((entry) => entry.value > artDirection.darkMaximum);
+    const darkLight = artDirection.lightCanvases
+      .map((name) => ({ name, value: measured.get(name)?.luminance ?? 0 }))
+      .filter((entry) => entry.value < artDirection.lightMinimum);
+    const paintedMarks = artDirection.marks
+      .map((name) => ({ name, value: measured.get(name)?.transparent ?? 0 }))
+      .filter((entry) => entry.value < 0.05);
+
+    expect(lightDark.map((entry) => `${entry.name} ${entry.value.toFixed(3)}`)).toEqual([]);
+    expect(darkLight.map((entry) => `${entry.name} ${entry.value.toFixed(3)}`)).toEqual([]);
+    expect(paintedMarks.map((entry) => `${entry.name} transparent ${entry.value.toFixed(3)}`)).toEqual(
+      [],
+    );
   });
 });
 
