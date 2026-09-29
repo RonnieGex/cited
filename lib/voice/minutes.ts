@@ -23,15 +23,26 @@ export function utcDay(now: Date): string {
   return now.toISOString().slice(0, 10);
 }
 
+/**
+ * The refusal the cap itself dictates, before any store is open and before the configuration is read: a limit below
+ * the five minutes of one session can never admit a session, so the route that hands out a signed URL answers `429`
+ * with the reason `below-session` whether or not the key and the agent exist (requirement "The cap is checked before
+ * the configuration").
+ */
+export function capRefusal(limit: number): SessionRefusal | null {
+  return limit < VOICE_SESSION_MINUTES ? "below-session" : null;
+}
+
 export async function reserveSession(
   store: Store,
   input: { now?: Date; environment?: ChatEnvironment },
 ): Promise<SessionRoom> {
   const limit = voiceMinuteLimit(input.environment ?? process.env);
   const day = utcDay(input.now ?? new Date());
+  const refusal = capRefusal(limit);
 
-  if (limit < VOICE_SESSION_MINUTES) {
-    return { ok: false, limit, reason: "below-session" };
+  if (refusal !== null) {
+    return { ok: false, limit, reason: refusal };
   }
 
   const reserved = await store.reserveVoiceMinutes(day, VOICE_SESSION_MINUTES, limit);

@@ -2,12 +2,13 @@
  * `GET /api/voice/signed-url`, the only thing the browser asks for: a short-lived URL of ElevenLabs, asked with the
  * key of the server, which never travels to the browser. The route also owns the daily cap of voice minutes
  * (design decision 5): a session reserves five minutes before it starts, and a day without room answers 429 without
- * calling ElevenLabs at all.
+ * calling ElevenLabs at all. A limit below one session is answered before the configuration is read, so a visitor of an
+ * installation without a key still learns that the voice is off for the cap and not for the key.
  */
 
 import { sharedStore } from "../../../../lib/store/instance.ts";
-import { ELEVENLABS_API, VOICE_SESSION_MINUTES, declared } from "../../../../lib/voice/config.ts";
-import { reserveSession } from "../../../../lib/voice/minutes.ts";
+import { ELEVENLABS_API, VOICE_SESSION_MINUTES, declared, voiceMinuteLimit } from "../../../../lib/voice/config.ts";
+import { capRefusal, reserveSession, type SessionRefusal } from "../../../../lib/voice/minutes.ts";
 import { voiceTransport } from "../../../../lib/voice/transport.ts";
 
 export const runtime = "nodejs";
@@ -23,8 +24,30 @@ function answer(body: unknown, status: number, headers: Record<string, string> =
   });
 }
 
+function limited(limit: number, reason: SessionRefusal): Response {
+  return answer(
+    {
+      status: "limited",
+      reason,
+      limit,
+      error:
+        reason === "below-session"
+          ? `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${limit}) is smaller than one session, which reserves ${VOICE_SESSION_MINUTES} minutes, so no session can start`
+          : `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${limit}) is reached; it resets at 00:00 UTC`,
+    },
+    429,
+  );
+}
+
 export async function GET(): Promise<Response> {
   const environment = process.env;
+  const limit = voiceMinuteLimit(environment);
+  const refused = capRefusal(limit);
+
+  if (refused !== null) {
+    return limited(limit, refused);
+  }
+
   const key = declared(environment, "ELEVENLABS_API_KEY");
 
   if (key.length === 0) {
@@ -46,18 +69,7 @@ export async function GET(): Promise<Response> {
     const room = await reserveSession(store, { environment });
 
     if (room.ok === false) {
-      return answer(
-        {
-          status: "limited",
-          reason: room.reason,
-          limit: room.limit,
-          error:
-            room.reason === "below-session"
-              ? `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${room.limit}) is smaller than one session, which reserves ${VOICE_SESSION_MINUTES} minutes, so no session can start`
-              : `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${room.limit}) is reached; it resets at 00:00 UTC`,
-        },
-        429,
-      );
+      return limited(room.limit, room.reason);
     }
 
     const url = `${ELEVENLABS_API}/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`;
