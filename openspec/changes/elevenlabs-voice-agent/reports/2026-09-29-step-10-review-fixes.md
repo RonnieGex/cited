@@ -273,4 +273,6 @@ new files are `tests/voice-worklets.test.tsx` and the browser test of `e2e/voice
 
 **Verdict.** 10.2 is done: the three files come from this origin, the SDK is told so, and a CDN host fails the suite.
 
-**Commit.** `4f2b0cd` carries the code, the three served files and the tests; the mark and this report travel together.
+**Commit.** `24e5b17` carries the code, the three served files, the tests, the mark and this section. That same commit
+opened with the hash of this line unwritten (a guess, `4f2b0cd`, that no commit ever had); it is corrected here, in the
+commit that follows, and the hash above is the real one.
