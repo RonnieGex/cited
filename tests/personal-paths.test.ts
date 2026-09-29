@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 
@@ -10,47 +11,145 @@ const homePrefix = new RegExp("[A-Za-z]:[\\\\/]+Users[\\\\/]", "i");
 
 const ruleDefiningContracts = ["openspec/changes/bootstrap/tasks.md"];
 
-function trackedFiles(): string[] {
+const driveLetter = "C:";
+const homeDirectory = "Users";
+const developmentHome = `${driveLetter}\\${homeDirectory}\\dev`;
+const developmentHomePrefix = `${driveLetter}\\${homeDirectory}\\`;
+
+const symlinkMode = "120000";
+const gitDefaults = ["-c", "core.autocrlf=false", "-c", "init.defaultBranch=main"];
+const fixtureRoots: string[] = [];
+
+afterAll(() => {
+  for (const root of fixtureRoots) {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+function git(root: string, args: string[], input?: string): string {
+  return execFileSync("git", [...gitDefaults, ...args], {
+    cwd: root,
+    encoding: "utf8",
+    input,
+  }).trim();
+}
+
+function write(root: string, path: string, content: string | Uint8Array): void {
+  const absolute = join(root, path);
+
+  mkdirSync(dirname(absolute), { recursive: true });
+  writeFileSync(absolute, content);
+}
+
+function fixtureRepo(
+  files: Record<string, string | Uint8Array>,
+  links: Array<{ path: string; target: string }> = [],
+): string {
+  const root = mkdtempSync(join(tmpdir(), "katalis-tracked-paths-"));
+
+  fixtureRoots.push(root);
+  git(root, ["init", "--quiet"]);
+
+  for (const [path, content] of Object.entries(files)) {
+    write(root, path, content);
+  }
+
+  for (const link of links) {
+    const absolute = join(root, link.path);
+
+    mkdirSync(dirname(absolute), { recursive: true });
+
+    try {
+      symlinkSync(link.target, absolute, "dir");
+    } catch {
+      writeFileSync(absolute, link.target);
+    }
+  }
+
+  git(root, ["add", "--all"]);
+
+  for (const link of links) {
+    const blob = git(root, ["hash-object", "-w", "--stdin"], link.target);
+
+    git(root, ["update-index", "--add", "--cacheinfo", `${symlinkMode},${blob},${link.path}`]);
+  }
+
+  return root;
+}
+
+function trackedFiles(root: string): string[] {
   const output = execFileSync("git", ["ls-files", "-z"], {
-    cwd: repositoryRoot,
+    cwd: root,
     encoding: "utf8",
   });
 
   return output.split("\0").filter((path) => path.length > 0);
 }
 
-function textOf(path: string): string | null {
-  const bytes = readFileSync(resolve(repositoryRoot, path));
+function textOf(root: string, path: string): string | null {
+  const bytes = readFileSync(resolve(root, path));
 
   return bytes.includes(0) ? null : bytes.toString("utf8");
 }
 
-describe("tracked files", () => {
-  const files = trackedFiles();
+function offenders(root: string, pattern: RegExp, exempt: readonly string[] = []): string[] {
+  return trackedFiles(root)
+    .filter((path) => !exempt.includes(path))
+    .filter((path) => {
+      const text = textOf(root, path);
 
+      return text !== null && pattern.test(text);
+    });
+}
+
+describe("tracked files", () => {
   it("are listed by git", () => {
-    expect(files.length).toBeGreaterThan(0);
+    expect(trackedFiles(repositoryRoot).length).toBeGreaterThan(0);
   });
 
   it("carry no home directory of a development machine", () => {
-    const offenders = files.filter((path) => {
-      const text = textOf(path);
-
-      return text !== null && homePath.test(text);
-    });
-
-    expect(offenders).toEqual([]);
+    expect(offenders(repositoryRoot, homePath)).toEqual([]);
   });
 
   it("carry no home directory prefix outside the change contract that states the rule", () => {
-    const offenders = files
-      .filter((path) => !ruleDefiningContracts.includes(path))
-      .filter((path) => {
-        const text = textOf(path);
+    expect(offenders(repositoryRoot, homePrefix, ruleDefiningContracts)).toEqual([]);
+  });
 
-        return text !== null && homePrefix.test(text);
-      });
+  it("are read by the target of the link when git tracks them as a symbolic link", () => {
+    expect(textOf(repositoryRoot, ".claude/agents")?.replaceAll("\\", "/")).toBe("../ai-specs/agents");
+  });
 
-    expect(offenders).toEqual([]);
+  it("report a tracked symbolic link whose target carries a home directory", () => {
+    const root = fixtureRepo(
+      { "docs/notes.md": "Release notes." },
+      [{ path: "docs/vault", target: `${developmentHome}\\Documents\\vault` }],
+    );
+
+    expect(offenders(root, homePath)).toEqual(["docs/vault"]);
+    expect(offenders(root, homePrefix)).toEqual(["docs/vault"]);
+  });
+
+  it("exempt the rule-defining contract at its active and archived path and report any other file with the prefix", () => {
+    const rule = `No ${developmentHomePrefix} path is committed.`;
+
+    const root = fixtureRepo({
+      "docs/notes.md": `Scratch checkout of ${developmentHomePrefix}`,
+      "openspec/changes/archive/2026-09-29-bootstrap/tasks.md": rule,
+      "openspec/changes/bootstrap/tasks.md": rule,
+    });
+
+    expect(offenders(root, homePrefix, ruleDefiningContracts)).toEqual(["docs/notes.md"]);
+  });
+
+  it("skip a binary tracked file", () => {
+    const root = fixtureRepo({
+      "docs/blob.bin": Buffer.concat([
+        Buffer.from(`${developmentHomePrefix}scratch`, "utf8"),
+        Buffer.from([0, 1, 2]),
+      ]),
+      "docs/notes.md": "Release notes.",
+    });
+
+    expect(offenders(root, homePrefix)).toEqual([]);
   });
 });
