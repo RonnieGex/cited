@@ -28,7 +28,11 @@ Cambio `bootstrap` del plan `tasks/plan-rag-abierto.md` (v2, aprobado por Franc 
 | `834a4caf089c76d236624d7bbd612eb4453092ab` | feat(bootstrap): license the project under Apache-2.0 and add the community files |
 | `c429235f89b8cce2af607a377858fd5ce5c3369b` | feat(bootstrap): add secret scanning, the threat model and the environment template |
 | `9f3770d716ef724ae567bda441232818ab81620c` | ci(bootstrap): add the blocking pipeline, CodeQL and Dependabot |
-| el commit de cierre | docs(bootstrap): report the verification of the change |
+| `06a967c563a6af954a30dca2a08608c21f364a9a` | docs(bootstrap): report the verification of the change |
+
+La verificación completa (`npm ci`, tipos, lint, unitarias, build, extremo a extremo, auditoría, gitleaks y OpenSpec)
+corrió en verde sobre `06a967c563a6af954a30dca2a08608c21f364a9a`, con el árbol limpio. Este mismo archivo tiene un
+commit posterior que solo agrega este SHA.
 
 ## Verificación
 
