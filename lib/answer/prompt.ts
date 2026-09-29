@@ -18,10 +18,19 @@ export const NO_ANSWER = "NO_ANSWER";
 
 export type Turn = { question: string; answer: string };
 
-function passageBlock(hit: SearchHit, n: number): string {
-  const heading = hit.heading === null ? "" : ` heading="${hit.heading}"`;
+function escapePassage(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
 
-  return `<passage n="${n}" document="${hit.name}"${heading}>\n${hit.text}\n</passage>`;
+function passageBlock(hit: SearchHit, n: number): string {
+  const heading = hit.heading === null ? "" : ` heading="${escapePassage(hit.heading)}"`;
+
+  return `<passage n="${n}" document="${escapePassage(hit.name)}"${heading}>\n${escapePassage(hit.text)}\n</passage>`;
 }
 
 export function passageMessage(question: string, hits: SearchHit[]): string {

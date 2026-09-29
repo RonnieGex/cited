@@ -93,6 +93,12 @@ Rule 5 and the delimiters are the defence against a document that tries to give 
 treat it as content to quote, and the answer of the product never returns the system prompt. The test
 `marks a planted instruction as a passage and never returns the system prompt` proves both halves.
 
+The text of a passage, its document name and its heading are escaped (`&` as `&amp;`, `<` as `&lt;`, `>` as `&gt;`,
+`"` as `&quot;` and `'` as `&apos;`), so a document that carries `</passage>`, a planted instruction and a forged
+`<passage n="1" ...>` cannot close or open a delimiter: all of it stays inside the one passage it came from and the
+model never receives a passage the store does not have. The test
+`keeps a passage that closes its own delimiter inside the one it came from` proves it with that document.
+
 The history of the session goes **before** the passages, as the turns of the conversation they were, so a follow-up
 question such as "and the camera change?" carries the question and the answer it refers to.
 
