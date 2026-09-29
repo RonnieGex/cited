@@ -10,11 +10,34 @@
   "darkBackground": "#171717",
   "lightBackground": "#F7F6F2",
   "lightMarkOutline": "#171717",
+  "flame": {
+    "dark": "public/brand/katalis-flame-192.png",
+    "light": "public/brand/katalis-flame-ink-192.png",
+    "minimumHeight": 40,
+    "where": "beside the by Katalis line, to its left, taller than the line",
+    "rendered": {
+      "dark": {
+        "x": 532.52,
+        "y": 226.39,
+        "width": 48,
+        "height": 48,
+        "line": 19
+      },
+      "light": {
+        "x": 532.52,
+        "y": 226.39,
+        "width": 48,
+        "height": 48,
+        "line": 19
+      }
+    }
+  },
   "font": {
     "name": "Outfit",
-    "source": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
+    "source": "public/fonts/outfit/outfit-latin.woff2",
+    "license": "public/fonts/outfit/OFL.txt",
     "loadedAtRenderTime": true,
-    "fileInRepository": false
+    "fileInRepository": true
   },
   "tokens": {
     "ink": "#171717",

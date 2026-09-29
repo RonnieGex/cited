@@ -22,6 +22,11 @@ export const plannedMark = new RegExp(
 
 export const capturedOutput = "demo";
 
+// The mark of the maker is the flame of `public/brand/`, the same image every Katalis product uses. No record may
+// name another drawing of a Katalis logo: the invented one of `docs/images/katalis-logo*.png` is gone and the render
+// scripts refuse to write a record that brings it back.
+export const intendedLogo = /katalis[\s_-]*logo/i;
+
 const capturedSteps = ["ingest", "search", "ask"];
 
 function capturedEvidence(record) {
@@ -118,7 +123,45 @@ export function untaggedClaims(record) {
     .map(([route, text]) => `${route}: ${text}`);
 }
 
+export function inventedLogos(record) {
+  const found = [];
+
+  const visit = (value, route) => {
+    if (typeof value === "string") {
+      if (intendedLogo.test(value)) {
+        found.push(`${route}: ${value}`);
+      }
+
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${route}[${index}]`));
+
+      return;
+    }
+
+    if (typeof value === "object" && value !== null) {
+      for (const [key, item] of Object.entries(value)) {
+        visit(item, route.length === 0 ? key : `${route}.${key}`);
+      }
+    }
+  };
+
+  visit(record, "");
+
+  return found;
+}
+
 export function assertHonestRecord(record, label) {
+  const logos = inventedLogos(record);
+
+  if (logos.length > 0) {
+    throw new Error(
+      `${label} would record the invented Katalis logo; the mark of the maker is the flame of public/brand/:\n${logos.join("\n")}`,
+    );
+  }
+
   const claims = untaggedClaims(record);
 
   if (claims.length > 0) {

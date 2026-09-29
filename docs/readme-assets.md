@@ -12,7 +12,7 @@ writes three files:
 |---|---|
 | `docs/images/readme-banner-dark.png` | the dark variant, ink `#171717` background and off-white text |
 | `docs/images/readme-banner-light.png` | the light variant, off-white `#F7F6F2` background and ink text |
-| `docs/images/readme-banner.json` | the record: the wordmark, the citation mark, the tagline, the byline, the size, the font and the brand tokens |
+| `docs/images/readme-banner.json` | the record: the wordmark, the citation mark, the tagline, the byline, the size, the flame it measured with its box, the font and the brand tokens |
 
 ```
 node scripts/render-readme-banner.mjs
@@ -21,12 +21,12 @@ node scripts/render-readme-banner.mjs
 The script is the only writer of those three files. It renders in a headless Chromium from `@playwright/test`, so
 `npx playwright install chromium` is needed once per machine.
 
-**The font is Outfit, and it is not a file of this repository.** The template links the Google Fonts stylesheet of
-Outfit and the script waits for `document.fonts.ready`; it then asks `document.fonts.check('700 132px "Outfit"')` and
-throws when the family did not load, so a banner can never be written in a fallback font by accident. Rendering the
-banner therefore needs network access to `fonts.googleapis.com` and `fonts.gstatic.com`. The repository ships no
-`.woff`, `.woff2`, `.ttf` or `.otf`, and the test asserts it: Outfit is OFL and the design system change is the one
-that will vendor it with its license.
+**The font is Outfit, and it is a file of this repository.** `scripts/readme-graphics/font.mjs` builds the two
+`@font-face` rules from `public/fonts/outfit/` and the script embeds them in the style sheet as data URIs, so the
+render needs no network and no font host. The script then waits for `document.fonts.ready` and asks
+`document.fonts.check('700 132px "Outfit"')`, and it throws when the family did not load, so a banner can never be
+written in a fallback font by accident. Outfit is OFL: its origin, its two subsets and the hash of each file are in
+`docs/design-system.md`, and no other family is a file of this repository.
 
 The tagline of the record (`"Ask your own documents. Get the passage and where it came from."`) is the line under the
 banner in both READMEs, and a test compares the two, so changing the tagline means changing the record and the two
@@ -36,8 +36,8 @@ README carrying a `Next` tag.
 
 ## 2. The graphics
 
-`scripts/render-readme-graphics.mjs` renders the seven graphics in **both themes**, the social preview and the two
-Katalis marks, and writes `docs/images/readme-graphics.json`.
+`scripts/render-readme-graphics.mjs` renders the seven graphics in **both themes** and the social preview, and writes
+`docs/images/readme-graphics.json`.
 
 ```
 node scripts/render-readme-graphics.mjs
@@ -73,8 +73,14 @@ five dark variants once came out painted white.
 | `demo-{dark,light}.png` | 1280 × 560 | the real run of the quick start, with the first result in lime |
 | `roadmap-{dark,light}.png` | 1280 × 700 | the status table as a board, `Next` on the planned column |
 | `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice teaser, with `Next · ElevenLabs` |
-| `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` |
-| `katalis-logo{,-dark}.png` | 340 × 64 | the transparent mark of the maker, at the foot of the README |
+| `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` with the flame of the maker to its left |
+
+The foot of the two READMEs does not appear in that table because it is not a graphic of this script: it is the flame
+of `public/brand/`, the mark every Katalis product uses, copied byte for byte from Construye and rendered in ink for
+the light theme by `scripts/render-flame-variants.mjs`. `docs/design-system.md` carries its files, its hashes and the
+command that renders the variant. The banner and the social preview draw the same flame beside their `by Katalis`
+line, to its left and taller than it (48 px in the banner and 68 px in the social preview), and the render measures it
+and fails when it is missing, misplaced or below the height the mark needs to be read (40 px and 64 px at the least).
 
 The two variants of a graphic carry the same content: the dark one is ink with the lime glow and the light one is
 off-white, both measured. In the light theme a lime mark carries an ink edge or an ink inner mark, because lime on
@@ -92,6 +98,11 @@ capability that changes its state changes it there, and both the README and the 
 **A graphic never shows a planned capability as working.** Each entry of the record carries `shows` (`Available` or
 `Planned`) and `label` (`Next` or none), the badge is drawn on the image itself, and a test compares the record with
 the status table of the README row by row and state by state.
+
+**A record never names a drawing of the Katalis logo.** The mark of the maker is the flame of `public/brand/` and
+nothing else: `intendedLogo` and `inventedLogos` in `scripts/readme-graphics/honesty.mjs` read every text field of a
+record before it is written, and `assertHonestRecord` throws when one of them names `katalis-logo`. The invented mark
+of the first round, `docs/images/katalis-logo{,-dark}.png`, does not exist and cannot come back through a record.
 
 The script deletes nothing and touches no other file. The store it creates lives in `.data/katalis.sqlite`, which
 `.gitignore` excludes; it is left in place, and removing it is a `Remove-Item -Recurse -Force .data`.
@@ -137,9 +148,9 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 
 | | |
 |---|---|
-| Files in `docs/images/` | 19 PNG and 2 JSON |
-| Weight of the PNGs | 0.671 MB |
-| Weight of the images the README uses | about 0.67 MB |
+| Files in `docs/images/` | 17 PNG and 2 JSON |
+| Weight of the PNGs | 0.636 MB |
+| Weight of the images the README uses | about 0.64 MB |
 | Budget | 3 MB |
 
 The banner is the heaviest single file at about 100 KB. When a graphic is added, keep it under the budget and prefer

@@ -3,10 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Cited banner, {{THEME}}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" />
     <style>
+      {{FONT_FACE}}
       :root {
         color-scheme: {{THEME}};
       }
@@ -73,11 +71,19 @@
       }
       .byline {
         position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
         font-size: 19px;
         font-weight: 600;
         letter-spacing: 0.28em;
         text-transform: uppercase;
         opacity: {{BYLINE_OPACITY}};
+      }
+      .byline .flame {
+        display: block;
+        height: 48px;
+        width: auto;
       }
     </style>
   </head>
@@ -89,6 +95,9 @@
       <span class="mark">[1]</span>
     </div>
     <div class="tagline">{{TAGLINE}}</div>
-    <div class="byline">by Katalis</div>
+    <div class="byline">
+      <img class="flame" src="{{FLAME}}" alt="" />
+      <span>by Katalis</span>
+    </div>
   </body>
 </html>

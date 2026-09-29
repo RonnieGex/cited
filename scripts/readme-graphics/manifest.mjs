@@ -99,11 +99,3 @@ export const social = {
   dark: "docs/images/social-preview.png",
   alt: "Cited, by Katalis: ask your own documents and get the passage and where it came from",
 };
-
-export const logo = {
-  name: "katalis-logo",
-  template: "logo.html",
-  light: "docs/images/katalis-logo.png",
-  dark: "docs/images/katalis-logo-dark.png",
-  alt: "Katalis",
-};

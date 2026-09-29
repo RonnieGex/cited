@@ -5,8 +5,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { roadmap, states, statusRows, tokens } from "./readme-graphics/data.mjs";
+import { outfit, outfitFace } from "./readme-graphics/font.mjs";
 import { assertHonestRecord } from "./readme-graphics/honesty.mjs";
-import { graphics, logo, social } from "./readme-graphics/manifest.mjs";
+import { graphics, social } from "./readme-graphics/manifest.mjs";
 import { patchReadmeQuickStart, terminalLines, withoutNpmNoise } from "./readme-graphics/quickstart.mjs";
 
 const loadOptimizer = async () => {
@@ -40,13 +41,27 @@ const minimumContrast = 4.5;
 const terminalMaximum = 0.3;
 const maximumRoadmapHeight = 720;
 const font = {
-  name: "Outfit",
-  source: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap",
+  name: outfit.name,
+  source: outfit.subset,
+  license: outfit.license,
   loadedAtRenderTime: true,
-  fileInRepository: false,
+  fileInRepository: true,
+};
+
+// The mark of the maker (design decision 3): the flame of `public/brand/` beside `by Katalis` in the social preview,
+// the same flame the banner and the foot of the README use. It is embedded as a data URI because the pages are set
+// with `setContent` and have no base address. Section 10 of the contract: at the height of the line the mark measured
+// 20 px and did not read as the flame of Katalis, so the styles of this script draw it at 68 px and the render fails
+// below 64.
+const flame = {
+  dark: "public/brand/katalis-flame-192.png",
+  ink: "public/brand/katalis-flame-ink-192.png",
+  minimumHeight: 64,
+  where: "beside the by Katalis line, to its left, taller than the line",
 };
 
 const absolute = (relative) => resolve(root, relative);
+const dataUri = (path) => `data:image/png;base64,${readFileSync(absolute(path)).toString("base64")}`;
 
 const themes = {
   dark: {
@@ -540,11 +555,19 @@ const styles = `
   color: var(--muted);
 }
 .byline {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--muted);
+}
+.byline .flame {
+  display: block;
+  height: 68px;
+  width: auto;
 }
 .rule {
   width: 220px;
@@ -675,6 +698,7 @@ function html(content, theme, width, height) {
     NEXT_BORDER: values.NEXT_BORDER,
     LIME_EDGE: values.LIME_EDGE,
     CARD_SHADOW: values.CARD_SHADOW,
+    FONT_FACE: outfitFace(absolute),
     STYLES: styles,
     CONTENT: content,
     WIDTH: width,
@@ -838,6 +862,63 @@ async function audit(page, graphic, theme) {
   return found;
 }
 
+async function auditFlame(page, graphic, theme) {
+  const placed = await page.evaluate(() => {
+    const line = document.querySelector(".byline");
+    const image = document.querySelector(".byline .flame");
+    const word = document.querySelector(".byline span");
+
+    if (line === null || image === null || word === null) {
+      return null;
+    }
+
+    const mark = image.getBoundingClientRect();
+    const text = word.getBoundingClientRect();
+
+    return {
+      height: mark.height,
+      width: mark.width,
+      line: Number.parseFloat(getComputedStyle(line).fontSize),
+      toTheLeft: mark.right <= text.left + 0.5,
+      middle: Math.abs(mark.top + mark.height / 2 - (text.top + text.height / 2)),
+      x: mark.x,
+      y: mark.y,
+    };
+  });
+
+  if (placed === null) {
+    throw new Error(`${graphic.name} (${theme}) draws no flame beside by Katalis.`);
+  }
+
+  if (placed.height < flame.minimumHeight) {
+    throw new Error(
+      `${graphic.name} (${theme}) draws the flame ${placed.height}px high; the mark of the maker reads at ${flame.minimumHeight}px or more beside by Katalis.`,
+    );
+  }
+
+  if (placed.toTheLeft === false) {
+    throw new Error(`${graphic.name} (${theme}) draws the flame to the right of by Katalis.`);
+  }
+
+  if (placed.middle > 1) {
+    throw new Error(
+      `${graphic.name} (${theme}) draws the flame ${placed.middle}px away from the middle of the by Katalis line.`,
+    );
+  }
+
+  console.log(
+    `${graphic.name} (${theme}): the flame is ${placed.width.toFixed(1)} by ${placed.height.toFixed(1)}px beside a line of ${placed.line}px, the floor ${flame.minimumHeight}px`,
+  );
+
+  return {
+    x: Math.round(placed.x * 100) / 100,
+    y: Math.round(placed.y * 100) / 100,
+    width: Math.round(placed.width * 100) / 100,
+    height: Math.round(placed.height * 100) / 100,
+    line: placed.line,
+  };
+}
+
 async function emptyBand(buffer, plain, width, height) {
   const drawn = await sharp(buffer).ensureAlpha().raw().toBuffer();
   const empty = await sharp(plain).ensureAlpha().raw().toBuffer();
@@ -913,6 +994,11 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
   }
 
   const audit_ = await audit(page, graphic, theme);
+
+  if (graphic.name === social.name) {
+    flame.rendered = await auditFlame(page, graphic, theme);
+  }
+
   mkdirSync(dirname(absolute(target)), { recursive: true });
 
   const png = await page.screenshot({ type: "png" });
@@ -984,7 +1070,7 @@ const wanted = (name) => asked.length === 0 || asked.includes(name);
 const banner = JSON.parse(readFileSync(absolute(bannerRecordPath), "utf8"));
 const templatesOf = new Map(
   await Promise.all(
-    [...graphics, social, logo].map(async (graphic) => [
+    [...graphics, social].map(async (graphic) => [
       graphic.name,
       await readFile(absolute(`${templates}/${graphic.template}`), "utf8"),
     ]),
@@ -1041,6 +1127,7 @@ const contents = new Map(
       AVAILABLE_ROWS: rowsOf("Available"),
       PLANNED_ROWS: rowsOf("Planned"),
       TAGLINE: escapeHtml(banner.tagline),
+      FLAME: dataUri(flame.dark),
     }),
   ]),
 );
@@ -1086,32 +1173,6 @@ try {
   if (wanted(social.name)) {
     await render(browser, social, contents.get(social.name), "dark", social.dark, backgrounds);
   }
-
-  if (wanted(logo.name)) {
-    for (const theme of ["light", "dark"]) {
-      const logoPage = await browser.newPage({
-        viewport: { width: 340, height: 170 },
-        deviceScaleFactor: 1,
-      });
-      const target = theme === "dark" ? logo.dark : logo.light;
-
-      await logoPage.setContent(html(templatesOf.get(logo.name), theme, 340, 170), { waitUntil: "load" });
-      await logoPage.evaluate(() => document.fonts.ready);
-      await logoPage.addStyleTag({ content: "html, body { background: transparent; }" });
-
-      const logoPng = await logoPage.locator(".logo").screenshot({ type: "png", omitBackground: true });
-      const logoOptimized =
-        sharp === null
-          ? logoPng
-          : await sharp(logoPng)
-              .png({ compressionLevel: 9, effort: 10, palette: false, adaptiveFiltering: true })
-              .toBuffer();
-
-      await writeFile(absolute(target), logoOptimized);
-      await logoPage.close();
-      console.log(`rendered ${target} (${logoOptimized.length} bytes, transparent mark)`);
-    }
-  }
 } finally {
   await browser.close();
 }
@@ -1134,7 +1195,7 @@ if (asked.length > 0) {
       width: social.width,
       height: social.height,
     },
-    logo: { file: logo.light, dark: logo.dark, alt: logo.alt },
+    flame,
     font,
     tokens,
     artDirection: {
