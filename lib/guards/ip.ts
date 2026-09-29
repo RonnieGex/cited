@@ -12,36 +12,60 @@ export function hashIp(ip: string, salt?: string): string {
   return createHash("sha256").update(`${used}:${ip}`).digest("hex");
 }
 
-function trustsProxy(environment: ChatEnvironment): boolean {
+export function trustedProxies(environment: ChatEnvironment): number {
   const declared = environment["TRUST_PROXY"]?.trim().toLowerCase() ?? "";
 
-  return declared === "1" || declared === "true";
+  if (declared === "true") {
+    return 1;
+  }
+
+  const count = Number(declared);
+
+  return Number.isInteger(count) && count > 0 ? count : 0;
 }
 
-function lastValue(request: Request, name: string): string | null {
+function valuesOf(request: Request, name: string): string[] {
   const header = request.headers.get(name);
 
   if (header === null) {
-    return null;
+    return [];
   }
 
-  const values = header
+  return header
     .split(",")
     .map((value) => value.trim())
     .filter((value) => value.length > 0);
-  const last = values.at(-1) ?? "";
+}
 
-  return last.length > 0 ? last : null;
+export function clientAddress(
+  request: Request,
+  environment: ChatEnvironment = process.env,
+): string | null {
+  const proxies = trustedProxies(environment);
+
+  if (proxies === 0) {
+    return null;
+  }
+
+  const forwarded = valuesOf(request, "x-forwarded-for");
+
+  if (forwarded.length >= proxies) {
+    const address = forwarded.at(-proxies) ?? "";
+
+    return address.length > 0 ? address : null;
+  }
+
+  const real = valuesOf(request, "x-real-ip").at(-1) ?? "";
+
+  return real.length > 0 ? real : null;
 }
 
 export function clientIp(request: Request, environment: ChatEnvironment = process.env): string {
-  if (trustsProxy(environment)) {
-    return (
-      lastValue(request, "x-forwarded-for") ??
-      lastValue(request, "x-real-ip") ??
-      UNKNOWN_BUCKET
-    );
+  const address = clientAddress(request, environment);
+
+  if (address !== null) {
+    return address;
   }
 
-  return DIRECT_BUCKET;
+  return trustedProxies(environment) > 0 ? UNKNOWN_BUCKET : DIRECT_BUCKET;
 }

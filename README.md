@@ -210,7 +210,7 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `DAILY_MODEL_CALL_LIMIT` | the model calls of one UTC day, 500 by default | yes |
 | `MAX_ANSWER_TOKENS` | the token ceiling of one answer, 600 by default | yes |
 | `CONVERSATION_RETENTION_DAYS` | the days a conversation is kept, 30 by default | yes |
-| `TRUST_PROXY` | `1` reads the visitor address from `x-forwarded-for`; without it the header is not trusted | yes |
+| `TRUST_PROXY` | the number of proxies in front: `1` for Traefik alone, `2` for a CDN in front of Traefik; the visitor address is that many places from the right of `x-forwarded-for`, and without it the header is not trusted | yes |
 | `ADMIN_SESSION_SECRET` | secret that salts the hash of the visitor address and signs the session of the panel | yes |
 | `ADMIN_PASSWORD` | password of the panel, the one that opens `/admin` | yes |
 | `VOICE_TOOL_SECRET` | secret the voice tool expects in its Bearer token, planned in `elevenlabs-voice-agent` | no |

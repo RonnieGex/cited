@@ -212,7 +212,7 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `DAILY_MODEL_CALL_LIMIT` | las llamadas al modelo de un día UTC, 500 por defecto | sí |
 | `MAX_ANSWER_TOKENS` | el techo de tokens de una respuesta, 600 por defecto | sí |
 | `CONVERSATION_RETENTION_DAYS` | los días que se guarda una conversación, 30 por defecto | sí |
-| `TRUST_PROXY` | `1` lee la dirección del visitante de `x-forwarded-for`; sin él la cabecera no se confía | sí |
+| `TRUST_PROXY` | el número de proxies delante: `1` para Traefik solo, `2` para una CDN delante de Traefik; la dirección del visitante es esa cantidad de lugares desde la derecha de `x-forwarded-for`, y sin él la cabecera no se confía | sí |
 | `ADMIN_SESSION_SECRET` | secreto que sala el hash de la dirección del visitante y firma la sesión del panel | sí |
 | `ADMIN_PASSWORD` | contraseña del panel, la que abre `/admin` | sí |
 | `VOICE_TOOL_SECRET` | secreto que la herramienta de voz espera en su token Bearer, planificado en `elevenlabs-voice-agent` | no |

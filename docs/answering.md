@@ -153,8 +153,9 @@ the docs cannot reproduce, so the counters of two runs of the server are unrelat
 
 | Variable | What it does |
 |---|---|
-| `TRUST_PROXY=1` | the address comes from the last value of `x-forwarded-for`, the one the trusted proxy appended (Traefik keeps the client prefix the caller wrote and appends the real address at the end), or from `x-real-ip`; a forged prefix cannot change the bucket. Use it when a proxy or a platform sits in front |
-| `TRUST_PROXY` unset | the header is not trusted, because a client can write it; every direct visitor shares the bucket `direct` and the route cannot tell them apart |
+| `TRUST_PROXY=1` | one proxy sits in front (Traefik alone): the address is the last value of `x-forwarded-for`, the one the proxy appended (it keeps the client prefix the caller wrote and appends the real address at the end), or `x-real-ip` when the chain is shorter; a forged prefix cannot change the bucket |
+| `TRUST_PROXY=2` | two proxies sit in front (a CDN edge and Traefik): the address is the second value from the right, the one the CDN received the request from, so every client of the same edge falls in its own bucket |
+| `TRUST_PROXY` unset | the forwarding headers are ignored, because a client can write them; every direct visitor shares the bucket `direct` and the route cannot tell them apart |
 
 Three tables of the store hold the counters and the conversations:
 
