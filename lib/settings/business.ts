@@ -49,6 +49,18 @@ function toBusiness(row: StoredBusiness): Business {
   };
 }
 
+function messageOf(error: unknown): string {
+  if (error instanceof Error) {
+    return `${error.message} ${messageOf(error.cause)}`;
+  }
+
+  return typeof error === "string" ? error : "";
+}
+
+function tableMissing(error: unknown): boolean {
+  return /no such table/i.test(messageOf(error));
+}
+
 export async function readBusiness(
   environment: ChatEnvironment = process.env,
 ): Promise<Business | null> {
@@ -57,8 +69,12 @@ export async function readBusiness(
     const row = await store.readBusiness();
 
     return row === null ? null : toBusiness(row);
-  } catch {
-    return null;
+  } catch (error) {
+    if (tableMissing(error)) {
+      return null;
+    }
+
+    throw error;
   }
 }
 
