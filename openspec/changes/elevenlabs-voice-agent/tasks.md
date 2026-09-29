@@ -68,7 +68,7 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 Report: `reports/2026-09-29-step-10-review-fixes.md`. Tests first, red before each fix.
 
-- [ ] 10.1 Major (a gap of Fable's contract): the state of the store before and after this change, recorded as the
+- [x] 10.1 Major (a gap of Fable's contract): the state of the store before and after this change, recorded as the
       standard requires (the tables and their row counts, and the new voice tables empty before and as expected after),
       with the exact commands — report: the one of this section
 - [ ] 10.2 Major: the resampler and any worklet of the SDK served from the application's own origin, configured in the
