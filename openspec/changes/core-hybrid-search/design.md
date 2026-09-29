@@ -10,6 +10,21 @@
 
    Its outcome is recorded here as decision 1b by the implementer, quoting the report. The rest of the store waits for
    it.
+
+   **Decision 1b (recorded by the implementer, deepseek-harness, 2026-09-29): libSQL is the store. The fallback is
+   not used.** The spike passed on Windows (Node `v24.11.0`) and in a `node:24` Linux container (Node `v24.21.0`):
+   9 of 9 assertions green on both, with `@libsql/client` `0.18.0` over SQLite `3.45.1` and
+   `sqlite_compileoption_used('ENABLE_FTS5') = 1`. The report
+   (`reports/2026-09-29-step-2-spike.md`) quotes the statements and their results; the load-bearing ones are:
+   `CREATE TABLE passages (… embedding F32_BLOB(8) …)` → OK; `INSERT … vector(?)` → `affected=1`;
+   `CREATE INDEX passages_embedding ON passages (libsql_vector_idx(embedding))` → OK;
+   `SELECT id FROM vector_top_k('passages_embedding', vector(?), 2)` → `[{"id":1},{"id":2}]`;
+   `vector_distance_cos` → `0.0000389354390790686` and `0.34518900513648987` in ascending order; and
+   `CREATE VIRTUAL TABLE passages_fts USING fts5(text)` with `MATCH 'workshop'` → both passages, with `bm25` scores of
+   `-0.000001`. Two findings of the spike shape the store and are worth repeating here: `vector_top_k` exposes the
+   keys only, so the distance is measured with `vector_distance_cos` in the query, and the external-content form of
+   FTS5 stayed empty without triggers, so the store keeps a standalone FTS5 table in sync explicitly. `better-sqlite3`
+   with `sqlite-vec` is therefore not a dependency of this repository, and Turso stays supported by the same code.
 2. **Store schema.**
    - `documents(id, name, sha256, type, pages, ingested_at)`.
    - `passages(id, document_id, position, heading, text)`.
