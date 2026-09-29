@@ -63,8 +63,8 @@ capability test of the store and not a test of the product.
 | | `tests/store.test.ts` › documents and passages › stores a document by name and replaces it | the same at the store level, plus the keyword index stays in step |
 | Missing key | `tests/embeddings.test.ts` › the provider factory › stops on a missing key and names the variable | the message names `EMBEDDINGS_API_KEY`, never a value |
 | | `tests/ingest.test.ts` › ingestion stops before reading any document when the key is missing | nothing is ingested |
-| A keyword-only match | `tests/search.test.ts` › hybrid search › ranks a keyword-only match | the passage that shares the term is in the top results |
-| A meaning-only match | `tests/search.test.ts` › hybrid search › ranks a meaning-only match with the fake provider | a paraphrase with no shared terms still reaches the top |
+| A keyword-only match | `tests/search.test.ts` › hybrid search › ranks a keyword-only match that the vector ranking does not rank first | the passage that shares the rare term is the top result through the keyword ranking, which the vector ranking does not rank first |
+| A meaning-only match | `tests/search.test.ts` › hybrid search › ranks a meaning-only match with no shared term and an empty keyword ranking | a paraphrase with no shared term still reaches the top through the vector ranking alone |
 | RRF arithmetic on a fixed example | `tests/rrf.test.ts` (six tests) | `k = 60`; `1/61`, `1/62`; the sum `1/61 + 1/62`; one entry per passage; the tie broken by the better keyword rank |
 | The store is verified before it is chosen | `tests/spike/libsql-capabilities.test.ts` (step 2) | the exact statements and their results |
 
@@ -91,3 +91,11 @@ The fixtures are exercised through the real files on disk. No test calls the net
 
 PASS. Forty-five assertions in five new files, every one of them red for the right reason: the modules do not exist
 yet. The implementation of step 4 makes them green one step at a time.
+
+## Correction of step 10
+
+The adversarial review `katalis-dev/tasks/revision-community-02.md` (Major 3) found that the meaning-only case of this
+report was not a paraphrase without shared terms: the question `¿puedo mover mi cita a otro día?` shares the exact
+tokens `mover` and `cita` with the expected passage, so FTS5 ranked it first and the test stayed green with the vector
+branch disabled. The two rows above and the tests they name were corrected in task 10.3, and the real rankings, the
+three mutation runs and the corrected figures are in `2026-09-29-step-10-review-round.md`.

@@ -120,9 +120,13 @@ Files: `lib/search/rrf.ts`, `lib/search/index.ts`.
 - `hybridSearch(question, { store, embeddings, limit })` ranks the keyword list and the vector list, top 50 each
   (`DEFAULT_CANDIDATES`), fuses them and returns the top 8 (`DEFAULT_RESULTS`) with document, heading, position, text
   and score.
-- A **keyword-only match** ranks: a rare exact term pulls its passage into the results.
-- A **meaning-only match** ranks with the fake provider: the question "¿puedo mover mi cita a otro día?" reaches the
-  passage of the cancellation policy, which shares no rare term with it.
+- A **keyword-only match** ranks: a rare exact term pulls its passage into the results. The test uses `mantenimiento`,
+  the keyword ranking places its passage first and the vector ranking does not, and with the keyword branch disabled
+  the case is lost.
+- A **meaning-only match** ranks with the fake provider: the question
+  `¿Aceptan reprogramaciones gratuitas avisando anticipadamente?` reaches the passage of the cancellation policy with
+  an empty keyword ranking (it shares no term with the corpus), so only the vector ranking can find it, and with the
+  vector branch disabled the case is lost.
 
 ## 4.6 The CLI scripts and the sample corpus
 
@@ -166,3 +170,11 @@ spike folder) and `.gitignore` (the store file and its neighbours).
 PASS. The 45 assertions written in step 3 are green, together with the ones the implementation added for the HTTP
 double; the lint is warning-free and the typecheck is green. `npm run build` compiles with Turbopack and the type
 extension imports.
+
+## Correction of step 10
+
+The adversarial review `katalis-dev/tasks/revision-community-02.md` (Major 3) found that the meaning-only claim of this
+report was wrong: the question `¿puedo mover mi cita a otro día?` did share the exact tokens `mover` and `cita` with
+the cancellation passage, so the keyword ranking did the work and the passage came first even with the vector branch
+disabled. The two bullets above were corrected in task 10.3; the real rankings, the three mutation runs and the
+corrected figures are in `2026-09-29-step-10-review-round.md`.
