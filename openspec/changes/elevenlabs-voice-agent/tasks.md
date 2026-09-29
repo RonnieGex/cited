@@ -37,13 +37,13 @@ secret, no customer data. No network call to ElevenLabs or to a model provider i
 
 ## 5. Run the checks
 
-- [ ] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD`, the
       build guard in both build orders — report: `reports/2026-09-29-step-5-checks.md`
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 `npm run build && npm run start`; `curl.exe` of `/api/voice/tool` without and with the Bearer (the fake
+- [x] 6.1 `npm run build && npm run start`; `curl.exe` of `/api/voice/tool` without and with the Bearer (the fake
       model answers), and of `/api/voice/signed-url` without the key (503) — report: `reports/2026-09-29-step-6-curl.md`
 
 ## 7. End-to-end
