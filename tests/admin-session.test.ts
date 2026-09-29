@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import {
+  ADMIN_PASSWORD_MIN_LENGTH,
   SESSION_COOKIE,
   SESSION_MAX_AGE_SECONDS,
   adminConfig,
@@ -30,6 +31,23 @@ describe("the session of the panel", () => {
     expect(complete.missing).toEqual([]);
     expect(complete.password).toBe(password);
     expect(complete.secret).toBe(secret);
+  });
+
+  it("flags a password shorter than the sixteen characters of the spec", () => {
+    const short = adminConfig({ ADMIN_PASSWORD: "corta".repeat(3), ADMIN_SESSION_SECRET: secret });
+
+    expect(ADMIN_PASSWORD_MIN_LENGTH).toBe(16);
+    expect(short.missing).toEqual([]);
+    expect(short.shortPassword).toBe(true);
+
+    const exact = adminConfig({
+      ADMIN_PASSWORD: "panel".repeat(3) + "1",
+      ADMIN_SESSION_SECRET: secret,
+    });
+
+    expect("panel".repeat(3) + "1").toHaveLength(16);
+    expect(exact.shortPassword).toBe(false);
+    expect(adminConfig({ ADMIN_PASSWORD: "", ADMIN_SESSION_SECRET: secret }).shortPassword).toBe(false);
   });
 
   it("signs expiry and signature and accepts only its own token", () => {

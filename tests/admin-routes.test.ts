@@ -117,6 +117,76 @@ describe("POST /api/admin/login", () => {
     expect(again.status).toBe(429);
   });
 
+  it("keeps an unknown address from locking anyone out and takes a second per failure", async () => {
+    await environmentOf(configured());
+
+    const attempts = await Promise.all(
+      Array.from({ length: 20 }, async (_, index) => {
+        const started = Date.now();
+        const response = await login(
+          request("/api/admin/login", { password: `intento-${index}` }),
+        );
+
+        return { status: response.status, elapsed: Date.now() - started };
+      }),
+    );
+
+    expect(attempts.map((one) => one.status)).toEqual(new Array<number>(20).fill(401));
+
+    for (const [index, one] of attempts.entries()) {
+      expect(one.elapsed, `attempt ${index + 1}`).toBeGreaterThanOrEqual(1000);
+    }
+
+    const right = await login(request("/api/admin/login", { password: ADMIN_PASSWORD }));
+
+    expect(right.status).toBe(200);
+  });
+
+  it("treats a trusted proxy without a forwarding header as an unknown address", async () => {
+    await environmentOf({ ...configured(), TRUST_PROXY: "1" });
+
+    const attempts = await Promise.all(
+      Array.from({ length: 6 }, async (_, index) => {
+        const started = Date.now();
+        const response = await login(
+          request("/api/admin/login", { password: `intento-${index}` }),
+        );
+
+        return { status: response.status, elapsed: Date.now() - started };
+      }),
+    );
+
+    expect(attempts.map((one) => one.status)).toEqual(new Array<number>(6).fill(401));
+
+    for (const [index, one] of attempts.entries()) {
+      expect(one.elapsed, `attempt ${index + 1}`).toBeGreaterThanOrEqual(1000);
+    }
+
+    const right = await login(request("/api/admin/login", { password: ADMIN_PASSWORD }));
+
+    expect(right.status).toBe(200);
+  });
+
+  it("answers 503 to every password shorter than sixteen characters", async () => {
+    const short = "corta".repeat(3);
+
+    await environmentOf({ ADMIN_PASSWORD: short, ADMIN_SESSION_SECRET: ADMIN_SECRET });
+
+    const response = await login(request("/api/admin/login", { password: short }));
+    const body = (await response.json()) as { status: string; error: string };
+
+    expect(short.length).toBe(15);
+    expect(response.status).toBe(503);
+    expect(body.error).toContain("ADMIN_PASSWORD");
+    expect(body.error).toContain("16");
+    expect(JSON.stringify(body)).not.toContain(short);
+    expect(response.headers.get("set-cookie")).toBeNull();
+
+    const setupWithoutSession = await setup(new Request("http://localhost/api/admin/setup"));
+
+    expect(setupWithoutSession.status).toBe(503);
+  });
+
   it("refuses a body that is not a password and a mutation from another origin", async () => {
     await environmentOf(configured());
 

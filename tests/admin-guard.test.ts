@@ -1,12 +1,17 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
+import { proxy } from "@/proxy";
 import { guardRequest, guardSession, missingAdminVariables } from "@/lib/admin/guard";
 import { SESSION_COOKIE, sessionToken } from "@/lib/admin/session";
+import { cleanup, setEnvironment } from "./admin-helpers";
 
 const secret = "el-secreto-de-la-sesion";
 const now = new Date("2026-09-29T12:00:00.000Z");
-const environment = { ADMIN_PASSWORD: "la-clave", ADMIN_SESSION_SECRET: secret };
+const password = "la-clave-del-panel-2026";
+const environment = { ADMIN_PASSWORD: password, ADMIN_SESSION_SECRET: secret };
 const token = sessionToken(secret, now);
+
+afterAll(cleanup);
 
 function request(method: string, url: string, headers: Record<string, string> = {}): Request {
   return new Request(url, { method, headers });
@@ -143,5 +148,28 @@ describe("the guard of the panel", () => {
       status: "unconfigured",
       missing: ["ADMIN_PASSWORD", "ADMIN_SESSION_SECRET"],
     });
+  });
+
+  it("refuses the panel when the password is shorter than sixteen characters", async () => {
+    const short = { ADMIN_PASSWORD: "corta".repeat(3), ADMIN_SESSION_SECRET: secret };
+
+    expect(short.ADMIN_PASSWORD.length).toBe(15);
+    expect(guardRequest(request("GET", "http://localhost/api/admin/setup"), short)).toEqual({
+      status: "short-password",
+      minimum: 16,
+    });
+    expect(guardSession(token, short, now)).toEqual({ status: "short-password", minimum: 16 });
+
+    setEnvironment({ ...short });
+
+    const page = proxy();
+
+    expect(page.status).toBe(503);
+
+    const text = await page.text();
+
+    expect(text).toContain("ADMIN_PASSWORD");
+    expect(text).toContain("16");
+    expect(text).not.toContain(short.ADMIN_PASSWORD);
   });
 });
