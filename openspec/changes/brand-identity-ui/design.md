@@ -14,8 +14,7 @@ number of the source) and the highlighter (lime painted behind the words that ma
 
 1. **Tokens, additive.** `app/tokens.css` keeps every token of Construye untouched and adds, in the same `:root` and
    `@theme inline`, the product tokens: `--ink-2: #57534E` (secondary text, 7.0:1 on paper), `--rule: color-mix(in
-   srgb, var(--ink) 12%, var(--paper))` (dividers, never a control border), `--lime-ink: #5C6B14` (lime that reads as
-   text on paper, 5.9:1, for a lime word on paper when the highlighter is not possible), `--dur-fast: 180ms`,
+   srgb, var(--ink) 12%, var(--paper))` (dividers, never a control border), `--dur-fast: 180ms`,
    `--dur-base: 320ms`, `--dur-slow: 640ms`. The kit's `--border` and the focus ring do not change.
 2. **`components/brand/Wordmark.tsx`** (server component): the word `Cited` in Outfit 800, `letter-spacing: -0.04em`,
    followed by a `CitationMark` with `1`, sizes `sm` (20 px, the navigation), `md` (36 px, the sign-in and the kit),
@@ -50,7 +49,8 @@ number of the source) and the highlighter (lime painted behind the words that ma
    carries a `CitationMark` with its number (1 Setup, 2 Business, 3 Documents, 4 Conversations, and `AI and keys` when
    that page exists) and its name; the current page (from `usePathname` in `AdminNav`, which is already a client
    component) carries `aria-current="page"`, paper text and its mark ink-on-lime inverted (ink background, lime
-   number); the others `text-paper/70` with a `text-paper/40` mark; hover `text-paper`, `var(--dur-fast)`. At the
+   number); the others `text-paper/80` with a
+   `text-paper/60` mark (6.8:1 over ink: the numeral is text); hover `text-paper`, `var(--dur-fast)`. At the
    foot of the column: `LanguageSwitch tone="ink"`, the sign-out as `variant="ghost" size="sm"`, and the silver flame
    (`/brand/katalis-flame-64.png`, the original, made for dark grounds) beside "Built by Katalis" in `text-paper/70`.
    Below 1024 px: an ink top bar with the wordmark and, under it in the same band, the same list scrolling
@@ -99,3 +99,20 @@ number of the source) and the highlighter (lime painted behind the words that ma
 16. **What does not change**: the tokens of Construye and the test that compares them, the flame files, Outfit, every
     route and API, every string key that a test names (only new keys are added), the shared modules of the parallel
     lanes (`lib/settings/business.ts`, the interface of `LanguageSwitch`), the CSP and the widget script.
+17. **Interface addendum (Fable, before the build)**: the exact names, so that the tests and the code meet.
+    `lib/brand/highlight.ts`: `export function highlightLast(text: string, words?: number): { lead: string; tail: string
+    }`, where `lead` is the text before the highlighted tail with its trailing space and `tail` is the last `words`
+    words (default 3 when the text has six or more words, all of them otherwise; `tail` is empty only for an empty
+    text). `components/brand/Wordmark.tsx`: `Wordmark({ size?: "sm" | "md" | "lg"; tone?: "paper" | "ink"; href?: string;
+    className?: string })`, an `a` when `href` is given and a `span` otherwise, carrying `data-brand="wordmark"` and the
+    accessible name `Cited` (the visible `1` is `aria-hidden`). `components/brand/CitationMark.tsx`:
+    `CitationMark({ n?: number | string; className?: string })` renders a static `span` with
+    `data-brand="citation-mark"` (default `n` is 1) and exports `citationMarkClass(state?: "rest" | "open")`, the class
+    string that the interactive marks of `Markdown` and the sources list use, so a button and a span look identical.
+    Data hooks: `data-admin="sidebar"` (the ink column or the top bar), `data-public="band"`, `data-cited="turn"` (each
+    ledger entry), `data-cited="sources"` (the aside of an entry), `data-cited="ask"` (the ask form),
+    `data-cited="waiting-bar"` (the waiting bar); the existing `data-cited="answer"`, `"citation"` and `"refusal"`
+    stay. The panel keeps exactly one `LanguageSwitch` (inside `data-testid="language-switch"`) and one sign-out
+    button in the DOM at any width, and the `h1` of every page stays unique: the wordmark is never a heading. When no
+    business exists the `h1` of the public page ("Cited") is visually hidden and the wordmark, `aria-hidden` there,
+    is the visible name.
