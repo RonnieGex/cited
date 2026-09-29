@@ -64,8 +64,10 @@ reproduced.
 - `npm run typecheck`, `npm run lint`, `npm audit --audit-level=high` (0 vulnerabilities), `gitleaks git` (324 commits,
   no leaks), `openspec validate --all --strict` (11 items) and `git diff --check main...HEAD`: green.
 - The round: seven fixes, 38 files, 2 941 lines added and 227 removed, plus the closing commits that carry the marks,
-  the report and the count of the deliveries. The branch closes with **20 commits** over the contract: nine between
-  `71f08f0` and `5404823`, `9a47f41` and the ten of this round.
+  the report and the count of the deliveries. The commit that writes this line is the **21** over the contract: nine
+  between `71f08f0` and `5404823`, `9a47f41` and the eleven of this round. The count moves with every commit that
+  writes it: the command `git log --oneline 71f08f0..HEAD | Measure-Object` is what has to be read, and the number is
+  the photograph of one commit.
 
 ## The issues that stay open
 

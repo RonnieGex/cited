@@ -569,9 +569,9 @@ change. The clone is clean: nothing of the round lives outside a commit.
 `git status --short` is empty at the end of the round, and the text of no task, of `design.md` or of the specs was
 edited: the only change in `tasks.md` is the box of each task of section 10.
 
-The count of the commits of the contract: the delivery says **20** over the last commit of the round, and it is read
-with `git log --oneline 71f08f0..HEAD | Measure-Object` — nine from `e12d34a` to `5404823`, the correction `9a47f41`,
-and the ten of this round (the seven fixes, this report, the round of the delivery and the commits that corrected the
-count). The number moves with every commit that writes it, which is why the delivery writes the command next to it and
-the report writes what the command answered when the correction was made: **18**. The command is the promise; the
-number is a photograph.
+The count of the commits of the contract: the commit that writes this paragraph is the **22** over the contract, and
+the delivery says **21** because that is what the command answered when its line was written. It is read with
+`git log --oneline 71f08f0..HEAD | Measure-Object` — nine from `e12d34a` to `5404823`, the correction `9a47f41`, and
+the rest of this round (the seven fixes, this report, the round of the delivery and the commits that corrected the
+count). The number moves with every commit that writes it, which is why the delivery writes the command next to it.
+The command is the promise; the number is a photograph.
