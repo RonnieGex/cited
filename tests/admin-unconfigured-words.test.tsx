@@ -172,10 +172,10 @@ describe("an installation that is not finished", () => {
     const walked = await everyRoute(panelNotConfigured);
 
     expect(walked.length).toBeGreaterThanOrEqual(17);
-    expect(walked).toContain("GET /api/admin/setup");
-    expect(walked).toContain("GET /api/admin/providers");
-    expect(walked).toContain("POST /api/admin/login");
-    expect(walked).toContain("DELETE /api/admin/providers");
+    expect(walked).toContain("GET http://localhost/api/admin/setup");
+    expect(walked).toContain("GET http://localhost/api/admin/providers");
+    expect(walked).toContain("POST http://localhost/api/admin/login");
+    expect(walked).toContain("DELETE http://localhost/api/admin/providers");
   });
 
   it("answers every route of /api/admin with the code and never the name, with a short password", async () => {
@@ -186,7 +186,8 @@ describe("an installation that is not finished", () => {
     const walked = await everyRoute(passwordTooShort);
 
     expect(walked.length).toBeGreaterThanOrEqual(17);
-    expect(walked).toContain("GET /api/admin/setup");
+    expect(walked).toContain("GET http://localhost/api/admin/setup");
+    expect(walked).toContain("POST http://localhost/api/admin/providers/test");
   });
 
   it("renders every page other than For the installer in the words of the owner, without a session secret", async () => {

@@ -176,12 +176,14 @@ describe("POST /api/admin/login", () => {
     await environmentOf({ ADMIN_PASSWORD: short, ADMIN_SESSION_SECRET: ADMIN_SECRET });
 
     const response = await login(request("/api/admin/login", { password: short }));
-    const body = (await response.json()) as { status: string; error: string };
+    const body = (await response.json()) as { status: string; reason: string; error: string };
 
     expect(short.length).toBe(15);
     expect(response.status).toBe(503);
-    expect(body.error).toContain("ADMIN_PASSWORD");
-    expect(body.error).toContain("16");
+    expect(body.status).toBe("admin_password_too_short");
+    expect(body.reason).toBe("admin_password_too_short");
+    expect(body.error).not.toContain("ADMIN_PASSWORD");
+    expect(body.error.toLowerCase()).toContain("install");
     expect(JSON.stringify(body)).not.toContain(short);
     expect(response.headers.get("set-cookie")).toBeNull();
 

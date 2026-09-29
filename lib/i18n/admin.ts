@@ -15,6 +15,8 @@ export type AdminStrings = {
   locked: string;
   unconfiguredTitle: string;
   unconfigured: string;
+  panelNotConfigured: string;
+  panelPasswordTooShort: string;
   setupTitle: string;
   setupIntro: string;
   configured: string;
@@ -132,6 +134,10 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     locked: "Too many failed attempts from this address. Try again in fifteen minutes.",
     unconfiguredTitle: "The panel cannot start",
     unconfigured: "The server needs {variables}. Fill the variable in the environment and start it again.",
+    panelNotConfigured:
+      "Whoever installs Cited has to finish the installation on the server: the panel cannot answer yet.",
+    panelPasswordTooShort:
+      "The password of the panel is too short: whoever installs Cited has to set a longer one on the server.",
     setupTitle: "For the installer",
     setupIntro:
       "What this server sets above the panel. Everything else belongs to the owner and happens in AI and keys; no name of a variable appears anywhere else in the panel.",
@@ -254,6 +260,10 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     locked: "Demasiados intentos fallidos desde esta dirección. Vuelve a intentarlo en quince minutos.",
     unconfiguredTitle: "El panel no puede arrancar",
     unconfigured: "El servidor necesita {variables}. Rellena la variable en el entorno y vuelve a arrancarlo.",
+    panelNotConfigured:
+      "Quien instala Cited tiene que terminar la instalación en el servidor: el panel todavía no puede responder.",
+    panelPasswordTooShort:
+      "La contraseña del panel es demasiado corta: quien instala Cited tiene que poner una más larga en el servidor.",
     setupTitle: "Para quien instala",
     setupIntro:
       "Lo que este servidor fija por encima del panel. Todo lo demás es del dueño y ocurre en IA y llaves; ningún nombre de variable aparece en el resto del panel.",

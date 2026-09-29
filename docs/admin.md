@@ -18,8 +18,10 @@ npm run dev
 ```
 
 The panel lives in `/admin`. Without `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET`, or with an `ADMIN_PASSWORD` shorter
-than sixteen characters, it refuses to start with `503` and names the variable or the rule that fails; it never shows
-a value of the environment, only whether it is set.
+than sixteen characters, it refuses to start with `503` and the code `panel_not_configured` or
+`admin_password_too_short` answered in the words of the owner; the name of the variable that is missing is written
+once in the log of the server and it stays on "For the installer" (`/admin`), which is the only place of the interface
+where it is written. It never shows a value of the environment, only whether it is set.
 
 ## Pages
 
@@ -163,7 +165,8 @@ the upload survives on disk.
 | `tests/admin-session.test.ts` | the token, the constant-time comparisons and the flags of the cookie |
 | `tests/admin-lockout.test.ts` | the five failures, the fifteen minutes and the four hundred and twenty nine |
 | `tests/admin-guard.test.ts` | the guard of a page, of a handler and of a mutation of another origin |
-| `tests/admin-routes.test.ts` | the twelve routes, the `503` of the missing variable and the eleven `401` |
+| `tests/admin-routes.test.ts` | the twelve routes, the `503` of an installation that is not finished and the eleven `401` |
+| `tests/admin-unconfigured-words.test.tsx` | the code and the words of every route and every page of `/admin` when `ADMIN_SESSION_SECRET` is missing or the password is short, against the names of `.env.example` |
 | `tests/admin-setup.test.ts` | the grouping of the template and the promise that no value travels |
 | `tests/admin-business.test.ts` | the business, the logo by its bytes and the three rules of the prompt |
 | `tests/admin-business-missing.test.ts` | `readBusiness()` without the table |

@@ -132,7 +132,7 @@ reproduced.
 Report: `reports/2026-09-29-step-12-review-fixes.md`. Tests first, red before each fix, reproducing what the review
 reproduced. The sections 0 to 11 are done: their text does not change.
 
-- [ ] 12.1 Major: the shared answer of an unfinished installation (scenario "An installation that is not finished"):
+- [x] 12.1 Major: the shared answer of an unfinished installation (scenario "An installation that is not finished"):
       `lib/admin/respond.ts` answers `503` with `panel_not_configured` or `admin_password_too_short` and owner words, and
       `app/admin/layout.tsx` stops printing `guarded.missing`; the names of the missing variables are written once to the
       server log (`console.error`) and stay on "For the installer". The test starts the routes and renders the pages with

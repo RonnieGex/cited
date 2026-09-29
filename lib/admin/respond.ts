@@ -1,4 +1,7 @@
-import type { AdminGuard } from "./guard.ts";
+import { OWNER_WORDS, type AdminGuard } from "./guard.ts";
+
+export const PANEL_NOT_CONFIGURED = "panel_not_configured";
+export const ADMIN_PASSWORD_TOO_SHORT = "admin_password_too_short";
 
 export function json(
   body: unknown,
@@ -15,12 +18,16 @@ export function json(
   });
 }
 
+// An installation that is not finished is not a detail of whoever installs: the route answers the code and the words of
+// the owner, and the names of the variables that are missing go to the log of the server (`lib/admin/guard.ts`) and to
+// the page "For the installer". They are never part of a response of `/api/admin/*`.
 export function guardResponse(guarded: Exclude<AdminGuard, { status: "ok" }>): Response {
   if (guarded.status === "unconfigured") {
     return json(
       {
-        status: "unconfigured",
-        error: `the panel needs ${guarded.missing.join(" and ")}; fill the variable in the environment of the server, never with a value in the repository`,
+        status: PANEL_NOT_CONFIGURED,
+        reason: PANEL_NOT_CONFIGURED,
+        error: OWNER_WORDS.unconfigured,
       },
       503,
     );
@@ -29,8 +36,9 @@ export function guardResponse(guarded: Exclude<AdminGuard, { status: "ok" }>): R
   if (guarded.status === "short-password") {
     return json(
       {
-        status: "unconfigured",
-        error: `ADMIN_PASSWORD has fewer than ${guarded.minimum} characters; choose a longer password in the environment of the server, never with a value in the repository`,
+        status: ADMIN_PASSWORD_TOO_SHORT,
+        reason: ADMIN_PASSWORD_TOO_SHORT,
+        error: OWNER_WORDS.shortPassword,
       },
       503,
     );
