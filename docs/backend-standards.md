@@ -26,7 +26,7 @@ alwaysApply: true
 - `.env.example` carries the names with empty values and a line that explains what each one is for. Local values live
   in `.env`, which is ignored by git.
 - `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` and `VOICE_TOOL_SECRET` are required in every deployment. Without
-  `ADMIN_PASSWORD` the panel does not start.
+  `ADMIN_PASSWORD`, or with fewer than 16 characters, the panel does not start.
 
 ## 3. Route handlers
 

@@ -1,78 +1,88 @@
 # LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: public-page-and-widget (OpenSpec)
-ROUND: section 10, "What the review of Codex reproduced" (contract amended by Fable after `revision-community-08`)
-BRANCH: feature/public-page-and-widget
-BASE: 7c4f4ff (main, "Merge brand-and-design-system")
-HEAD AT THE START OF THE ROUND: b487ac1 ("Name the prop of the language switch, and ask for the color, the Escape and
-the new tab": the amended decision 8 and the new requirement, written by Fable)
-HEAD AT THE END OF THE ROUND: the closing commit, which carries this file, the section 10.5 of the report and the last
-checkbox of the contract
+CHANGE: admin-panel-and-onboarding (OpenSpec)
+ROUND: section 11 of the contract, tasks 11.1 to 11.4, after the review `revision-community-07b`
+BRANCH: feature/admin-panel-and-onboarding
+BASE: 7c4f4ff (main, "Merge brand-and-design-system"); the change starts at 8c054c1 ("Specify the admin panel and the
+first-run assistant")
+HEAD AT THE START OF THE ROUND: 2f03670 ("Ask for the integration of the panel with the public page on main", the
+contract amended by Fable)
+MAIN MERGED INTO THIS BRANCH: ee966f0 ("Merge public-page-and-widget"), the other lane, already archived there
+HEAD AT THE END OF THE ROUND: 3905078 (the single commit of the merge) and 2a3a11a, plus the closing commit that
+carries this file, the report of step 11, the four marks and the round of the delivery
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
-## Objective of this round
+## Objective
 
-Close the four Major that Codex reproduced in `katalis-dev/tasks/revision-community-08.md`, tests first and red before
-each fix, reproducing exactly what the review reproduced, and only then repeat the battery.
+Execute section 11 of `openspec/changes/admin-panel-and-onboarding/tasks.md`, the one Fable amended after
+`revision-community-07b`: merge `main` (which already carries `public-page-and-widget`, `ee966f0`) into this branch,
+resolve the fifteen conflicts by the rules of 11.1 and record every conflicted file with the rule applied, close the
+Minor of `readBusiness()`, repair the evidence of 10.4, and run the whole battery on the merged branch with the panel
+and the public page together. One real report per `[x]` inside the change folder, small commits on the branch, the
+merge as one single commit, and the round appended to `katalis-dev/tasks/entrega-community-07.md` in Spanish with its
+`## Issues`.
 
 ## What was delivered
 
-- **10.1**: `components/i18n/LanguageSwitch.tsx` takes the one prop `current` of design decision 8 as amended, so the
-  file this lane owns can replace the stand-in of the parallel lane without breaking `npm run typecheck`. The red state
-  was the real diagnostic of the review at a JSX call site: `Type '{ current: Lang; }' is not assignable to type
-  'IntrinsicAttributes & LanguageSwitchProps'`.
-- **10.2**: the primary color of the settings paints the ask button and the accents of `/` and `/embed`, through the
-  new `brand` variant of `components/ui/Button.tsx` and two accents in `components/chat/`. Chromium measured
-  `rgb(23, 23, 23)` before the fix (the ink the button kept) and `rgb(221, 244, 105)`, then `rgb(29, 78, 216)` with the
-  accepted business color of the fixture, after it.
-- **10.3**: `Escape` inside the iframe closes the widget and returns the focus to its button. `lib/widget/messages.ts`
-  is the one protocol, `components/chat/Chat.tsx` posts it from `/embed`, and `lib/widget/script.ts` closes only for a
-  message from its own origin and of that shape. `public/widget.js` was rebuilt (2466 bytes of 5120).
-- **10.4**: a tab opened from the page starts its own conversation. The tab keeps the mark `cited-tab=<id>` in
-  `window.name`, which `window.open` does not inherit, next to the id in `sessionStorage`, and `lib/chat/session.ts`
-  believes the stored id only when the two agree.
-- **10.5**: the whole battery, the round in `katalis-dev/tasks/entrega-community-08.md` (Spanish, with its own
-  `## Issues`) and this file in `DONE`.
+- **11.1**: `git merge main` left the fifteen conflicts the review had reproduced, and `3905078` is the one commit of
+  the merge. `lib/settings/business.ts` and `LOOP_STATE.md` keep this branch's version; `lib/i18n/language.ts`,
+  `components/i18n/LanguageSwitch.tsx` and the root layout keep `main`'s (the layout of `main` resolves the language of
+  the visitor first, the language of the business after it and English last, which contains this branch's fallback),
+  and the stand-in headers of both lanes are gone. `proxy.ts` carries both behaviours in one function: the guard of the
+  panel for `/admin` and `/admin/:path*`, and the nonce with the policy and the `frame-ancestors` of the public
+  documents for `/` and `/embed`. `playwright.config.ts` keeps the ports and the origins of both suites with two
+  servers and two projects: the panel with its own store, reset before the start, on `E2E_PORT` (3213, moved from
+  3211, which is the site of the widget suite that must not frame the chat), and the public page on port 3100 with the
+  corpus of `samples/` ingested, `ALLOWED_ORIGINS` and the high limits. The two READMEs,
+  `scripts/readme-graphics/data.mjs` and the graphics keep the behaviour of both sides: both rows `Available`, both
+  captures, `main`'s `ALLOWED_ORIGINS` row, and the four PNG in conflict plus `readme-graphics.json` regenerated by
+  `node scripts/render-readme-graphics.mjs`.
+- **11.2**: `readBusiness()` answers `null` only when the missing table is `business`; a missing `documents` table, a
+  name that starts with `business` and every other failure reach the caller. Red first in `c870b16`, the fix in
+  `d8eef32`.
+- **11.3**: the evidence of 10.4 is the search over the reports of steps 0 to 9, the ones the correction touched (the
+  single digit of `step-N-` leaves this report and every later one out), and its real output is `(no line)`. `9b50210`
+  and `2a3a11a`.
+- **11.4**: the battery on the merged branch, with the panel and the public page together, and the round of the
+  delivery in Spanish with its `## Issues`.
 
 ## Evidence
 
-- Seven commits of this round against the contract: `a40927e` (RUNNING), `0850f7c` (the four red tests and their
-  report), `17a6182`, `e3eef0c`, `8047f31`, `8ab05c6` and the closing commit.
-- One report for the section, `openspec/changes/public-page-and-widget/reports/2026-09-29-step-10-review-fixes.md`,
-  with the red reproduction and the green run of each point, the exact commands, the outputs and the commits.
-- `npm test`: 27 files and 277 tests green on Windows 11 (Node v24.11.0); before this round, 26 and 264.
-- `npm run test:e2e`: 15 tests green (12 before), axe 0 violations on `/` (24 rules), `/embed` (23) and `/kit` (21).
-- `npm run typecheck`, `npm run lint`, `openspec validate --all --strict` (9 items), `git diff --check main...HEAD` and
-  `node scripts/build-widget.mjs` (2466 bytes), all clean.
-- gitleaks: 246 commits, 2.66 MB, `no leaks found`.
+- Report: `openspec/changes/admin-panel-and-onboarding/reports/2026-09-29-step-11-integration.md`, with the exact
+  command, the commit and the output of every task, the fifteen conflicted files and the rule applied to each one.
+- `npm test`: 38 files and 348 tests green on Windows (19.25 s); 38 files, 346 green and 2 skipped in a `node:24` Linux
+  container from a clean clone of `3905078` (v24.21.0, 81.86 s).
+- `npm run test:e2e`: 21 tests green in one run with the two servers up, the six of the panel and the fifteen of the
+  public page and the widget, with axe at 0 violations in `/`, `/embed` and the kit. `npm run typecheck`, `npm run
+  lint`, `gitleaks git` (265 commits on the merged tree and 267 on the closing commit `602230d`, no leaks),
+  `openspec validate --all --strict` (10 items) and `git diff --check main...HEAD`: green. The working tree is clean.
+- The flakiness seen in the round: the first browser run after the build ended `20 passed` and `1 flaky`
+  (`e2e/widget.spec.ts:44`, the answer of the iframe, green on the retry) and the two runs after it ended `21 passed`;
+  one run of `npm test` failed one test of the 348 and its output was not kept, so the report cannot name it, and the
+  eleven runs after it were green.
 
 ## The issues that stay open
 
-- `docs/images/chat-page.png` is a real capture of the interface before this round: it shows the ask button in ink, and
-  the button carries the fill of the brand from 10.2 on. It was not re-rendered, and `tests/readme.test.ts` measures its
-  luminance and not its content.
-- `--primary` and `--on-primary` are inline style attributes of the two public pages; the kit has no fallback for a
-  consumer outside them, because the design system belongs to another change.
-- The close message travels with `targetOrigin: "*"`: only an origin of `frame-ancestors` can frame `/embed`, the
-  message carries no data, and the widget checks the origin of what it receives.
-- The owner mark lives in `window.name`: if another script of the same origin erased it, the tab would start a new
-  conversation, which is the safe fall.
-- `e2e/widget.spec.ts` needs one port per test (3210 and 3212, both in `ALLOWED_ORIGINS`), because the tests of a file
-  run in parallel.
-- The independent adversarial review of this correction, the push, the merge, the archive and the deploy were not
-  executed and were not authorized: they are Codex's or Fable's.
+- The browser suite is flaky on the first run after the build: the widget case of the iframe answer failed once inside
+  its five seconds and passed on the retry. The case belongs to `public-page-and-widget` and this round did not touch
+  it.
+- The one test of `npm test` that failed once could not be named: its run kept only the tail of the output.
+- The panel's test port moved from 3211 to 3213, because the widget suite serves the refused site on 3211. If Fable
+  prefers the panel to keep 3211, the site of the refusal in `e2e/widget.spec.ts` is what has to move.
+- `readBusinessLogo()` keeps the broad `catch` that 10.3 removed from `readBusiness()`, as the round of section 10
+  recorded.
+- The change is not archived (that needs the explicit OK of Franc), nothing was pushed and nothing was deployed.
+- The panel was not tried with a real provider nor with a remote Turso database.
 
 ## Hard rules respected
 
-- No `.env` file was opened (this worktree has none; only `.env.example` is tracked as the public template).
+- No `.env` file was opened (the repository has none: `Test-Path .env` is `False`).
 - No push, no remote, no commit in `main`, no archive in this worktree, no deploy.
-- The other worktree (`community`, `feature/admin-panel-and-onboarding`) was not touched; its `AdminNav.tsx` was read
-  once to pin the interface the owner has to match.
-- No test called a real provider: the deterministic `fake` ran every command.
-- No personal path in a versioned file; the logs of the round live outside the repository, in `katalis-dev/tasks/`.
+- The other worktree (`community-ui`, of Fable) was not touched.
+- No test calls a real provider: the deterministic `fake` providers ran the suite, the two servers of the browser
+  flows and the render of the graphics.
 - `MEMORY.md` is in no commit.
 - UTF-8 with LF in every file written or modified.
-- The text of no task was edited: only its checkboxes; `design.md` and the two delta specs were not touched, and
-  neither was the text of sections 0 to 9.
+- The text of no task, of `design.md` or of the specs was edited: only the four checkboxes of section 11.

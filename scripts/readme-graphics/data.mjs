@@ -16,6 +16,7 @@ export const states = {
 export const plannedChanges = [
   "design-system-shared",
   "pluggable-models-and-ask",
+  "public-page-and-widget",
   "admin-and-public-ui",
   "elevenlabs-voice-agent",
   "security-hardening",
@@ -49,14 +50,14 @@ export const statusRows = [
     reference: "openspec/specs/answering/spec.md",
   },
   {
+    capability: "The panel: the setup, the business, the documents and the conversations",
+    state: "Available",
+    reference: "openspec/specs/admin-panel/spec.md",
+  },
+  {
     capability: "Public chat of the business, with the widget any site can embed",
     state: "Available",
     reference: "openspec/specs/public-chat/spec.md",
-  },
-  {
-    capability: "Admin panel and onboarding in Spanish and English",
-    state: "Planned",
-    reference: "admin-and-public-ui",
   },
   {
     capability: "Voice agent with ElevenLabs, created in one click",

@@ -1,5 +1,6 @@
 import type { ChatMessage } from "../models/types.ts";
 import type { SearchHit } from "../search/index.ts";
+import type { Business } from "../settings/business.ts";
 
 export { detectLanguage, refusalMessage, REFUSALS } from "./language.ts";
 
@@ -15,6 +16,41 @@ export const SYSTEM_PROMPT = [
 ].join("\n");
 
 export const NO_ANSWER = "NO_ANSWER";
+
+export function businessRules(business: Business): string[] {
+  const rules: string[] = [];
+  const tone = business.tone.trim();
+
+  if (tone.length > 0) {
+    rules.push(`Write with this tone: ${tone}.`);
+  }
+
+  rules.push(
+    business.language === "es"
+      ? "Answer in Spanish: it is the language the owner chose for this business, even when the question arrives in another language."
+      : "Answer in English: it is the language the owner chose for this business, even when the question arrives in another language.",
+  );
+
+  if (business.forbiddenTopics.length > 0) {
+    rules.push(
+      `Never discuss these topics: ${business.forbiddenTopics.join("; ")}. If the question asks about one of them, answer exactly NO_ANSWER.`,
+    );
+  }
+
+  return rules;
+}
+
+export function systemPrompt(business?: Business | null): string {
+  if (business === undefined || business === null) {
+    return SYSTEM_PROMPT;
+  }
+
+  const extra = businessRules(business)
+    .map((rule, index) => `${index + 6}. ${rule}`)
+    .join("\n");
+
+  return `${SYSTEM_PROMPT}\n${extra}`;
+}
 
 export type Turn = { question: string; answer: string };
 
@@ -43,6 +79,7 @@ export function buildMessages(input: {
   question: string;
   hits: SearchHit[];
   history?: Turn[];
+  business?: Business | null;
 }): ChatMessage[] {
   const history = (input.history ?? []).flatMap((turn): ChatMessage[] => [
     { role: "user", content: turn.question },
@@ -50,7 +87,7 @@ export function buildMessages(input: {
   ]);
 
   return [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: systemPrompt(input.business) },
     ...history,
     { role: "user", content: passageMessage(input.question, input.hits) },
   ];

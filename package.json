@@ -16,7 +16,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "npm run build && playwright test",
     "ingest": "node --env-file-if-exists=.env scripts/ingest.ts",
     "search": "node --env-file-if-exists=.env scripts/search.ts",
     "ask": "node --env-file-if-exists=.env scripts/ask.ts",

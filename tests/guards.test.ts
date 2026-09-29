@@ -154,6 +154,31 @@ describe("the address of the visitor", () => {
     );
     expect(clientIp(request({}), { TRUST_PROXY: "1" })).toBe("unknown");
   });
+
+  it("keeps every client of two trusted proxies in its own bucket", () => {
+    const first = request({
+      "x-forwarded-for": "203.0.113.250, 198.51.100.21, 192.0.2.10",
+    });
+    const second = request({
+      "x-forwarded-for": "203.0.113.251, 198.51.100.22, 192.0.2.10",
+    });
+
+    expect(clientIp(first, { TRUST_PROXY: "2" })).toBe("198.51.100.21");
+    expect(clientIp(second, { TRUST_PROXY: "2" })).toBe("198.51.100.22");
+    expect(clientIp(first, { TRUST_PROXY: "2" })).not.toBe(clientIp(second, { TRUST_PROXY: "2" }));
+  });
+
+  it("ignores the addresses a client wrote before the two its proxies appended", () => {
+    const forged = request({
+      "x-forwarded-for": "198.51.100.10, 198.51.100.11, 203.0.113.55, 192.0.2.10",
+    });
+    const plain = request({
+      "x-forwarded-for": "203.0.113.55, 192.0.2.10",
+    });
+
+    expect(clientIp(forged, { TRUST_PROXY: "2" })).toBe("203.0.113.55");
+    expect(clientIp(plain, { TRUST_PROXY: "2" })).toBe("203.0.113.55");
+  });
 });
 
 describe("the purge of what expired", () => {

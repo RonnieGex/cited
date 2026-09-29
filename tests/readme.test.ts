@@ -43,7 +43,7 @@ const statusStates: Record<string, string> = {
 const plannedChanges = [
   "design-system-shared",
   "pluggable-models-and-ask",
-  "admin-and-public-ui",
+  "public-page-and-widget",
   "elevenlabs-voice-agent",
   "security-hardening",
   "docs-deploy-and-launch",
@@ -221,10 +221,19 @@ function trackedFiles(): TrackedFile[] {
 // `Available` links the spec of its capability, and that spec either exists in `openspec/specs/` or is added by an
 // open change under `openspec/changes/` as `specs/<capability>/spec.md`. The file of the spec in force appears when
 // that change is archived, and is never written by hand before.
+//
+// Amended by Fable in `admin-panel-and-onboarding`, task 10: a change may also carry a `## MODIFIED Requirements`
+// delta of a capability that is already in force, as the amended `specs/answering/spec.md` of that change does. Such
+// a delta leaves the spec of `openspec/specs/` in place instead of writing it, so only a delta that ADDS the
+// capability explains a row whose spec file does not exist yet.
 const specLink = /^openspec\/specs\/([^/]+)\/spec\.md$/;
 
 function capabilityOf(link: string): string | null {
   return specLink.exec(link)?.[1] ?? null;
+}
+
+function addsCapability(path: string): boolean {
+  return readText(path).includes("## ADDED Requirements");
 }
 
 function openChangeSpecs(capability: string): string[] {
@@ -233,7 +242,8 @@ function openChangeSpecs(capability: string): string[] {
   return readdirSync(root, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name !== "archive")
     .map((entry) => `openspec/changes/${entry.name}/specs/${capability}/spec.md`)
-    .filter((path) => existsSync(resolve(repositoryRoot, path)));
+    .filter((path) => existsSync(resolve(repositoryRoot, path)))
+    .filter((path) => addsCapability(path));
 }
 
 function specIsDelivered(link: string): boolean {
@@ -653,7 +663,9 @@ describe("README, the status table", () => {
 
     expect(rows.length).toBeGreaterThanOrEqual(4);
     expect(rows.filter((row) => row.state === "Available").length).toBeGreaterThanOrEqual(4);
-    expect(rows.filter((row) => row.state === "Planned").length).toBeGreaterThanOrEqual(5);
+    // The integration of `public-page-and-widget` with `admin-panel-and-onboarding` moved the two rows of those lanes
+    // from Planned to Available, so the floor of the planned rows follows the table that is left.
+    expect(rows.filter((row) => row.state === "Planned").length).toBeGreaterThanOrEqual(4);
 
     for (const row of rows) {
       if (row.state === "Available") {

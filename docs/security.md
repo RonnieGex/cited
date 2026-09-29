@@ -34,7 +34,7 @@ Anyone can ask a question, so the endpoint is treated as hostile input.
 
 - The maximum length of a question is 1000 characters. **Planned** in `pluggable-models-and-ask`.
 - The answer text is returned as sanitized markdown and never as raw HTML, so a document cannot inject a script into
-  the page. **Planned** in `pluggable-models-and-ask` and `admin-and-public-ui`.
+  the public questions. **Planned** in `pluggable-models-and-ask` and `public-page-and-widget`.
 - The system instruction is written against instruction injection: the retrieved documents are data, not orders, and
   the model is told so. **Planned** in `pluggable-models-and-ask`.
 - An answer that the documents do not support is refused instead of invented. **Planned** in
@@ -42,13 +42,17 @@ Anyone can ask a question, so the endpoint is treated as hostile input.
 
 ## 2. The administration panel
 
-- `ADMIN_PASSWORD` is required: without it the panel does not start, and the app says so at startup instead of
-  serving an open panel. **Planned** in `admin-and-public-ui`.
-- The session lives in a cookie that is `httpOnly`, `secure` and `sameSite`. **Planned** in `admin-and-public-ui`.
-- Access attempts are limited, so the password cannot be guessed at full speed. **Planned** in
-  `admin-and-public-ui`.
-- Every data fetch of the panel is behind the same session; nothing is hidden only in the interface. **Planned** in
-  `admin-and-public-ui`.
+- `ADMIN_PASSWORD` is required and has at least sixteen characters: without it, or with a shorter one, the panel does
+  not start, and the app says so instead of serving an open or a weak panel. **Done** in `admin-panel-and-onboarding`.
+- The session lives in a cookie that is `httpOnly`, `sameSite=strict` and `secure` outside `localhost`, signed with
+  `ADMIN_SESSION_SECRET`, and the password is compared in constant time. **Done** in `admin-panel-and-onboarding`.
+- Access attempts are limited by address: five failures from one known address within fifteen minutes lock that
+  address for fifteen minutes, with `Retry-After`. The address is known only when `TRUST_PROXY` declares how many
+  proxies sit in front and the forwarding chain carries the address that many places from the right; without a known
+  address no attempt locks anybody and every failed attempt takes at least one second. **Done** in
+  `admin-panel-and-onboarding`.
+- Every data fetch of the panel is behind the same session, every mutation also checks the origin of the request, and
+  nothing is hidden only in the interface. **Done** in `admin-panel-and-onboarding`.
 
 ## 3. The balance of the owner
 
@@ -59,12 +63,12 @@ The API key belongs to the person who forks the project, so an abuse spends thei
   calls; the voice minutes are **Planned** in `elevenlabs-voice-agent`.
 - A cap of tokens per answer. **Done** in `pluggable-models-and-ask`.
 - The panel shows whether each key is present and offers a test button; the key is never shown again and never stored
-  in the database. **Planned** in `admin-and-public-ui`.
+  in the database. **Done** in `admin-panel-and-onboarding`.
 
 ## 4. The widget and the voice agent, both planned
 
 - An allowlist of domains for the widget, applied both in CORS and in the voice provider. **Planned** in
-  `admin-and-public-ui` and `elevenlabs-voice-agent`.
+  `public-page-and-widget` and `elevenlabs-voice-agent`.
 - The voice key never reaches the browser: the browser asks the server for a signed URL that expires in 15 minutes.
   **Planned** in `elevenlabs-voice-agent`.
 - The tool the voice agent calls requires a secret of its own installation, sent as a Bearer token. **Planned** in
@@ -87,7 +91,7 @@ The API key belongs to the person who forks the project, so an abuse spends thei
 ## 7. Privacy
 
 - Conversations are stored only in the installation, with a configurable retention of days and a button that deletes
-  them. **Planned** in `core-libsql-hybrid-search` and `admin-and-public-ui`.
+  them. **Done** in `pluggable-models-and-ask` for the retention and in `admin-panel-and-onboarding` for the button.
 - Zero telemetry to Katalis. No counter, no beacon and no call home. **Planned** in `security-hardening`, which
   verifies it by inspecting the network calls of a running installation.
 - The keys of the owner are the only credentials, and they live in the environment of the server. **Planned** in

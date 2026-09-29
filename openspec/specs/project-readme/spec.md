@@ -169,4 +169,3 @@ card. A graphic SHALL never show a planned capability as working. (Added by Fabl
 - **WHEN** `docs/images/social-preview.png` is read
 - **THEN** it is a PNG of 1280 × 640 with the name, the tagline and `by Katalis`, ready to be set as the social preview
   of the repository at the launch
-
