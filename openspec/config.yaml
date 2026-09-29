@@ -27,9 +27,9 @@ context: |
   or any other commercially licensed font file, the book of Construye, golden cases, holdout data, prompts of
   clients, prices or keys.
 
-  Languages: code, specs, tests, commits, reports and `LOOP_STATE.md` are in English. `README.md` is the only
-  bilingual file. The delivery documents that Franc reads live outside this repository, in `katalis-dev/tasks/`, and
-  they are in Mexican Spanish.
+  Languages: code, specs, tests, commits, reports and `LOOP_STATE.md` are in English. `README.md` and its Spanish twin
+  `README.es.md` are the bilingual pair of the front page, and each one links the other. The delivery documents that
+  Franc reads live outside this repository, in `katalis-dev/tasks/`, and they are in Mexican Spanish.
 
   Project specs (single source of truth): every artifact and every implementation follows this context. Read and
   apply:
@@ -40,6 +40,7 @@ context: |
   - docs/security.md - the threat model, as a living document
   - docs/development-guide.md - local commands, ports and environment files
   - docs/documentation-standards.md - structure and maintenance of the documentation
+  - docs/readme-assets.md - the banner, the graphics and the badges of the README
   - docs/openspec-tasks-mandatory-steps.md - the mandatory steps of every tasks.md
   For implementation: adopt ai-specs/agents/backend-developer.md and ai-specs/agents/frontend-developer.md
   according to the work. Use the skills of `.claude/skills` when they apply.

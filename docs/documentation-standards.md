@@ -14,7 +14,7 @@ documents that tell the agents how to behave, plan, document and code: the stand
 ## General rules
 
 - ALWAYS WRITE IN ENGLISH, including code comments and any explanation inside a file, for new documentation and for
-  updates alike. The only exception in this repository is the Spanish part of `README.md`.
+  updates alike. The only exception in this repository is `README.es.md`, the Spanish twin of the README.
 - Documentation states measured facts. A number that was not measured is not written, not even as an estimate.
 - A capability that is not built yet is written as planned, with the change that builds it.
 
@@ -30,16 +30,20 @@ When updating documentation:
    - A change in the threat model, a limit or a header: `docs/security.md`.
    - A stack, testing or layout change: `docs/backend-standards.md` or `docs/frontend-standards.md`.
    - A change in the working rules: `docs/base-standards.md` or `docs/openspec-tasks-mandatory-steps.md`.
-   - What the project is and how to run it: `README.md`, in English and in Spanish.
+   - A change in the banner, the graphics or the badges of the README: `docs/readme-assets.md`.
+   - What the project is and how to run it: `README.md` and its twin `README.es.md`.
 3. Update each affected document in English, consistent with what exists.
 4. Verify that the document describes what the code really does.
 5. Report which files were updated.
 
 ## README
 
-`README.md` is the only bilingual document. The English part comes first and the Spanish part after it, and the two
-say the same. It carries: what the project will be, the state of construction with the change that is open, what a
-person needs to run it, the license and the attribution line of Katalis.
+The README is two files: `README.md` in English and `README.es.md`, its Spanish twin in Mexican Spanish with `tú`. The
+two say the same: the same banner, the same sections in the same order, the same commands and the same variables, and
+each one links the other at its head. `README.md` is the front page of the repository and reads like an announcement
+of the product: a hero, benefit-led headlines, one graphic per section and a call to action, with a status table that
+says exactly what works today and what each next change adds. The design of the assets is in `docs/readme-assets.md`,
+and `tests/readme.test.ts` holds every claim of both files against the specs, the code and the files on disk.
 
 ## AI specs
 
