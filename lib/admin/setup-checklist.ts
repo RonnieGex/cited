@@ -70,8 +70,14 @@ export async function setupChecklist(
   const problem = chatProblem(chat);
   const tested = chatRow?.testedAt !== null && chatRow?.testedAt !== undefined;
   const chatVerified = chat.provider !== null && problem === null && (server || tested);
-  const chatUnusable = chat.provider === null ? server : problem !== null;
-  const panelStarted = server === false && chatRow !== null && chatRow.provider.trim().length > 0;
+  // Decision 23 of the third amendment: a name the catalogue does not know is a problem of the step, whether the panel
+  // saved it or the environment of the server gave it — and it asks for attention with or without a stored test, because
+  // there is no provider to use (the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`). A first visit is not
+  // this case: nothing is named anywhere, so `chatProblem()` speaks of a provider that is not connected yet and the step
+  // stays to do.
+  const panelProvider = server === false && (chatRow?.provider.trim() ?? "").length > 0;
+  const chatUnusable = problem !== null && (server || panelProvider);
+  const panelStarted = panelProvider;
 
   const ai: SetupState = chatVerified ? "verified" : chatUnusable ? "attention" : panelStarted ? "progress" : "todo";
 
