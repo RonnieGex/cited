@@ -62,10 +62,10 @@ export async function setupChecklist(
   // where it came from, but because it can answer — the same judgement the public page makes when it says the assistant
   // is not ready. Decision 20 of the second amendment gives the first step one rule whatever the source: it is verified
   // only when `chatProblem()` returns nothing for the resolved provider, and a provider of the panel also needs its
-  // last test. A key that can no longer be read is a provider that cannot answer, so the step is not green (the Major
-  // M-7 of `katalis-dev/tasks/revision-community-13b.md`); it needs attention as soon as the owner did something about
-  // it — the server set it, or the panel saved and tested it — and it stays in progress while the owner is still in the
-  // middle of the step.
+  // last test. A provider that cannot answer — the server without its key, the key of the panel that can no longer be
+  // read, a row of the panel without a key — needs attention, whether or not a test was stored (the Major M-7 of
+  // `katalis-dev/tasks/revision-community-13b.md`); the step stays in progress only while the provider can answer and
+  // the owner has not finished the step yet, which is a saved provider whose last test is still missing.
   const server = chat.source === "server";
   const problem = chatProblem(chat);
   const tested = chatRow?.testedAt !== null && chatRow?.testedAt !== undefined;
@@ -73,13 +73,7 @@ export async function setupChecklist(
   const chatUnusable = chat.provider === null ? server : problem !== null;
   const panelStarted = server === false && chatRow !== null && chatRow.provider.trim().length > 0;
 
-  const ai: SetupState = chatVerified
-    ? "verified"
-    : chatUnusable && (server || tested)
-      ? "attention"
-      : panelStarted
-        ? "progress"
-        : "todo";
+  const ai: SetupState = chatVerified ? "verified" : chatUnusable ? "attention" : panelStarted ? "progress" : "todo";
 
   const information: SetupState = passages > 0 ? "verified" : "todo";
 
