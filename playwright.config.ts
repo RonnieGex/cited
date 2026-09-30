@@ -22,7 +22,9 @@ import {
 // spec opens a port outside it — 3100 serves the public page and the widget reads it from there; 3210 and 3212 serve
 // the sites of the widget tests, and 3211 the guided setup walked in Spanish; 3213 serves the panel, 3214 the panel of
 // the keys, 3215 the panel with the affiliate switch on; 3216 is the provider double that the specs of the keys, of the
-// guided setup and of the Spanish walk serve one at a time; 3217 is the guided setup of the walk in English.
+// guided setup and of the Spanish walk serve one at a time; 3217 is the guided setup of the walk in English. The spec
+// of that walk also starts a panel of its own on 3210 for the server-set case of decision 24, which the `public`
+// project never runs at the same time as, because this suite keeps one worker.
 
 const port = E2E_PORT;
 const panelBaseURL = E2E_BASE_URL;

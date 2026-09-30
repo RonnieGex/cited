@@ -38,7 +38,7 @@ The fixed set is 3100 and 3210 to 3217. No spec opens a port outside it.
 | Port | What answers there |
 |---|---|
 | 3100 | the public server the widget reads |
-| 3210, 3212 | the sites of the widget tests that may embed the chat |
+| 3210, 3212 | the sites of the widget tests that may embed the chat; 3210 also serves the panel the spec of the guided setup starts for the server-set case, while its own project runs |
 | 3211 | the guided setup walked in Spanish |
 | 3213 | the panel |
 | 3214 | the panel of the keys |

@@ -1,14 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
 import { PUBLIC_STRINGS } from "../lib/i18n/public";
 import { buildDocx, buildPdf, buildZip } from "../tests/fixtures/documents";
-import { E2E_ADDRESS, E2E_ADMIN_PASSWORD } from "./admin-fixtures";
+import { E2E_ADDRESS, E2E_ADMIN_PASSWORD, E2E_ADMIN_SECRET } from "./admin-fixtures";
 import {
   PROVIDER_DOUBLE_KEY,
+  PROVIDER_DOUBLE_PORT,
   closeDouble,
   listenOnDoublePort,
   providerDouble,
@@ -23,6 +25,9 @@ import {
 // suggested question, marks the answer right and publishes. The chat provider is the local double this spec serves on
 // port 3216, which the environment of that server points the OpenAI entry of the catalogue at: there is a real HTTP
 // round trip and no test reaches a real provider.
+//
+// The last group walks the other shape of decision 24 of the fourth amendment — the chat named by the environment of
+// the server — on a panel this spec starts itself on port 3210, with its own store and no search chosen.
 //
 // The cases run in order: the first one needs the store empty and the later ones need what the ones before it built.
 
@@ -522,4 +527,159 @@ test("every page of the round passes axe in English and in Spanish", async ({ pa
     await expect(page.getByRole("heading", { level: 1 })).toContainText(one.title);
     await axe(page);
   }
+});
+
+// Decision 24 of the fourth amendment: the shape of the real run with DeepSeek, where the chat is set by the server and
+// the search is chosen by the owner in step 1. The servers of `playwright.config.ts` set no provider at all, because the
+// walk above starts from nothing, so this group starts a panel of its own — the same build, `next start`, its own port
+// and its own store, exactly as `e2e/brand.spec.ts` does. The port is 3210, inside the fixed set of decision 17: the
+// widget suite serves its first site there in the `public` project, which never runs at the same time as this one
+// because the browser suite keeps one worker.
+const serverSetPort = 3210;
+const serverSetBase = `http://127.0.0.1:${serverSetPort}`;
+const serverSetStore = ".data/e2e-setup-server.sqlite";
+const serverSetEncryptionKey = Buffer.alloc(32, 17).toString("base64");
+
+let serverSet: ChildProcess | null = null;
+
+function removeServerSetStore(): void {
+  for (const suffix of ["", "-wal", "-shm"]) {
+    rmSync(resolve(process.cwd(), `${serverSetStore}${suffix}`), { force: true });
+  }
+}
+
+async function startServerSetPanel(): Promise<void> {
+  removeServerSetStore();
+
+  const panel = spawn(
+    process.execPath,
+    [resolve(process.cwd(), "node_modules/next/dist/bin/next"), "start", "--port", String(serverSetPort)],
+    {
+      cwd: process.cwd(),
+      stdio: "ignore",
+      env: {
+        ...process.env,
+        ADMIN_PASSWORD: password,
+        ADMIN_SESSION_SECRET: E2E_ADMIN_SECRET,
+        // The chat is named by the environment of the server, which is the shape of the real run, and the search is
+        // empty on purpose, because choosing it is what this case walks. The entry the server names is the
+        // OpenAI-compatible one the double on 3216 answers, so a question of this panel would reach no real provider;
+        // the case never asks one. The empty values are explicit for the same reason the config writes them: a value
+        // that happens to live in the environment of this machine never changes what the case measures.
+        CHAT_PROVIDER: "openrouter",
+        OPENROUTER_API_KEY: PROVIDER_DOUBLE_KEY,
+        OPENROUTER_BASE_URL: `http://127.0.0.1:${PROVIDER_DOUBLE_PORT}/v1`,
+        CHAT_MODEL: "",
+        EMBEDDINGS_PROVIDER: "",
+        EMBEDDINGS_API_KEY: "",
+        TURSO_DATABASE_URL: "",
+        DATABASE_URL: serverSetStore,
+        ENCRYPTION_KEY: serverSetEncryptionKey,
+        TRUST_PROXY: "1",
+      },
+    },
+  );
+
+  serverSet = panel;
+
+  const deadline = Date.now() + 90_000;
+
+  for (;;) {
+    try {
+      const response = await fetch(serverSetBase);
+
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      // Not listening yet.
+    }
+
+    if (panel.exitCode !== null) {
+      throw new Error(
+        `the panel of the server-set case exited with ${panel.exitCode}: is the port ${serverSetPort} free?`,
+      );
+    }
+
+    if (Date.now() > deadline) {
+      throw new Error(`the panel of the server-set case did not answer on ${serverSetBase} in 90 seconds`);
+    }
+
+    await new Promise((wake) => setTimeout(wake, 500));
+  }
+}
+
+function stopServerSetPanel(): void {
+  if (serverSet !== null && serverSet.pid !== undefined && serverSet.exitCode === null) {
+    if (process.platform === "win32") {
+      spawnSync("taskkill", ["/pid", String(serverSet.pid), "/T", "/F"], { stdio: "ignore" });
+    } else {
+      serverSet.kill("SIGKILL");
+    }
+  }
+
+  serverSet = null;
+  removeServerSetStore();
+}
+
+test.describe("the chat set by the server", () => {
+  test.use({ baseURL: serverSetBase });
+
+  test.beforeAll(async () => {
+    await startServerSetPanel();
+  });
+
+  test.afterAll(() => {
+    stopServerSetPanel();
+  });
+
+  test("step 1 asks for the search and the sample waits for it, in both languages", async ({ page }) => {
+    await signIn(page);
+
+    // The welcome is the one of any first visit: what this case measures is what step 1 asks for once the lane opens.
+    await page.getByRole("button", { name: english.setupStart }).click();
+
+    await expect(step(page, "ai")).toBeVisible();
+    await expect(step(page, "ai").getByRole("button", { expanded: true })).toBeVisible();
+    expect(await state(page, "ai")).toBe("attention");
+    expect(await state(page, "information")).toBe("todo");
+
+    // The AI is connected by the server and the search is not chosen: the step says it in the words of the owner.
+    await expect(page.getByText(english.stepSearchBody)).toBeVisible();
+
+    // The two doors of the section are what finishes the step: a meaning provider with its key, or search by words.
+    const answers = page.getByRole("region", { name: english.answersSection });
+    const meaning = page.getByRole("region", { name: english.meaningSection });
+
+    await expect(answers.getByText(english.setByServer)).toBeVisible();
+    await expect(meaning.getByRole("radio").first()).toBeVisible();
+    await expect(meaning.getByRole("button", { name: english.keywordChoose })).toBeVisible();
+    await axe(page);
+
+    // A visit with no step in the address opens the step that needs attention by itself.
+    await page.goto("/admin");
+    await expect(step(page, "ai").getByRole("button", { expanded: true })).toBeVisible();
+    await expect(page.getByText(english.stepSearchBody)).toBeVisible();
+
+    // Step 2 stays reachable, and its sample button links back to step 1 instead of failing after the press.
+    await openStep(page, "information");
+    await expect(page.getByRole("link", { name: english.sampleTry })).toHaveAttribute("href", "/admin?step=ai");
+
+    // The other language says the same, and choosing search by words turns the step green.
+    await openStep(page, "ai");
+    await page.getByTestId("language-switch").getByRole("button", { name: "Español" }).click();
+    await page.waitForLoadState("load");
+
+    await expect(page.getByText(spanish.stepSearchBody)).toBeVisible();
+
+    const meaningEs = page.getByRole("region", { name: spanish.meaningSection });
+
+    await expect(meaningEs.getByRole("radio").first()).toBeVisible();
+    await meaningEs.getByRole("button", { name: spanish.keywordChoose }).click();
+    await expect(meaningEs.getByRole("status")).toContainText(spanish.keywordSaved);
+    await axe(page);
+
+    await page.reload();
+    expect(await state(page, "ai")).toBe("verified");
+  });
 });
