@@ -65,3 +65,33 @@ The date case printed `datetime="2026-09-29T23:06:40.696Z"`, shown `29 sept 2026
 - NOT DONE: nothing in the scope of this step.
 - UNKNOWN: the worktree of the change carries uncommitted edits that are not of this step (`LOOP_STATE.md` and
   line-ending-only changes to four step reports and `tests/admin-ui.test.tsx`); they were left untouched.
+
+## Run 3, at `bc0fa53`
+
+After the fixers of the step 12 review (public, panel and docs findings, and the re-shoot of the delivery captures),
+the scratch worktree was detached at `bc0fa53`. `package-lock.json` did not change since `2ff55ae`, so `npm ci` was
+not run. Ports 3100, 3210, 3212 and 3213 were free before the E2E.
+
+| Command | Result |
+| --- | --- |
+| `npm test` | 44 files, 543 tests passed |
+| `npm run typecheck` | exit 0 |
+| `npm run lint` | exit 0, 0 warnings |
+| `npx openspec validate --all --strict` | 11 passed, 0 failed |
+| `git diff --check main...HEAD` | exit 0, no output |
+| `CI=1 npm run test:e2e` | exit 0: 47 passed, 0 failed, 0 flaky |
+
+Failures: none. No fix was needed and no commit of code was made in this run.
+
+The date case printed `datetime="2026-09-30T01:10:18.808Z"`, shown `29 sept 2026, 19:10`, equal to `formatWhen` for es.
+axe reported 0 violations on `/` (24 rules), `/embed` (23 rules), the branded public page (24 rules) and the kit page
+(22 rules).
+
+### Issues of run 3
+
+- BROKEN: none.
+- RISK: unchanged from run 2: the lockout case of `e2e/admin.spec.ts` still uses the fixed address `198.51.100.240`,
+  so it is not retry-safe inside its serial file; it predates this change.
+- NOT DONE: nothing in the scope of this step.
+- UNKNOWN: the worktree of the change still carries the uncommitted `LOOP_STATE.md` edit, not of this step; it was
+  left untouched.
