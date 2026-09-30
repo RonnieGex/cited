@@ -52,3 +52,26 @@
 13. **Thursday is the measure.** Franc shows "from zero to an answer" live on 2026-10-01 at 9:00. The E2E of 7.1 times it
     with the fake providers, and the delivery says the real time with DeepSeek as the chat provider (one manual run,
     recorded with its seconds per step, no key in the report).
+
+## Amendment after the review of Codex (Fable, 2026-09-30, `katalis-dev/tasks/revision-community-13.md`)
+
+14. **Green means usable.** Step 1 is verified only when the resolved chat provider can answer: set in the panel, its
+    last test passed; set by the server, `chatProblem()` returns nothing (the key is present and the provider known).
+    A server provider without its key shows the step as "needs attention" in the owner's words, with the link to "For
+    the installer", the same judgement the public page makes when it says "not ready".
+15. **A file is what its bytes say.** The size limit is checked from `file.size` before the file is read into memory.
+    The type is decided by the content, not the extension: PDF and DOCX by their signatures; `.txt` and `.md` only when
+    the bytes decode as UTF-8 with no NUL byte and no known binary signature (PNG, JPEG, GIF, ZIP, PDF); anything else
+    is "type not supported" with the list of accepted types. A name with `..`, a slash or a control character is
+    reduced to its base name before it is stored or shown.
+16. **Undo leaves nothing of the sample.** Undoing the sample business removes its documents and, when the business name
+    is still the one the sample set (Café La Horquilla), clears it back to empty; a name the owner typed after the
+    sample is kept.
+17. **The ports of the browser suite.** The fixed set is 3100 and 3210 to 3217 (the two servers this change adds use
+    3216 and 3217); `playwright.config.ts` says so in one comment, and `docs/testing.md` or the README section on tests
+    lists them.
+18. **The real run of decision 13 is Fable's.** The key of DeepSeek never reaches an implementer: Fable runs the flow
+    once on a local build with the key only in the environment of the server process, and records the seconds per step
+    in the delivery. The implementer's part is that the flow is measurable, which the E2E of 7.1 already is.
+19. **Evidence names its commit.** Every report of the amendment says the commit it validates, and the delivery keeps
+    one current table of results; earlier numbers stay only as history under a dated heading.
