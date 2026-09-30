@@ -13,7 +13,7 @@ import { CitationMark, HighlightedTail } from "@/components/brand";
 import { Button, Input, Panel, focusRing } from "@/components/ui";
 import type { Lang } from "@/lib/settings/business";
 import type { Citation } from "@/lib/answer/types";
-import { askCited, type AskResult } from "@/lib/chat/client";
+import { askCited, type AskFailureKind, type AskResult } from "@/lib/chat/client";
 import { sessionId, tabOwner, type TabOwner, type TabStorage } from "@/lib/chat/session";
 import { PUBLIC_STRINGS, type PublicStrings } from "@/lib/i18n/public";
 import { CLOSE_MESSAGE } from "@/lib/widget/messages";
@@ -35,6 +35,10 @@ import { Markdown } from "./Markdown";
 // render announces the wait and the entry that lands, the page follows the entry that changed, the height of the sticky
 // box is reserved for every scroll (`scroll-padding-bottom` on the root) so a focused control never sits under it, and a
 // passage that closes gives the focus back to the control that opened it.
+//
+// Round 14c (decisions 21 to 23 and 25 to 26 of the same file): a failure says one sentence of `PublicStrings.errors` in the
+// language of the page and never what the server wrote; the session id survives a storage that throws; the box sticks only
+// where there is room for it and, once threaded, shares one row with its button; each source names its passage.
 
 export type AskFn = (input: { question: string; sessionId: string }) => Promise<AskResult>;
 
@@ -51,7 +55,7 @@ type Turn =
   | { kind: "pending"; question: string }
   | { kind: "answered"; question: string; answer: string; citations: Citation[] }
   | { kind: "refused"; question: string; answer: string }
-  | { kind: "failed"; question: string; message: string | null };
+  | { kind: "failed"; question: string; failure: AskFailureKind };
 
 function turnOf(question: string, result: AskResult): Turn {
   if (result.status === "answered") {
@@ -62,7 +66,7 @@ function turnOf(question: string, result: AskResult): Turn {
     return { kind: "refused", question, answer: result.answer };
   }
 
-  return { kind: "failed", question, message: result.message };
+  return { kind: "failed", question, failure: result.kind };
 }
 
 function announcement(turn: Turn, strings: PublicStrings): string {
@@ -75,11 +79,15 @@ function announcement(turn: Turn, strings: PublicStrings): string {
   }
 
   if (turn.kind === "failed") {
-    return strings.announce.failed(turn.message ?? strings.error);
+    return strings.announce.failed(strings.errors[turn.failure]);
   }
 
   return strings.announce.waiting;
 }
+
+// The viewport height from which the ask box may stick to the foot (decision 23): under it the box would take most of the
+// screen (200% and 400% zoom, a phone on its side), so it stays in the flow and the last answer is never hidden.
+const STICKY_QUERY = "(min-height: 560px)";
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
 const entry = "border-t border-rule pt-8";
@@ -151,8 +159,10 @@ function AnsweredTurn({
           landing={landing}
         />
       </div>
-      <aside
+      {/* A group, not a landmark: four entries would list four identical "Sources" regions to a screen reader. */}
+      <div
         data-cited="sources"
+        role="group"
         aria-labelledby={sourcesId}
         className="flex min-w-0 flex-col gap-2 lg:col-start-2 lg:row-start-2"
       >
@@ -160,35 +170,52 @@ function AnsweredTurn({
           {strings.sources}
         </p>
         <ul className="flex flex-col gap-1">
-          {turn.citations.map((source) => (
-            <li key={source.n}>
-              <button
-                type="button"
-                aria-expanded={open === source.n}
-                aria-controls={open === source.n ? panelId : undefined}
-                onClick={(event) => {
-                  toggle(source.n, event.currentTarget);
-                }}
-                className={`group flex w-full items-center rounded-none py-1 text-left text-ink hover:underline max-lg:min-h-11 ${focusRing}`}
-              >
-                <span aria-hidden="true" className="flex min-w-0 items-center gap-2 text-base">
-                  <CitationMark
-                    n={source.n}
-                    state={open === source.n ? "open" : "rest"}
-                    className="shrink-0 transition-colors duration-[var(--dur-fast)] group-hover:bg-[var(--primary)] group-hover:text-[var(--on-primary)]"
-                  />
-                  <span className="min-w-0 break-words text-sm">{source.document}</span>
-                </span>
-                <span className="sr-only">{`[${source.n}] ${source.document}`}</span>
-              </button>
-            </li>
-          ))}
+          {turn.citations.map((source) => {
+            // Decision 26: the passage first (its heading), the file on a second line unless that would repeat it.
+            const shows = source.heading !== null && source.heading !== source.document;
+
+            return (
+              <li key={source.n}>
+                <button
+                  type="button"
+                  aria-expanded={open === source.n}
+                  aria-controls={open === source.n ? panelId : undefined}
+                  onClick={(event) => {
+                    toggle(source.n, event.currentTarget);
+                  }}
+                  className={`group flex w-full items-start rounded-none py-1 text-left text-ink hover:underline max-lg:min-h-11 ${focusRing}`}
+                >
+                  <span aria-hidden="true" className="flex min-w-0 items-start gap-2 text-base">
+                    {/* The color of the business paints a mark at rest only: an open one stays ink under the pointer. */}
+                    <CitationMark
+                      n={source.n}
+                      state={open === source.n ? "open" : "rest"}
+                      className={`shrink-0 transition-colors duration-[var(--dur-fast)] ${
+                        open === source.n
+                          ? ""
+                          : "group-hover:bg-[var(--primary)] group-hover:text-[var(--on-primary)]"
+                      }`}
+                    />
+                    <span className="flex min-w-0 flex-col">
+                      <span className="min-w-0 break-words text-sm">{source.heading ?? source.document}</span>
+                      {shows ? (
+                        <span className="min-w-0 break-words text-xs text-ink-2">{source.document}</span>
+                      ) : null}
+                    </span>
+                  </span>
+                  <span className="sr-only">
+                    {shows ? `[${source.n}] ${source.heading}, ${source.document}` : `[${source.n}] ${source.document}`}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
-      </aside>
+      </div>
       {/* After the sources in the order of the page, so on a phone the passage opens below the source just pressed;
           from 1024px it takes the row under the answer. */}
       {citation === null ? null : (
-        <div className="min-w-0 lg:col-start-1 lg:row-start-3">
+        <div key={citation.n} className="min-w-0 lg:col-start-1 lg:row-start-3">
           <CitationPanel
             citation={citation}
             panelId={panelId}
@@ -212,6 +239,10 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [announced, setAnnounced] = useState("");
+  /** The entry that landed last, whatever its position: its marks land, and no other entry's do. */
+  const [landedAt, setLandedAt] = useState<number | null>(null);
+  /** The id of the tab when the storage cannot keep it (blocked cookies, a third-party frame): one per conversation. */
+  const memorySession = useRef<string | null>(null);
   const list = useRef<HTMLOListElement | null>(null);
   const form = useRef<HTMLFormElement | null>(null);
   /** The index of the entry that just changed, which the page brings into view after the render. */
@@ -219,8 +250,8 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
   const asked = ask ?? ((input: { question: string; sessionId: string }) => askCited(input));
   const loading = turns.some((turn) => turn.kind === "pending");
   const threaded = turns.length > 0;
-  // In the widget the room is short: once the thread exists the welcome goes and the label of the box stays for
-  // assistive technology only (the placeholder and the ledger say what the box is for).
+  // In the widget the room is short: once the thread exists the welcome goes (the label of the box is for assistive
+  // technology only on the page too, decision 23: the placeholder and the ledger say what the box is for).
   const compact = variant === "embed" && threaded;
 
   // `Escape` inside the iframe belongs to this document and never reaches the page that carries the widget, so the
@@ -248,7 +279,8 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
   }, [variant]);
 
   // While the box sticks to the foot, its height is reserved for every scroll of the document: the focus moving to a
-  // control and `scrollIntoView` both stop above the box instead of under it (WCAG 2.2, 2.4.11 Focus Not Obscured).
+  // control and `scrollIntoView` both stop above the box instead of under it (WCAG 2.2, 2.4.11 Focus Not Obscured). The
+  // box sticks only where there is room for it (decision 23), so the padding is reserved under the same condition.
   useEffect(() => {
     const box = form.current;
 
@@ -257,8 +289,10 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
     }
 
     const root = document.documentElement;
+    const room = typeof window.matchMedia === "function" ? window.matchMedia(STICKY_QUERY) : null;
     const reserve = (): void => {
-      root.style.scrollPaddingBottom = `${Math.ceil(box.getBoundingClientRect().height) + 16}px`;
+      root.style.scrollPaddingBottom =
+        room !== null && room.matches === false ? "" : `${Math.ceil(box.getBoundingClientRect().height) + 16}px`;
     };
 
     reserve();
@@ -266,9 +300,11 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(reserve);
 
     observer?.observe(box);
+    room?.addEventListener?.("change", reserve);
 
     return () => {
       observer?.disconnect();
+      room?.removeEventListener?.("change", reserve);
       root.style.scrollPaddingBottom = "";
     };
   }, [threaded]);
@@ -285,6 +321,19 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
     list.current?.children[at]?.scrollIntoView?.({ block: "nearest" });
   }, [turns]);
 
+  // The tab owns the thread only when the id of the storage and the mark of its window agree: a tab opened from another
+  // inherits the storage of its opener and not its `window.name`, so it starts a conversation of its own. When the storage
+  // cannot be read or written the id lives in memory, so the questions of the tab still share one conversation.
+  const sessionOf = (): string => {
+    try {
+      return sessionId(storage ?? window.sessionStorage, owner ?? tabOwner(window));
+    } catch {
+      memorySession.current ??= crypto.randomUUID();
+
+      return memorySession.current;
+    }
+  };
+
   /** Asks `text`, as a new entry at the end or in place of the failed entry at `replacing`. */
   const send = async (text: string, replacing?: number): Promise<void> => {
     const at = replacing ?? turns.length;
@@ -299,16 +348,18 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
         : [...current, pending];
     });
 
-    // The tab owns the thread only when the id of the storage and the mark of its window agree: a tab opened from
-    // another inherits the storage of its opener and not its `window.name`, so it starts a conversation of its own.
-    const session = sessionId(
-      storage ?? window.sessionStorage,
-      owner ?? tabOwner(window),
-    );
-    const result = await asked({ question: text, sessionId: session });
-    const landed = turnOf(text, result);
+    // Everything after the pending entry sits in one try: a storage that throws, an id that cannot be made or a request
+    // that rejects lands a failure entry instead of leaving the wait forever (decision 22).
+    let landed: Turn;
+
+    try {
+      landed = turnOf(text, await asked({ question: text, sessionId: sessionOf() }));
+    } catch {
+      landed = { kind: "failed", question: text, failure: "unavailable" };
+    }
 
     follow.current = at;
+    setLandedAt(at);
     setTurns((current) => current.map((turn, index) => (index === at ? landed : turn)));
     setAnnounced(announcement(landed, strings));
   };
@@ -354,13 +405,14 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
       )}
 
       {threaded ? (
-        <ol ref={list} aria-label={strings.history} className="flex flex-col gap-8">
+        <ol ref={list} className="flex flex-col gap-8">
           {turns.map((turn, index) => {
             if (turn.kind === "pending") {
               return (
-                <li key={index} data-cited="pending" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
+                <li key={`${index}-pending`} data-cited="pending" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
                   <Asked question={turn.question} strings={strings} />
-                  <div role="status" className="flex flex-col gap-3">
+                  {/* No live region here: the announcer above says the wait once. */}
+                  <div className="flex flex-col gap-3">
                     <p className="text-ink-2">{strings.loading}</p>
                     <div className="w-full max-w-[240px] bg-rule">
                       <div
@@ -377,17 +429,17 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
             if (turn.kind === "answered") {
               return (
                 <AnsweredTurn
-                  key={index}
+                  key={`${index}-answered`}
                   turn={turn}
                   strings={strings}
-                  landing={index === turns.length - 1}
+                  landing={index === landedAt}
                 />
               );
             }
 
             if (turn.kind === "refused") {
               return (
-                <li key={index} data-cited="turn" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
+                <li key={`${index}-refused`} data-cited="turn" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
                   <Asked question={turn.question} strings={strings} />
                   <Panel data-cited="refusal" className="flex max-w-[65ch] items-start gap-4">
                     <Marker tone="ink" glyph="–" />
@@ -401,11 +453,12 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
             }
 
             return (
-              <li key={index} data-cited="turn" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
+              <li key={`${index}-failed`} data-cited="turn" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
                 <Asked question={turn.question} strings={strings} />
-                <div role="status" className="flex max-w-[65ch] items-start gap-4">
+                {/* The sentence of the kind of failure, in the language of the page; the announcer says it once. */}
+                <div className="flex max-w-[65ch] items-start gap-4">
                   <Marker tone="coral" glyph="!" />
-                  <p className="text-[18px] leading-[1.6] text-ink">{turn.message ?? strings.error}</p>
+                  <p className="text-[18px] leading-[1.6] text-ink">{strings.errors[turn.failure]}</p>
                 </div>
                 <div>
                   <Button
@@ -431,18 +484,14 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
         onSubmit={submit}
         className={`flex flex-col gap-3 ${
           threaded
-            ? `sticky bottom-0 z-10 border-t border-rule bg-paper ${
-                compact
-                  ? "pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-                  : "pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
-              }`
+            ? "[@media(min-height:560px)]:sticky bottom-0 z-10 border-t border-rule bg-paper pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
             : ""
         }`}
       >
-        <label htmlFor={fieldId} className={compact ? "sr-only" : "text-sm font-semibold text-ink"}>
+        <label htmlFor={fieldId} className={threaded ? "sr-only" : "text-sm font-semibold text-ink"}>
           {strings.question.label}
         </label>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+        <div className={threaded ? "flex flex-row items-stretch gap-2" : "flex flex-col gap-3 sm:flex-row sm:items-stretch"}>
           <Input
             id={fieldId}
             name="question"
@@ -454,7 +503,12 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
               setQuestion(event.target.value);
             }}
           />
-          <Button type="submit" variant="brand" disabled={loading} className="w-full shrink-0 sm:w-auto">
+          <Button
+            type="submit"
+            variant="brand"
+            disabled={loading}
+            className={threaded ? "shrink-0" : "w-full shrink-0 sm:w-auto"}
+          >
             {strings.question.submit}
           </Button>
         </div>

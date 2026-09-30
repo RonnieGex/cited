@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { cookies } from "next/headers";
 import { Chat } from "@/components/chat";
@@ -12,14 +13,21 @@ import { readPublicBrand } from "@/lib/public/brand";
 // Decision 12 of `openspec/changes/brand-identity-ui/design.md`: the band is a slim strip in the primary color with the
 // name at 18 px and the language switch; the rest is the same `Chat`. Like the public page (decision 9), without a business
 // the strip is ink with the ink switch: lime never fills a large area of a public surface. Decision 20: the voice launcher
-// of `main` stays under the chat.
+// of `main` stays under the chat. Round 14c: the strip is the banner of the frame, beside `main` and not inside it
+// (decision 33), and the title of the frame is the name of the business (decision 24).
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cookie = (await cookies()).get(LANG_COOKIE)?.value;
+
+  return { title: (await readPublicBrand(cookie)).name };
+}
 
 export default async function Embed() {
   const cookie = (await cookies()).get(LANG_COOKIE)?.value;
   const brand = await readPublicBrand(cookie);
 
   return (
-    <main
+    <div
       lang={brand.lang}
       style={
         {
@@ -43,12 +51,12 @@ export default async function Embed() {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-[560px] px-4 py-6">
+      <main className="mx-auto w-full max-w-[560px] px-4 py-6">
         <Chat lang={brand.lang} welcome={brand.welcome} variant="embed" />
         <div className="mt-6">
           <VoiceLauncher lang={brand.lang} />
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

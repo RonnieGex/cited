@@ -5,10 +5,17 @@ import type { Citation } from "../answer/types.ts";
 
 export const ASK_ENDPOINT = "/api/ask";
 
+/**
+ * Why a question got no answer. Decision 21 of `openspec/changes/brand-identity-ui/design.md`: the page says one sentence
+ * per kind, in the language of the visitor, and never prints what the server wrote (it names variables of the
+ * environment and speaks English on the Spanish page).
+ */
+export type AskFailureKind = "rate_limited" | "unavailable" | "network";
+
 export type AskResult =
   | { status: "answered"; answer: string; citations: Citation[] }
   | { status: "refused"; answer: string }
-  | { status: "failed"; message: string | null };
+  | { status: "failed"; kind: AskFailureKind };
 
 export type AskInput = {
   question: string;
@@ -30,6 +37,8 @@ function citationsOf(value: unknown): Citation[] | null {
   return value as Citation[];
 }
 
+const unavailable: AskResult = { status: "failed", kind: "unavailable" };
+
 export async function askCited(input: AskInput): Promise<AskResult> {
   const send = input.fetchImpl ?? fetch;
   let response: Response;
@@ -41,7 +50,12 @@ export async function askCited(input: AskInput): Promise<AskResult> {
       body: JSON.stringify({ question: input.question, sessionId: input.sessionId }),
     });
   } catch {
-    return { status: "failed", message: null };
+    return { status: "failed", kind: "network" };
+  }
+
+  // The status decides the kind and the body of a failure is never read: its words are for the logs of the server.
+  if (response.ok === false) {
+    return response.status === 429 ? { status: "failed", kind: "rate_limited" } : unavailable;
   }
 
   let body: unknown;
@@ -49,31 +63,19 @@ export async function askCited(input: AskInput): Promise<AskResult> {
   try {
     body = await response.json();
   } catch {
-    return { status: "failed", message: null };
+    return unavailable;
   }
 
   const record = recordOf(body);
+  const citations = citationsOf(record["citations"]);
 
-  if (response.ok) {
-    const citations = citationsOf(record["citations"]);
-
-    if (
-      record["status"] === "answered" &&
-      typeof record["answer"] === "string" &&
-      citations !== null
-    ) {
-      return { status: "answered", answer: record["answer"], citations };
-    }
-
-    if (record["status"] === "refused" && typeof record["answer"] === "string") {
-      return { status: "refused", answer: record["answer"] };
-    }
-
-    return { status: "failed", message: null };
+  if (record["status"] === "answered" && typeof record["answer"] === "string" && citations !== null) {
+    return { status: "answered", answer: record["answer"], citations };
   }
 
-  return {
-    status: "failed",
-    message: typeof record["error"] === "string" ? record["error"] : null,
-  };
+  if (record["status"] === "refused" && typeof record["answer"] === "string") {
+    return { status: "refused", answer: record["answer"] };
+  }
+
+  return unavailable;
 }

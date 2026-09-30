@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -22,8 +23,19 @@ import { chatProblem, resolveChat } from "@/lib/settings/providers";
 // page carries the color of the business, its logo, its name as the `h1` and the language switch; without a business the
 // band is ink, the wordmark is the visible name and the `h1` ("Cited") stays for assistive technology. Decision 20: the
 // not-ready state and the voice launcher of `main` live inside that band and that column.
+//
+// Round 14c: the band and the footer are the banner and the contentinfo of the page, so they sit beside `main`, not inside
+// it (decision 33); the title of the tab is the name of the business (decision 24); the footer names Cited beside Katalis
+// (decision 27), and its rule lines up with the column and the rules of the ledger.
 
 export const dynamic = "force-dynamic";
+
+// The title of the tab is the business, `Cited` while there is none: the business first (`PRODUCT.md`, principle 5).
+export async function generateMetadata(): Promise<Metadata> {
+  const cookie = (await cookies()).get(LANG_COOKIE)?.value;
+
+  return { title: (await readPublicBrand(cookie)).name };
+}
 
 export default async function Home() {
   const cookie = (await cookies()).get(LANG_COOKIE)?.value;
@@ -33,7 +45,7 @@ export default async function Home() {
   const ready = chatProblem(chat) === null;
 
   return (
-    <main
+    <div
       lang={brand.lang}
       style={
         {
@@ -80,7 +92,7 @@ export default async function Home() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[880px] flex-1 flex-col px-6 pt-10 lg:pt-14">
+      <main className="mx-auto flex w-full max-w-[880px] flex-1 flex-col px-6 pt-10 lg:pt-14">
         {ready ? (
           <Chat lang={brand.lang} welcome={brand.welcome} />
         ) : (
@@ -96,12 +108,20 @@ export default async function Home() {
         <div className="mt-8">
           <VoiceLauncher lang={brand.lang} />
         </div>
-      </div>
+      </main>
 
-      <footer className="mx-auto mt-12 flex w-full max-w-[880px] items-center gap-3 border-t border-rule px-6 py-6 text-sm text-ink-2">
-        <Image src={FLAME} alt="Katalis" width={64} height={64} unoptimized className="h-8 w-auto" />
-        <span>{strings.footer}</span>
+      <footer className="mx-auto mt-12 w-full max-w-[880px] px-6 text-sm text-ink-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-rule py-6">
+          <Wordmark size="sm" tone="paper" />
+          <span>{strings.answersBy}</span>
+          <span aria-hidden="true">·</span>
+          <span className="flex items-center gap-2">
+            {/* Decoration: the words beside the flame already say Katalis. */}
+            <Image src={FLAME} alt="" width={64} height={64} unoptimized className="h-8 w-auto" />
+            <span>{strings.footer}</span>
+          </span>
+        </div>
       </footer>
-    </main>
+    </div>
   );
 }

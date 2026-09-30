@@ -6,7 +6,7 @@ const shape =
   "inline-grid h-[1.3em] min-w-[1.5em] place-items-center rounded-none px-[0.3em] text-[0.72em] font-bold leading-none";
 
 const tones = {
-  ink: "bg-ink text-lime",
+  ink: "bg-ink text-paper",
   coral: "bg-coral text-ink",
 } as const;
 

@@ -183,24 +183,35 @@ describe("the chat of the public page", () => {
     expect(screen.getByText(PUBLIC_STRINGS.es.refusal)).toBeInTheDocument();
   });
 
-  it("shows the message of the server when the request fails", async () => {
-    const { ask } = askWith({ status: "failed", message: "the daily limit is reached" });
+  // Decision 21 of `openspec/changes/brand-identity-ui/design.md`: the chat prints the sentence of the kind of failure, in
+  // the language of the page, and never what the server wrote.
+  it("shows the sentence of the kind of failure when the request fails", async () => {
+    const { ask } = askWith({ status: "failed", kind: "rate_limited" });
 
     render(<Chat lang="en" welcome="Ask us anything." ask={ask} storage={new MemoryStorage()} />);
 
     question("How much is a tune-up?");
 
-    expect(await screen.findByText("the daily limit is reached")).toBeInTheDocument();
+    expect(await screen.findByText(strings.errors.rate_limited)).toBeInTheDocument();
   });
 
-  it("shows its own message when the failure carries none", async () => {
-    const { ask } = askWith({ status: "failed", message: null });
+  it("shows the sentence of an unavailable answer, and of a lost connection, in Spanish", async () => {
+    const unavailable = askWith({ status: "failed", kind: "unavailable" });
+    const first = render(<Chat lang="es" welcome="Pregunta." ask={unavailable.ask} storage={new MemoryStorage()} />);
 
-    render(<Chat lang="en" welcome="Ask us anything." ask={ask} storage={new MemoryStorage()} />);
+    fireEvent.change(screen.getByLabelText(PUBLIC_STRINGS.es.question.label), { target: { value: "¿Cuánto cuesta?" } });
+    fireEvent.click(screen.getByRole("button", { name: PUBLIC_STRINGS.es.question.submit }));
 
-    question("How much is a tune-up?");
+    expect(await screen.findByText(PUBLIC_STRINGS.es.errors.unavailable)).toBeInTheDocument();
+    first.unmount();
 
-    expect(await screen.findByText(strings.error)).toBeInTheDocument();
+    const offline = askWith({ status: "failed", kind: "network" });
+
+    render(<Chat lang="es" welcome="Pregunta." ask={offline.ask} storage={new MemoryStorage()} />);
+    fireEvent.change(screen.getByLabelText(PUBLIC_STRINGS.es.question.label), { target: { value: "¿Cuánto cuesta?" } });
+    fireEvent.click(screen.getByRole("button", { name: PUBLIC_STRINGS.es.question.submit }));
+
+    expect(await screen.findByText(PUBLIC_STRINGS.es.errors.network)).toBeInTheDocument();
   });
 
   it("does not ask an empty question", () => {

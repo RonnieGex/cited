@@ -63,10 +63,8 @@ describe("the public page", () => {
     // The welcome is the headline and its last words sit in the highlighter, so its text is split across two nodes.
     expect(container.querySelector('[data-cited="welcome"]')).toHaveTextContent(PUBLIC_STRINGS.en.welcome);
     expect(screen.getByText(PUBLIC_STRINGS.en.footer)).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Katalis" })).toHaveAttribute(
-      "src",
-      "/brand/katalis-flame-ink-64.png",
-    );
+    // Decision 33 of `brand-identity-ui`: the flame is decoration beside the words of the signature (`alt=""`).
+    expect(container.querySelector("footer img")).toHaveAttribute("src", "/brand/katalis-flame-ink-64.png");
   });
 
   it("opens in English although the browser prefers Spanish", async () => {
@@ -85,14 +83,15 @@ describe("the public page", () => {
     business = workshop;
 
     const { container } = render(await Home());
-    const main = container.querySelector("main");
+    // The band, `main` and the footer share one wrapper, which carries the color of the business and the language.
+    const page = (container.querySelector('[data-public="band"]') as HTMLElement).parentElement as HTMLElement;
     const ask = screen.getByRole("button", { name: PUBLIC_STRINGS.es.question.submit });
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Café La Horquilla");
     expect(screen.getByLabelText(PUBLIC_STRINGS.es.question.label)).toBeInTheDocument();
     expect(screen.getByText("Pregúntanos lo que quieras.")).toBeInTheDocument();
-    expect(main?.style.getPropertyValue("--primary")).toBe("#1d4ed8");
-    expect(main?.getAttribute("lang")).toBe("es");
+    expect(page.style.getPropertyValue("--primary")).toBe("#1d4ed8");
+    expect(page.getAttribute("lang")).toBe("es");
     // The requirement "The brand color is seen and the widget closes from inside": the color of the settings has to
     // reach the ask button and not stay in a variable nobody reads. The fixture is the one the review used.
     expect(ask.className, "the ask button takes the fill of the settings").toContain(
@@ -108,9 +107,11 @@ describe("the public page", () => {
 
     const { container } = render(await Home());
 
-    expect(container.querySelector("main")?.style.getPropertyValue("--primary")).toBe(
-      DEFAULT_PRIMARY,
-    );
+    expect(
+      ((container.querySelector('[data-public="band"]') as HTMLElement).parentElement as HTMLElement).style.getPropertyValue(
+        "--primary",
+      ),
+    ).toBe(DEFAULT_PRIMARY);
     expect(DEFAULT_PRIMARY).toBe(LIME);
   });
 

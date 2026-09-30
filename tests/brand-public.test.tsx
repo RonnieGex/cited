@@ -198,15 +198,18 @@ describe("the band of the public page (decision 9)", () => {
     expect(within(band).getByRole("img", { name: "Café La Horquilla" })).toHaveAttribute("src", "/api/brand/logo");
   });
 
+  // Decision 33 (the landmarks): the band and the footer sit beside `main`, so the variables of the business live on the
+  // wrapper of the page that holds the three of them, and the flame is decoration beside the words of the signature.
   it("keeps one main, the question box and the ink flame of Katalis in the footer", async () => {
     const { container } = render(await Home());
-    const main = container.querySelector("main");
+    const wrapper = (container.querySelector('[data-public="band"]') as HTMLElement).parentElement as HTMLElement;
 
     expect(screen.getAllByRole("main")).toHaveLength(1);
-    expect(main?.style.getPropertyValue("--primary")).not.toBe("");
-    expect(main?.style.getPropertyValue("--on-primary")).not.toBe("");
+    expect(wrapper.style.getPropertyValue("--primary")).not.toBe("");
+    expect(wrapper.style.getPropertyValue("--on-primary")).not.toBe("");
+    expect(wrapper.contains(container.querySelector("main"))).toBe(true);
     expect(screen.getByLabelText(en.question.label)).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Katalis" })).toHaveAttribute("src", "/brand/katalis-flame-ink-64.png");
+    expect(container.querySelector("footer img")).toHaveAttribute("src", "/brand/katalis-flame-ink-64.png");
     expect(screen.getByText(en.footer)).toBeInTheDocument();
   });
 
@@ -277,7 +280,11 @@ describe("the embed strip (decision 12)", () => {
     expect(container.querySelector('[data-cited="welcome"]')).not.toBeNull();
     expect(screen.getByLabelText(en.question.label)).toBeInTheDocument();
     expect(screen.queryByText(en.footer)).toBeNull();
-    expect(container.querySelector("main")?.style.getPropertyValue("--primary")).not.toBe("");
+    expect(
+      ((container.querySelector('[data-public="band"]') as HTMLElement).parentElement as HTMLElement).style.getPropertyValue(
+        "--primary",
+      ),
+    ).not.toBe("");
   });
 });
 
@@ -340,21 +347,24 @@ describe("the ledger of the chat (decision 10)", () => {
     expect(marks[1]?.className, "the newest turn lands").toContain("mark-land");
   });
 
-  it("lists the sources in an aside beside the answer, one mark per source and the name unchanged", async () => {
+  // Decisions 26 and 33: a group named Sources (not a landmark) whose rows name the passage, `[n] heading, document`, or
+  // `[n] document` when the passage has no heading.
+  it("lists the sources in a group beside the answer, one mark per source, named by their passage", async () => {
     const { container } = chat(answered);
 
     await ask("How much is a tune-up?");
 
     const aside = container.querySelector('[data-cited="sources"]') as HTMLElement;
 
-    expect(aside.tagName).toBe("ASIDE");
-    expect(screen.getByRole("complementary", { name: en.sources })).toBe(aside);
+    expect(aside.tagName).toBe("DIV");
+    expect(screen.getByRole("group", { name: en.sources })).toBe(aside);
     expect(container.querySelector('[data-cited="turn"]')?.contains(aside)).toBe(true);
 
     for (const source of [first, second]) {
-      const button = within(aside).getByRole("button", { name: `[${source.n}] ${source.document}` });
+      const name = source.heading === null ? `[${source.n}] ${source.document}` : `[${source.n}] ${source.heading}, ${source.document}`;
+      const button = within(aside).getByRole("button", { name });
 
-      expect(within(button).getByText(`[${source.n}] ${source.document}`), "the name is one text node").toBeInTheDocument();
+      expect(within(button).getByText(name), "the name is one text node").toBeInTheDocument();
       expect(button.querySelector('[data-brand="citation-mark"]')?.className, "a lime mark").toContain("bg-lime");
       expect(button.className, "44px on phones").toContain("max-lg:min-h-11");
     }
@@ -407,7 +417,7 @@ describe("the ledger of the chat (decision 10)", () => {
     expect(inline.className).toContain("text-lime");
     expect(screen.getByRole("button", { name: en.citation(2) }).className, "the other stays lime").toContain("bg-lime");
 
-    const listed = screen.getByRole("button", { name: `[1] ${first.document}` });
+    const listed = screen.getByRole("button", { name: `[1] ${first.heading}, ${first.document}` });
 
     expect(listed).toHaveAttribute("aria-expanded", "true");
     expect(listed.querySelector('[data-brand="citation-mark"]')?.className, "the source that is open").toContain("bg-ink");
@@ -444,27 +454,30 @@ describe("the ledger of the chat (decision 10)", () => {
     expect(screen.queryByRole("button", { name: en.citation(1) })).toBeNull();
   });
 
-  it("shows a failure as a status beside a coral square, and no side stripe", async () => {
-    const { container } = chat({ status: "failed", message: "the daily limit is reached" });
+  // Decision 21: the sentence of the kind of failure, in the words of the page, beside a coral square and no side stripe. It
+  // is not a live region of its own: the announcer says it once.
+  it("shows a failure as a sentence beside a coral square, and no side stripe", async () => {
+    const { container } = chat({ status: "failed", kind: "unavailable" });
 
     await ask("How much is a tune-up?");
 
-    const message = screen.getByText("the daily limit is reached");
-    const status = message.closest('[role="status"]') as HTMLElement;
+    const message = screen.getByText(en.errors.unavailable);
+    const row = message.parentElement as HTMLElement;
 
-    expect(status).not.toBeNull();
-    expect(status.className).not.toMatch(/\bborder-[lr]-/);
+    expect(row.closest('[role="status"]'), "no live region of its own").toBeNull();
+    expect(row.className).not.toMatch(/\bborder-[lr]-/);
 
     const marker = container.querySelector('[data-marker="coral"]') as HTMLElement;
 
     expect(marker.className, "a coral square").toContain("bg-coral");
     expect(marker.closest('[aria-hidden="true"]'), "decorative").not.toBeNull();
-    expect(status.contains(marker)).toBe(true);
+    expect(row.contains(marker)).toBe(true);
   });
 });
 
 describe("waiting and asking (decision 11)", () => {
-  it("keeps the words of the wait in a status and adds one bar painted with the primary color", async () => {
+  // Decision 21: the announcer is the one live region of the wait, so the visible block carries no `role="status"`.
+  it("keeps the words of the wait and adds one bar painted with the primary color, with no live region of its own", async () => {
     const pending = deferred<AskResult>();
     const { container } = render(
       <Chat lang="en" welcome="Ask us anything." ask={() => pending.promise} storage={new MemoryStorage()} />,
@@ -473,11 +486,11 @@ describe("waiting and asking (decision 11)", () => {
     await ask("How much is a tune-up?");
 
     const words = screen.getByText(en.loading);
-    const status = words.closest('[role="status"]') as HTMLElement;
+    const block = words.parentElement as HTMLElement;
     const bar = container.querySelector('[data-cited="waiting-bar"]') as HTMLElement;
 
-    expect(status, "the wait is announced").not.toBeNull();
-    expect(status.contains(bar), "the bar is under the text, in the status").toBe(true);
+    expect(words.closest('[role="status"]'), "the announcer says the wait, not this block").toBeNull();
+    expect(block.contains(bar), "the bar is under the text").toBe(true);
     expect(bar.className).toContain("bg-[var(--primary)]");
     expect(bar.className).toContain("bar");
     expect(bar.className).toContain("h-0.5");
@@ -530,16 +543,14 @@ describe("waiting and asking (decision 11)", () => {
 describe("the Markdown marks of an answer that just arrived", () => {
   const marks = { citationLabel: (n: number) => `Citation ${n}`, onCitation: () => {} };
 
-  it("numbers the marks, staggers them and lands them only when told to", () => {
+  // Decision 5 ("at most two things move at once"): every mark keeps its `--i`, but only the first two land.
+  it("numbers the marks, staggers them and lands the first two only when told to", () => {
     const { rerender } = render(<Markdown text="One [1] two [2] three [3]." landing {...marks} />);
     const landing = screen.getAllByRole("button");
 
     expect(landing.map((mark) => mark.textContent)).toEqual(["1", "2", "3"]);
     expect(landing.map((mark) => mark.style.getPropertyValue("--i"))).toEqual(["0", "1", "2"]);
-
-    for (const mark of landing) {
-      expect(mark.className).toContain("mark-land");
-    }
+    expect(landing.map((mark) => mark.className.includes("mark-land"))).toEqual([true, true, false]);
 
     rerender(<Markdown text="One [1] two [2] three [3]." {...marks} />);
 
@@ -730,10 +741,10 @@ describe("the review of step 12", () => {
     );
     refusal.unmount();
 
-    const failure = chat({ status: "failed", message: null });
+    const failure = chat({ status: "failed", kind: "unavailable" });
 
     await ask("How much is a tune-up?");
-    expect(announcer(failure.container).textContent).toBe(`No answer. ${en.error}`);
+    expect(announcer(failure.container).textContent).toBe(`No answer. ${en.errors.unavailable}`);
     failure.unmount();
 
     const spanish = chat(answered, "es");
@@ -764,7 +775,7 @@ describe("the review of step 12", () => {
     expect(within(entry).getByText(en.asked)).toBeInTheDocument();
     expect(within(entry).getByText("How much is a tune-up?")).toBeInTheDocument();
     expect(entry.querySelector('[data-cited="waiting-bar"]'), "the bar is in the entry").not.toBeNull();
-    expect(within(entry).getByText(en.loading).closest('[role="status"]')).not.toBeNull();
+    expect(within(entry).getByText(en.loading).closest('[role="status"]'), "the announcer says the wait").toBeNull();
 
     await act(async () => {
       pending.resolve(answered);
@@ -776,7 +787,7 @@ describe("the review of step 12", () => {
 
   it("keeps the question of a failed turn and asks it again from a Try again button, in both languages", async () => {
     const calls: string[] = [];
-    const results: AskResult[] = [{ status: "failed", message: null }, answered];
+    const results: AskResult[] = [{ status: "failed", kind: "unavailable" }, answered];
     const { container, unmount } = render(
       <Chat
         lang="en"
@@ -808,7 +819,7 @@ describe("the review of step 12", () => {
     expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
 
     unmount();
-    chat({ status: "failed", message: null }, "es");
+    chat({ status: "failed", kind: "unavailable" }, "es");
     await ask("¿Cuánto cuesta?", "es");
 
     expect(screen.getByRole("button", { name: "Intentar de nuevo" })).toBeInTheDocument();
@@ -871,20 +882,21 @@ describe("the review of step 12", () => {
     expect(label.className).toContain("sr-only");
   });
 
-  it("keeps the welcome of the public page and its visible label once the thread exists", async () => {
+  // Decision 23: once the thread exists the label of the box is for the reader of the screen only on the page too.
+  it("keeps the welcome of the public page and hides the label of the box once the thread exists", async () => {
     const { container } = chat(answered);
 
     await ask("How much is a tune-up?");
 
     expect(container.querySelector('[data-cited="welcome"]')).not.toBeNull();
-    expect(screen.getByText(en.question.label).className).not.toContain("sr-only");
+    expect(screen.getByText(en.question.label).className).toContain("sr-only");
   });
 
   it("opens the passage after the sources in the order of the page, under the answer from 1024px, and brings it into view", async () => {
     const { container } = chat(answered);
 
     await ask("How much is a tune-up?");
-    fireEvent.click(screen.getByRole("button", { name: `[1] ${first.document}` }));
+    fireEvent.click(screen.getByRole("button", { name: `[1] ${first.heading}, ${first.document}` }));
 
     const panel = container.querySelector('[data-cited="citation"]') as HTMLElement;
     const aside = container.querySelector('[data-cited="sources"]') as HTMLElement;
