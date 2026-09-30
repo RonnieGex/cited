@@ -75,3 +75,17 @@
     in the delivery. The implementer's part is that the flow is measurable, which the E2E of 7.1 already is.
 19. **Evidence names its commit.** Every report of the amendment says the commit it validates, and the delivery keeps
     one current table of results; earlier numbers stay only as history under a dated heading.
+
+## Second amendment after the review of Codex (Fable, 2026-09-30, `katalis-dev/tasks/revision-community-13b.md`)
+
+20. **One rule for step 1, whatever the source.** Step 1 is verified only when `chatProblem()` returns nothing for the
+    resolved provider; for a provider set in the panel its last test must also have passed. A key that can no longer
+    be read (`keyState: "unreadable"`) shows the step as "needs attention", in the owner's words ("The saved key can no
+    longer be read. Connect your AI again."), with the button that reopens step 1. This replaces the reading of
+    decision 14 that kept "last test passed" as enough for the panel.
+21. **A ZIP is not a DOCX.** A file starting with `PK\x03\x04` is a DOCX only when its archive holds `word/document.xml`;
+    any other ZIP is "type not supported" with the list of accepted types, like every other rejected type.
+22. **The browser suite leaves the tree clean.** The E2E writes its captures to an ignored folder (`test-results/` or
+    `.data/`), never over a tracked image; the README and doc images are only re-rendered by their own scripts. A
+    backslash in a file name stays a separator (decision 15): Windows paths are the risk that matters, and the name
+    shown keeps its base name.

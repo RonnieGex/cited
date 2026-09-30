@@ -86,3 +86,12 @@ will be public: no secret, no customer data, no personal path. No network call t
       `reports/2026-09-30-step-10-4-e2e.md`
 - [x] 10.5 The delivery `katalis-dev/tasks/entrega-community-13.md` with a section "Ronda 13b" and one current table of
       results, and the docs of the ports — report: `reports/2026-09-30-step-10-5-docs.md`
+
+## 11. Second amendment (`katalis-dev/tasks/revision-community-13b.md`, design decisions 20 to 22)
+
+- [ ] 11.1 Red, then green: step 1 with an unreadable panel key is "needs attention" in both languages (decision 20); a
+      ZIP renamed `.docx` is "type not supported" (decision 21); the E2E leaves `git status` clean in its clone (decision
+      22) — report: `reports/2026-09-30-step-11-1-amendment.md`
+- [ ] 11.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
+      a section "Ronda 13c" — report: `reports/2026-09-30-step-11-2-checks.md`
+
