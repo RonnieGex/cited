@@ -54,6 +54,6 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 9. Documentation
 
-- [ ] 9.1 `docs/voice.md` (the codes, and where the installer reads the names) and the delivery
+- [x] 9.1 `docs/voice.md` (the codes, and where the installer reads the names) and the delivery
       `katalis-dev/tasks/entrega-community-15.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
