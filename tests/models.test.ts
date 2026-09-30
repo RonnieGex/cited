@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createFakeChatModel } from "@/lib/models/fake";
-import { resolveChatModel } from "@/lib/models/providers";
+import { chatModelFrom, resolveChatModel } from "@/lib/models/providers";
 import {
   CHAT_PROVIDER_NAMES,
   DEFAULT_CHAT_MODELS,
@@ -135,6 +135,22 @@ describe("the chat provider is chosen by variables", () => {
     expect(() => resolveChatModel({ CHAT_PROVIDER: "chatgpt" })).toThrow(
       /openai, anthropic, gemini, deepseek/,
     );
+  });
+
+  // Decision 23 of the third amendment: no silent fake. The constructor builds the test double only when the provider
+  // is literally `fake`; any other name outside the catalogue throws instead of answering with the double, whatever a
+  // row of the store says (the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+  it("refuses to build a model for a name outside the catalogue", () => {
+    const nameOfARow: string = "unknown-provider";
+
+    expect(() =>
+      chatModelFrom({
+        provider: nameOfARow as ChatProviderName,
+        model: "modelo-de-prueba",
+        key: "llave-de-prueba-000000000000",
+        baseUrl: "",
+      }),
+    ).toThrow(/not one Cited knows/);
   });
 
   it("builds the fake provider with no key", () => {

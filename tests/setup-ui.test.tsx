@@ -187,6 +187,24 @@ describe("the lane of the guided setup", () => {
       unmount();
     }
   });
+
+  // Decision 23 of the third amendment: a row of the panel that names a provider Cited does not know is the owner's to
+  // fix, in their words, with the button that reopens step 1. It never sends the owner to the page of the installer:
+  // the provider is theirs (the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+  it("tells the owner of a provider Cited does not know to connect the AI again, in both languages", () => {
+    for (const strings of [english, spanish]) {
+      const { unmount } = render(<AttentionNotice source="unknown" strings={strings} />);
+
+      expect(screen.getByText(strings.stepUnknownProviderBody)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: strings.stepKeyAction })).toHaveAttribute(
+        "href",
+        "/admin?step=ai",
+      );
+      expect(screen.queryByRole("link", { name: strings.panelInstaller })).not.toBeInTheDocument();
+
+      unmount();
+    }
+  });
 });
 
 describe("the information lane", () => {

@@ -96,6 +96,23 @@ async function withChatProvider(
   });
 }
 
+// A row of the panel that names a provider the catalogue does not know: a store imported from another installation, a
+// row edited by hand or a name the catalogue dropped. Its key is readable and its test may have passed, which is the
+// shape of the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`.
+async function withUnknownChatProvider(store: Store, testedAt: string | null): Promise<void> {
+  await store.saveProviderSetting({
+    kind: "chat",
+    provider: "unknown-provider",
+    model: "modelo-de-prueba",
+    keyCiphertext: sealedKey(encryptionKey),
+    keyLast4: "1234",
+    baseUrl: null,
+    mode: null,
+    testedAt,
+    testLatencyMs: testedAt === null ? null : 420,
+  });
+}
+
 async function pressTryIt(store: Store): Promise<void> {
   await writeSetupFlag(store, "try_verified", true);
 }
@@ -169,6 +186,38 @@ describe("the derived state of the four steps", () => {
 
     expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).not.toBe("verified");
     expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("attention");
+  });
+
+  // Decision 23 of the third amendment: a row of the panel that names a provider the catalogue does not know is not a
+  // provider. It asks for attention whatever its key and its stored test say, because the answers path refuses that
+  // resolution: the panel never presents a test double as a connected provider (the Major M-8 of
+  // `katalis-dev/tasks/revision-community-13c.md`).
+  it("asks for attention when the panel names a provider Cited does not know", async () => {
+    const store = await tempStore();
+
+    await withUnknownChatProvider(store, "2026-09-30T12:00:00.000Z");
+
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).not.toBe("verified");
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("attention");
+  });
+
+  it("keeps asking for attention for an unknown panel provider with no test of its own", async () => {
+    const store = await tempStore();
+
+    await withUnknownChatProvider(store, null);
+
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).not.toBe("verified");
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("attention");
+  });
+
+  // The same check guards the provider the server environment names: an unknown value is a problem the step shows, not
+  // an exception that leaves the page without an answer.
+  it("asks for attention when the server names a provider Cited does not know", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, { CHAT_PROVIDER: "chatgpt" });
+
+    expect(stateOf(checklist.steps, "ai")).not.toBe("verified");
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
   });
 
   it("verifies the first step when the server sets the provider", async () => {

@@ -109,6 +109,31 @@ async function panelChat(baseUrl: string): Promise<void> {
   });
 }
 
+// A row of the panel that names a provider the catalogue does not know: a store imported from another installation, a
+// row edited by hand or a name the catalogue dropped. The key is readable and the test passed, which is the shape of
+// the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`.
+async function panelUnknownChat(): Promise<void> {
+  const sealed = sealSecret(panelKey, { ENCRYPTION_KEY: encryptionKey });
+
+  if (sealed.ok === false) {
+    throw new Error("the seal failed");
+  }
+
+  const store = await sharedStore(process.env);
+
+  await store.saveProviderSetting({
+    kind: "chat",
+    provider: "unknown-provider",
+    model: "modelo-de-prueba",
+    keyCiphertext: sealed.value,
+    keyLast4: "9001",
+    baseUrl: null,
+    mode: null,
+    testedAt: "2026-09-30T12:00:00.000Z",
+    testLatencyMs: 12,
+  });
+}
+
 function askRequest(body: unknown): Request {
   return new Request("http://localhost/api/ask", {
     method: "POST",
@@ -198,6 +223,25 @@ describe("POST /api/ask with the provider saved in the panel", () => {
 
     expect(JSON.stringify(row)).not.toContain(panelKey);
     expect(row?.keyCiphertext?.startsWith("v1:")).toBe(true);
+  });
+
+  // Decision 23 of the third amendment: an unknown provider of the panel resolves with a problem, so the route refuses
+  // it before it builds a model and the test double never writes the answer the panel would present as ready (the
+  // Major M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+  it("answers 503 and never the test double when the panel names an unknown provider", async () => {
+    await corpusStore();
+    await panelUnknownChat();
+    withEncryptionKey();
+
+    const response = await POST(askRequest({ question }));
+    const text = await response.text();
+    const body = JSON.parse(text) as { status: string; answer?: string };
+
+    expect(response.status, text).toBe(503);
+    expect(body.status).toBe("unavailable");
+    expect(body.answer).toBeUndefined();
+    expect(text.toLowerCase()).toContain("not connected");
+    expect(text).not.toContain("Respuesta del proveedor de prueba");
   });
 
   it("answers 503 saying the AI is not connected when nothing is configured anywhere", async () => {
