@@ -46,8 +46,8 @@
     "mammoth": "^1.13.0",
     "next": "16.3.6",
     "pdf-parse": "^2.4.5",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "three": "^0.186.1"
   },
   "devDependencies": {
