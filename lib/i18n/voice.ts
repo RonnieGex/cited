@@ -42,6 +42,7 @@ export type VoiceStrings = {
   agentFailed: string;
   voiceNotConfigured: string;
   voiceProviderFailed: string;
+  voiceBusinessUnnamed: string;
   agentId: string;
 };
 
@@ -87,6 +88,7 @@ export const VOICE_STRINGS: Record<Lang, VoiceStrings> = {
     agentFailed: "The agent could not be created.",
     voiceNotConfigured: "Voice is not set up yet. The person who installs Cited turns it on.",
     voiceProviderFailed: "ElevenLabs did not answer. Try again in a minute.",
+    voiceBusinessUnnamed: "Give your business a name first: the agent introduces itself with it.",
     agentId: "Agent",
   },
   es: {
@@ -132,6 +134,7 @@ export const VOICE_STRINGS: Record<Lang, VoiceStrings> = {
     agentFailed: "No se pudo crear el agente.",
     voiceNotConfigured: "La voz todavía no está activada. Quien instala Cited la enciende.",
     voiceProviderFailed: "ElevenLabs no respondió. Inténtalo en un minuto.",
+    voiceBusinessUnnamed: "Primero ponle nombre a tu negocio: el agente se presenta con él.",
     agentId: "Agente",
   },
 };

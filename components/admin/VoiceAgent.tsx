@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button, Panel } from "@/components/ui";
 import { adminStrings } from "@/lib/i18n/admin";
 import { voiceStrings } from "@/lib/i18n/voice";
-import { VOICE_NOT_CONFIGURED } from "@/lib/voice/client";
+import { BUSINESS_UNNAMED, VOICE_NOT_CONFIGURED } from "@/lib/voice/client";
 import type { Lang } from "@/lib/settings/business";
 
 // The one button of the voice screen (task 3.2): it asks `/api/admin/voice` for the agent of this business. The route
@@ -29,11 +29,13 @@ type Outcome =
   | { kind: "created"; agentId: string }
   | { kind: "updated"; agentId: string }
   | { kind: "not-configured" }
+  | { kind: "business-unnamed" }
   | { kind: "provider-failed" };
 
 export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentStatus }) {
   const words = voiceStrings(lang);
   const installer = adminStrings(lang).navSetup;
+  const business = adminStrings(lang).navBusiness;
   const [agentId, setAgentId] = useState(status.agentId);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
@@ -56,6 +58,8 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
 
       if (response.status === 503 && payload.reason === VOICE_NOT_CONFIGURED) {
         setOutcome({ kind: "not-configured" });
+      } else if (response.status === 409 && payload.reason === BUSINESS_UNNAMED) {
+        setOutcome({ kind: "business-unnamed" });
       } else if (response.ok && typeof payload.agentId === "string") {
         setAgentId(payload.agentId);
         setOutcome({
@@ -97,6 +101,15 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
           {words.voiceNotConfigured}{" "}
           <Link className="underline underline-offset-2" href="/admin">
             {installer}
+          </Link>
+        </p>
+      ) : null}
+
+      {outcome.kind === "business-unnamed" ? (
+        <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
+          {words.voiceBusinessUnnamed}{" "}
+          <Link className="underline underline-offset-2" href="/admin/business">
+            {business}
           </Link>
         </p>
       ) : null}

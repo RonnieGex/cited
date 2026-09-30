@@ -14,7 +14,7 @@ import { guardResponse, json } from "../../../../lib/admin/respond.ts";
 import { readBusiness } from "../../../../lib/settings/business.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 import { provisionVoiceAgent } from "../../../../lib/voice/agent.ts";
-import { VOICE_NOT_CONFIGURED, VOICE_PROVIDER_FAILED } from "../../../../lib/voice/client.ts";
+import { VOICE_NOT_CONFIGURED, VOICE_PROVIDER_FAILED, BUSINESS_UNNAMED } from "../../../../lib/voice/client.ts";
 import { declared, originOf } from "../../../../lib/voice/config.ts";
 
 export const runtime = "nodejs";
@@ -57,6 +57,12 @@ export async function POST(request: Request): Promise<Response> {
 
   if (outcome.status === "ok") {
     return json({ status: "ok", agentId: outcome.agentId, created: outcome.created });
+  }
+
+  if (outcome.status === "unnamed") {
+    // The owner reads the sentence of the screen and the panel links "Business": ElevenLabs received nothing, so
+    // nothing of this answer may say that the provider failed (decision 7).
+    return json({ status: "incomplete", reason: BUSINESS_UNNAMED }, 409);
   }
 
   if (outcome.status === "unconfigured") {

@@ -12,3 +12,4 @@
 export const VOICE_NOT_CONFIGURED = "voice_not_configured";
 export const VOICE_PROVIDER_FAILED = "voice_provider_failed";
 export const VOICE_UNAVAILABLE = "voice_unavailable";
+export const BUSINESS_UNNAMED = "business_unnamed";
