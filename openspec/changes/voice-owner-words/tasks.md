@@ -50,7 +50,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 8. The state of the base after
 
-- [ ] 8.1 Repeat 1.1 and say what changed (no table should) — report: `reports/2026-09-29-step-8-base-after.md`
+- [x] 8.1 Repeat 1.1 and say what changed (no table should) — report: `reports/2026-09-29-step-8-base-after.md`
 
 ## 9. Documentation
 
