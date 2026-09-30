@@ -270,6 +270,123 @@ test.describe("the public page speaks English first", () => {
   });
 });
 
+// The review of step 12: the sticky ask box never hides the control that has the focus (WCAG 2.2, 2.4.11), the new
+// entry comes into view above the box, and a passage closed from the keyboard, with Close or with Escape, gives the
+// focus back to the mark that opened it. The answer is mocked so that four questions stay deterministic.
+test("a four-answer thread at 375 x 812: the focus is never under the ask box and a closed passage returns it", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.route("**/api/ask", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "answered",
+        answer:
+          "The tune-up is 380 pesos [1] and it takes one working day. The tube change is 120 pesos [2] and is done " +
+          "while you wait, unless the workshop is full on a Saturday.",
+        citations: [
+          { n: 1, document: "cafe-la-horquilla.md", heading: "Precios", position: 3, excerpt: "Afinación de bicicleta: 380 pesos." },
+          { n: 2, document: "bike-workshop-policies.md", heading: null, position: 1, excerpt: "Cambio de cámara: 120 pesos." },
+        ],
+      }),
+    });
+  });
+  await page.goto("/");
+
+  const form = page.locator('[data-cited="ask"]');
+
+  for (let index = 1; index <= 4; index += 1) {
+    await ask(page, `Question ${index}: how much is a tune-up?`);
+    await expect(page.locator(answer)).toHaveCount(index);
+
+    const landed = await page.evaluate(() => {
+      const turns = document.querySelectorAll('[data-cited="turn"]');
+      const last = (turns[turns.length - 1] as HTMLElement).getBoundingClientRect();
+      const box = (document.querySelector('[data-cited="ask"]') as HTMLElement).getBoundingClientRect();
+
+      return { top: last.top, formTop: box.top };
+    });
+
+    expect(landed.top, `answer ${index} starts on the screen`).toBeGreaterThanOrEqual(0);
+    expect(landed.top, `answer ${index} starts above the ask box`).toBeLessThan(landed.formTop);
+  }
+
+  await expect(page.locator('[data-cited="announcer"]')).toHaveText("Answer with 2 sources");
+  expect(await form.evaluate((element) => getComputedStyle(element).position)).toBe("sticky");
+
+  // Every control the keyboard reaches outside the box stays clear of it.
+  const covered = (): { name: string; overlap: number } | null => {
+    const active = document.activeElement as HTMLElement | null;
+    const box = document.querySelector('[data-cited="ask"]') as HTMLElement;
+
+    if (active === null || active === document.body || box.contains(active)) {
+      return null;
+    }
+
+    const rect = active.getBoundingClientRect();
+    const boxRect = box.getBoundingClientRect();
+
+    return {
+      name: active.getAttribute("aria-label") ?? active.textContent?.trim() ?? active.tagName,
+      overlap: Math.max(0, Math.min(rect.bottom, boxRect.bottom) - Math.max(rect.top, boxRect.top)),
+    };
+  };
+
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    (document.activeElement as HTMLElement | null)?.blur();
+  });
+
+  const hidden: string[] = [];
+
+  for (let step = 0; step < 40; step += 1) {
+    await page.keyboard.press("Tab");
+
+    const focus = await page.evaluate(covered);
+
+    if (focus !== null && focus.overlap > 0) {
+      hidden.push(`${focus.name}: ${focus.overlap}px under the box`);
+    }
+  }
+
+  expect(hidden, "no focused control sits under the sticky ask box").toEqual([]);
+
+  // The last passage, opened and closed from the keyboard.
+  const mark = page.locator(answer).last().getByRole("button", { name: "Citation 2", exact: true });
+
+  await mark.focus();
+  await page.keyboard.press("Enter");
+
+  const citation = page.locator('[data-cited="citation"]');
+
+  await expect(citation).toBeVisible();
+
+  const close = citation.getByRole("button", { name: "Close" });
+
+  for (let step = 0; step < 8 && !(await close.evaluate((element) => element === document.activeElement)); step += 1) {
+    await page.keyboard.press("Tab");
+  }
+
+  await expect(close, "the keyboard reaches Close").toBeFocused();
+
+  const closeFocus = await page.evaluate(covered);
+
+  expect(closeFocus?.overlap, "Close is not under the ask box").toBe(0);
+
+  await page.keyboard.press("Enter");
+  await expect(citation).toHaveCount(0);
+  await expect(mark, "Close gives the focus back to the mark").toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(citation).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(citation, "Escape closes the passage").toHaveCount(0);
+  await expect(mark).toHaveAttribute("aria-expanded", "false");
+  await expect(mark, "and gives the focus back to the mark").toBeFocused();
+});
+
 test("the public page and the embed pass axe at level A and AA", async ({ page }) => {
   for (const path of ["/", "/embed"]) {
     const response = await page.goto(path);
