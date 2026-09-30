@@ -102,3 +102,13 @@ will be public: no secret, no customer data, no personal path. No network call t
       the provider is `fake` (decision 23) — report: `reports/2026-09-30-step-12-1-no-silent-fake.md`
 - [x] 12.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
       a section "Ronda 13d" — report: `reports/2026-09-30-step-12-2-checks.md`
+
+## 13. Fourth amendment (the real run of decision 18, design decision 24)
+
+- [ ] 13.1 Red, then green: with the chat set by the server and no search chosen, step 1 is "needs attention" with the
+      sentence and the two doors in both languages; choosing search by words turns it green; the sample button of step 2
+      links back to step 1 while the search is not chosen; the walk of `e2e/setup.spec.ts` gains the server-set case
+      (decision 24) — report: `reports/2026-09-30-step-13-1-step-one-whole.md`
+- [ ] 13.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
+      a section "Ronda 13e" — report: `reports/2026-09-30-step-13-2-checks.md`
+

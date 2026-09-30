@@ -98,3 +98,12 @@
     attention" ("The saved AI provider is not one Cited knows. Connect your AI again."), the public page says "not
     ready", and no answer is ever produced by the test double outside the tests. The same check guards the provider
     that the server environment names.
+
+## Fourth amendment after the real run (Fable, 2026-09-30, "Corrida real con DeepSeek" in `entrega-community-13.md`)
+
+24. **Step 1 is whole: the AI and how to search.** Step 1 is verified only when the chat provider can answer (decisions
+    14, 20 and 23) and the search is chosen (a meaning provider that is configured, or search by words). With the chat
+    set by the server and no search chosen, step 1 is "needs attention", opens by itself on the next visit, and says in
+    the owner's words "Your AI is connected. Choose how to search your documents: by meaning or by words." with the two
+    doors of the section. Step 2 stays reachable, and its sample button, when the search is not chosen, links back to
+    step 1 instead of failing after the press.
