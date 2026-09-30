@@ -223,7 +223,7 @@
     },
     "ingest": {
       "command": "EMBEDDINGS_PROVIDER=fake npm run ingest -- samples/",
-      "output": "ingested README.txt (txt, no pages, 1 passages)\ningested bike-workshop-policies.md (md, no pages, 5 passages)\ningested cafe-la-horquilla.md (md, no pages, 4 passages)\ningested notas-del-negocio.txt (txt, no pages, 1 passages)\ndocuments 4, passages 11, skipped 0, store .data/katalis.sqlite, 32 ms, rss 131 MB"
+      "output": "ingested README.txt (txt, no pages, 1 passages)\ningested bike-workshop-policies.md (md, no pages, 5 passages)\ningested cafe-la-horquilla.md (md, no pages, 4 passages)\ningested notas-del-negocio.txt (txt, no pages, 1 passages)\ndocuments 4, passages 11, skipped 0, store .data/katalis.sqlite, 30 ms, rss 130 MB"
     },
     "search": {
       "command": "EMBEDDINGS_PROVIDER=fake npm run search -- \"¿Cuánto cuesta una afinación de bicicleta?\"",
@@ -231,7 +231,7 @@
     },
     "ask": {
       "command": "EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- \"¿Cuánto cuesta una afinación de bicicleta?\"",
-      "output": "question: ¿Cuánto cuesta una afinación de bicicleta?\nstore: .data/katalis.sqlite\nstatus: answered\nanswer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]\ncitations:\n  [1] cafe-la-horquilla.md [Precios] position 2\n      Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.\ncitations 1, 39 ms, rss 102 MB"
+      "output": "question: ¿Cuánto cuesta una afinación de bicicleta?\nstore: .data/katalis.sqlite\nstatus: answered\nanswer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]\ncitations:\n  [1] cafe-la-horquilla.md [Precios] position 2\n      Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.\ncitations 1, 38 ms, rss 102 MB"
     },
     "drawn": {
       "ingest": [
@@ -239,7 +239,7 @@
         "ingested bike-workshop-policies.md (md, no pages, 5 passages)",
         "ingested cafe-la-horquilla.md (md, no pages, 4 passages)",
         "ingested notas-del-negocio.txt (txt, no pages, 1 passages)",
-        "documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 32 ms, rss 131 MB"
+        "documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 30 ms, rss 130 MB"
       ],
       "search": [
         "question: ¿Cuánto cuesta una afinación de bicicleta?",
