@@ -94,7 +94,7 @@ flame.
       inline delete, the Spanish Setup and test results) — report: `reports/2026-09-29-step-10-1-tests-first.md`
 - [x] 10.2 The fixes of decisions 21 to 29 and 31, and the minors that decision 33 fixes in this round — report:
       `reports/2026-09-29-step-10-2-implementation.md`
-- [ ] 10.3 The checks of 5.1 on the merged tree (Windows twice and a `node:24` Linux container) — report:
+- [x] 10.3 The checks of 5.1 on the merged tree (Windows twice and a `node:24` Linux container) — report:
       `reports/2026-09-29-step-10-3-checks.md`
 - [ ] 10.4 The curl of 6.1 on the merged tree, plus `/admin/ai` and a failure of `/api/ask` answered in Spanish with no
       server text — report: `reports/2026-09-29-step-10-4-curl.md`
