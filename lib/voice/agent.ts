@@ -30,6 +30,7 @@ import { voiceTransport, type VoiceTransport } from "./transport.ts";
 
 export type ProvisionOutcome =
   | { status: "ok"; agentId: string; created: boolean }
+  | { status: "unnamed" }
   | { status: "unconfigured"; missing: string[] }
   | { status: "unavailable"; message: string };
 
@@ -293,13 +294,14 @@ export async function provisionVoiceAgent(input: ProvisionInput): Promise<Provis
   const business = input.business ?? null;
   const origin = input.origins[0] ?? "";
 
-  if (business === null || origin.length === 0) {
+  if (business === null || business.name.trim().length === 0) {
+    return { status: "unnamed" };
+  }
+
+  if (origin.length === 0) {
     return {
       status: "unavailable",
-      message:
-        business === null
-          ? "the business has no name yet: save it in the panel before creating the agent"
-          : "the origin of the panel is unknown, so the agent cannot be allowed to start a conversation",
+      message: "the origin of the panel is unknown, so the agent cannot be allowed to start a conversation",
     };
   }
 

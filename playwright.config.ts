@@ -144,7 +144,7 @@ export default defineConfig({
         // The voice of the browser suite is the test SDK of `tests/fakes/elevenlabs-react.tsx`, which
         // `npm run build:e2e` resolves in place of the real package. The empty values are explicit so a key that
         // happens to live in the environment of this machine can never make a test call ElevenLabs: the signed URL
-        // route answers 503 naming the variable instead, and `e2e/voice.spec.ts` proves it.
+        // route answers 503 with the reason code `voice_unavailable` instead, and `e2e/voice.spec.ts` proves it.
         ELEVENLABS_API_KEY: "",
         ELEVENLABS_AGENT_ID: "",
         ELEVENLABS_VOICE_ID: "",

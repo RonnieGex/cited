@@ -100,6 +100,22 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Decision 9 of `voice-owner-words`: Windows keeps the file of a libsql store of this process locked for a while after
+// the connection is closed, so one `rmSync` of the folder answers `EPERM` and turns the whole run red. The store is
+// closed before this helper runs (the `afterAll` above closes the shared ones), and the removal is the one of every
+// other file of the suite, retried until the filter of the system lets the folder go.
+async function removeLater(root: string): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+
+      return;
+    } catch {
+      await new Promise((wake) => setTimeout(wake, 200));
+    }
+  }
+}
+
 afterEach(() => {
   useVoiceTransport(null);
 });
@@ -116,18 +132,7 @@ afterAll(async () => {
   }
 
   for (const root of roots) {
-    await new Promise((wake) => setTimeout(wake, 100));
-
-    // The client of the store frees its file only when it is collected on Windows, so the removal retries like the other
-    // tests of the repository that open a store in a temporary folder (`tests/store.test.ts`) instead of failing the suite.
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      try {
-        rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
-        break;
-      } catch {
-        await new Promise((wake) => setTimeout(wake, 200));
-      }
-    }
+    await removeLater(root);
   }
 });
 
@@ -159,8 +164,9 @@ describe("a limit below one session", () => {
     const counted = await rows(path, "SELECT minutes FROM voice_minutes");
 
     expect(response.status).toBe(429);
-    expect(body).toMatchObject({ status: "limited", reason: "below-session", limit: limitBelow });
-    expect(String(body["error"])).toContain("DAILY_VOICE_MINUTE_LIMIT=3");
+    // Amended by `voice-owner-words`: the 429 of the cap answers a status and a reason code, and the sentence that
+    // named `DAILY_VOICE_MINUTE_LIMIT` is gone from every answer a visitor can read.
+    expect(body).toEqual({ status: "limited", reason: "below-session" });
     expect(double.calls).toHaveLength(0);
     expect(counted).toHaveLength(0);
   });
@@ -181,7 +187,7 @@ describe("a limit below one session", () => {
     const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(429);
-    expect(body).toMatchObject({ status: "limited", reason: "spent", limit: limitWide });
+    expect(body).toEqual({ status: "limited", reason: "spent" });
     expect(double.calls).toHaveLength(0);
   });
 });
@@ -213,8 +219,7 @@ describe("the cap of the day is answered before the configuration", () => {
       const body = (await response.json()) as Record<string, unknown>;
 
       expect(response.status).toBe(429);
-      expect(body).toMatchObject({ status: "limited", reason: "below-session", limit });
-      expect(String(body["error"])).toContain(`DAILY_VOICE_MINUTE_LIMIT=${limit}`);
+      expect(body).toEqual({ status: "limited", reason: "below-session" });
       expect(double.calls).toHaveLength(0);
       expect(existsSync(path)).toBe(false);
     });
@@ -239,12 +244,12 @@ describe("the cap of the day is answered before the configuration", () => {
     const body = (await response.json()) as Record<string, unknown>;
 
     expect(response.status).toBe(429);
-    expect(body).toMatchObject({ status: "limited", reason: "below-session" });
+    expect(body).toEqual({ status: "limited", reason: "below-session" });
     expect(double.calls).toHaveLength(0);
     expect(existsSync(path)).toBe(false);
   });
 
-  it("still answers 503 naming the key when the cap does admit a session", async () => {
+  it("still answers the code of an installation without voice when the cap does admit a session", async () => {
     const path = virginStorePath();
 
     setEnvironment({
@@ -263,7 +268,8 @@ describe("the cap of the day is answered before the configuration", () => {
     const text = await response.text();
 
     expect(response.status).toBe(503);
-    expect(text).toContain("ELEVENLABS_API_KEY");
+    expect(JSON.parse(text)).toEqual({ status: "unavailable", reason: "voice_unavailable" });
+    expect(text).not.toContain("ELEVENLABS_API_KEY");
     expect(double.calls).toHaveLength(0);
     expect(existsSync(path)).toBe(false);
   });

@@ -4,7 +4,6 @@
 How the owner of a business connects the AI providers of Cited from the panel, without touching the environment of
 the server: the chat and embeddings provider, a key stored encrypted, a test that never lets a key or a private address
 through, and answers in the owner's words that never name a variable outside the page "For the installer".
-
 ## Requirements
 ### Requirement: The owner connects a provider in the panel
 
@@ -147,3 +146,17 @@ SHALL point to the page "For the installer", the only place where the variable m
 - **THEN** the route answers `503` with the code `panel_not_configured` or `admin_password_too_short` and no variable
   name, the page says in the owner's words that the person who installs Cited has to finish the installation, and the
   names of the missing variables reach only the server log and the page "For the installer"
+
+#### Scenario: Voice that is not set up
+
+- **WHEN** the owner presses the button of the voice screen and the key of ElevenLabs or the tool secret is missing
+- **THEN** `POST /api/admin/voice` answers `503` with the code `voice_not_configured` and no variable name, the screen
+  says in the owner's words that the installer turns voice on and links "For the installer", and the names reach only
+  the server log
+
+#### Scenario: A business without a name
+
+- **WHEN** the owner presses the button of the voice screen, voice is set up, and the business has no name yet
+- **THEN** `POST /api/admin/voice` answers `409` with the code `business_unnamed`, no request reaches ElevenLabs, and the
+  screen says in the owner's words to give the business a name first and links the page "Business", never that
+  ElevenLabs failed

@@ -30,10 +30,11 @@ export const OWNER_WORDS = {
 } as const;
 
 // One line per state, not one per request: the guard runs on every call of the panel and the log of a server that is
-// not configured yet does not need the same sentence a thousand times.
+// not configured yet does not need the same sentence a thousand times. The voice route writes the names of its own
+// missing variables with the same helper and the same rule (`voice-owner-words`, design decision 2).
 const written = new Set<string>();
 
-function writeOnce(line: string): void {
+export function writeOnce(line: string): void {
   if (written.has(line)) {
     return;
   }
