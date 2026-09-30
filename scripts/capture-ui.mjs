@@ -4,8 +4,9 @@ import { chromium } from "@playwright/test";
 
 // Captures of the real interface, for the review of a change and for the README: the public page with an answer and its
 // open citation, the embed, the sign in, the panel and the kit, each at 1440 and 375 px. Everything is a screenshot of the
-// application that is already running (`npm run dev` or `npm run start`) with the deterministic providers and the
-// corpus of `samples/` ingested; nothing is drawn by hand.
+// application that is already running with the deterministic providers and the corpus of `samples/` ingested; nothing is
+// drawn by hand. The captures of record come from `npm run start` (a build): `npm run dev` paints the indicator of Next over
+// the corner of the page, and `settle` hides it so a capture never shows it, but a build is what ships.
 //
 //   ADMIN_PASSWORD=<the password of the running app> node scripts/capture-ui.mjs <directory> [http://localhost:3300]
 //
@@ -35,6 +36,8 @@ const directory = resolve(target);
 mkdirSync(directory, { recursive: true });
 
 async function settle(page) {
+  // The development indicator of Next (`nextjs-portal`) covers the foot of the page, exactly where the signature of Katalis is.
+  await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
   await page.evaluate(() => document.fonts.ready);
   // The entrance motion of the page lands before the shot: the capture shows the state a reader ends up looking at. Every
   // animation that ends is awaited (the waiting bar loops, so it is left out), as in `render-readme-captures.mjs`.

@@ -246,8 +246,12 @@ function openChangeSpecs(capability: string): string[] {
     .filter((path) => addsCapability(path));
 }
 
+// The headers a delta adds, requirement and scenario alike, compared without case and without runs of spaces, so a hand copy with a
+// reworded case or spacing is still caught (finding 43 of the third review).
 function requirementHeaders(text: string): string[] {
-  return text.match(/^### Requirement: .+$/gm)?.map((header) => header.trim()) ?? [];
+  return (
+    text.match(/^#{3,4} (?:Requirement|Scenario): .+$/gm)?.map((header) => header.trim().toLowerCase().replace(/\s+/g, " ")) ?? []
+  );
 }
 
 function specIsDelivered(link: string): boolean {
@@ -686,7 +690,7 @@ describe("README, the status table", () => {
         // forbidden is writing the delta by hand into the spec in force before the archive: no requirement an open
         // change still adds is already a header of the spec in force.
         if (inForce) {
-          const written = readText(linked);
+          const written = readText(linked).toLowerCase().replace(/\s+/g, " ");
 
           for (const path of delivering) {
             for (const header of requirementHeaders(readText(path))) {
@@ -1480,6 +1484,9 @@ describe("the product is named Cited", () => {
     // `lib/public/brand.ts` fills with `PRODUCT_NAME` while the business has none.
     expect(readText("app/page.tsx")).toContain("brand.name");
     expect(readText("lib/public/brand.ts")).toContain('PRODUCT_NAME = "Cited"');
+    // Finding 43: `brand.name` alone would be satisfied by any variable, so the fallback itself is pinned: the name of the
+    // brand is the business name or the product (the page with no settings renders "Cited" in `tests/brand-public.test.tsx`).
+    expect(readText("lib/public/brand.ts")).toMatch(/name:[^\n]*\|\|\s*PRODUCT_NAME/);
   });
 
   it("keeps the home page as one main element with one heading and the chat of the business", () => {

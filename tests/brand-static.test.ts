@@ -448,7 +448,7 @@ describe("no animation library, and no dependency that main does not have", () =
           stdio: ["ignore", "pipe", "ignore"],
         });
       } catch {
-        // The next reference, and finally the honest skip below.
+        // The next reference, and finally the committed list below: a missing `main` never turns the check into a skip.
       }
     }
 
@@ -465,11 +465,16 @@ describe("no animation library, and no dependency that main does not have", () =
     }
   });
 
-  it.skipIf(main === null)("adds no dependency to the ones of main", () => {
-    const before = new Set(dependenciesOf(main ?? "{}"));
+  // Round 14c (finding 42): the guard never skips itself. Where git can read `main` (a checkout with its history) it compares
+  // with `main`; where it cannot (a shallow clone, a container over a mounted worktree, a build without `.git`) it compares
+  // with the list of the dependencies of `main` that is committed in `tests/fixtures/dependencies-of-main.json`.
+  it("adds no dependency to the ones of main, and never skips the check when git cannot read main", () => {
+    const listed = (JSON.parse(readText("tests/fixtures/dependencies-of-main.json")) as { names: string[] }).names;
+    const before = new Set(main === null ? listed : dependenciesOf(main));
     const added = dependenciesOf(readText("package.json")).filter((name) => before.has(name) === false);
 
-    expect(added, "dependencies that git show main:package.json does not have").toEqual([]);
+    expect(added, "dependencies that main does not have").toEqual([]);
+    expect(listed.length, "the committed list of the dependencies of main").toBeGreaterThan(20);
   });
 });
 
