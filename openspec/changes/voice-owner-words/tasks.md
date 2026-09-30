@@ -34,7 +34,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 5. Run the checks
 
-- [ ] 5.1 `npm test` on Windows and in a `node:24` Linux container (Node 24.15 or newer), `npm run typecheck`,
+- [x] 5.1 `npm test` on Windows and in a `node:24` Linux container (Node 24.15 or newer), `npm run typecheck`,
       `npm run lint`, `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`,
       `git diff --check main...HEAD` — report: `reports/2026-09-29-step-5-checks.md`
 
