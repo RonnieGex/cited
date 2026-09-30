@@ -109,5 +109,5 @@ will be public: no secret, no customer data, no personal path. No network call t
       sentence and the two doors in both languages; choosing search by words turns it green; the sample button of step 2
       links back to step 1 while the search is not chosen; the walk of `e2e/setup.spec.ts` gains the server-set case
       (decision 24) — report: `reports/2026-09-30-step-13-1-step-one-whole.md`
-- [ ] 13.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
+- [x] 13.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
       a section "Ronda 13e" — report: `reports/2026-09-30-step-13-2-checks.md`
