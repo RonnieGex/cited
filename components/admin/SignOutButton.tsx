@@ -14,7 +14,7 @@ export function SignOutButton({ strings }: SignOutButtonProps) {
   }
 
   return (
-    <Button variant="secondary" onClick={signOut}>
+    <Button variant="ghost" size="sm" onClick={signOut}>
       {strings.signOut}
     </Button>
   );

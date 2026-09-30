@@ -1,23 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { Button, Panel, SectionTitle } from "@/components/ui";
+import { useState, useSyncExternalStore } from "react";
+import { ConfirmedDelete } from "@/components/admin/ConfirmedDelete";
+import { useOverflowing } from "@/components/admin/useOverflowing";
+import { Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { ConversationSummary } from "@/lib/admin/conversations";
-import type { AdminStrings } from "@/lib/i18n/admin";
+import { formatWhen, type AdminStrings } from "@/lib/i18n/admin";
+import type { Lang } from "@/lib/settings/business";
 
 export type ConversationsPanelProps = {
   strings: AdminStrings;
   conversations: ConversationSummary[];
+  lang: Lang;
+  /**
+   * The zone of the server. The HTML and the hydration print the dates in it, so they match; right after, the browser
+   * prints them again in the zone of the reader, the one the owner lives in.
+   */
+  timeZone: string;
 };
 
 type Answer = { status?: string; error?: string; conversations?: ConversationSummary[] };
 
-const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
+// Nothing to subscribe to: the zone of the reader does not change while the page is open.
+const still = () => () => {};
 
-export function ConversationsPanel({ strings, conversations }: ConversationsPanelProps) {
+/** A stored ISO date in the zone of the reader, with the text of the server as the snapshot of the hydration. */
+function When({ iso, lang, serverZone }: { iso: string; lang: Lang; serverZone: string }) {
+  const text = useSyncExternalStore(
+    still,
+    () => formatWhen(iso, lang),
+    () => formatWhen(iso, lang, serverZone),
+  );
+
+  // The hydration warning is not silenced here: the snapshot of the server is what hydrates, so a mismatch is a bug to be seen.
+  return <time dateTime={iso}>{text}</time>;
+}
+
+// Tighter sides on a phone and a date that may wrap there, so the three columns that stay (question, status, when) fit a
+// 375 px screen inside the box and the hour of "When" is never cut at its edge.
+const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink max-sm:px-2";
+const head =
+  "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2 max-sm:px-2";
+
+export function ConversationsPanel({ strings, conversations, lang, timeZone }: ConversationsPanelProps) {
   const [list, setList] = useState(conversations);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [scroller, scrolls] = useOverflowing<HTMLDivElement>();
 
   async function removeAll(): Promise<void> {
     setError(null);
@@ -40,8 +69,19 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
 
   return (
     <div className="flex flex-col gap-8">
-      <Panel className="overflow-x-auto">
-        <SectionTitle level="h2">{strings.conversationsTitle}</SectionTitle>
+      {/* The panel scrolls sideways on a phone: a scrolling region has to be reachable by keyboard (axe:
+          scrollable-region-focusable), and only while it scrolls: a box that does not is not a tab stop. */}
+      <Panel
+        aria-label={strings.conversationsTitle}
+        className={`overflow-x-auto ${focusRing}`}
+        ref={scroller}
+        role="region"
+        tabIndex={scrolls ? 0 : -1}
+      >
+        {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
+        <SectionTitle className="sr-only" level="h2">
+          {strings.conversationsTitle}
+        </SectionTitle>
         {list.length === 0 ? (
           <p className="mt-4 text-sm text-ink/80">{strings.noConversations}</p>
         ) : (
@@ -49,16 +89,17 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
             <caption className="sr-only">{strings.conversationsIntro}</caption>
             <thead>
               <tr>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.question}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.status}
                 </th>
-                <th className={cell} scope="col">
+                {/* Off a phone only: the When column that this change formatted must not start at the edge of the screen. */}
+                <th className={`${head} max-sm:hidden`} scope="col">
                   {strings.citations}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.when}
                 </th>
               </tr>
@@ -70,10 +111,12 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
                   <td className={cell}>
                     {turn.status === "refused" ? strings.refused : strings.answered}
                   </td>
-                  <td className={cell}>
+                  <td className={`${cell} max-sm:hidden`}>
                     {turn.citations.length === 0 ? "—" : turn.citations.join(", ")}
                   </td>
-                  <td className={cell}>{turn.createdAt}</td>
+                  <td className={`${cell} tabular-nums sm:whitespace-nowrap`}>
+                    <When iso={turn.createdAt} lang={lang} serverZone={timeZone} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -81,9 +124,16 @@ export function ConversationsPanel({ strings, conversations }: ConversationsPane
         )}
       </Panel>
 
-      <Button onClick={() => void removeAll()} variant="secondary">
-        {strings.deleteAll}
-      </Button>
+      {/* Decision 28: Delete all asks first, in place, and only the second press sends it. */}
+      <ConfirmedDelete
+        className="self-start"
+        confirmLabel={strings.confirmDelete}
+        keepLabel={strings.keep}
+        label={strings.deleteAll}
+        onConfirm={removeAll}
+        sentence={strings.confirmDeleteAll}
+        size="md"
+      />
 
       {message === null ? null : (
         <p className="text-sm font-semibold text-ink" role="status">

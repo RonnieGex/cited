@@ -40,8 +40,10 @@ public/             # static assets, no licensed font
   not define its own palette.
 - New UI lives in `components/`. Styles are not overwritten at the point of use: a variant is added to the component
   or to the token set, never with an inline override.
-- The business information of the fork (name, logo, main color) brands the same system; the footer keeps
-  "Built by Katalis".
+- The business information of the fork (name, logo, main color) brands the same system; the footer names Cited and
+  keeps "Built by Katalis" ("Hecho por Katalis" in Spanish) beside the real flame.
+- A failure of a question is one sentence of its kind (`PublicStrings.errors`), in the language of the page; the text the server
+  wrote never reaches the visitor. A delete that cannot be undone asks first, in place, and never with a modal.
 - Accessibility: one `h1` per page, labelled form controls, visible focus, and text contrast of at least 4.5 to 1.
 
 ## 4. Content and safety in the browser

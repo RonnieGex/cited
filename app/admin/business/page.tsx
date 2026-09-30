@@ -6,6 +6,12 @@ import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 import { readBusiness } from "@/lib/settings/business";
 import { sharedStore } from "@/lib/store/instance";
+import { panelMetadata } from "@/lib/admin/titles";
+
+// Decision 24 of `openspec/changes/brand-identity-ui/design.md`: the title of this page, in the language of the panel.
+export async function generateMetadata() {
+  return panelMetadata("business");
+}
 
 export default async function AdminBusiness() {
   const stored = await cookies();
@@ -15,7 +21,7 @@ export default async function AdminBusiness() {
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.businessTitle}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.businessIntro}</p>

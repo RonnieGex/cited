@@ -66,7 +66,8 @@ describe("the client of /api/ask", () => {
     });
   });
 
-  it("keeps the message of the server when the request is refused", async () => {
+  // Decision 21 of `openspec/changes/brand-identity-ui/design.md`: a failure carries a kind and never what the server wrote.
+  it("answers a refused request with its kind and none of the words of the server", async () => {
     const fetchImpl = vi.fn(async () =>
       json({ status: "rate_limited", error: "more than 30 questions from this address in an hour" }, 429),
     );
@@ -77,13 +78,10 @@ describe("the client of /api/ask", () => {
         sessionId: "tab-1",
         fetchImpl: fetchImpl as unknown as typeof fetch,
       }),
-    ).resolves.toEqual({
-      status: "failed",
-      message: "more than 30 questions from this address in an hour",
-    });
+    ).resolves.toEqual({ status: "failed", kind: "rate_limited" });
   });
 
-  it("keeps the message of an unavailable server", async () => {
+  it("answers an unavailable server with the kind unavailable", async () => {
     const fetchImpl = vi.fn(async () =>
       json({ status: "unavailable", error: "the daily limit is reached" }, 503),
     );
@@ -94,29 +92,29 @@ describe("the client of /api/ask", () => {
         sessionId: "tab-1",
         fetchImpl: fetchImpl as unknown as typeof fetch,
       }),
-    ).resolves.toEqual({ status: "failed", message: "the daily limit is reached" });
+    ).resolves.toEqual({ status: "failed", kind: "unavailable" });
   });
 
-  it("fails with no message when the answer cannot be read", async () => {
+  it("fails as unavailable when the answer cannot be read", async () => {
     const broken = vi.fn(async () => new Response("<html>502</html>", { status: 502 }));
     const nonsense = vi.fn(async () => json({ status: "something else" }));
 
     await expect(
       askCited({ question: "q", sessionId: "s", fetchImpl: broken as unknown as typeof fetch }),
-    ).resolves.toEqual({ status: "failed", message: null });
+    ).resolves.toEqual({ status: "failed", kind: "unavailable" });
 
     await expect(
       askCited({ question: "q", sessionId: "s", fetchImpl: nonsense as unknown as typeof fetch }),
-    ).resolves.toEqual({ status: "failed", message: null });
+    ).resolves.toEqual({ status: "failed", kind: "unavailable" });
   });
 
-  it("fails with no message when the network is gone", async () => {
+  it("fails as network when the request cannot be made", async () => {
     const offline = vi.fn(async () => {
       throw new TypeError("Failed to fetch");
     });
 
     await expect(
       askCited({ question: "q", sessionId: "s", fetchImpl: offline as unknown as typeof fetch }),
-    ).resolves.toEqual({ status: "failed", message: null });
+    ).resolves.toEqual({ status: "failed", kind: "network" });
   });
 });

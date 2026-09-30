@@ -168,7 +168,8 @@ test("the kit renders every component, answers 200 and passes axe", async ({ pag
   expect(focus.visible, "the focus is visible").toBe(true);
   expect(Number.parseFloat(focus.width), "the outline is 2 px").toBeGreaterThanOrEqual(2);
   expect(focus.style).toBe("solid");
-  expect(focus.color.replaceAll(" ", ""), "the outline is lime").toBe("rgb(221,244,105)");
+  // Decision 33 of `brand-identity-ui`: on paper the outline is ink with a lime ring inside it (lime alone was 1.07:1).
+  expect(focus.color.replaceAll(" ", ""), "the outline is ink").toBe("rgb(23,23,23)");
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -393,6 +394,10 @@ test("the controls can be seen: 3:1 of the border and of the focus, 4.5:1 of eve
     // here: a frame of eight pixels around the top left corner of the control, decoded from a screenshot of the real
     // page, has to carry the hairline that the computation above composited. A computed colour the browser did not
     // paint cannot pass.
+    // The kit page is longer since the identity devices join it and the focus checks above scrolled the page to the last
+    // control, so each control is brought into the viewport before the clip of its corner is taken.
+    await page.locator(control.selector).scrollIntoViewIfNeeded();
+
     const box = await page.locator(control.selector).boundingBox();
 
     expect(box, `${control.label}: the box of the control`).not.toBeNull();
@@ -480,15 +485,19 @@ test("the controls can be seen: 3:1 of the border and of the focus, 4.5:1 of eve
     expect(indicator.outline.width, `${selector}: the outline of the design`).toBeGreaterThanOrEqual(2);
     expect(
       seen(indicator.outline.overGround),
-      `${selector}: the outline keeps the lime of the design`,
+      `${selector}: the outline is the ink of the design, on paper`,
+    ).toBe("rgb(23, 23, 23)");
+    expect(
+      indicator.ring === null ? "none" : seen(indicator.ring.overGround),
+      `${selector}: the ring inside the outline keeps the lime of the design`,
     ).toBe("rgb(221, 244, 105)");
     expect(
       indicator.ring?.spread ?? 0,
-      `${selector}: the one pixel edge of ink of the focus`,
-    ).toBeGreaterThanOrEqual(1);
+      `${selector}: the ring is two pixels wide`,
+    ).toBeGreaterThanOrEqual(2);
     expect(
-      Math.max(outline, edge),
-      `${selector}: the indicator reaches 3:1 through the part that carries its contrast`,
+      outline,
+      `${selector}: the ink outline alone reaches 3:1 over the ground (the lime ring is what shows against an ink control)`,
     ).toBeGreaterThanOrEqual(3);
   }
 });

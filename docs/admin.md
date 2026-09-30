@@ -30,8 +30,8 @@ where it is written. It never shows a value of the environment, only whether it 
 | `/admin` | "For the installer": every variable of `.env.example` grouped by purpose, read-only, as `Set` or `Missing`, with one button that makes one small call to the chat model and one to the embeddings and reports what the provider answered. It is the only place of the interface where the name of a variable is written |
 | `/admin/ai` | "AI and keys": the two sections "Answers" and "Meaning search". Each one shows the connected provider (name, model, `••••` and the last four characters, the last test and its latency, and whether the value comes from the panel or from the server) or the honest list of providers to connect one, with the key field, the test and the save |
 | `/admin/business` | the name, the logo, the primary color, the tone, the language, the forbidden topics and the welcome message in English and in Spanish |
-| `/admin/documents` | the upload, the list of every document with its passages, the re-ingestion and the delete |
-| `/admin/conversations` | the latest questions with their status and their citations, and the button that deletes them all |
+| `/admin/documents` | the upload, the list of every document with its passages, the re-ingestion and the delete, which asks first |
+| `/admin/conversations` | the latest questions with their status and the numbers of the sources they cited, and the button that deletes them all, which asks first |
 
 | For the installer | AI and keys |
 |---|---|
@@ -128,7 +128,9 @@ replaces the document through the same path, so the heading, the position and th
 The panel lists the latest questions with their session, their status (`Answered` or `Refused`, from the answer the
 store kept) and the numbers of the passages the answer cited. The button that deletes all of them empties the
 `conversations` table and touches neither the counter of the model calls of the day nor the rate limits, so the
-history of spend of the owner survives the cleanup.
+history of spend of the owner survives the cleanup. Both deletes of the panel (this one and the one of a document) ask first,
+in place: the button swaps for a sentence with Delete and Keep, the focus moves to Keep, Escape keeps, and nothing is sent until
+the second press. There is no modal.
 
 ## The two languages of the interface
 
@@ -139,7 +141,11 @@ the `lang` attribute of the document, so the page is in the language it says it 
 
 Every string of the panel lives in `lib/i18n/admin.ts`, in English and in Spanish, with the same keys. The switch and
 the reading of the cookie live in `lib/i18n/language.ts` and `components/i18n/LanguageSwitch.tsx`, the two modules
-that `public-page-and-widget` owns.
+that `public-page-and-widget` owns. Two tables are keyed rather than written inline: the title and the detail of each group of
+"For the installer" (`lib/i18n/setup-groups.ts`, keyed by the id of the group in `.env.example`; a test fails when a group of the
+template has no entry in both languages) and the title of the tab of every page (`pageTitle`, for example `Documents · Cited` /
+`Documentos · Cited`, which also names the sign-in). A provider test prints a sentence of the panel with the name of the provider
+(`testOk`, `testFailed`) and never the text the server wrote.
 
 ## The store
 

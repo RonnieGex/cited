@@ -246,6 +246,14 @@ function openChangeSpecs(capability: string): string[] {
     .filter((path) => addsCapability(path));
 }
 
+// The headers a delta adds, requirement and scenario alike, compared without case and without runs of spaces, so a hand copy with a
+// reworded case or spacing is still caught (finding 43 of the third review).
+function requirementHeaders(text: string): string[] {
+  return (
+    text.match(/^#{3,4} (?:Requirement|Scenario): .+$/gm)?.map((header) => header.trim().toLowerCase().replace(/\s+/g, " ")) ?? []
+  );
+}
+
 function specIsDelivered(link: string): boolean {
   const capability = capabilityOf(link);
 
@@ -677,10 +685,22 @@ describe("README, the status table", () => {
 
         expect(capability, row.capability).not.toBeNull();
         expect(inForce || delivering.length > 0, row.capability).toBe(true);
-        expect(
-          inForce && delivering.length > 0,
-          `${row.capability}: a spec an open change still adds is never written by hand`,
-        ).toBe(false);
+        // Amended in `brand-identity-ui`: a delta of `## ADDED Requirements` over a capability already in force is the
+        // standard OpenSpec form of new requirements, so an open change may add to a spec in force. What stays
+        // forbidden is writing the delta by hand into the spec in force before the archive: no requirement an open
+        // change still adds is already a header of the spec in force.
+        if (inForce) {
+          const written = readText(linked).toLowerCase().replace(/\s+/g, " ");
+
+          for (const path of delivering) {
+            for (const header of requirementHeaders(readText(path))) {
+              expect(
+                written.includes(header),
+                `${row.capability}: ${path} still adds "${header}", which is never written by hand into ${linked}`,
+              ).toBe(false);
+            }
+          }
+        }
       } else {
         expect(plannedChanges, row.capability).toContain(row.reference.replaceAll("`", "").trim());
       }
@@ -1421,6 +1441,22 @@ describe("README, the flow and the foot", () => {
     expect(body).toContain(katalisFlame.light);
     expect(h2Titles(text).at(-1)).toBe(slug("License"));
   });
+
+  // Requirement "Katalis always signs with its flame" of the change `brand-identity-ui`: the closing line of a README
+  // reads in the language of the page, beside the flame.
+  it("closes the Spanish README with Hecho por Katalis beside the flame", () => {
+    const text = readText("README.es.md");
+    const body = bodyOf(text, "Licencia");
+    const signature = body.indexOf('<a href="https://katalis.dev">Hecho por Katalis</a>');
+    const flame = body.lastIndexOf(katalisFlame.light, signature);
+
+    expect(signature, "the closing line reads Hecho por Katalis").toBeGreaterThan(-1);
+    expect(flame, "the flame sits just before the closing line").toBeGreaterThan(-1);
+    expect(body.slice(flame, signature), "no other line between the flame and the signature").not.toMatch(
+      /<p\b|<\/p>/,
+    );
+    expect(text, "the Spanish README never signs in English").not.toContain("Built by Katalis");
+  });
 });
 
 describe("the product is named Cited", () => {
@@ -1444,8 +1480,13 @@ describe("the product is named Cited", () => {
     // Amended by the change `public-page-and-widget`: the page is the chat of the business now, so the name of the
     // product travels from `lib/public/brand.ts` as `PRODUCT_NAME`, it is the heading when the business has no name
     // yet, and it is the eyebrow of the shop when it has one.
-    expect(readText("app/page.tsx")).toContain("PRODUCT_NAME");
+    // Amended in `brand-identity-ui`: the page wears the wordmark and reads the name as `brand.name`, which
+    // `lib/public/brand.ts` fills with `PRODUCT_NAME` while the business has none.
+    expect(readText("app/page.tsx")).toContain("brand.name");
     expect(readText("lib/public/brand.ts")).toContain('PRODUCT_NAME = "Cited"');
+    // Finding 43: `brand.name` alone would be satisfied by any variable, so the fallback itself is pinned: the name of the
+    // brand is the business name or the product (the page with no settings renders "Cited" in `tests/brand-public.test.tsx`).
+    expect(readText("lib/public/brand.ts")).toMatch(/name:[^\n]*\|\|\s*PRODUCT_NAME/);
   });
 
   it("keeps the home page as one main element with one heading and the chat of the business", () => {

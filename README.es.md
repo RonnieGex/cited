@@ -86,9 +86,10 @@ su cita.
 
 **El chat público, como se ve hoy.** Esta no está dibujada: es una captura real de `/` con una pregunta respondida y la
 cita abierta, tomada por `scripts/render-readme-captures.mjs` de la aplicación servida por `npm run start` con el
-corpus de muestra y los proveedores deterministas.
+corpus de muestra, los proveedores deterministas y el negocio de muestra (Café La Horquilla, color `#1F5F4A`)
+guardado en el panel, por eso el chat lleva su banda.
 
-<img src="docs/images/chat-page.png" alt="El chat público de Cited: una pregunta respondida en español con su cita numerada, el extracto del pasaje con su documento y su encabezado, el selector English | Español y el campo de la pregunta" width="1280">
+<img src="docs/images/chat-page.png" alt="El chat público de Cited bajo la banda de un negocio de muestra: una pregunta respondida en español con su cita numerada, el extracto del pasaje resaltado con su documento y su encabezado, el selector English | Español y el campo de la pregunta" width="1280">
 
 **Y el dueño lo maneja desde el navegador.** El panel de `/admin` muestra qué está configurado, guarda el negocio y
 su logo, sube los documentos y lista las preguntas con los pasajes que usaron. Abre en inglés, con el selector
@@ -281,5 +282,5 @@ el aviso.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="public/brand/katalis-flame-192.png"><img src="public/brand/katalis-flame-ink-192.png" alt="Katalis" height="48"></picture>
-  <a href="https://katalis.dev">Built by Katalis</a>
+  <a href="https://katalis.dev">Hecho por Katalis</a>
 </p>

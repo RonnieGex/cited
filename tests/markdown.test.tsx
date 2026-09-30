@@ -181,11 +181,13 @@ describe("the Markdown renderer", () => {
 
     const marker = screen.getByRole("button", { name: "Citation 1" });
 
-    expect(marker).toHaveTextContent("[1]");
+    // The lime mark shows the number of the source; its name says Citation n.
+    expect(marker.textContent).toBe("1");
 
     fireEvent.click(marker);
 
-    expect(onCitation).toHaveBeenCalledWith(1);
+    // The pressed mark travels with its number, so the chat gives it the focus back when the passage closes.
+    expect(onCitation).toHaveBeenCalledWith(1, marker);
   });
 
   it("shows the marker as plain text when there is nothing to open", () => {

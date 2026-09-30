@@ -8,6 +8,8 @@ export type AdminStrings = {
   navDocuments: string;
   navConversations: string;
   signOut: string;
+  tagline: string;
+  builtBy: string;
   signInTitle: string;
   passwordLabel: string;
   signIn: string;
@@ -21,6 +23,8 @@ export type AdminStrings = {
   setupIntro: string;
   configured: string;
   missing: string;
+  /** The summary of a folded Setup group: how many of its values are set. */
+  setupCount: string;
   testChat: string;
   testEmbeddings: string;
   aiTitle: string;
@@ -116,6 +120,26 @@ export type AdminStrings = {
   deleteAll: string;
   deletedAll: string;
   noConversations: string;
+  /** Decision 28: the sentence that asks before a delete, `{name}` for a document; the two answers; no modal. */
+  confirmDeleteDocument: string;
+  confirmDeleteAll: string;
+  confirmDelete: string;
+  keep: string;
+  /** Decision 29: what a provider test says, in the language of the panel, with the name of the provider. */
+  providerChat: string;
+  providerEmbeddings: string;
+  testOk: string;
+  testFailed: string;
+  /** Decision 24: the title of the tab of every page of the panel, and of the sign-in and the unfinished installation. */
+  pageTitle: {
+    signIn: string;
+    unconfigured: string;
+    setup: string;
+    ai: string;
+    business: string;
+    documents: string;
+    conversations: string;
+  };
 };
 
 export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
@@ -127,7 +151,9 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     navDocuments: "Documents",
     navConversations: "Conversations",
     signOut: "Sign out",
-    signInTitle: "The panel of Cited",
+    tagline: "Every answer shows where it came from.",
+    builtBy: "Built by Katalis",
+    signInTitle: "Sign in to your panel",
     passwordLabel: "Password",
     signIn: "Sign in",
     wrongPassword: "That is not the password of the panel.",
@@ -143,6 +169,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
       "What this server sets above the panel. Everything else belongs to the owner and happens in AI and keys; no name of a variable appears anywhere else in the panel.",
     configured: "Set",
     missing: "Missing",
+    setupCount: "Set: {set} of {total}",
     testChat: "Test the chat model",
     testEmbeddings: "Test the embeddings",
     aiTitle: "AI and keys",
@@ -234,7 +261,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     reingested: "Re-ingested.",
     noDocuments: "No document yet. Upload the first one.",
     conversationsTitle: "Conversations",
-    conversationsIntro: "The latest questions with their status and the passages they cited.",
+    conversationsIntro: "The latest questions, whether each was answered or refused, and the numbers of the sources it cited.",
     question: "Question",
     status: "Status",
     citations: "Citations",
@@ -244,6 +271,23 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     deleteAll: "Delete all",
     deletedAll: "Every conversation is deleted.",
     noConversations: "No conversation yet.",
+    confirmDeleteDocument: "Delete {name}?",
+    confirmDeleteAll: "Delete all conversations?",
+    confirmDelete: "Delete",
+    keep: "Keep",
+    providerChat: "The chat provider",
+    providerEmbeddings: "The embeddings provider",
+    testOk: "{provider} answered.",
+    testFailed: "{provider} did not answer. Check the key and try again.",
+    pageTitle: {
+      signIn: "Sign in · Cited",
+      unconfigured: "The panel cannot start · Cited",
+      setup: "For the installer · Cited",
+      ai: "AI and keys · Cited",
+      business: "Business · Cited",
+      documents: "Documents · Cited",
+      conversations: "Conversations · Cited",
+    },
   },
   es: {
     panelEyebrow: "Panel de Cited",
@@ -253,7 +297,9 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     navDocuments: "Documentos",
     navConversations: "Conversaciones",
     signOut: "Salir",
-    signInTitle: "El panel de Cited",
+    tagline: "Cada respuesta enseña de dónde salió.",
+    builtBy: "Hecho por Katalis",
+    signInTitle: "Entra a tu panel",
     passwordLabel: "Contraseña",
     signIn: "Entrar",
     wrongPassword: "Esa no es la contraseña del panel.",
@@ -269,6 +315,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
       "Lo que este servidor fija por encima del panel. Todo lo demás es del dueño y ocurre en IA y llaves; ningún nombre de variable aparece en el resto del panel.",
     configured: "Puesta",
     missing: "Falta",
+    setupCount: "Puestas: {set} de {total}",
     testChat: "Probar el modelo de chat",
     testEmbeddings: "Probar los embeddings",
     aiTitle: "IA y llaves",
@@ -361,7 +408,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     reingested: "Reingestado.",
     noDocuments: "Todavía no hay documentos. Sube el primero.",
     conversationsTitle: "Conversaciones",
-    conversationsIntro: "Las últimas preguntas con su estado y los pasajes que citaron.",
+    conversationsIntro: "Las últimas preguntas, si se respondieron o se rechazaron, y los números de las fuentes que citaron.",
     question: "Pregunta",
     status: "Estado",
     citations: "Citas",
@@ -371,9 +418,41 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     deleteAll: "Borrar todas",
     deletedAll: "Todas las conversaciones están borradas.",
     noConversations: "Todavía no hay conversaciones.",
+    confirmDeleteDocument: "¿Borrar {name}?",
+    confirmDeleteAll: "¿Borrar todas las conversaciones?",
+    confirmDelete: "Borrar",
+    keep: "Conservar",
+    providerChat: "El proveedor de chat",
+    providerEmbeddings: "El proveedor de embeddings",
+    testOk: "{provider} respondió.",
+    testFailed: "{provider} no respondió. Revisa la llave y vuelve a probar.",
+    pageTitle: {
+      signIn: "Iniciar sesión · Cited",
+      unconfigured: "El panel no puede arrancar · Cited",
+      setup: "Para quien instala · Cited",
+      ai: "IA y llaves · Cited",
+      business: "Negocio · Cited",
+      documents: "Documentos · Cited",
+      conversations: "Conversaciones · Cited",
+    },
   },
 };
 
 export function adminStrings(lang: Lang): AdminStrings {
   return ADMIN_STRINGS[lang];
+}
+
+/**
+ * A stored ISO date as an owner reads it (decision 19 of `openspec/changes/brand-identity-ui/design.md`): the medium date
+ * and the short hour in the language of the panel. Without a zone it prints in the zone of the runtime: in the browser, the
+ * zone of the reader. The server passes its own zone so the text it sends and the text of the hydration are the same.
+ */
+export function formatWhen(iso: string, lang: Lang, timeZone?: string): string {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+
+  return new Intl.DateTimeFormat(lang, { dateStyle: "medium", timeStyle: "short", timeZone }).format(date);
 }

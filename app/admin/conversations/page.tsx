@@ -5,21 +5,30 @@ import { conversationSummaries } from "@/lib/admin/conversations";
 import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 import { sharedStore } from "@/lib/store/instance";
+import { panelMetadata } from "@/lib/admin/titles";
+
+// Decision 24 of `openspec/changes/brand-identity-ui/design.md`: the title of this page, in the language of the panel.
+export async function generateMetadata() {
+  return panelMetadata("conversations");
+}
 
 export default async function AdminConversations() {
   const stored = await cookies();
-  const strings = adminStrings(resolveLang(stored.get(LANG_COOKIE)?.value, "en"));
+  const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
+  const strings = adminStrings(lang);
   const store = await sharedStore(process.env);
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.conversationsTitle}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.conversationsIntro}</p>
       <ConversationsPanel
         conversations={await conversationSummaries(store)}
+        lang={lang}
         strings={strings}
+        timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
       />
     </div>
   );

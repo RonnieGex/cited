@@ -475,6 +475,13 @@ describe("the mark of the maker is the real flame", () => {
       expect(existsSync(absolute(`docs/images/${name}`)), `docs/images/${name}`).toBe(false);
     }
 
+    // Amended in `brand-identity-ui` (requirement "Katalis always signs with its flame"): the closing line reads in the
+    // language of the README, so the Spanish one signs "Hecho por Katalis".
+    const signatures: Record<string, string> = {
+      "README.md": "Built by Katalis",
+      "README.es.md": "Hecho por Katalis",
+    };
+
     for (const readme of ["README.md", "README.es.md"]) {
       const text = readText(readme);
       const foot = pictureBlocks(text).at(-1) ?? "";
@@ -488,7 +495,7 @@ describe("the mark of the maker is the real flame", () => {
       );
       expect(foot, `${readme}: the height of the foot`).toContain('height="48"');
       expect(text, `${readme}: the link of the foot`).toContain(
-        '<a href="https://katalis.dev">Built by Katalis</a>',
+        `<a href="https://katalis.dev">${signatures[readme]}</a>`,
       );
     }
   });
@@ -730,7 +737,11 @@ describe("a kit of components", () => {
     const focus = readText("components/ui/focus.ts");
 
     expect(focus).toContain("focus-visible:outline-2");
+    // Decision 33 of `brand-identity-ui`: ink outline and lime ring on paper, lime outline on ink, the text color on the band.
+    expect(focus).toContain("focus-visible:outline-ink");
+    expect(focus).toContain("focus-visible:ring-lime");
     expect(focus).toContain("outline-lime");
+    expect(focus).toContain("outline-current");
 
     for (const name of ["Button", "Input"]) {
       expect(readText(`components/ui/${name}.tsx`), `${name}: the focus of the kit`).toContain(

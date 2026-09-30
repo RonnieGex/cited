@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Chat, type AskFn } from "@/components/chat/Chat";
 import { SESSION_KEY } from "@/lib/chat/session";
@@ -67,7 +67,9 @@ describe("the chat of the public page", () => {
       strings.question.placeholder,
     );
     expect(screen.getByRole("button", { name: strings.question.submit })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Español" })).toBeInTheDocument();
+    // The language switch moved out of the chat into the band of the page (decision 9 of `brand-identity-ui`); the
+    // band and its switch are pinned in `tests/public-page.test.tsx` and `tests/brand-public.test.tsx`.
+    expect(screen.queryByRole("button", { name: "Español" })).toBeNull();
   });
 
   it("says in words that it is looking the answer up", async () => {
@@ -105,9 +107,12 @@ describe("the chat of the public page", () => {
 
     fireEvent.click(screen.getByRole("button", { name: strings.citation(1) }));
 
-    expect(screen.getByText(citation.excerpt)).toBeInTheDocument();
-    expect(screen.getByText(citation.document)).toBeInTheDocument();
-    expect(screen.getByText(citation.heading as string)).toBeInTheDocument();
+    // The sources list now shows the document name beside its mark (decision 10), so the panel is read on its own.
+    const panel = screen.getByRole("region", { name: strings.citation(1) });
+
+    expect(within(panel).getByText(citation.excerpt)).toBeInTheDocument();
+    expect(within(panel).getByText(citation.document)).toBeInTheDocument();
+    expect(within(panel).getByText(citation.heading as string)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: strings.close }));
 
@@ -178,24 +183,35 @@ describe("the chat of the public page", () => {
     expect(screen.getByText(PUBLIC_STRINGS.es.refusal)).toBeInTheDocument();
   });
 
-  it("shows the message of the server when the request fails", async () => {
-    const { ask } = askWith({ status: "failed", message: "the daily limit is reached" });
+  // Decision 21 of `openspec/changes/brand-identity-ui/design.md`: the chat prints the sentence of the kind of failure, in
+  // the language of the page, and never what the server wrote.
+  it("shows the sentence of the kind of failure when the request fails", async () => {
+    const { ask } = askWith({ status: "failed", kind: "rate_limited" });
 
     render(<Chat lang="en" welcome="Ask us anything." ask={ask} storage={new MemoryStorage()} />);
 
     question("How much is a tune-up?");
 
-    expect(await screen.findByText("the daily limit is reached")).toBeInTheDocument();
+    expect(await screen.findByText(strings.errors.rate_limited)).toBeInTheDocument();
   });
 
-  it("shows its own message when the failure carries none", async () => {
-    const { ask } = askWith({ status: "failed", message: null });
+  it("shows the sentence of an unavailable answer, and of a lost connection, in Spanish", async () => {
+    const unavailable = askWith({ status: "failed", kind: "unavailable" });
+    const first = render(<Chat lang="es" welcome="Pregunta." ask={unavailable.ask} storage={new MemoryStorage()} />);
 
-    render(<Chat lang="en" welcome="Ask us anything." ask={ask} storage={new MemoryStorage()} />);
+    fireEvent.change(screen.getByLabelText(PUBLIC_STRINGS.es.question.label), { target: { value: "¿Cuánto cuesta?" } });
+    fireEvent.click(screen.getByRole("button", { name: PUBLIC_STRINGS.es.question.submit }));
 
-    question("How much is a tune-up?");
+    expect(await screen.findByText(PUBLIC_STRINGS.es.errors.unavailable)).toBeInTheDocument();
+    first.unmount();
 
-    expect(await screen.findByText(strings.error)).toBeInTheDocument();
+    const offline = askWith({ status: "failed", kind: "network" });
+
+    render(<Chat lang="es" welcome="Pregunta." ask={offline.ask} storage={new MemoryStorage()} />);
+    fireEvent.change(screen.getByLabelText(PUBLIC_STRINGS.es.question.label), { target: { value: "¿Cuánto cuesta?" } });
+    fireEvent.click(screen.getByRole("button", { name: PUBLIC_STRINGS.es.question.submit }));
+
+    expect(await screen.findByText(PUBLIC_STRINGS.es.errors.network)).toBeInTheDocument();
   });
 
   it("does not ask an empty question", () => {
@@ -215,7 +231,7 @@ describe("the chat of the public page", () => {
   it("paints the ask button and the accents with the primary color of the settings", async () => {
     const pending = deferred<AskResult>();
 
-    render(
+    const { container } = render(
       <Chat
         lang="en"
         welcome="Ask us anything."
@@ -231,11 +247,13 @@ describe("the chat of the public page", () => {
 
     question("How much is a tune-up?");
 
-    const loading = await screen.findByText(strings.loading);
+    await screen.findByText(strings.loading);
 
-    expect(loading.className, "the accent of the loading state").toContain(
-      "border-[var(--primary)]",
-    );
+    // The accent of waiting is the primary color, now on the 2 px bar under the words and no longer on a side stripe.
+    expect(
+      container.querySelector('[data-cited="waiting-bar"]')?.className,
+      "the accent of the loading state",
+    ).toContain("bg-[var(--primary)]");
 
     await act(async () => {
       pending.resolve({ status: "answered", answer: "380 pesos. [1]", citations: [citation] });

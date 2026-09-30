@@ -80,7 +80,14 @@ test("the setup page lists the variables without their values and tests a provid
 }) => {
   await signIn(page);
 
+  // The Required group lies open; the other groups fold into a details and are opened here before they are read.
   await expect(page.getByText("ADMIN_PASSWORD", { exact: true })).toBeVisible();
+  await expect(page.getByText("EMBEDDINGS_PROVIDER", { exact: true })).toBeHidden();
+
+  for (const summary of await page.locator('[data-admin="setup-group"] summary').all()) {
+    await summary.click();
+  }
+
   await expect(page.getByText("EMBEDDINGS_PROVIDER", { exact: true })).toBeVisible();
   await expect(page.getByText("ALLOWED_ORIGINS", { exact: true })).toBeVisible();
 
@@ -137,6 +144,15 @@ test("an SVG logo is refused and a document is uploaded, listed and deleted", as
 
   await expect(row).toContainText("4");
   await row.getByRole("button", { name: `${english.deleteDocument} cafe-la-horquilla.md` }).click();
+
+  // Decision 28 of `brand-identity-ui`: the first press asks, in place, and the focus is on Keep; only the second deletes.
+  const asking = page.getByRole("group", { name: "Delete cafe-la-horquilla.md?" });
+
+  await expect(asking).toBeVisible();
+  await expect(asking.getByRole("button", { name: english.keep })).toBeFocused();
+  await expect(page.getByRole("dialog"), "no modal").toHaveCount(0);
+  await expect(row, "nothing is deleted on the first press").toBeVisible();
+  await asking.getByRole("button", { name: english.confirmDelete, exact: true }).click();
   await expect(page.getByText("cafe-la-horquilla.md")).toHaveCount(0);
 
   await axe(page);
@@ -155,12 +171,22 @@ test("the conversations are listed and deleted", async ({ page }) => {
 
   expect(answered.status()).toBe(200);
 
+  // `e2e/admin-brand.spec.ts` asks its own question against the same store in parallel, so the status is read in the
+  // row of this question and not anywhere on the page.
+  const row = page.getByRole("row").filter({ hasText: "¿Cuánto cuesta una afinación de bicicleta?" }).first();
+
   await page.goto("/admin/conversations");
-  await expect(page.getByText("¿Cuánto cuesta una afinación de bicicleta?")).toBeVisible();
-  await expect(page.getByText(english.answered)).toBeVisible();
+  await expect(row).toBeVisible();
+  await expect(row.getByRole("cell", { name: english.answered, exact: true })).toBeVisible();
 
   await axe(page);
 
   await page.getByRole("button", { name: english.deleteAll }).click();
+
+  const asking = page.getByRole("group", { name: english.confirmDeleteAll });
+
+  await expect(asking.getByRole("button", { name: english.keep })).toBeFocused();
+  await expect(row, "nothing is deleted on the first press").toBeVisible();
+  await asking.getByRole("button", { name: english.confirmDelete, exact: true }).click();
   await expect(page.getByText("¿Cuánto cuesta una afinación de bicicleta?")).toHaveCount(0);
 });

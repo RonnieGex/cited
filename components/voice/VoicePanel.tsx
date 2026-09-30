@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Marker } from "@/components/chat/Marker";
 import { Button, Input } from "@/components/ui";
 import { voiceStrings } from "@/lib/i18n/voice";
 import type { Lang } from "@/lib/settings/business";
@@ -345,9 +346,10 @@ function VoicePanelContent({ lang, variant, onClose }: VoicePanelProps) {
       </div>
 
       {error ? (
-        <p data-testid="voice-error" className="mt-4 border-l-2 border-coral pl-4 text-sm text-ink">
-          {error}
-        </p>
+        <div className="mt-4 flex items-start gap-3 text-sm text-ink">
+          <Marker tone="coral" glyph="!" />
+          <p data-testid="voice-error">{error}</p>
+        </div>
       ) : null}
 
       <div

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Button, Input, Panel, SectionTitle } from "@/components/ui";
+import { ConfirmedDelete } from "@/components/admin/ConfirmedDelete";
+import { useOverflowing } from "@/components/admin/useOverflowing";
+import { Button, Input, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { DocumentSummary } from "@/lib/admin/documents";
 import type { AdminStrings } from "@/lib/i18n/admin";
 
@@ -12,13 +14,17 @@ export type DocumentsPanelProps = {
 
 type Answer = { status?: string; error?: string; documents?: DocumentSummary[] };
 
-const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
+// Tighter sides on a phone, so the name, its actions and the passages fit a 320 px screen without scrolling the box.
+const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink max-sm:px-2";
+const head =
+  "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2 max-sm:px-2";
 
 export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
   const [list, setList] = useState(documents);
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scroller, scrolls] = useOverflowing<HTMLDivElement>();
 
   async function send(url: string, body: BodyInit, headers?: Record<string, string>): Promise<void> {
     setMessage(null);
@@ -96,8 +102,19 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
         </p>
       )}
 
-      <Panel className="overflow-x-auto">
-        <SectionTitle level="h2">{strings.documentsTitle}</SectionTitle>
+      {/* A very long name can still make the box scroll on a phone: a scrolling region has to be reachable by keyboard (axe:
+          scrollable-region-focusable), as in Conversations, and only while it scrolls: a box that does not is not a tab stop. */}
+      <Panel
+        aria-label={strings.documentsTitle}
+        className={`overflow-x-auto ${focusRing}`}
+        ref={scroller}
+        role="region"
+        tabIndex={scrolls ? 0 : -1}
+      >
+        {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
+        <SectionTitle className="sr-only" level="h2">
+          {strings.documentsTitle}
+        </SectionTitle>
         {list.length === 0 ? (
           <p className="mt-4 text-sm text-ink/80">{strings.noDocuments}</p>
         ) : (
@@ -105,40 +122,42 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
             <caption className="sr-only">{strings.documentsIntro}</caption>
             <thead>
               <tr>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.documentName}
                 </th>
-                <th className={cell} scope="col">
+                <th className={head} scope="col">
                   {strings.passages}
-                </th>
-                <th className={cell} scope="col">
-                  {strings.actions}
                 </th>
               </tr>
             </thead>
             <tbody>
               {list.map((document) => (
                 <tr key={document.name}>
-                  <td className={cell}>{document.name}</td>
-                  <td className={cell}>{document.passages}</td>
-                  <td className={cell}>
-                    <div className="flex flex-wrap gap-3">
+                  {/* The actions sit under the name of their document, so a phone never cuts them at the edge of the box. */}
+                  <td className={`${cell} align-top`}>
+                    <span className="block [overflow-wrap:anywhere]">{document.name}</span>
+                    <div aria-label={strings.actions} className="mt-3 flex flex-wrap gap-3" role="group">
                       <Button
                         aria-label={`${strings.reingestDocument} ${document.name}`}
+                        className="whitespace-nowrap"
                         onClick={() => void reingest(document.name)}
+                        size="sm"
                         variant="secondary"
                       >
                         {strings.reingestDocument}
                       </Button>
-                      <Button
-                        aria-label={`${strings.deleteDocument} ${document.name}`}
-                        onClick={() => void remove(document.name)}
-                        variant="secondary"
-                      >
-                        {strings.deleteDocument}
-                      </Button>
+                      {/* Decision 28: a delete asks first, in place, and only the second press sends it. */}
+                      <ConfirmedDelete
+                        confirmLabel={strings.confirmDelete}
+                        keepLabel={strings.keep}
+                        label={strings.deleteDocument}
+                        name={`${strings.deleteDocument} ${document.name}`}
+                        onConfirm={() => remove(document.name)}
+                        sentence={strings.confirmDeleteDocument.replace("{name}", document.name)}
+                      />
                     </div>
                   </td>
+                  <td className={`${cell} align-top tabular-nums`}>{document.passages}</td>
                 </tr>
               ))}
             </tbody>

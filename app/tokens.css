@@ -17,6 +17,17 @@
   --border: color-mix(in srgb, var(--ink) 50%, var(--paper));
   --radius: 0;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /*
+   * The product tokens of the identity (decision 1 of `openspec/changes/brand-identity-ui/design.md`). They only add to
+   * the tokens above: `--ink-2` is the secondary text (7.63:1 on paper), `--rule` the divider (never the border of a
+   * control) and the three durations are the only times the motion of `app/brand.css` may use.
+   */
+  --ink-2: #57534E;
+  --rule: color-mix(in srgb, var(--ink) 12%, var(--paper));
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
 }
 
 /* The tokens reach Tailwind v4 as colors, as the square corner and as the single curve of the system. */
@@ -28,6 +39,8 @@
   --color-surface-dark: var(--surface-dark);
   --color-paper: var(--paper);
   --color-border: var(--border);
+  --color-ink-2: var(--ink-2);
+  --color-rule: var(--rule);
   --radius-none: var(--radius);
   --ease-out-expo: var(--ease-out-expo);
   --font-sans: "Outfit", system-ui, sans-serif;

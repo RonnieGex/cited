@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AuthShell } from "@/components/admin/AuthShell";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { Panel, SectionTitle } from "@/components/ui";
 import { guardSession } from "@/lib/admin/guard";
@@ -18,9 +19,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   // is written once in the log of the server and it stays on "For the installer", which is where it can be filled in.
   if (guarded.status === "unconfigured" || guarded.status === "short-password") {
     return (
-      <main className="min-h-screen bg-paper px-6 py-16 text-ink">
-        <Panel className="mx-auto flex max-w-[640px] flex-col gap-4">
-          <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <AuthShell lang={lang} strings={strings}>
+        <Panel className="flex flex-col gap-4">
+          <SectionTitle level="h1">
             {strings.unconfiguredTitle}
           </SectionTitle>
           <p className="text-ink/80">
@@ -35,24 +36,24 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             {strings.navSetup}
           </Link>
         </Panel>
-      </main>
+      </AuthShell>
     );
   }
 
   if (guarded.status === "unauthorized") {
     return (
-      <main className="min-h-screen bg-paper px-6 py-16 text-ink">
+      <AuthShell lang={lang} strings={strings}>
         <LoginForm strings={strings} />
-      </main>
+      </AuthShell>
     );
   }
 
   return (
-    <div lang={lang} className="min-h-screen bg-paper text-ink">
-      <header className="border-b border-ink/10 px-6 py-6">
-        <AdminNav lang={lang} strings={strings} />
-      </header>
-      <main className="mx-auto flex max-w-[960px] flex-col gap-10 px-6 py-12">{children}</main>
+    <div lang={lang} className="min-h-screen bg-paper text-ink lg:grid lg:grid-cols-[240px_1fr]">
+      <AdminNav lang={lang} strings={strings} />
+      <main className="mx-auto flex w-full min-w-0 max-w-[960px] flex-col gap-10 px-6 py-12 lg:px-12">
+        {children}
+      </main>
     </div>
   );
 }

@@ -10,15 +10,18 @@ export type TestButtonProps = {
   target: ProviderTarget;
 };
 
-type Check = { status: "ok" | "error"; detail: string };
+type Outcome = "ok" | "error";
 
+// Decision 29 of `openspec/changes/brand-identity-ui/design.md`: the result of a provider test is a sentence of the panel, in
+// its language, with the name of the provider. What the server wrote (`the model answered NO_ANSWER`, the message of a provider,
+// a status code) never reaches the page: it is a diagnostic, and it can name a key or an address.
 export function TestButton({ strings, target }: TestButtonProps) {
-  const [check, setCheck] = useState<Check | null>(null);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function run(): Promise<void> {
     setBusy(true);
-    setCheck(null);
+    setOutcome(null);
 
     try {
       const response = await fetch("/api/admin/setup/test", {
@@ -26,27 +29,26 @@ export function TestButton({ strings, target }: TestButtonProps) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ target }),
       });
-      const answer = (await response.json()) as Check;
+      const answer = (await response.json()) as { status?: unknown };
 
-      setCheck(answer);
+      setOutcome(response.ok && answer.status === "ok" ? "ok" : "error");
     } catch {
-      setCheck({ status: "error", detail: strings.saveFailed });
+      setOutcome("error");
     } finally {
       setBusy(false);
     }
   }
+
+  const provider = target === "chat" ? strings.providerChat : strings.providerEmbeddings;
 
   return (
     <div className="flex flex-col gap-2">
       <Button disabled={busy} onClick={run} variant="secondary">
         {target === "chat" ? strings.testChat : strings.testEmbeddings}
       </Button>
-      {check === null ? null : (
-        <p
-          className="max-w-[65ch] text-sm text-ink"
-          role={check.status === "ok" ? "status" : "alert"}
-        >
-          {check.detail}
+      {outcome === null ? null : (
+        <p className="max-w-[65ch] text-sm text-ink" role={outcome === "ok" ? "status" : "alert"}>
+          {(outcome === "ok" ? strings.testOk : strings.testFailed).replace("{provider}", provider)}
         </p>
       )}
     </div>

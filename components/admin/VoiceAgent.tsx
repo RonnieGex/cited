@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Marker } from "@/components/chat/Marker";
 import { Button, Panel } from "@/components/ui";
 import { adminStrings } from "@/lib/i18n/admin";
 import { voiceStrings } from "@/lib/i18n/voice";
@@ -97,27 +98,34 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
       </p>
 
       {outcome.kind === "not-configured" ? (
-        <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
-          {words.voiceNotConfigured}{" "}
-          <Link className="underline underline-offset-2" href="/admin">
-            {installer}
-          </Link>
-        </p>
+        <div className="flex items-start gap-3 text-sm text-ink">
+          <Marker tone="coral" glyph="!" />
+          <p data-testid="voice-agent-error">
+            {words.voiceNotConfigured}{" "}
+            <Link className="underline underline-offset-2" href="/admin">
+              {installer}
+            </Link>
+          </p>
+        </div>
       ) : null}
 
       {outcome.kind === "business-unnamed" ? (
-        <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
-          {words.voiceBusinessUnnamed}{" "}
-          <Link className="underline underline-offset-2" href="/admin/business">
-            {business}
-          </Link>
-        </p>
+        <div className="flex items-start gap-3 text-sm text-ink">
+          <Marker tone="coral" glyph="!" />
+          <p data-testid="voice-agent-error">
+            {words.voiceBusinessUnnamed}{" "}
+            <Link className="underline underline-offset-2" href="/admin/business">
+              {business}
+            </Link>
+          </p>
+        </div>
       ) : null}
 
       {outcome.kind === "provider-failed" ? (
-        <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
-          {words.voiceProviderFailed}
-        </p>
+        <div className="flex items-start gap-3 text-sm text-ink">
+          <Marker tone="coral" glyph="!" />
+          <p data-testid="voice-agent-error">{words.voiceProviderFailed}</p>
+        </div>
       ) : null}
 
       <Button

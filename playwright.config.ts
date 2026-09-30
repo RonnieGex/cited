@@ -72,7 +72,7 @@ export default defineConfig({
   projects: [
     {
       name: "panel",
-      testMatch: "**/admin.spec.ts",
+      testMatch: ["**/admin.spec.ts", "**/admin-brand.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: panelBaseURL,
@@ -82,7 +82,7 @@ export default defineConfig({
     },
     {
       name: "public",
-      testIgnore: ["**/admin.spec.ts", "**/providers.spec.ts", "**/affiliate.spec.ts"],
+      testIgnore: ["**/admin.spec.ts", "**/admin-brand.spec.ts", "**/providers.spec.ts", "**/affiliate.spec.ts"],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: publicBaseURL,

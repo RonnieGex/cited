@@ -6,6 +6,7 @@ import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 import { affiliateLinks, chatCatalogue, embeddingsCatalogue, hostedOfferOf } from "@/lib/providers/catalog";
 import { sharedStore } from "@/lib/store/instance";
+import { panelMetadata } from "@/lib/admin/titles";
 
 // Decision 8 of `openspec/changes/provider-keys-in-panel/design.md`: the page "AI and keys" (`/admin/ai`), with the
 // two sections "Answers" and "Meaning search", built with the kit and with `PRODUCT.md`. It reads the state through
@@ -13,6 +14,11 @@ import { sharedStore } from "@/lib/store/instance";
 // test and where the value comes from. No name of a variable of the environment appears on this page.
 
 export const dynamic = "force-dynamic";
+
+// Decision 24 of `openspec/changes/brand-identity-ui/design.md`: the title of this page, in the language of the panel.
+export async function generateMetadata() {
+  return panelMetadata("ai");
+}
 
 export default async function AdminAi() {
   const stored = await cookies();
