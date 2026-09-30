@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -11,8 +11,17 @@ function read(path: string): string {
   return readFileSync(resolve(root, path), "utf8");
 }
 
+// The change lives in `openspec/changes/brand-identity-ui/` until it is archived, and in
+// `openspec/changes/archive/<date>-brand-identity-ui/` after: the pointer is checked wherever the change is.
+function changeFolder(name: string): string {
+  const archive = resolve(root, "openspec/changes/archive");
+  const archived = existsSync(archive) ? readdirSync(archive).find((entry) => entry.endsWith(`-${name}`)) : undefined;
+
+  return archived ? `openspec/changes/archive/${archived}` : `openspec/changes/${name}`;
+}
+
 describe("the evidence pointers (decision 31)", () => {
-  const index = "openspec/changes/brand-identity-ui/reports/2026-09-29-step-3-implementation.md";
+  const index = `${changeFolder("brand-identity-ui")}/reports/2026-09-29-step-3-implementation.md`;
 
   it("has the index report that the marks of 3.1 to 3.4 cite", () => {
     expect(existsSync(resolve(root, index)), index).toBe(true);
