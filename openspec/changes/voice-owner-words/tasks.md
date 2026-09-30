@@ -65,7 +65,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 - [ ] 10.2 Red, then green: a route test of `POST /api/admin/voice` for `business_unnamed` (409, no request to the
       double of ElevenLabs) and a component test of `VoiceAgent.tsx` in English and Spanish with the link to "Business"
       (decision 7) — report: `reports/2026-09-29-step-10-2-business-unnamed.md`
-- [ ] 10.3 The `EPERM` of `tests/voice-minute-cap.test.ts` and of any test with the same pattern (decision 9); `npm test`
+- [x] 10.3 The `EPERM` of `tests/voice-minute-cap.test.ts` and of any test with the same pattern (decision 9); `npm test`
       twice in a row on Windows with Node 24.15 or newer, and once in a `node:24` Linux container — report:
       `reports/2026-09-29-step-10-3-windows-stability.md`
 - [ ] 10.4 The checks of 5.1, the curl of 6.1 plus the business without a name, `CI=1 npm run test:e2e`, and
