@@ -89,3 +89,12 @@
     `.data/`), never over a tracked image; the README and doc images are only re-rendered by their own scripts. A
     backslash in a file name stays a separator (decision 15): Windows paths are the risk that matters, and the name
     shown keeps its base name.
+
+## Third amendment after the review of Codex (Fable, 2026-09-30, `katalis-dev/tasks/revision-community-13c.md`)
+
+23. **No silent fake.** `chatModelFrom()` builds the fake model only when the provider is literally `fake`; any other
+    name outside the catalogue throws. The resolver checks a panel row against the catalogue before it trusts it: an
+    unknown provider resolves with a problem (`chatProblem()` says the provider is not known), so step 1 is "needs
+    attention" ("The saved AI provider is not one Cited knows. Connect your AI again."), the public page says "not
+    ready", and no answer is ever produced by the test double outside the tests. The same check guards the provider
+    that the server environment names.

@@ -94,3 +94,12 @@ will be public: no secret, no customer data, no personal path. No network call t
       22) — report: `reports/2026-09-30-step-11-1-amendment.md`
 - [x] 11.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
       a section "Ronda 13c" — report: `reports/2026-09-30-step-11-2-checks.md`
+
+## 12. Third amendment (`katalis-dev/tasks/revision-community-13c.md`, design decision 23)
+
+- [ ] 12.1 Red, then green: a panel row and a server variable with an unknown provider are "needs attention" and "not
+      ready" in both languages, `chatModelFrom()` throws for an unknown name, and no path reaches the fake model unless
+      the provider is `fake` (decision 23) — report: `reports/2026-09-30-step-12-1-no-silent-fake.md`
+- [ ] 12.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
+      a section "Ronda 13d" — report: `reports/2026-09-30-step-12-2-checks.md`
+
