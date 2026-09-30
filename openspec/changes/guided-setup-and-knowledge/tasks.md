@@ -94,4 +94,3 @@ will be public: no secret, no customer data, no personal path. No network call t
       22) — report: `reports/2026-09-30-step-11-1-amendment.md`
 - [ ] 11.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
       a section "Ronda 13c" — report: `reports/2026-09-30-step-11-2-checks.md`
-
