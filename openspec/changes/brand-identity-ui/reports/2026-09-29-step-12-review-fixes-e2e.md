@@ -141,3 +141,95 @@ INF no leaks found
 - NOT DONE: the tasks 3.5 and 7.2 in `tasks.md` (this fixer may not edit it). The delivery captures in
   `tasks/capturas-community-14/` were not re-shot.
 - UNKNOWN: the new Playwright cases were not run here (the rules keep Playwright for the reintegration agent).
+
+## Second round, finding 1 (major, compliance): the delivery captures did not show HEAD
+
+No code or spec changed: the fix is a re-shoot of `katalis-dev/tasks/capturas-community-14/` (outside the repository,
+not committed) with the `d4a8751` version of `scripts/capture-ui.mjs`, then a look at every file.
+
+The server is the dev server on `http://localhost:3300`, run from this worktree, with `CHAT_PROVIDER=fake` and
+`EMBEDDINGS_PROVIDER=fake`, the four files of `samples/` ingested (`README.txt`, `bike-workshop-policies.md`,
+`cafe-la-horquilla.md`, `notas-del-negocio.txt`) and the sample business `Café La Horquilla` (`#1F5F4A`, English).
+HEAD at the shot was `765862a`, which contains `27ffe23` and every step-12 fix committed after it (among them `d558911`,
+the dates in the zone of the reader, and `2eefee3`, the panel without restated eyebrows). `git status` showed no change
+under `app/`, `components/` or `lib/`, so the dev server served HEAD.
+
+The first attempt stopped at the answer: the dev server's hourly question limit (bucket `direct`, 30 per hour) was spent
+by the other lanes.
+
+```
+$ ADMIN_PASSWORD=<read from .env.local, never printed> node scripts/capture-ui.mjs katalis-dev/tasks/capturas-community-14 http://localhost:3300
+rendered signin-1440.png ... public-empty-375.png
+locator.waitFor: Timeout 20000ms exceeded.  waiting for locator('[data-cited="answer"]')
+exit 1
+$ curl -s -X POST -H "content-type: application/json" -H "origin: http://localhost:3300" -d '{"question":"When are you open on Saturday?"}' http://localhost:3300/api/ask
+{"status":"rate_limited","error":"more than RATE_LIMIT_PER_IP_PER_HOUR (30) questions from this address in an hour"}
+$ curl -s -i -X POST ... http://localhost:3300/api/ask | grep -i retry-after
+retry-after: 2614
+```
+
+I did not touch the store or restart the server; I waited for the window to turn and ran the same command again:
+
+```
+$ ADMIN_PASSWORD=<read from .env.local, never printed> node scripts/capture-ui.mjs katalis-dev/tasks/capturas-community-14 http://localhost:3300
+rendered signin-1440.png
+rendered signin-375.png
+rendered public-empty-1440.png
+rendered public-empty-375.png
+rendered public-answer-1440.png
+rendered public-answer-375.png
+rendered embed-1440.png
+rendered embed-375.png
+rendered kit-1440.png
+rendered kit-375.png
+rendered panel-setup-1440.png
+rendered panel-setup-375.png
+rendered panel-business-1440.png
+rendered panel-business-375.png
+rendered panel-documents-1440.png
+rendered panel-documents-375.png
+rendered panel-conversations-1440.png
+rendered panel-conversations-375.png
+/admin/ai answered 404: skipped
+exit 0
+$ ls -la --time-style=+%H:%M katalis-dev/tasks/capturas-community-14/
+18 PNG files, every one dated 19:01 (local time; the old set was 15:57 and 15:58)
+```
+
+I opened the 18 files with the Read tool:
+
+| File | What it shows |
+| --- | --- |
+| `signin-1440.png`, `signin-375.png` | Ink half with the `Cited 1` wordmark, the headline with `it came from.` in lime, `Built by Katalis` beside the flame; paper half with `Sign in to your panel`, an empty password field and `SIGN IN`. No secret. |
+| `public-empty-1440.png`, `public-empty-375.png` | Green band of `Café La Horquilla` with `English \| Español`, the welcome with its last words highlighted, `Your question` and `ASK`, footer `Built by Katalis` with the flame. |
+| `public-answer-1440.png` | `YOU ASKED` / `When are you open on Saturday?`, the answer with the mark `1`, `SOURCES`, and the open citation with the highlighted passage, `DOCUMENT`, `HEADING` and `CLOSE`; the ask form below it. |
+| `public-answer-375.png` | The screen with the citation scrolled into view: the passage, `DOCUMENT`, `HEADING`, `CLOSE`, then `Your question` and `ASK` below the citation, not over it. |
+| `embed-1440.png`, `embed-375.png` | The compact band, the welcome, `Your question` and `ASK`. `embed-375.png` now exists. |
+| `kit-1440.png`, `kit-375.png` | The kit in Spanish: logo, marca de cita, marcatextos (`Abrimos de martes a domingo.`), buttons, language switch, text field, labels, panel. No amount. |
+| `panel-setup-1440.png`, `panel-setup-375.png` | `Setup` with no eyebrow above it, the two test buttons, `Required` open with `SET` chips and a plain `Missing` word, the other groups folded with `Set: n of m`. Only SET or Missing, never a value. |
+| `panel-business-1440.png`, `panel-business-375.png` | `Business` with no eyebrow; the name, `#1F5F4A`, tone, language, forbidden topics, the two welcomes, `SAVE THE BUSINESS` and the logo panel. |
+| `panel-documents-1440.png`, `panel-documents-375.png` | `Documents` with the four sample files and their passages; at 375 the two buttons stack under each name inside the width. |
+| `panel-conversations-1440.png` | `Conversations` with no eyebrow; the `WHEN` column reads `Sep 29, 2026, 7:01 PM` and so on, no raw ISO string. |
+| `panel-conversations-375.png` | The same rows; the table scrolls inside its panel and `WHEN` is past the right edge until the reader scrolls it. |
+
+No amount of money appears in any file (the questions list holds `How much does a late cancellation cost?` as a question
+text, with no figure), and no secret appears.
+
+What is worth a note for the delivery (none of it is a defect of this area):
+
+1. Every file carries the round `N` badge of `next dev` in the lower left (over `Built by Katalis` in the panel column).
+   The step-7 set came from a `next start` build without it. The rules of this round forbid a build or `npm start` here,
+   so a set without the badge needs the reintegration worktree.
+2. The conversations shots show the whole dev store: about 50 turns that the lanes asked during the day, one of them
+   stored with a broken encoding (`�A qu� hora abren el s�bado?`, a request sent in the wrong code page, not a render
+   defect).
+3. At 375 the `WHEN` and part of `CITATIONS` of the conversations table sit past the right edge (the reachable scrolling
+   table); the fourth navigation item is off screen on Setup, Business and Documents. Both were noted in step 7.
+
+## Issues (second round)
+
+- BROKEN: none.
+- RISK: the set is a screenshot of `next dev`, so the `N` badge of Next.js is in every file; a clean set needs a
+  `next start` build (the reintegration agent).
+- NOT DONE: none of this finding.
+- UNKNOWN: none.
