@@ -36,8 +36,11 @@ function When({ iso, lang, serverZone }: { iso: string; lang: Lang; serverZone: 
   return <time dateTime={iso}>{text}</time>;
 }
 
-const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
-const head = "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
+// Tighter sides on a phone and a date that may wrap there, so the three columns that stay (question, status, when) fit a
+// 375 px screen inside the box and the hour of "When" is never cut at its edge.
+const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink max-sm:px-2";
+const head =
+  "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2 max-sm:px-2";
 
 export function ConversationsPanel({ strings, conversations, lang, timeZone }: ConversationsPanelProps) {
   const [list, setList] = useState(conversations);
@@ -111,7 +114,7 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
                   <td className={`${cell} max-sm:hidden`}>
                     {turn.citations.length === 0 ? "—" : turn.citations.join(", ")}
                   </td>
-                  <td className={`${cell} whitespace-nowrap tabular-nums`}>
+                  <td className={`${cell} tabular-nums sm:whitespace-nowrap`}>
                     <When iso={turn.createdAt} lang={lang} serverZone={timeZone} />
                   </td>
                 </tr>
