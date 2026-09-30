@@ -205,6 +205,21 @@ describe("the lane of the guided setup", () => {
       unmount();
     }
   });
+
+  // Decision 24 of the fourth amendment: the AI answers and the search is not chosen, which is the state the real run
+  // of `entrega-community-13.md` left step 1 in. The sentence says what is missing and the two doors of the section
+  // below — a meaning provider or search by words — are what finishes the step, so the notice sends nowhere.
+  it("asks the owner to choose how to search, in both languages", () => {
+    for (const strings of [english, spanish]) {
+      const { unmount } = render(<AttentionNotice source="search" strings={strings} />);
+
+      expect(screen.getByText(strings.stepSearchBody)).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: strings.panelInstaller })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: strings.stepKeyAction })).not.toBeInTheDocument();
+
+      unmount();
+    }
+  });
 });
 
 describe("the information lane", () => {
@@ -319,6 +334,25 @@ describe("the information lane", () => {
 
     expect(url).toBe("/api/admin/samples");
     expect(options.method).toBe("POST");
+  });
+
+  // Decision 24 of the fourth amendment: while the search is not chosen the sample cannot be ingested, so the same
+  // control is the door back to step 1 and the owner never presses a button that fails after the press.
+  it("sends the owner back to step 1 for the sample while the search is not chosen, in both languages", () => {
+    const fetched = vi.fn();
+
+    vi.stubGlobal("fetch", fetched);
+
+    for (const strings of [english, spanish]) {
+      const { unmount } = render(<InfoPanel documents={[]} searchChosen={false} strings={strings} />);
+
+      expect(screen.getByRole("link", { name: strings.sampleTry })).toHaveAttribute("href", "/admin?step=ai");
+      expect(screen.queryByRole("button", { name: strings.sampleTry })).not.toBeInTheDocument();
+
+      unmount();
+    }
+
+    expect(fetched, "the panel asks the server for nothing").not.toHaveBeenCalled();
   });
 
   // Decision 16 of the amendment: undoing the sample is one request that removes its documents and clears the name it

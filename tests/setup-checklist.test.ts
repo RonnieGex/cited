@@ -63,6 +63,22 @@ async function withPassages(store: Store): Promise<void> {
   );
 }
 
+// Decision 24 of the fourth amendment: step 1 is whole only when the AI can answer and the search is chosen. Search by
+// words is the door that needs no key, so it is what the cases that want the first step verified choose.
+async function chooseSearchByWords(store: Store): Promise<void> {
+  await store.saveProviderSetting({
+    kind: "embeddings",
+    provider: "keyword",
+    model: null,
+    keyCiphertext: null,
+    keyLast4: null,
+    baseUrl: null,
+    mode: "keyword",
+    testedAt: null,
+    testLatencyMs: null,
+  });
+}
+
 // The key of the encryption of the cases: the provider of the panel is stored sealed with it, and a case that resolves
 // the store with another one holds a key that can no longer be read (decision 20).
 const encryptionKey = { ENCRYPTION_KEY: Buffer.alloc(32, 21).toString("base64") };
@@ -154,6 +170,9 @@ describe("the derived state of the four steps", () => {
   it("verifies the first step only with a chat provider that answered its test", async () => {
     const store = await tempStore();
 
+    // Decision 24: the search is chosen from the start, so what moves this step is the test of the key and nothing else.
+    await chooseSearchByWords(store);
+
     expect(stateOf((await setupChecklist(store)).steps, "ai")).toBe("todo");
 
     await withChatProvider(store, null);
@@ -222,6 +241,9 @@ describe("the derived state of the four steps", () => {
 
   it("verifies the first step when the server sets the provider", async () => {
     const store = await tempStore();
+
+    await chooseSearchByWords(store);
+
     const checklist = await setupChecklist(store, {
       CHAT_PROVIDER: "fake",
       ADMIN_PASSWORD: "x",
@@ -229,6 +251,66 @@ describe("the derived state of the four steps", () => {
     });
 
     expect(stateOf(checklist.steps, "ai")).toBe("verified");
+  });
+
+  // Decision 24 of the fourth amendment: the step that was green and closed with the chat set by the server and the
+  // search never chosen is the gap the real run of `entrega-community-13.md` found. The AI answers, so the step is not
+  // to do, but it is not whole either: it asks for attention with the words that say what is missing.
+  it("asks for attention when the server sets the AI and the search is not chosen", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, {
+      CHAT_PROVIDER: "fake",
+      ADMIN_PASSWORD: "x",
+      ADMIN_SESSION_SECRET: "y",
+    });
+
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
+    expect(checklist.attention).toBe("search");
+    expect(checklist.searchChosen).toBe(false);
+  });
+
+  it("turns the first step green when the server sets the AI and the search too", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, { CHAT_PROVIDER: "fake", EMBEDDINGS_PROVIDER: "fake" });
+
+    expect(checklist.searchChosen).toBe(true);
+    expect(stateOf(checklist.steps, "ai")).toBe("verified");
+    expect(checklist.attention).toBeNull();
+  });
+
+  // The same rule for a provider of the panel: a tested key that can answer is not the whole step while the search is
+  // missing, because the owner still has a decision to make in the same step.
+  it("asks for attention when the panel saved a tested provider and the search is not chosen", async () => {
+    const store = await tempStore();
+
+    await withChatProvider(store, "2026-09-30T12:00:00.000Z");
+
+    const checklist = await setupChecklist(store, encryptionKey);
+
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
+    expect(checklist.attention).toBe("search");
+  });
+
+  // The reason of the attention is the one the owner has to act on: the AI that cannot answer comes first, and the
+  // notice of the search is only for an AI that can.
+  it("keeps the chat as the reason of the attention when the AI cannot answer and the search is missing", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, { CHAT_PROVIDER: "openai", OPENAI_API_KEY: "" });
+
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
+    expect(checklist.attention).toBe("chat");
+    expect(checklist.searchChosen).toBe(false);
+  });
+
+  it("does not verify the first step with the search alone", async () => {
+    const store = await tempStore();
+
+    await chooseSearchByWords(store);
+
+    const checklist = await setupChecklist(store);
+
+    expect(stateOf(checklist.steps, "ai")).toBe("todo");
+    expect(checklist.attention).toBeNull();
   });
 
   // Decision 14 of the amendment: green means usable. A provider the server names is not verified because of where it
@@ -244,6 +326,9 @@ describe("the derived state of the four steps", () => {
 
   it("verifies the first step with a server provider that carries its key", async () => {
     const store = await tempStore();
+
+    await chooseSearchByWords(store);
+
     const checklist = await setupChecklist(store, {
       CHAT_PROVIDER: "openai",
       OPENAI_API_KEY: "sk-de-la-suite-000000000000",
@@ -374,6 +459,7 @@ describe("the derived state of the four steps", () => {
     const store = await tempStore();
 
     await withChatProvider(store, "2026-09-30T12:00:00.000Z");
+    await chooseSearchByWords(store);
     await withPassages(store);
     await pressTryIt(store);
     await store.saveBusiness({
