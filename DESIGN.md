@@ -162,8 +162,8 @@ A restrained palette of ink, paper and one signal color, with a warm neutral for
 - **Ink** (`#171717`, `--ink`): text, the primary button, the sidebar and the ink band. It is also the fill of an open
   citation mark and the outline edge of the focus ring. Ink on paper is 17.93:1.
 - **Lime** (`#DDF469`, `--lime`): the signal color. It fills the citation mark and the highlighter, marks a verified
-  step and a set variable, and is the number of the current place in the sidebar. Ink on lime is 14.70:1 and lime on
-  ink is 14.70:1; lime on paper is 1.22:1, so lime is never text on paper and never carries meaning alone.
+  step, and is the number of the current place in the sidebar. Ink on lime is 14.70:1 and lime on ink is 14.70:1; lime
+  on paper is 1.22:1, so lime is never text on paper and never carries meaning alone.
 
 ### Secondary
 
@@ -278,8 +278,8 @@ The kit is `components/ui/` (`Button`, `Chip`, `Input`, `Panel`, `SectionTitle`)
 
 - **Style:** paper fill, a 1px border at 20% ink, ink text, 11px microcaps with wide tracking, `px-3 py-1`. A chip is a
   label, not a control, and its word carries the meaning.
-- **State:** in the setup page a variable that is set is a lime chip with an ink border and "Set"; one that is missing is
-  ink-2. The state is always in the word as well.
+- **State:** in the setup page every variable carries the same plain kit chip, and the state is in the word alone: "Set"
+  or "Missing" ("Puesta" or "Falta"). A chip carries no signal color: a set variable is not a verified step.
 
 ### Cards / Containers
 

@@ -184,6 +184,31 @@ describe("DESIGN.md, the visual system of Cited for the next screens", () => {
     }
   });
 
+  it("describes the chips of the setup page as app/admin/page.tsx renders them", () => {
+    const text = read(designFile);
+    const page = read("app/admin/page.tsx");
+    const kit = read("components/ui/Chip.tsx");
+    const chips = [...page.matchAll(/<Chip\b[^>]*>/g)].map((match) => match[0]);
+    const chipSection = text.slice(text.indexOf("### Chips"), text.indexOf("\n### ", text.indexOf("### Chips") + 1));
+    const limeRole = /^- \*\*Lime\*\*[\s\S]*?(?=\n- \*\*|\n\n)/m.exec(text)?.[0] ?? "";
+
+    expect(chips.length, "the setup page renders its state in a Chip").toBeGreaterThan(0);
+    expect(kit, "the kit chip is paper with an ink border at 20% and ink text").toMatch(
+      /border-ink\/20[^"`]*bg-paper[^"`]*text-ink/,
+    );
+
+    const limeInCode = chips.some((chip) => /lime/.test(chip)) || /lime/.test(kit);
+
+    expect(chipSection.length, "DESIGN.md has a Chips section").toBeGreaterThan(0);
+    expect(/lime/i.test(chipSection), "the Chips section names lime only when a chip of the code is lime").toBe(
+      limeInCode,
+    );
+    expect(limeRole, "DESIGN.md has the Lime role").not.toBe("");
+    expect(/set variable/i.test(limeRole), "the Lime role marks a set variable only when a chip of the code is lime").toBe(
+      limeInCode,
+    );
+  });
+
   it("holds no absolute path of a machine and no money figure", () => {
     for (const file of [designFile, designSystemFile]) {
       const text = read(file);
