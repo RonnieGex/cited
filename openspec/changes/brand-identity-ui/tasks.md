@@ -89,7 +89,7 @@ flame.
 - [x] 10.0 Merge `main` (d71220d) into `feature/brand-identity-ui` in one merge commit; list each conflict and how it
       was resolved (decision 20); `npm ci`, `npm test`, `npm run typecheck` on the merged tree — report:
       `reports/2026-09-29-step-10-0-merge-main.md`
-- [ ] 10.1 Red first: unit and component tests for decisions 21 to 29 (failure kinds in both languages with no server
+- [x] 10.1 Red first: unit and component tests for decisions 21 to 29 (failure kinds in both languages with no server
       text, blocked storage, titles, the mark against its word, the sources lines, the footer and placeholder, the
       inline delete, the Spanish Setup and test results) — report: `reports/2026-09-29-step-10-1-tests-first.md`
 - [ ] 10.2 The fixes of decisions 21 to 29 and 31, and the minors that decision 33 fixes in this round — report:
