@@ -15,6 +15,14 @@ export type PublicStrings = {
   heading: string;
   close: string;
   error: string;
+  retry: string;
+  /** What the polite live region of the chat says: the wait, then a short summary of the entry that landed. */
+  announce: {
+    waiting: string;
+    answered: (sources: number) => string;
+    refused: (answer: string) => string;
+    failed: (detail: string) => string;
+  };
   language: string;
   history: string;
   footer: string;
@@ -38,6 +46,13 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     heading: "Heading",
     close: "Close",
     error: "The answer could not be fetched. Try again.",
+    retry: "Try again",
+    announce: {
+      waiting: "Question sent. Looking it up in the documents.",
+      answered: (sources) => `Answer with ${sources} ${sources === 1 ? "source" : "sources"}`,
+      refused: (answer) => `Not in the documents: ${answer}`,
+      failed: (detail) => `No answer. ${detail}`,
+    },
     language: "Language",
     history: "Conversation",
     footer: "Built by Katalis",
@@ -59,6 +74,13 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     heading: "Apartado",
     close: "Cerrar",
     error: "No se pudo obtener la respuesta. Inténtalo de nuevo.",
+    retry: "Intentar de nuevo",
+    announce: {
+      waiting: "Pregunta enviada. Buscando en los documentos.",
+      answered: (sources) => `Respuesta con ${sources} ${sources === 1 ? "fuente" : "fuentes"}`,
+      refused: (answer) => `No está en los documentos: ${answer}`,
+      failed: (detail) => `Sin respuesta. ${detail}`,
+    },
     language: "Idioma",
     history: "Conversación",
     footer: "Hecho por Katalis",

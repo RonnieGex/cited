@@ -11,7 +11,8 @@ import { parseMarkdown, type BlockNode, type InlineNode } from "@/lib/markdown/p
 export type MarkdownProps = {
   text: string;
   citationLabel?: (n: number) => string;
-  onCitation?: (n: number) => void;
+  /** The mark of `n` was pressed; `opener` is that button, so the chat can give it the focus back on close. */
+  onCitation?: (n: number, opener: HTMLElement) => void;
   openCitation?: number | null;
   citationPanelId?: string;
   /** The answer arrived a moment ago: its marks land, one after the other. Off for the answers already read. */
@@ -20,7 +21,7 @@ export type MarkdownProps = {
 
 type RenderOptions = {
   citationLabel?: (n: number) => string;
-  onCitation?: (n: number) => void;
+  onCitation?: (n: number, opener: HTMLElement) => void;
   openCitation?: number | null;
   citationPanelId?: string;
   landing: boolean;
@@ -85,8 +86,8 @@ function renderInline(nodes: InlineNode[], options: RenderOptions): ReactNode[] 
         aria-controls={
           options.openCitation === node.n ? options.citationPanelId : undefined
         }
-        onClick={() => {
-          options.onCitation?.(node.n);
+        onClick={(event) => {
+          options.onCitation?.(node.n, event.currentTarget);
         }}
         style={{ "--i": stagger } as CSSProperties}
         className={`mx-1 ${citationMarkClass(options.openCitation === node.n ? "open" : "rest")}${

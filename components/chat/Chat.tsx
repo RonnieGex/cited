@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import { CitationMark, HighlightedTail } from "@/components/brand";
 import { Button, Input, Panel, focusRing } from "@/components/ui";
 import type { Lang } from "@/lib/settings/business";
@@ -21,6 +29,12 @@ import { Markdown } from "./Markdown";
 // Decisions 9 to 11 of `openspec/changes/brand-identity-ui/design.md`: the welcome is the headline, each turn is an entry
 // of a ledger (the question under a label, the answer with its marks, the sources in the margin), waiting shows one bar
 // and the ask form stays in reach once the thread exists. The language switch belongs to the band of the page.
+//
+// The review of step 12: the question is an entry of the ledger from the moment it is sent (the pending entry carries
+// the wait), a failed entry keeps its question and asks it again, one polite live region that exists from the first
+// render announces the wait and the entry that lands, the page follows the entry that changed, the height of the sticky
+// box is reserved for every scroll (`scroll-padding-bottom` on the root) so a focused control never sits under it, and a
+// passage that closes gives the focus back to the control that opened it.
 
 export type AskFn = (input: { question: string; sessionId: string }) => Promise<AskResult>;
 
@@ -34,6 +48,7 @@ export type ChatProps = {
 };
 
 type Turn =
+  | { kind: "pending"; question: string }
   | { kind: "answered"; question: string; answer: string; citations: Citation[] }
   | { kind: "refused"; question: string; answer: string }
   | { kind: "failed"; question: string; message: string | null };
@@ -48,6 +63,22 @@ function turnOf(question: string, result: AskResult): Turn {
   }
 
   return { kind: "failed", question, message: result.message };
+}
+
+function announcement(turn: Turn, strings: PublicStrings): string {
+  if (turn.kind === "answered") {
+    return strings.announce.answered(turn.citations.length);
+  }
+
+  if (turn.kind === "refused") {
+    return strings.announce.refused(turn.answer);
+  }
+
+  if (turn.kind === "failed") {
+    return strings.announce.failed(turn.message ?? strings.error);
+  }
+
+  return strings.announce.waiting;
 }
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
@@ -75,15 +106,39 @@ function AnsweredTurn({
   const panelId = `citation-${id}`;
   const sourcesId = `sources-${id}`;
   const [open, setOpen] = useState<number | null>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const citation = turn.citations.find((candidate) => candidate.n === open) ?? null;
-  const toggle = (n: number): void => {
+  const toggle = (n: number, from: HTMLElement): void => {
+    opener.current = from;
     setOpen((current) => (current === n ? null : n));
   };
+  // Closing a passage unmounts the button that had the focus: the focus goes back to the mark or the source that
+  // opened it, so the keyboard and the screen reader keep their place.
+  const close = (): void => {
+    setOpen(null);
+    opener.current?.focus();
+  };
+  const onKeyDown = (event: ReactKeyboardEvent<HTMLLIElement>): void => {
+    if (event.key !== "Escape" || open === null) {
+      return;
+    }
+
+    // Handled here: inside the widget, the listener that closes the frame skips an Escape that closed a passage.
+    event.preventDefault();
+    close();
+  };
+
+  useEffect(() => {
+    if (open !== null) {
+      document.getElementById(panelId)?.scrollIntoView?.({ block: "nearest" });
+    }
+  }, [open, panelId]);
 
   return (
     <li
       data-cited="turn"
-      className={`grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1fr)_220px] ${entry}`}
+      onKeyDown={onKeyDown}
+      className={`grid scroll-mt-6 gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1fr)_220px] ${entry}`}
     >
       <Asked question={turn.question} strings={strings} />
       <div data-cited="answer" className="flex min-w-0 flex-col gap-4">
@@ -95,21 +150,6 @@ function AnsweredTurn({
           citationPanelId={panelId}
           landing={landing}
         />
-        {citation === null ? null : (
-          <CitationPanel
-            citation={citation}
-            panelId={panelId}
-            labels={{
-              document: strings.document,
-              heading: strings.heading,
-              close: strings.close,
-              citation: strings.citation,
-            }}
-            onClose={() => {
-              setOpen(null);
-            }}
-          />
-        )}
       </div>
       <aside
         data-cited="sources"
@@ -126,8 +166,8 @@ function AnsweredTurn({
                 type="button"
                 aria-expanded={open === source.n}
                 aria-controls={open === source.n ? panelId : undefined}
-                onClick={() => {
-                  toggle(source.n);
+                onClick={(event) => {
+                  toggle(source.n, event.currentTarget);
                 }}
                 className={`group flex w-full items-center rounded-none py-1 text-left text-ink hover:underline max-lg:min-h-11 ${focusRing}`}
               >
@@ -145,6 +185,23 @@ function AnsweredTurn({
           ))}
         </ul>
       </aside>
+      {/* After the sources in the order of the page, so on a phone the passage opens below the source just pressed;
+          from 1024px it takes the row under the answer. */}
+      {citation === null ? null : (
+        <div className="min-w-0 lg:col-start-1 lg:row-start-3">
+          <CitationPanel
+            citation={citation}
+            panelId={panelId}
+            labels={{
+              document: strings.document,
+              heading: strings.heading,
+              close: strings.close,
+              citation: strings.citation,
+            }}
+            onClose={close}
+          />
+        </div>
+      )}
     </li>
   );
 }
@@ -154,19 +211,29 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
   const fieldId = useId();
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [announced, setAnnounced] = useState("");
+  const list = useRef<HTMLOListElement | null>(null);
+  const form = useRef<HTMLFormElement | null>(null);
+  /** The index of the entry that just changed, which the page brings into view after the render. */
+  const follow = useRef<number | null>(null);
   const asked = ask ?? ((input: { question: string; sessionId: string }) => askCited(input));
+  const loading = turns.some((turn) => turn.kind === "pending");
+  const threaded = turns.length > 0;
+  // In the widget the room is short: once the thread exists the welcome goes and the label of the box stays for
+  // assistive technology only (the placeholder and the ledger say what the box is for).
+  const compact = variant === "embed" && threaded;
 
   // `Escape` inside the iframe belongs to this document and never reaches the page that carries the widget, so the
   // embed asks its parent to close (design decision 4 and the scenario "Escape inside the iframe"). The widget
-  // believes only a message from its own origin. The public page posts nothing.
+  // believes only a message from its own origin. The public page posts nothing. An Escape that closed an open passage
+  // (the entry prevents its default) does not close the widget as well.
   useEffect(() => {
     if (variant !== "embed") {
       return;
     }
 
     const onEscape = (event: KeyboardEvent): void => {
-      if (event.key !== "Escape" || window.parent === window) {
+      if (event.key !== "Escape" || event.defaultPrevented || window.parent === window) {
         return;
       }
 
@@ -180,6 +247,72 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
     };
   }, [variant]);
 
+  // While the box sticks to the foot, its height is reserved for every scroll of the document: the focus moving to a
+  // control and `scrollIntoView` both stop above the box instead of under it (WCAG 2.2, 2.4.11 Focus Not Obscured).
+  useEffect(() => {
+    const box = form.current;
+
+    if (!threaded || box === null) {
+      return;
+    }
+
+    const root = document.documentElement;
+    const reserve = (): void => {
+      root.style.scrollPaddingBottom = `${Math.ceil(box.getBoundingClientRect().height) + 16}px`;
+    };
+
+    reserve();
+
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(reserve);
+
+    observer?.observe(box);
+
+    return () => {
+      observer?.disconnect();
+      root.style.scrollPaddingBottom = "";
+    };
+  }, [threaded]);
+
+  // The entry that was sent or that landed comes into view above the box, whole when it fits.
+  useEffect(() => {
+    const at = follow.current;
+
+    if (at === null) {
+      return;
+    }
+
+    follow.current = null;
+    list.current?.children[at]?.scrollIntoView?.({ block: "nearest" });
+  }, [turns]);
+
+  /** Asks `text`, as a new entry at the end or in place of the failed entry at `replacing`. */
+  const send = async (text: string, replacing?: number): Promise<void> => {
+    const at = replacing ?? turns.length;
+
+    follow.current = at;
+    setAnnounced(strings.announce.waiting);
+    setTurns((current) => {
+      const pending: Turn = { kind: "pending", question: text };
+
+      return at < current.length
+        ? current.map((turn, index) => (index === at ? pending : turn))
+        : [...current, pending];
+    });
+
+    // The tab owns the thread only when the id of the storage and the mark of its window agree: a tab opened from
+    // another inherits the storage of its opener and not its `window.name`, so it starts a conversation of its own.
+    const session = sessionId(
+      storage ?? window.sessionStorage,
+      owner ?? tabOwner(window),
+    );
+    const result = await asked({ question: text, sessionId: session });
+    const landed = turnOf(text, result);
+
+    follow.current = at;
+    setTurns((current) => current.map((turn, index) => (index === at ? landed : turn)));
+    setAnnounced(announcement(landed, strings));
+  };
+
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
@@ -190,36 +323,57 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
     }
 
     setQuestion("");
-    setLoading(true);
-
-    // The tab owns the thread only when the id of the storage and the mark of its window agree: a tab opened from
-    // another inherits the storage of its opener and not its `window.name`, so it starts a conversation of its own.
-    const session = sessionId(
-      storage ?? window.sessionStorage,
-      owner ?? tabOwner(window),
-    );
-    const result = await asked({ question: text, sessionId: session });
-
-    setTurns((current) => [...current, turnOf(text, result)]);
-    setLoading(false);
+    await send(text);
   };
 
-  const threaded = turns.length > 0;
+  const retry = (event: ReactMouseEvent<HTMLButtonElement>, text: string, index: number): void => {
+    // The button leaves with its entry. From the keyboard (a click with no pointer) the focus goes to the box, which
+    // is where the next action is; a tap leaves the focus alone, so a phone does not open its keyboard.
+    if (event.detail === 0) {
+      document.getElementById(fieldId)?.focus();
+    }
+
+    void send(text, index);
+  };
 
   return (
     <section aria-label={strings.history} className="flex w-full flex-col gap-8">
-      <p
-        data-cited="welcome"
-        className={`rise max-w-[24ch] font-semibold tracking-[-0.02em] text-ink ${
-          variant === "embed" ? "text-[22px] leading-[1.2]" : "text-[28px] leading-[1.15] lg:text-[36px]"
-        }`}
-      >
-        <HighlightedTail text={welcome} sweep />
+      <p data-cited="announcer" role="status" aria-live="polite" className="sr-only">
+        {announced}
       </p>
 
+      {compact ? null : (
+        <p
+          data-cited="welcome"
+          className={`rise max-w-[24ch] font-semibold tracking-[-0.02em] text-ink ${
+            variant === "embed" ? "text-[22px] leading-[1.2]" : "text-[28px] leading-[1.15] lg:text-[36px]"
+          }`}
+        >
+          <HighlightedTail text={welcome} sweep />
+        </p>
+      )}
+
       {threaded ? (
-        <ol aria-label={strings.history} className="flex flex-col gap-8">
+        <ol ref={list} aria-label={strings.history} className="flex flex-col gap-8">
           {turns.map((turn, index) => {
+            if (turn.kind === "pending") {
+              return (
+                <li key={index} data-cited="pending" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
+                  <Asked question={turn.question} strings={strings} />
+                  <div role="status" className="flex flex-col gap-3">
+                    <p className="text-ink-2">{strings.loading}</p>
+                    <div className="w-full max-w-[240px] bg-rule">
+                      <div
+                        data-cited="waiting-bar"
+                        aria-hidden="true"
+                        className="bar h-0.5 w-full bg-[var(--primary)]"
+                      />
+                    </div>
+                  </div>
+                </li>
+              );
+            }
+
             if (turn.kind === "answered") {
               return (
                 <AnsweredTurn
@@ -233,7 +387,7 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
 
             if (turn.kind === "refused") {
               return (
-                <li key={index} data-cited="turn" className={`flex flex-col gap-4 ${entry}`}>
+                <li key={index} data-cited="turn" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
                   <Asked question={turn.question} strings={strings} />
                   <Panel data-cited="refusal" className="flex max-w-[65ch] items-start gap-4">
                     <Marker tone="ink" glyph="–" />
@@ -247,11 +401,23 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
             }
 
             return (
-              <li key={index} data-cited="turn" className={`flex flex-col gap-4 ${entry}`}>
+              <li key={index} data-cited="turn" className={`flex scroll-mt-6 flex-col gap-4 ${entry}`}>
                 <Asked question={turn.question} strings={strings} />
                 <div role="status" className="flex max-w-[65ch] items-start gap-4">
                   <Marker tone="coral" glyph="!" />
                   <p className="text-[18px] leading-[1.6] text-ink">{turn.message ?? strings.error}</p>
+                </div>
+                <div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={loading}
+                    onClick={(event) => {
+                      retry(event, turn.question, index);
+                    }}
+                  >
+                    {strings.retry}
+                  </Button>
                 </div>
               </li>
             );
@@ -259,44 +425,36 @@ export function Chat({ lang, welcome, variant = "page", ask, storage, owner }: C
         </ol>
       ) : null}
 
-      {loading ? (
-        <div role="status" className="flex flex-col gap-3">
-          <p className="text-ink-2">{strings.loading}</p>
-          <div className="w-full max-w-[240px] bg-rule">
-            <div
-              data-cited="waiting-bar"
-              aria-hidden="true"
-              className="bar h-0.5 w-full bg-[var(--primary)]"
-            />
-          </div>
-        </div>
-      ) : null}
-
       <form
+        ref={form}
         data-cited="ask"
         onSubmit={submit}
         className={`flex flex-col gap-3 ${
-          threaded || loading
-            ? "sticky bottom-0 z-10 border-t border-rule bg-paper pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          threaded
+            ? `sticky bottom-0 z-10 border-t border-rule bg-paper ${
+                compact
+                  ? "pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+                  : "pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+              }`
             : ""
         }`}
       >
-        <label htmlFor={fieldId} className="text-sm font-semibold text-ink">
+        <label htmlFor={fieldId} className={compact ? "sr-only" : "text-sm font-semibold text-ink"}>
           {strings.question.label}
         </label>
-        <div className="flex items-stretch gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
           <Input
             id={fieldId}
             name="question"
             value={question}
             autoComplete="off"
             placeholder={strings.question.placeholder}
-            className="min-w-0 flex-1 max-sm:px-4"
+            className="min-w-0 sm:flex-1"
             onChange={(event) => {
               setQuestion(event.target.value);
             }}
           />
-          <Button type="submit" variant="brand" disabled={loading} className="shrink-0 max-sm:px-5">
+          <Button type="submit" variant="brand" disabled={loading} className="w-full shrink-0 sm:w-auto">
             {strings.question.submit}
           </Button>
         </div>
