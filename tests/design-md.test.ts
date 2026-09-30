@@ -207,6 +207,14 @@ describe("DESIGN.md, the visual system of Cited for the next screens", () => {
     expect(/set variable/i.test(limeRole), "the Lime role marks a set variable only when a chip of the code is lime").toBe(
       limeInCode,
     );
+
+    const missingIsChip = /<Chip\b[^>]*>\s*\{?[^<]*strings\.missing/.test(page);
+
+    expect(page, "the setup page renders the missing state").toContain("strings.missing");
+    expect(
+      /missing one is plain\s+`--ink-2` words/.test(chipSection),
+      "the Chips section says a missing value is plain ink-2 words exactly when the page does not put it in a Chip",
+    ).toBe(missingIsChip === false);
   });
 
   it("holds no absolute path of a machine and no money figure", () => {

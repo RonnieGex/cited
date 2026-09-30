@@ -278,8 +278,10 @@ The kit is `components/ui/` (`Button`, `Chip`, `Input`, `Panel`, `SectionTitle`)
 
 - **Style:** paper fill, a 1px border at 20% ink, ink text, 11px microcaps with wide tracking, `px-3 py-1`. A chip is a
   label, not a control, and its word carries the meaning.
-- **State:** in the setup page every variable carries the same plain kit chip, and the state is in the word alone: "Set"
-  or "Missing" ("Puesta" or "Falta"). A chip carries no signal color: a set variable is not a verified step.
+- **State:** in the setup page a set value carries the plain kit chip with "Set" ("Puesta"); a missing one is plain
+  `--ink-2` words in sentence case, "Missing" ("Falta"), never a chip, so the two states never look alike and no capital
+  badge shouts. A chip carries no signal color: a set value is not a verified step. Only the Required group is open; the
+  others fold into a `details` whose summary counts what is set ("Set: 1 of 8" / "Puestas: 1 de 8").
 
 ### Cards / Containers
 
