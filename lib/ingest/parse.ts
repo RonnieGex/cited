@@ -79,6 +79,12 @@ function docxToMarkdown(html: string): string {
     .trim();
 }
 
+// `pdf-parse` marks every page it extracts ("-- 1 of 1 --"). Those markers are not what the document says, and a PDF
+// with no text layer carries nothing else: with them, a scan would be ingested as one passage of a page number. They go
+// before the text leaves here, so a scanned PDF reaches the ingestion with no text at all and the panel answers the
+// sentence of the scenario "A scanned PDF" (decision 3 of `openspec/changes/guided-setup-and-knowledge/design.md`).
+const pageMarker = /^\s*--\s*\d+\s+of\s+\d+\s*--\s*$/gm;
+
 async function parsePdf(data: Uint8Array, maxPages: number, name: string): Promise<ParsedDocument> {
   const parser = new PDFParse({ data });
 
@@ -93,7 +99,7 @@ async function parsePdf(data: Uint8Array, maxPages: number, name: string): Promi
 
     const result = await parser.getText();
 
-    return { type: "pdf", text: result.text, pages: information.total };
+    return { type: "pdf", text: result.text.replace(pageMarker, ""), pages: information.total };
   } finally {
     await parser.destroy();
   }

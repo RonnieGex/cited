@@ -91,15 +91,18 @@ guardado en el panel, por eso el chat lleva su banda.
 
 <img src="docs/images/chat-page.png" alt="El chat público de Cited bajo la banda de un negocio de muestra: una pregunta respondida en español con su cita numerada, el extracto del pasaje resaltado con su documento y su encabezado, el selector English | Español y el campo de la pregunta" width="1280">
 
-**Y el dueño lo maneja desde el navegador.** El panel de `/admin` muestra qué está configurado, guarda el negocio y
-su logo, sube los documentos y lista las preguntas con los pasajes que usaron. Abre en inglés, con el selector
+**Y el dueño lo maneja desde el navegador.** El panel de `/admin` lleva al dueño de la nada a una respuesta publicada
+en cuatro pasos: conecta tu IA, agrega tu información, pruébalo, publícalo. Cada paso se abre en su lugar y se prueba
+antes del siguiente, y el panel guarda el negocio, su logo y sus documentos. Abre en inglés, con el selector
 `English | Español` en su encabezado, y lo sirve la misma aplicación que responde las preguntas.
+
+<img src="docs/images/admin/guided-welcome-1440.png" alt="La alta guiada del panel de Cited: la bienvenida del primer ingreso con una frase de valor, 4 pasos unos 5 minutos y el botón de empezar, y los cuatro pasos numerados debajo" width="1280">
 
 <picture><img src="docs/images/admin/panel.png" alt="La pantalla del negocio del panel de Cited, con el nombre, el color, el tono, el idioma, los temas prohibidos, las dos bienvenidas y el logo del negocio" width="1280"></picture>
 
-`docs/admin.md` explica las pantallas, las rutas, el store y las reglas del logo; la captura es una corrida real de
-la aplicación construida, tomada por la suite de extremo a extremo de `e2e/admin.spec.ts` con los proveedores
-deterministas.
+`docs/owner-guide.md` es el recorrido del dueño, paso a paso y en los dos idiomas, con las capturas de cada pantalla;
+`docs/admin.md` explica las pantallas, las rutas, el store y las reglas del logo. Las dos capturas son corridas reales
+de la aplicación construida, tomadas por la suite de extremo a extremo con los proveedores deterministas.
 
 ## Hoja de ruta
 

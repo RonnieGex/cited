@@ -8,6 +8,10 @@ const fakeSdk = process.env.KATALIS_VOICE_FAKE_SDK === "1";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // `pdf-parse` is pdfjs and needs its own files at run time (the worker it loads to read a page). Bundled into the
+  // server of a production build, it looks for `pdf.worker.mjs` inside `.next` and every PDF of the panel fails with
+  // "Setting up fake worker failed". The package stays where npm installed it, which is where its worker is.
+  serverExternalPackages: ["pdf-parse"],
   ...(fakeSdk
     ? {
         turbopack: {

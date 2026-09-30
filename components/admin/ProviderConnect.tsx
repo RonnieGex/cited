@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { Button, Input, Panel } from "@/components/ui";
 import type { AdminStrings } from "@/lib/i18n/admin";
-import { signupLink, type ProviderEntry } from "@/lib/providers/catalog";
+import type { ProviderEntry } from "@/lib/providers/catalog";
 import type { TestReason } from "@/lib/providers/test";
 
 // Decision 10 of `openspec/changes/guided-setup-and-knowledge/design.md`: the provider is chosen from one list of
@@ -15,6 +15,9 @@ import type { TestReason } from "@/lib/providers/test";
 // Decision 8 of `openspec/changes/provider-keys-in-panel/design.md` still holds: the owner pastes the key, presses
 // "Test", sees the result in words right here and never in a modal, and the key is saved only after the provider
 // answered. The same component serves the first step of the guided setup and the page "AI and keys".
+//
+// The "Get a key" link is resolved by the server and arrives in `links`: the affiliate programme of a provider is read
+// from the environment of the installation, and this component runs in the browser, where that environment is not.
 
 export type ProviderConnectProps = {
   kind: "chat" | "embeddings";
@@ -22,6 +25,8 @@ export type ProviderConnectProps = {
   strings: AdminStrings;
   entries: ProviderEntry[];
   encryptionReady: boolean;
+  /** The signup link of every provider of the list, already resolved: `paid` labels it "(paid link)". */
+  links?: Record<string, { href: string; paid: boolean }>;
   /** The hosted offer of `HOSTED_OFFER_URL`, under the list, or an empty string. */
   offer?: string;
   affiliate?: boolean;
@@ -41,6 +46,7 @@ export function ProviderConnect({
   strings,
   entries,
   encryptionReady,
+  links = {},
   offer = "",
   affiliate = true,
   keyword = false,
@@ -167,7 +173,7 @@ export function ProviderConnect({
         <ul className="flex flex-col" id={group}>
           {entries.map((candidate) => {
             const chosen = candidate.id === selected;
-            const link = signupLink(candidate, { affiliateLinks: affiliate });
+            const link = links[candidate.id] ?? { href: candidate.signupUrl, paid: false };
 
             return (
               <li className="border-t border-ink/10 py-4 first:border-t-0" key={candidate.id}>

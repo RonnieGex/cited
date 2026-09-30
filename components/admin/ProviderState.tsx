@@ -1,7 +1,7 @@
 import { SectionTitle } from "@/components/ui";
 import type { ProviderView } from "@/lib/admin/provider-panel";
 import type { AdminStrings } from "@/lib/i18n/admin";
-import type { ProviderEntry } from "@/lib/providers/catalog";
+import { signupLink, type ProviderEntry } from "@/lib/providers/catalog";
 import type { Lang } from "@/lib/settings/business";
 import { ProviderConnect } from "./ProviderConnect";
 import { ProviderConnected } from "./ProviderConnected";
@@ -43,6 +43,11 @@ export function ProviderState({
     view.mode === "keyword"
       ? strings.keywordActive
       : (entry?.name ?? (view.provider === "fake" ? strings.testProvider : String(view.provider)));
+  // The signup link of every row is resolved here, on the server, where the environment of the installation is:
+  // `ProviderConnect` runs in the browser and cannot read the affiliate programme of a provider from there.
+  const links = Object.fromEntries(
+    entries.map((candidate) => [candidate.id, signupLink(candidate, { affiliateLinks: affiliate })]),
+  );
 
   return (
     <section aria-label={title} className="flex flex-col gap-4">
@@ -62,6 +67,7 @@ export function ProviderState({
             keyword={kind === "embeddings"}
             kind={kind}
             lang={lang}
+            links={links}
             offer={offer}
             strings={strings}
           />

@@ -251,7 +251,7 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
   const current = await links(page)
     .nth(1)
     .evaluate((link) => {
-      const leaf = [...link.querySelectorAll("*")].find((node) => (node.textContent ?? "").trim() === "3");
+      const leaf = [...link.querySelectorAll("*")].find((node) => (node.textContent ?? "").trim() === "2");
 
       return leaf === undefined ? null : getComputedStyle(leaf).color;
     });
@@ -411,7 +411,8 @@ test("the document page at 375 and 320 px keeps every control whole, on one line
     await expect(page.getByRole("heading", { level: 1 })).toContainText(spanish.documentName);
 
     const box = await page.locator("main").boundingBox();
-    const controls = page.getByRole("button").or(page.getByRole("link"));
+    // Only the controls of the page: the numbered sections of the bar live outside `main` and scroll with it.
+    const controls = page.locator("main").getByRole("button").or(page.locator("main").getByRole("link"));
 
     expect(await controls.count(), `${width}: the controls of the page`).toBeGreaterThan(0);
 
@@ -445,7 +446,7 @@ test("the document page at 375 and 320 px keeps every control whole, on one line
   await expect(page.getByText(spanish.documentRemoving.replace("{name}", name))).toBeVisible();
   await page.getByRole("button", { name: spanish.documentUndo }).click();
   await expect(page.getByText(spanish.documentKept)).toBeVisible();
-  await expect(page.getByText(name)).toBeVisible();
+  await expect(page.getByText(name, { exact: true })).toBeVisible();
 });
 
 // Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,

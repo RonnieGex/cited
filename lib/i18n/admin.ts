@@ -203,7 +203,8 @@ export type AdminStrings = {
   /** The question is being looked up in the documents. */
   loading: string;
   sources: string;
-  citation: (n: number) => string;
+  /** The words of a citation mark, `{n}` for its number: a string, because this object travels to client components. */
+  citationLabel: string;
   /** One sentence per kind of failure of a question: the panel never prints what the server wrote. */
   errors: Record<AskFailureKind, string>;
   status: string;
@@ -293,7 +294,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     documentAdded: "Added {when}",
     documentOpen: "Open",
     documentBack: "All the documents",
-    documentRemove: "Remove this document",
+    documentRemove: "Remove",
     documentRemoving: "Removing {name}. You can still keep it for a few seconds.",
     documentUndo: "Keep it",
     documentKept: "Kept. Nothing was removed.",
@@ -453,7 +454,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     questionColumn: "Question",
     loading: "Looking it up in your documents…",
     sources: "Sources",
-    citation: (n) => `Citation ${n}`,
+    citationLabel: "Citation {n}",
     errors: {
       rate_limited: "Too many questions from here. Try again in a while.",
       unavailable: "The assistant cannot answer right now. Try again in a moment.",
@@ -542,7 +543,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     documentAdded: "Agregado {when}",
     documentOpen: "Abrir",
     documentBack: "Todos los documentos",
-    documentRemove: "Quitar este documento",
+    documentRemove: "Quitar",
     documentRemoving: "Quitando {name}. Todavía puedes conservarlo unos segundos.",
     documentUndo: "Conservarlo",
     documentKept: "Conservado. No se quitó nada.",
@@ -704,7 +705,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     questionColumn: "Pregunta",
     loading: "Buscando en tus documentos…",
     sources: "Fuentes",
-    citation: (n) => `Cita ${n}`,
+    citationLabel: "Cita {n}",
     errors: {
       rate_limited: "Demasiadas preguntas desde aquí. Vuelve a intentarlo en un rato.",
       unavailable: "El asistente no puede responder ahora mismo. Inténtalo en un momento.",

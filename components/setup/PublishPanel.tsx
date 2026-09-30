@@ -136,7 +136,12 @@ export function PublishPanel({ strings, business, published, site, widgetSites }
 
         <section aria-label={strings.widgetTitle} className="flex flex-col gap-3">
           <SectionTitle level="h3">{strings.widgetTitle}</SectionTitle>
-          <pre className="overflow-x-auto rounded-none border border-ink/10 bg-surface p-4 text-sm text-ink">
+          {/* The snippet scrolls sideways on a phone, so it takes the focus and can be read with the keyboard
+              (`scrollable-region-focusable`). */}
+          <pre
+            className={`overflow-x-auto rounded-none border border-ink/10 bg-surface p-4 text-sm text-ink ${focusRing}`}
+            tabIndex={0}
+          >
             <code>{snippet}</code>
           </pre>
           <p className={label}>{strings.widgetSites}</p>

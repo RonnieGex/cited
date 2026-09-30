@@ -88,7 +88,15 @@ export default defineConfig({
     },
     {
       name: "public",
-      testIgnore: ["**/admin.spec.ts", "**/admin-brand.spec.ts", "**/providers.spec.ts", "**/affiliate.spec.ts"],
+      testIgnore: [
+        "**/admin.spec.ts",
+        "**/admin-brand.spec.ts",
+        "**/providers.spec.ts",
+        "**/affiliate.spec.ts",
+        // The suite of the guided setup drives the panel and the store of its own server: it runs in the project
+        // `setup`, never here.
+        "**/setup.spec.ts",
+      ],
       use: {
         ...devices["Desktop Chrome"],
         baseURL: publicBaseURL,
@@ -225,6 +233,9 @@ export default defineConfig({
         TRUST_PROXY: "1",
         ENCRYPTION_KEY: setupEncryptionKey,
         OPENAI_BASE_URL: providerDoubleBaseURL,
+        // The double of this suite answers the Chat Completions API, which is the one OpenRouter speaks
+        // (`createOpenAICompatible`), so the owner of the walk chooses that row and no test reaches a real provider.
+        OPENROUTER_BASE_URL: providerDoubleBaseURL,
         ALLOW_LOCAL_PROVIDERS: "1",
         AFFILIATE_LINKS: "off",
         RATE_LIMIT_PER_IP_PER_HOUR: "1000",

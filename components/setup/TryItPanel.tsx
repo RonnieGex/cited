@@ -147,7 +147,7 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
         </form>
 
         {suggestions.length === 0 ? null : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2" data-try="suggestions">
             <p className={label}>{strings.suggestedTitle}</p>
             <ul className="flex flex-col items-start gap-2">
               {suggestions.map((suggestion) => (
@@ -180,7 +180,7 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
             ) : result.status === "answered" ? (
               <div className="flex flex-col gap-4">
                 <Markdown
-                  citationLabel={(n) => strings.citation(n)}
+                  citationLabel={(n) => strings.citationLabel.replace("{n}", String(n))}
                   onCitation={(n) => {
                     setOpen((current) => (current === n ? null : n));
                   }}

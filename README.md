@@ -90,14 +90,18 @@ panel, so the chat wears its band.
 
 <img src="docs/images/chat-page.png" alt="The public chat of Cited under the band of a sample business: a question answered in Spanish with its numbered citation, the excerpt of the passage in the highlighter with its document and its heading, the switch English | Español and the question box" width="1280">
 
-**And the owner manages it from the browser.** The panel of `/admin` shows what is configured, stores the business
-and its logo, uploads the documents and lists the questions with the passages they used. It opens in English, with
+**And the owner manages it from the browser.** The panel of `/admin` walks the owner from nothing to a published
+answer in four steps: connect your AI, add your information, try it, publish it. Each step opens in its place and
+proves itself before the next, and the panel stores the business, its logo and its documents. It opens in English, with
 the switch `English | Español` in its header, and it is served by the same application as the questions.
+
+<img src="docs/images/admin/guided-welcome-1440.png" alt="The guided setup of the panel of Cited: the welcome of the first visit with one sentence of value, 4 steps about 5 minutes and the start button, and the four numbered steps below it" width="1280">
 
 <picture><img src="docs/images/admin/panel.png" alt="The business screen of the panel of Cited, with the name, the color, the tone, the language, the forbidden topics, the two welcomes and the logo of the business" width="1280"></picture>
 
-`docs/admin.md` explains the screens, the routes, the store and the rules of the logo; the capture is a real run of
-the built application, taken by the end-to-end suite of `e2e/admin.spec.ts` with the deterministic providers.
+`docs/owner-guide.md` is the walk of the owner, step by step and in both languages, with the captures of every screen;
+`docs/admin.md` explains the screens, the routes, the store and the rules of the logo. Both captures are real runs of
+the built application, taken by the end-to-end suite with the deterministic providers.
 
 ## Roadmap
 

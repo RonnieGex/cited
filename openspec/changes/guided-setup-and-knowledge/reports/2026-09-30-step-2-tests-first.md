@@ -76,6 +76,40 @@ the store (`provider-settings.test.ts`, `voice-store-state.test.ts`), the words 
 before this change touches anything, for the absolute path in the parenthetical of decision 1 of `design.md`, whose
 text this round may not edit (report of task 1.1 and the delivery).
 
-## Step 2.2
+## Step 2.2: the browser suite
 
-Written below, in the same report, when the browser suite of this change exists and its red run is taken.
+The suite is `e2e/setup.spec.ts`, with its own service in `playwright.config.ts` (project `setup`, port 3217, its own
+store, no provider of any kind at the start) and its own local double of a provider on port 3216: no test reaches a
+real provider. It carries the eight scenarios of `specs/owner-setup/spec.md`, the walk "from zero to an answer" timed
+end to end, an axe check of every page of the round in both languages, and the captures of task 7.1.
+
+The suite was written before the pages of section 3 existed. Its first complete run, as soon as the round compiled,
+was red and it found real defects:
+
+| Run | Result | What it found |
+|---|---|---|
+| the build of the round | `[exit=1]` 47 errors of `tsc` | the round did not compile: the dictionary of the panel was half written |
+| 1st full run | 7 failed, 63 passed | a function (`citation`) inside the strings the server hands to client components; the affiliate link computed in the browser, where the environment of the installation is not; a scrollable region without focus; axe measuring during an entrance animation; the spec running in two projects; two assertions of the suite itself |
+| 2nd full run | 2 failed, 70 passed | the `role="status"` of the panel and the confirmation saying the same words; the current mark of the navigation |
+| 3rd full run | 1 failed, 71 passed | the double of the suite answered the Chat Completions API with the shape of an embeddings answer, and the SDK refused it: the walk then showed "the assistant cannot answer right now" |
+| 4th full run | 1 failed, 72 passed | **a PDF could not be read in a production build at all**: `pdf-parse` could not find its worker inside `.next` ("Setting up fake worker failed"), so every upload of a PDF failed with "This file could not be read"; and `pdf-parse` marks every page it extracts ("-- 1 of 1 --"), so a PDF with no text layer was ingested as one passage of a page number instead of being refused as a scan |
+| 5th full run | 1 failed, 75 passed | the privacy page names the provider the walk connected (OpenRouter), not another one |
+| 6th full run | 1 failed, 76 passed | with the four steps verified the lane gives way to the page of a finished owner |
+| **7th full run** | **78 passed, 0 failed** (1.3 m) | — |
+
+Two of those defects are of the product and not of the suite, and both are fixed in this round: the worker of
+`pdf-parse` (a one-line `serverExternalPackages` in `next.config.ts`) and the page markers of the extraction
+(`lib/ingest/parse.ts`), which is what makes the scenario "A scanned PDF" true. Both have their unit evidence:
+
+    $ npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/ingest.test.ts tests/admin-documents.test.ts
+
+     Test Files  3 passed (3)
+
+The walk "from zero to an answer" is the timing of the round, printed by the suite itself on every run:
+
+    from zero to an answer: 1.8 s
+      ai connected 0.3 s · step 1 verified 0.4 s · step 2 verified 0.7 s · answer marked right 1.7 s · step 3 verified 1.8 s
+
+with the deterministic double of the provider. The real run with DeepSeek is the other half of decision 13 and it is
+recorded in the delivery.
+
