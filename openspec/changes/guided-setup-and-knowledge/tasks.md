@@ -105,7 +105,7 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 13. Fourth amendment (the real run of decision 18, design decision 24)
 
-- [ ] 13.1 Red, then green: with the chat set by the server and no search chosen, step 1 is "needs attention" with the
+- [x] 13.1 Red, then green: with the chat set by the server and no search chosen, step 1 is "needs attention" with the
       sentence and the two doors in both languages; choosing search by words turns it green; the sample button of step 2
       links back to step 1 while the search is not chosen; the walk of `e2e/setup.spec.ts` gains the server-set case
       (decision 24) — report: `reports/2026-09-30-step-13-1-step-one-whole.md`
