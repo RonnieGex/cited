@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button, Panel } from "@/components/ui";
 import { adminStrings } from "@/lib/i18n/admin";
 import { voiceStrings } from "@/lib/i18n/voice";
-import { VOICE_NOT_CONFIGURED } from "@/lib/voice/config";
+import { VOICE_NOT_CONFIGURED } from "@/lib/voice/client";
 import type { Lang } from "@/lib/settings/business";
 
 // The one button of the voice screen (task 3.2): it asks `/api/admin/voice` for the agent of this business. The route
@@ -15,7 +15,9 @@ import type { Lang } from "@/lib/settings/business";
 // The route answers a reason code and never the name of a variable of the environment (`voice-owner-words`, design
 // decision 3): `voice_not_configured` becomes the sentence of the owner with the link "For the installer", which is
 // the only place where a variable is named, and `voice_provider_failed` becomes the sentence of the provider that did
-// not answer. The raw `error` of a payload is never read here.
+// not answer. The raw `error` of a payload is never read here, and the codes come from `lib/voice/client.ts`, the one
+// module of the voice lane a bundle of the browser may carry (the rest of `lib/voice/` names the variables of the
+// server, and `tests/voice-secrets.test.ts` refuses it in a client file).
 
 export type VoiceAgentStatus = {
   agentId: string | null;

@@ -11,12 +11,8 @@
  */
 
 import { sharedStore } from "../../../../lib/store/instance.ts";
-import {
-  ELEVENLABS_API,
-  VOICE_UNAVAILABLE,
-  declared,
-  voiceMinuteLimit,
-} from "../../../../lib/voice/config.ts";
+import { VOICE_UNAVAILABLE } from "../../../../lib/voice/client.ts";
+import { ELEVENLABS_API, declared, voiceMinuteLimit } from "../../../../lib/voice/config.ts";
 import { capRefusal, reserveSession, type SessionRefusal } from "../../../../lib/voice/minutes.ts";
 import { voiceTransport } from "../../../../lib/voice/transport.ts";
 

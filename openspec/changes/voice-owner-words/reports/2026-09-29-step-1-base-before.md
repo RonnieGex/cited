@@ -67,7 +67,7 @@ store of the base created
 exit=0
 
 $ npm run store:state -- .data/step-1-base.sqlite
-store: C:\Users\Franc\Documents\katalis-dev\community-ins\.data\step-1-base.sqlite
+store: <the worktree>\.data\step-1-base.sqlite
 exists: true
 bytes: 131072
 tables: 14 (plus the 5 of the full-text index)
@@ -90,8 +90,11 @@ exit=0
 
 The store of `.data/step-1-base.sqlite` was created by the code of the base (`openStore()` of `lib/store/index.ts`), it
 writes one row of `voice_agent`, and the reader of `scripts/store-state.ts` shows the fourteen tables of the schema
-with their real counts and no error. `store:state` also printed `.env not found. Continuing without it.` to stderr:
-this worktree carries no `.env`, and no `.env` was opened.
+with their real counts and no error. The first line of that output is the absolute path of the store; it is elided
+here as `<the worktree>`, because no tracked file of this repository may carry a home directory
+(`tests/personal-paths.test.ts`) and the change wrote the names of its own store with a relative path.
+`store:state` also printed `.env not found. Continuing without it.` to stderr: this worktree carries no `.env`, and no
+`.env` was opened.
 
 ## The red of the base is the contract itself, not the code
 

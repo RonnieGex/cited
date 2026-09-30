@@ -14,12 +14,6 @@ export const VOICE_SESSION_MINUTES = 5;
 export const DEFAULT_VOICE_MINUTE_LIMIT = 30;
 /** The seconds the agent waits for the server tool before it gives up; the API accepts 5 to 300. */
 export const VOICE_TOOL_TIMEOUT_SECONDS = 30;
-// The codes of the voice answers (`voice-owner-words`, design decision 1): the owner reads the sentence of the screen
-// and a visitor reads a status, and the name of a variable of the environment stays in the log of the server and on the
-// page "For the installer".
-export const VOICE_NOT_CONFIGURED = "voice_not_configured";
-export const VOICE_PROVIDER_FAILED = "voice_provider_failed";
-export const VOICE_UNAVAILABLE = "voice_unavailable";
 export const AGENT_SECRET_NAME = "katalis_voice_tool";
 export const AGENT_TOOL_NAME = "consultar_los_documentos";
 export const AGENT_SOURCES_TOOL = "mostrar_fuentes";

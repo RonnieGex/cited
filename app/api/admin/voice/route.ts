@@ -14,12 +14,8 @@ import { guardResponse, json } from "../../../../lib/admin/respond.ts";
 import { readBusiness } from "../../../../lib/settings/business.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 import { provisionVoiceAgent } from "../../../../lib/voice/agent.ts";
-import {
-  VOICE_NOT_CONFIGURED,
-  VOICE_PROVIDER_FAILED,
-  declared,
-  originOf,
-} from "../../../../lib/voice/config.ts";
+import { VOICE_NOT_CONFIGURED, VOICE_PROVIDER_FAILED } from "../../../../lib/voice/client.ts";
+import { declared, originOf } from "../../../../lib/voice/config.ts";
 
 export const runtime = "nodejs";
 

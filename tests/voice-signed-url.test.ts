@@ -178,7 +178,7 @@ describe("GET /api/voice/signed-url", () => {
     expect(new URL(String(asked[0]?.url)).searchParams.get("agent_id")).toBe("agent_del_panel");
   });
 
-  it("answers 503 naming the variable of the missing key and never its value", async () => {
+  it("answers 503 with the code of an installation without voice, and never the name of the variable", async () => {
     const path = await emptyStore();
 
     setEnvironment({
@@ -197,12 +197,15 @@ describe("GET /api/voice/signed-url", () => {
     const text = await response.text();
 
     expect(response.status).toBe(503);
-    expect(text).toContain("ELEVENLABS_API_KEY");
+    // Amended by `voice-owner-words`: the visitor reads a status and a reason code, and the name of the variable of the
+    // missing key stays in the log of the server (`VOICE_UNAVAILABLE` of `lib/voice/client.ts`).
+    expect(JSON.parse(text)).toEqual({ status: "unavailable", reason: "voice_unavailable" });
+    expect(text).not.toContain("ELEVENLABS_API_KEY");
     expect(text).not.toContain(key);
     expect(double.calls).toHaveLength(0);
   });
 
-  it("answers 503 naming the agent when neither the variable nor the panel has one", async () => {
+  it("answers the same code when neither the variable nor the panel has an agent", async () => {
     const path = await emptyStore();
 
     setEnvironment({
@@ -217,7 +220,8 @@ describe("GET /api/voice/signed-url", () => {
     const text = await response.text();
 
     expect(response.status).toBe(503);
-    expect(text).toContain("ELEVENLABS_AGENT_ID");
+    expect(JSON.parse(text)).toEqual({ status: "unavailable", reason: "voice_unavailable" });
+    expect(text).not.toContain("ELEVENLABS_AGENT_ID");
     expect(text).not.toContain(key);
   });
 

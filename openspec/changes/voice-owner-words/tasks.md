@@ -29,7 +29,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 4. Review and update of the existing tests
 
-- [ ] 4.1 The whole suite; say which test changed and why (only assertions on the old payload) — report:
+- [x] 4.1 The whole suite; say which test changed and why (only assertions on the old payload) — report:
       `reports/2026-09-29-step-4-existing-tests.md`
 
 ## 5. Run the checks
