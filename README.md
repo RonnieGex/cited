@@ -46,6 +46,7 @@ Every row is either available today or planned, and each planned row names the c
 | Answers with citations from any model provider, spend limits | Available | [answering](openspec/specs/answering/spec.md) |
 | The keys of the AI in the panel, encrypted and tested before saving | Available | [provider-settings](openspec/specs/provider-settings/spec.md) |
 | The panel: the setup, the business, the documents and the conversations | Available | [admin-panel](openspec/specs/admin-panel/spec.md) |
+| The guided setup: from zero to a published answer in four steps | Available | [owner-setup](openspec/specs/owner-setup/spec.md) |
 | Public chat of the business, with the widget any site can embed | Available | [public-chat](openspec/specs/public-chat/spec.md) |
 | Voice agent with ElevenLabs, created in one click | Available | [voice-agent](openspec/specs/voice-agent/spec.md) |
 | Shared design system | Planned | `design-system-shared` |

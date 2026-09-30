@@ -47,6 +47,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 | Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Disponible | [answering](openspec/specs/answering/spec.md) |
 | Las llaves de la IA en el panel, cifradas y probadas antes de guardarlas | Disponible | [provider-settings](openspec/specs/provider-settings/spec.md) |
 | El panel: la configuración, el negocio, los documentos y las conversaciones | Disponible | [admin-panel](openspec/specs/admin-panel/spec.md) |
+| La configuración guiada: de cero a una respuesta publicada en cuatro pasos | Disponible | [owner-setup](openspec/specs/owner-setup/spec.md) |
 | Chat público del negocio, con el widget que cualquier sitio puede incrustar | Disponible | [public-chat](openspec/specs/public-chat/spec.md) |
 | Agente de voz con ElevenLabs, creado en un clic | Disponible | [voice-agent](openspec/specs/voice-agent/spec.md) |
 | Design system compartido | Siguiente | `design-system-shared` |
