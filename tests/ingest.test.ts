@@ -7,7 +7,7 @@ import { createFakeEmbeddings } from "@/lib/embeddings/fake";
 import { resolveEmbeddingsProvider } from "@/lib/embeddings/providers";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestPaths, parseFile } from "@/lib/ingest";
 import { openStore, type Store } from "@/lib/store";
-import { buildDocx, buildPdf, buildZip } from "./fixtures/documents";
+import { asZip64, buildDocx, buildPdf, buildZip } from "./fixtures/documents";
 
 const root = mkdtempSync(join(tmpdir(), "katalis-ingest-"));
 const stores: Store[] = [];
@@ -169,6 +169,26 @@ describe("type detection", () => {
 
     expect(parsed.type).toBe("docx");
     expect(parsed.text).toContain("El lunes permanecemos cerrados.");
+  });
+
+  it("reads a DOCX whose writer chose the ZIP64 directory", async () => {
+    const path = document(
+      "acta-zip64.docx",
+      asZip64(buildDocx([{ text: "El lunes permanecemos cerrados." }])),
+    );
+    const parsed = await parseFile(path);
+
+    expect(parsed.type).toBe("docx");
+    expect(parsed.text).toContain("El lunes permanecemos cerrados.");
+  });
+
+  it("refuses a ZIP64 archive that holds no document of Word", async () => {
+    const path = document(
+      "paquete-zip64.docx",
+      asZip64(buildZip([{ name: "notas.txt", content: "Abrimos de martes a domingo." }])),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
   });
 });
 

@@ -27,6 +27,50 @@ export function buildZip(entries: ZipEntry[]): Buffer {
   return zip(entries);
 }
 
+const endSize = 22;
+const extendedSize = 56;
+const locatorSize = 20;
+
+/**
+ * The same archive, written the way the ZIP64 extension asks: the closing record of the original format carries
+ * `0xffff` and `0xffffffff` and the 64-bit counts live in the record before it, which the locator points at. A writer
+ * chooses it for a small document as well, and a reader that only walks the 32-bit directory refuses an archive that
+ * is a DOCX and that Mammoth reads.
+ */
+export function asZip64(archive: Buffer): Buffer {
+  const end = archive.length - endSize;
+  const entries = archive.readUInt16LE(end + 10);
+  const centralSize = archive.readUInt32LE(end + 12);
+  const centralOffset = archive.readUInt32LE(end + 16);
+  const extended = Buffer.alloc(extendedSize);
+
+  extended.writeUInt32LE(0x06064b50, 0);
+  extended.writeBigUInt64LE(BigInt(extendedSize - 12), 4);
+  extended.writeUInt16LE(45, 12);
+  extended.writeUInt16LE(45, 14);
+  extended.writeUInt32LE(0, 16);
+  extended.writeUInt32LE(0, 20);
+  extended.writeBigUInt64LE(BigInt(entries), 24);
+  extended.writeBigUInt64LE(BigInt(entries), 32);
+  extended.writeBigUInt64LE(BigInt(centralSize), 40);
+  extended.writeBigUInt64LE(BigInt(centralOffset), 48);
+
+  const locator = Buffer.alloc(locatorSize);
+
+  locator.writeUInt32LE(0x07064b50, 0);
+  locator.writeUInt32LE(0, 4);
+  locator.writeBigUInt64LE(BigInt(end), 8);
+  locator.writeUInt32LE(1, 16);
+
+  const closing = Buffer.from(archive.subarray(end));
+
+  closing.writeUInt16LE(0xffff, 8);
+  closing.writeUInt16LE(0xffff, 10);
+  closing.writeUInt32LE(0xffffffff, 16);
+
+  return Buffer.concat([archive.subarray(0, end), extended, locator, closing]);
+}
+
 function zip(entries: ZipEntry[]): Buffer {
   const local: Buffer[] = [];
   const central: Buffer[] = [];
