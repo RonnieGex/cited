@@ -60,7 +60,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 10. Amendment after the review of Codex (`katalis-dev/tasks/revision-community-15.md`, design decisions 6 to 10)
 
-- [ ] 10.1 `tests/readme.test.ts` back to its text at `2f9a75b`; the whole suite green with the `MODIFIED` delta of
+- [x] 10.1 `tests/readme.test.ts` back to its text at `2f9a75b`; the whole suite green with the `MODIFIED` delta of
       `voice-agent` (decision 6) — report: `reports/2026-09-29-step-10-1-readme-guard.md`
 - [x] 10.2 Red, then green: a route test of `POST /api/admin/voice` for `business_unnamed` (409, no request to the
       double of ElevenLabs) and a component test of `VoiceAgent.tsx` in English and Spanish with the link to "Business"
