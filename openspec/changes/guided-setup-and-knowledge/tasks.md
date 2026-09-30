@@ -79,7 +79,7 @@ will be public: no secret, no customer data, no personal path. No network call t
       `reports/2026-09-30-step-10-1-tests-first.md`
 - [x] 10.2 The fixes of decisions 14 to 16 and the ports of decision 17 — report:
       `reports/2026-09-30-step-10-2-implementation.md`
-- [ ] 10.3 `git diff --check main...HEAD` clean, and the checks of 5.1 on the amended tree (Windows twice with Node 24.15
+- [x] 10.3 `git diff --check main...HEAD` clean, and the checks of 5.1 on the amended tree (Windows twice with Node 24.15
       or newer run directly, a `node:24` Linux container), each result with its commit (decision 19) — report:
       `reports/2026-09-30-step-10-3-checks.md`
 - [ ] 10.4 `CI=1 npm run test:e2e` whole and green in a clean clone, with the new cases — report:
