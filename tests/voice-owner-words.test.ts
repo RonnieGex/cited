@@ -204,6 +204,25 @@ describe("an installation with the panel configured and no voice", () => {
     expect(double.callsTo("POST", "/v1/convai/secrets")).toHaveLength(1);
   });
 
+  it("answers business_unnamed, with no press on ElevenLabs, when the business has no name", async () => {
+    const double = elevenLabsDouble();
+
+    useVoiceTransport(double.transport);
+
+    const { POST } = await import("@/app/api/admin/voice/route");
+
+    await panel({ ELEVENLABS_API_KEY: key, VOICE_TOOL_SECRET: toolSecret });
+
+    const response = await POST(signedIn("http://localhost/api/admin/voice", "POST", "{}"));
+    const text = await response.text();
+
+    expect(response.status).toBe(409);
+    expect(JSON.parse(text)).toEqual({ status: "incomplete", reason: "business_unnamed" });
+    expect(namesIn(text)).toEqual([]);
+    expect(text).not.toContain("ElevenLabs");
+    expect(double.calls).toHaveLength(0);
+  });
+
   it("answers voice_unavailable to a visitor, for the missing key and for the missing agent", async () => {
     const { GET } = await import("@/app/api/voice/signed-url/route");
 
@@ -331,6 +350,19 @@ describe("the screen of the voice agent", () => {
       expect(error).toHaveTextContent(VOICE_STRINGS[lang].voiceProviderFailed);
       expect(error).not.toHaveTextContent("ElevenLabs answered 401");
       expect(namesIn(error.textContent ?? "")).toEqual([]);
+    });
+
+    it(`shows business_unnamed in the words of the owner and links Business (${lang})`, async () => {
+      stubAnswer(409, { status: "incomplete", reason: "business_unnamed" });
+
+      const error = await press(lang);
+
+      expect(error).toHaveTextContent(VOICE_STRINGS[lang].voiceBusinessUnnamed);
+      expect(error).not.toHaveTextContent(VOICE_STRINGS[lang].voiceProviderFailed);
+      expect(namesIn(error.textContent ?? "")).toEqual([]);
+      expect(
+        within(error).getByRole("link", { name: adminStrings(lang).navBusiness }),
+      ).toHaveAttribute("href", "/admin/business");
     });
   }
 });
