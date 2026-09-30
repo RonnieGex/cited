@@ -20,7 +20,7 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 2. Tests first
 
-- [ ] 2.1 Red unit and route tests: the derived step states (decision 2), the upload results per file (decision 3), the
+- [x] 2.1 Red unit and route tests: the derived step states (decision 2), the upload results per file (decision 3), the
       sample business and its undo (decision 4), the suggested questions from headings (decision 6) — report:
       `reports/2026-09-30-step-2-tests-first.md`
 - [ ] 2.2 Red E2E for every scenario of `specs/owner-setup/spec.md`, "From zero to an answer" timed end to end, and an

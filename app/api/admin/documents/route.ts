@@ -1,15 +1,40 @@
-import { documentSummaries, ingestUpload } from "../../../../lib/admin/documents.ts";
+import {
+  documentSummaries,
+  ingestOne,
+  ingestedOne,
+} from "../../../../lib/admin/documents.ts";
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
+import { uploadResult, type UploadResult } from "../../../../lib/admin/upload-result.ts";
 import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
-import { sanitizeOutbound } from "../../../../lib/guards/outbound.ts";
-import { embeddingsSignature, panelEmbeddingsProblem, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
+import { panelEmbeddingsProblem, embeddingsSignature, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
 
-function messageOf(error: unknown): string {
-  return sanitizeOutbound(error instanceof Error ? error.message : "the document could not be read");
+// The route of the information lane of the guided setup: the files of one upload, one result per file. The browser may
+// send them one request at a time — that is what lets the page say, file by file, which one is uploading, reading and
+// splitting, and which one failed while the others keep going (decision 3) — and every request goes through the same
+// ingestion the command line runs.
+//
+// The answer carries `results`, one entry per file, and `documents`, the list of the panel after the upload. What the
+// ingestion wrote is classified by `uploadResult()` before it leaves the server: that sentence names folders, limits
+// and providers, and none of it reaches the browser.
+
+type Stored = { name: string; bytes: Uint8Array };
+
+async function filesOf(form: FormData): Promise<Stored[]> {
+  const files: Stored[] = [];
+
+  for (const entry of form.getAll("document")) {
+    if (entry === null || typeof entry === "string") {
+      continue;
+    }
+
+    files.push({ name: entry.name, bytes: new Uint8Array(await entry.arrayBuffer()) });
+  }
+
+  return files;
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -38,9 +63,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const form = await request.formData();
-  const file = form.get("document");
+  const files = await filesOf(form);
 
-  if (file === null || typeof file === "string") {
+  if (files.length === 0) {
     return json({ status: "invalid", error: "the form must carry a document file" }, 400);
   }
 
@@ -54,33 +79,19 @@ export async function POST(request: Request): Promise<Response> {
     return json({ status: "invalid", error: problem }, 400);
   }
 
-  let report;
+  const embeddings = embeddingsFrom(resolution);
+  const signature = embeddingsSignature(resolution);
+  const results: UploadResult[] = [];
 
-  try {
-    report = await ingestUpload(
-      store,
-      embeddingsFrom(resolution),
-      file.name,
-      new Uint8Array(await file.arrayBuffer()),
-      embeddingsSignature(resolution),
-    );
-  } catch (error) {
-    return json({ status: "invalid", error: messageOf(error) }, 400);
-  }
+  for (const file of files) {
+    const read = await ingestOne(store, embeddings, file.name, file.bytes, signature);
 
-  if (report.ingested.length === 0) {
-    return json(
-      {
-        status: "invalid",
-        error: sanitizeOutbound(report.failed[0]?.reason ?? "the file carried no readable text"),
-      },
-      400,
+    results.push(
+      ingestedOne(read)
+        ? uploadResult({ name: read.name, passages: read.passages, failure: null })
+        : uploadResult({ name: read.path, passages: 0, failure: read.reason }),
     );
   }
 
-  return json({
-    status: "ok",
-    report,
-    documents: await documentSummaries(store),
-  });
+  return json({ status: "ok", results, documents: await documentSummaries(store) });
 }

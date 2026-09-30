@@ -106,6 +106,14 @@ const schemaStatements = [
     signature TEXT NOT NULL,
     indexed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   )`,
+  // Decision 2 of `openspec/changes/guided-setup-and-knowledge/design.md`: the state of a step of the guided setup is
+  // derived from the real configuration, and the only two things stored are the flag of "This answer is right" and the
+  // flag of "Publish", beside the two the owner presses to start and to skip the lane.
+  `CREATE TABLE IF NOT EXISTS setup_flags (
+    flag TEXT PRIMARY KEY,
+    value INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
 ];
 
 const searchableToken = /[\p{L}\p{N}]+/gu;
@@ -315,6 +323,9 @@ export type Store = {
   listRecentTurns(limit: number): Promise<StoredTurn[]>;
   countTurns(): Promise<number>;
   deleteAllTurns(): Promise<number>;
+  readSetupFlag(flag: string): Promise<boolean>;
+  listSetupFlags(): Promise<Record<string, boolean>>;
+  saveSetupFlag(flag: string, value: boolean): Promise<void>;
   close(): void;
 };
 
@@ -985,6 +996,36 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
       const deleted = await client.execute("DELETE FROM conversations");
 
       return Number(deleted.rowsAffected);
+    },
+
+    // The flags of the guided setup: one row per flag, written by the owner and read by the checklist. A flag that was
+    // never written is off, and writing `false` keeps the row so the state of a store still shows the decision.
+    async readSetupFlag(flag: string): Promise<boolean> {
+      const found = await client.execute({
+        sql: "SELECT value FROM setup_flags WHERE flag = ?",
+        args: [flag],
+      });
+
+      return Number(found.rows[0]?.["value"] ?? 0) === 1;
+    },
+
+    async listSetupFlags(): Promise<Record<string, boolean>> {
+      const found = await client.execute("SELECT flag, value FROM setup_flags");
+      const flags: Record<string, boolean> = {};
+
+      for (const row of found.rows) {
+        flags[String(row["flag"])] = Number(row["value"] ?? 0) === 1;
+      }
+
+      return flags;
+    },
+
+    async saveSetupFlag(flag: string, value: boolean): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO setup_flags (flag, value, updated_at) VALUES (?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (flag) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+        args: [flag, value ? 1 : 0],
+      });
     },
 
     close(): void {

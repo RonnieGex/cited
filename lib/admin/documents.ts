@@ -85,6 +85,48 @@ export async function ingestUpload(
   }
 }
 
+/**
+ * One file of an upload, as the panel of the guided setup reads it (decision 3): the name, what the ingestion wrote
+ * when it failed — with the folder of the temporary file removed, so the reason reads as a sentence of the owner and
+ * carries no path of the machine — and the passages it produced. A file whose type cannot be read fails here, alone, and
+ * the other files of the same upload keep going: this is the function that asks and never throws for a bad file.
+ */
+export async function ingestOne(
+  store: Store,
+  embeddings: EmbeddingProvider | null,
+  name: string,
+  bytes: Uint8Array,
+  signature?: string,
+): Promise<IngestReport["failed"][number] | IngestReport["ingested"][number]> {
+  let report: IngestReport;
+
+  try {
+    report = await ingestUpload(store, embeddings, name, bytes, signature);
+  } catch (error) {
+    // The size limit is refused before the temporary file exists and its message quotes the name `ingestUpload()`
+    // sanitized: the owner reads it in the panel and no path of this machine is in it.
+    return { path: safeName(name), reason: messageOf(error) };
+  }
+
+  const read = report.ingested[0];
+
+  return read ?? report.failed[0] ?? { path: safeName(name), reason: "the file has no readable text" };
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Whether the ingestion read a document or not, whichever half of the report it came in. `ingested` carries the
+ * passages; `failed` carries the reason and no passages.
+ */
+export function ingestedOne(
+  result: IngestReport["failed"][number] | IngestReport["ingested"][number],
+): result is IngestReport["ingested"][number] {
+  return "passages" in result;
+}
+
 export async function reingestDocument(
   store: Store,
   embeddings: EmbeddingProvider | null,
