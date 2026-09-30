@@ -102,6 +102,6 @@ flame.
       320x256 of decision 23; the captures of 7.1 shot again at 1440 and 375 px — report:
       `reports/2026-09-29-step-10-5-e2e.md`
 - [x] 10.6 Repeat 8.1 on the merged tree — report: `reports/2026-09-29-step-10-6-base-after.md`
-- [ ] 10.7 `DESIGN.md`, `docs/design-system.md` and the delivery `katalis-dev/tasks/entrega-community-14.md` with a
+- [x] 10.7 `DESIGN.md`, `docs/design-system.md` and the delivery `katalis-dev/tasks/entrega-community-14.md` with a
       section "Ronda 14c": what was fixed, the decision for each of the 54 minors, and `## Issues` (Setup as ff-13) —
       report: `reports/2026-09-29-step-10-7-docs.md`
