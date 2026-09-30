@@ -36,7 +36,8 @@ test.afterAll(async () => {
   await closeDouble(double);
 });
 
-test.describe.configure({ mode: "serial" });
+// Serial, and with no retry: a retry would re-enter a store another case of the group already walked.
+test.describe.configure({ mode: "serial", retries: 0 });
 test.use({ extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS } });
 
 async function axe(page: Page): Promise<void> {
@@ -184,7 +185,9 @@ test("de cero a una respuesta, en español, cronometrado", async ({ page }) => {
   await suggestion.click();
   await expect(page.locator('[data-try="turn"]')).toContainText("380 pesos");
   await expect(page.locator('[data-citation-passage="open"]')).toBeVisible();
-  await expect(page.locator('[data-try="turn"]').getByRole("button", { name: /Citation 1/ })).toBeVisible();
+  await expect(
+    page.locator('[data-try="turn"]').getByRole("button", { name: spanish.citationLabel.replace("{n}", "1") }),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: spanish.thisIsRight }).click();
   await expect(page.getByText(spanish.answerRightSaved)).toBeVisible();
