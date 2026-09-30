@@ -9,7 +9,8 @@ import { readPublicBrand } from "@/lib/public/brand";
 // proxy sets, and `ALLOWED_ORIGINS` is the list of the sites that may embed it.
 //
 // Decision 12 of `openspec/changes/brand-identity-ui/design.md`: the band is a slim strip in the primary color with the
-// name at 18 px and the language switch; the rest is the same `Chat`.
+// name at 18 px and the language switch; the rest is the same `Chat`. Like the public page (decision 9), without a business
+// the strip is ink with the ink switch: lime never fills a large area of a public surface.
 
 export default async function Embed() {
   const cookie = (await cookies()).get(LANG_COOKIE)?.value;
@@ -28,13 +29,15 @@ export default async function Embed() {
     >
       <header
         data-public="band"
-        className="bg-[var(--primary)] py-4 text-[var(--on-primary)]"
+        className={`py-4 ${
+          brand.branded ? "bg-[var(--primary)] text-[var(--on-primary)]" : "bg-ink text-paper"
+        }`}
       >
         <div className="mx-auto flex w-full max-w-[560px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4">
           <h1 className="min-w-0 break-words text-[18px] font-bold leading-[1.2] tracking-[-0.02em]">
             {brand.name}
           </h1>
-          <LanguageSwitch current={brand.lang} tone="brand" />
+          <LanguageSwitch current={brand.lang} tone={brand.branded ? "brand" : "ink"} />
         </div>
       </header>
 
