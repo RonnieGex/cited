@@ -12,11 +12,15 @@ updates:
       prefix: "chore(deps)"
     labels:
       - dependencies
+    # Only minor and patch updates are grouped: every major upgrade arrives as a pull request of its own, to be
+    # handled as a change of its own.
     groups:
       production-dependencies:
         dependency-type: production
+        update-types: [minor, patch]
       development-dependencies:
         dependency-type: development
+        update-types: [minor, patch]
 
   - package-ecosystem: github-actions
     directory: "/"
