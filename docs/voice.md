@@ -11,6 +11,7 @@ are read.
 |---|---|---|
 | `POST /api/admin/voice` without the key of ElevenLabs or without the secret of the tool | `503 {"status":"unconfigured","reason":"voice_not_configured"}` | the owner, on the voice screen |
 | `POST /api/admin/voice` when ElevenLabs refuses | `503 {"status":"unavailable","reason":"voice_provider_failed"}` | the owner, on the voice screen |
+| `POST /api/admin/voice` with voice set up and a business without a name | `409 {"status":"incomplete","reason":"business_unnamed"}` | the owner, on the voice screen |
 | `GET /api/voice/signed-url` without the key or without the agent | `503 {"status":"unavailable","reason":"voice_unavailable"}` | a visitor |
 | `GET /api/voice/signed-url` with the day spent, or with a limit below one session | `429 {"status":"limited","reason":"spent"}` or `{"status":"limited","reason":"below-session"}` | a visitor |
 
@@ -20,8 +21,11 @@ is the code and nothing else.
 
 The screen of the panel (`components/admin/VoiceAgent.tsx`) reads the reason and writes it in the words of the owner:
 `voice_not_configured` is "Voice is not set up yet. The person who installs Cited turns it on." with the link "For the
-installer" (`/admin`), and every other failure is "ElevenLabs did not answer. Try again in a minute.". The raw `error`
-of a payload is never printed, and the list of names that the route used to send is gone from the screen.
+installer" (`/admin`), `business_unnamed` is "Give your business a name first: the agent introduces itself with it." with
+the link "Business" (`/admin/business`), and every other failure is "ElevenLabs did not answer. Try again in a minute.".
+`voice_provider_failed` is only for an answer of the provider: a business without a name answers `409` before the first
+request to ElevenLabs, so no screen may say that the provider failed when it was never asked. The raw `error` of a
+payload is never printed, and the list of names that the route used to send is gone from the screen.
 
 ## 2. Where the installer reads the names
 
@@ -41,7 +45,7 @@ and no voice and compares its status, its headers and its body against every nam
 
 ## 3. The one module of the lane a browser may import
 
-`lib/voice/client.ts` carries the three codes. It is the only module of `lib/voice/` that a file the browser runs may
+`lib/voice/client.ts` carries the four codes. It is the only module of `lib/voice/` that a file the browser runs may
 import, because the rest of the lane names the variables of the server (`ELEVENLABS_API_KEY`, `VOICE_TOOL_SECRET`,
 `DAILY_VOICE_MINUTE_LIMIT`); `tests/voice-secrets.test.ts` refuses that import inside a client file, and the guard is
 what moved the codes to their own module.

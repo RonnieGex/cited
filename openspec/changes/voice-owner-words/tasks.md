@@ -72,6 +72,6 @@ commit. No network call to a real provider. No personal path in a tracked file.
       `openspec archive` simulated in a disposable clone: the resulting `openspec/specs/voice-agent/spec.md` has no
       sentence that orders naming a variable (`grep -n "naming" ` shows none) — report:
       `reports/2026-09-29-step-10-4-checks.md`
-- [ ] 10.5 `docs/voice.md` with the code `business_unnamed`, and the delivery `katalis-dev/tasks/entrega-community-15.md`
+- [x] 10.5 `docs/voice.md` with the code `business_unnamed`, and the delivery `katalis-dev/tasks/entrega-community-15.md`
       corrected (the two classes of the link, decision 10) with its `## Issues` — report:
       `reports/2026-09-29-step-10-5-docs.md`
