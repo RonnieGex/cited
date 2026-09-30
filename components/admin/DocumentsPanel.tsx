@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { ConfirmedDelete } from "@/components/admin/ConfirmedDelete";
+import { useOverflowing } from "@/components/admin/useOverflowing";
 import { Button, Input, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { DocumentSummary } from "@/lib/admin/documents";
 import type { AdminStrings } from "@/lib/i18n/admin";
@@ -22,6 +24,7 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scroller, scrolls] = useOverflowing<HTMLDivElement>();
 
   async function send(url: string, body: BodyInit, headers?: Record<string, string>): Promise<void> {
     setMessage(null);
@@ -100,12 +103,13 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
       )}
 
       {/* A very long name can still make the box scroll on a phone: a scrolling region has to be reachable by keyboard (axe:
-          scrollable-region-focusable), as in Conversations. */}
+          scrollable-region-focusable), as in Conversations, and only while it scrolls: a box that does not is not a tab stop. */}
       <Panel
         aria-label={strings.documentsTitle}
         className={`overflow-x-auto ${focusRing}`}
+        ref={scroller}
         role="region"
-        tabIndex={0}
+        tabIndex={scrolls ? 0 : -1}
       >
         {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
         <SectionTitle className="sr-only" level="h2">
@@ -142,15 +146,15 @@ export function DocumentsPanel({ strings, documents }: DocumentsPanelProps) {
                       >
                         {strings.reingestDocument}
                       </Button>
-                      <Button
-                        aria-label={`${strings.deleteDocument} ${document.name}`}
-                        className="whitespace-nowrap"
-                        onClick={() => void remove(document.name)}
-                        size="sm"
-                        variant="secondary"
-                      >
-                        {strings.deleteDocument}
-                      </Button>
+                      {/* Decision 28: a delete asks first, in place, and only the second press sends it. */}
+                      <ConfirmedDelete
+                        confirmLabel={strings.confirmDelete}
+                        keepLabel={strings.keep}
+                        label={strings.deleteDocument}
+                        name={`${strings.deleteDocument} ${document.name}`}
+                        onConfirm={() => remove(document.name)}
+                        sentence={strings.confirmDeleteDocument.replace("{name}", document.name)}
+                      />
                     </div>
                   </td>
                   <td className={`${cell} align-top tabular-nums`}>{document.passages}</td>

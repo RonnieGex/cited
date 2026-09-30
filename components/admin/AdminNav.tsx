@@ -83,7 +83,7 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
   }, [pathname]);
 
   return (
-    <aside
+    <div
       data-admin="sidebar"
       className="flex flex-col gap-4 bg-ink px-6 py-5 text-paper lg:sticky lg:top-0 lg:h-screen lg:gap-10 lg:py-8"
     >
@@ -124,6 +124,6 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
         <SignOutButton strings={strings} />
         <BuiltByKatalis label={strings.builtBy} className="max-lg:hidden" />
       </div>
-    </aside>
+    </div>
   );
 }

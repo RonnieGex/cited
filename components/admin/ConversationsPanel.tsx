@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import { Button, Panel, SectionTitle, focusRing } from "@/components/ui";
+import { ConfirmedDelete } from "@/components/admin/ConfirmedDelete";
+import { useOverflowing } from "@/components/admin/useOverflowing";
+import { Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { ConversationSummary } from "@/lib/admin/conversations";
 import { formatWhen, type AdminStrings } from "@/lib/i18n/admin";
 import type { Lang } from "@/lib/settings/business";
@@ -30,11 +32,8 @@ function When({ iso, lang, serverZone }: { iso: string; lang: Lang; serverZone: 
     () => formatWhen(iso, lang, serverZone),
   );
 
-  return (
-    <time dateTime={iso} suppressHydrationWarning>
-      {text}
-    </time>
-  );
+  // The hydration warning is not silenced here: the snapshot of the server is what hydrates, so a mismatch is a bug to be seen.
+  return <time dateTime={iso}>{text}</time>;
 }
 
 const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
@@ -44,6 +43,7 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
   const [list, setList] = useState(conversations);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [scroller, scrolls] = useOverflowing<HTMLDivElement>();
 
   async function removeAll(): Promise<void> {
     setError(null);
@@ -66,12 +66,14 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
 
   return (
     <div className="flex flex-col gap-8">
-      {/* The panel scrolls sideways on a phone: a scrolling region has to be reachable by keyboard (axe: scrollable-region-focusable). */}
+      {/* The panel scrolls sideways on a phone: a scrolling region has to be reachable by keyboard (axe:
+          scrollable-region-focusable), and only while it scrolls: a box that does not is not a tab stop. */}
       <Panel
         aria-label={strings.conversationsTitle}
         className={`overflow-x-auto ${focusRing}`}
+        ref={scroller}
         role="region"
-        tabIndex={0}
+        tabIndex={scrolls ? 0 : -1}
       >
         {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
         <SectionTitle className="sr-only" level="h2">
@@ -90,7 +92,8 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
                 <th className={head} scope="col">
                   {strings.status}
                 </th>
-                <th className={head} scope="col">
+                {/* Off a phone only: the When column that this change formatted must not start at the edge of the screen. */}
+                <th className={`${head} max-sm:hidden`} scope="col">
                   {strings.citations}
                 </th>
                 <th className={head} scope="col">
@@ -105,7 +108,7 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
                   <td className={cell}>
                     {turn.status === "refused" ? strings.refused : strings.answered}
                   </td>
-                  <td className={cell}>
+                  <td className={`${cell} max-sm:hidden`}>
                     {turn.citations.length === 0 ? "—" : turn.citations.join(", ")}
                   </td>
                   <td className={`${cell} whitespace-nowrap tabular-nums`}>
@@ -118,9 +121,16 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
         )}
       </Panel>
 
-      <Button className="self-start" onClick={() => void removeAll()} variant="secondary">
-        {strings.deleteAll}
-      </Button>
+      {/* Decision 28: Delete all asks first, in place, and only the second press sends it. */}
+      <ConfirmedDelete
+        className="self-start"
+        confirmLabel={strings.confirmDelete}
+        keepLabel={strings.keep}
+        label={strings.deleteAll}
+        onConfirm={removeAll}
+        sentence={strings.confirmDeleteAll}
+        size="md"
+      />
 
       {message === null ? null : (
         <p className="text-sm font-semibold text-ink" role="status">

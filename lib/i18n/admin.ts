@@ -1,4 +1,5 @@
 import type { Lang } from "../settings/business.ts";
+import { SETUP_GROUPS, type SetupGroupText } from "./setup-groups.ts";
 
 export type AdminStrings = {
   panelEyebrow: string;
@@ -120,6 +121,28 @@ export type AdminStrings = {
   deleteAll: string;
   deletedAll: string;
   noConversations: string;
+  /** Decision 28: the sentence that asks before a delete, `{name}` for a document; the two answers; no modal. */
+  confirmDeleteDocument: string;
+  confirmDeleteAll: string;
+  confirmDelete: string;
+  keep: string;
+  /** Decision 29: what a provider test says, in the language of the panel, with the name of the provider. */
+  providerChat: string;
+  providerEmbeddings: string;
+  testOk: string;
+  testFailed: string;
+  /** Decision 29: the words of each group of the template, keyed by its group id (`lib/i18n/setup-groups.ts`). */
+  setupGroups: Record<string, SetupGroupText>;
+  /** Decision 24: the title of the tab of every page of the panel, and of the sign-in and the unfinished installation. */
+  pageTitle: {
+    signIn: string;
+    unconfigured: string;
+    setup: string;
+    ai: string;
+    business: string;
+    documents: string;
+    conversations: string;
+  };
 };
 
 export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
@@ -241,7 +264,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     reingested: "Re-ingested.",
     noDocuments: "No document yet. Upload the first one.",
     conversationsTitle: "Conversations",
-    conversationsIntro: "The latest questions with their status and the passages they cited.",
+    conversationsIntro: "The latest questions, whether each was answered or refused, and the numbers of the sources it cited.",
     question: "Question",
     status: "Status",
     citations: "Citations",
@@ -251,6 +274,24 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     deleteAll: "Delete all",
     deletedAll: "Every conversation is deleted.",
     noConversations: "No conversation yet.",
+    confirmDeleteDocument: "Delete {name}?",
+    confirmDeleteAll: "Delete all conversations?",
+    confirmDelete: "Delete",
+    keep: "Keep",
+    providerChat: "The chat provider",
+    providerEmbeddings: "The embeddings provider",
+    testOk: "{provider} answered.",
+    testFailed: "{provider} did not answer. Check the key and try again.",
+    setupGroups: SETUP_GROUPS.en,
+    pageTitle: {
+      signIn: "Sign in · Cited",
+      unconfigured: "The panel cannot start · Cited",
+      setup: "For the installer · Cited",
+      ai: "AI and keys · Cited",
+      business: "Business · Cited",
+      documents: "Documents · Cited",
+      conversations: "Conversations · Cited",
+    },
   },
   es: {
     panelEyebrow: "Panel de Cited",
@@ -371,7 +412,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     reingested: "Reingestado.",
     noDocuments: "Todavía no hay documentos. Sube el primero.",
     conversationsTitle: "Conversaciones",
-    conversationsIntro: "Las últimas preguntas con su estado y los pasajes que citaron.",
+    conversationsIntro: "Las últimas preguntas, si se respondieron o se rechazaron, y los números de las fuentes que citaron.",
     question: "Pregunta",
     status: "Estado",
     citations: "Citas",
@@ -381,6 +422,24 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     deleteAll: "Borrar todas",
     deletedAll: "Todas las conversaciones están borradas.",
     noConversations: "Todavía no hay conversaciones.",
+    confirmDeleteDocument: "¿Borrar {name}?",
+    confirmDeleteAll: "¿Borrar todas las conversaciones?",
+    confirmDelete: "Borrar",
+    keep: "Conservar",
+    providerChat: "El proveedor de chat",
+    providerEmbeddings: "El proveedor de embeddings",
+    testOk: "{provider} respondió.",
+    testFailed: "{provider} no respondió. Revisa la llave y vuelve a probar.",
+    setupGroups: SETUP_GROUPS.es,
+    pageTitle: {
+      signIn: "Iniciar sesión · Cited",
+      unconfigured: "El panel no puede arrancar · Cited",
+      setup: "Para quien instala · Cited",
+      ai: "IA y llaves · Cited",
+      business: "Negocio · Cited",
+      documents: "Documentos · Cited",
+      conversations: "Conversaciones · Cited",
+    },
   },
 };
 

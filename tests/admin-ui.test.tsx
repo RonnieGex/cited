@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { BusinessForm } from "@/components/admin/BusinessForm";
@@ -173,7 +173,9 @@ describe("the setup buttons", () => {
 
     fireEvent.click(screen.getByRole("button", { name: english.testChat }));
 
-    expect(await screen.findByText("the model answered")).toBeInTheDocument();
+    // Decision 29 of `brand-identity-ui`: the result is a sentence of the panel with the name of the provider, never `detail`.
+    expect(await screen.findByText(english.testOk.replace("{provider}", english.providerChat))).toBeInTheDocument();
+    expect(screen.queryByText("the model answered")).toBeNull();
 
     const [url, options] = fetched.mock.calls[0] as unknown as [string, RequestInit];
 
@@ -189,8 +191,9 @@ describe("the setup buttons", () => {
     fireEvent.click(screen.getByRole("button", { name: english.testEmbeddings }));
 
     expect(
-      await screen.findByText("The openai provider needs EMBEDDINGS_API_KEY."),
+      await screen.findByText(english.testFailed.replace("{provider}", english.providerEmbeddings)),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/EMBEDDINGS_API_KEY/)).toBeNull();
   });
 });
 
@@ -210,7 +213,14 @@ describe("the documents panel", () => {
     expect(screen.getByText("cafe-la-horquilla.md")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
 
+    // Decision 28 of `brand-identity-ui`: the first press asks, the second one deletes.
     fireEvent.click(screen.getByRole("button", { name: `${english.deleteDocument} cafe-la-horquilla.md` }));
+    expect(fetched).not.toHaveBeenCalled();
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "Delete cafe-la-horquilla.md?" })).getByRole("button", {
+        name: english.confirmDelete,
+      }),
+    );
 
     await waitFor(() => expect(fetched).toHaveBeenCalledTimes(1));
 
@@ -275,7 +285,14 @@ describe("the conversations panel", () => {
     expect(screen.getByText(english.refused)).toBeInTheDocument();
     expect(screen.getByText(english.answered)).toBeInTheDocument();
 
+    // Decision 28 of `brand-identity-ui`: Delete all asks first, and only the second press deletes.
     fireEvent.click(screen.getByRole("button", { name: english.deleteAll }));
+    expect(fetched).not.toHaveBeenCalled();
+    fireEvent.click(
+      within(screen.getByRole("group", { name: english.confirmDeleteAll })).getByRole("button", {
+        name: english.confirmDelete,
+      }),
+    );
 
     await waitFor(() => expect(fetched).toHaveBeenCalledTimes(1));
 
