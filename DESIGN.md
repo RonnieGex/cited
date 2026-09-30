@@ -174,8 +174,8 @@ A restrained palette of ink, paper and one signal color, with a warm neutral for
 
 - **Paper** (`#FFFFFF`, `--paper`): the ground of the page and of every field. Paper on ink is 17.93:1.
 - **Surface** (`#FAFAF9`, `--surface`): the warm ground of a panel. Ink on it is 17.17:1.
-- **Surface dark** (`#1C1917`, `--surface-dark`): the hover of the primary button, and the ground for anything that must
-  be darker than ink.
+- **Surface dark** (`#1C1917`, `--surface-dark`): a warm near-ink, one step lighter than ink on every channel, used only
+  as the hover of the primary button. It is not a ground and it is never darker than ink.
 - **Ink 2** (`#57534E`, `--ink-2`): secondary text, labels, table heads and captions. 7.63:1 on paper and 7.30:1 on
   surface.
 - **Border** (`#8B8B8B`, `--border`, the ink at half over paper): the border of a control (input, secondary button).
@@ -245,10 +245,15 @@ the focus ring.
 
 ### Focus
 
-- **Focus ring** (`focusRing` of `components/ui/focus.ts`): a 2px lime outline with a 2px offset and a 1px ink ring, on the
-  keyboard only (`focus-visible`). Lime alone is 1.22:1 on paper, so the ink edge (17.93:1) is what makes it visible.
-  Inside the sidebar, where a scrolling list would clip an outside outline, the outline is drawn inside the link
-  (`-outline-offset-2`).
+- **Focus ring** (`focusRing` of `components/ui/focus.ts`), on the keyboard only (`focus-visible`). On paper and on
+  surface it is a 2px **ink** outline (17.93:1) at a 2px offset with a 2px **lime** ring between it and the control: lime
+  alone is 1.22:1 on paper, so the old lime outline left one pixel of ink ring to carry the focus and, on an open citation
+  mark (an ink square), no visible change at all. Now the outer edge is ink and the lime ring is what shows against an ink
+  control (14.70:1). This amends decision 1 of the first change, which kept the ring untouched.
+- **On ink** (`focusRingOnInk`: the column of the panel, the ghost button, the wordmark on ink) the outline is lime
+  (14.70:1). **Over the band of the business** (`focusRingOnBrand`: the language switch) it is `currentColor`, the text
+  color the page already checks against the band. Inside the sidebar, where a scrolling list would clip an outside outline,
+  the outline is drawn inside the link (`-outline-offset-2`).
 
 ### Named Rules
 
@@ -271,8 +276,9 @@ The kit is `components/ui/` (`Button`, `Chip`, `Input`, `Panel`, `SectionTitle`)
   kit keeps the timing it has from Construye).
 - **Secondary:** paper fill, ink text, a `--border` hairline; hover to `surface`.
 - **Brand:** the color of the business (`--primary`) with `--on-primary`; the ask button of the public page and the embed.
-- **Ghost:** transparent, `border-paper/40`, paper text, for controls on ink (the sign-out of the sidebar).
-- **Disabled:** 40% opacity. **Focus:** the focus ring.
+- **Ghost:** transparent, `border-paper/40`, paper text, for controls on ink (the sign-out of the sidebar); its focus is
+  the lime outline of `focusRingOnInk`.
+- **Disabled:** 40% opacity. **Focus:** the focus ring of the ground it sits on.
 
 ### Chips
 
@@ -300,8 +306,9 @@ The kit is `components/ui/` (`Button`, `Chip`, `Input`, `Panel`, `SectionTitle`)
 ### Navigation
 
 - **The sidebar** (`data-admin="sidebar"`, 240px, ink, sticky, full height from 1024px): the wordmark `sm` on ink, then an
-  ordered list of sections, each with a citation mark that carries its number (1 Setup, 2 Business, 3 Documents,
-  4 Conversations) and its name at 15px, 600. Rest: `text-paper/80` and a quiet outlined mark. Current
+  ordered list of sections, each with a citation mark that carries its number (1 For the installer, 2 Business,
+  3 Documents, 4 Conversations, 5 AI and keys) and its name at 15px, 600. The column is a plain element, not a
+  complementary landmark: its `nav` is the landmark. Rest: `text-paper/80` and a quiet outlined mark. Current
   (`aria-current="page"`): paper text on `bg-paper/10`, the mark ink with a lime numeral inside a lime outline. Hover:
   `text-paper`. At the foot: the language switch in `tone="ink"`, the sign-out (ghost, `sm`) and the silver flame beside
   "Built by Katalis".
@@ -319,8 +326,12 @@ sentence, a wordmark and a navigation: `min-width: 1.5em`, `height: 1.3em`, `pad
 - **Rest:** lime fill, ink text (14.70:1). **Open or current:** ink fill, lime number. On an ink ground (`tone="ink"`) the
   rest mark is a quiet outline with `text-paper/60` and the open mark is ink with a lime number and a lime outline.
 - **As a button** (the markers inside an answer, the sources list): same shape, the accessible name `Citation n` (or
-  `[n] document`), `aria-expanded` and `aria-controls`, the focus ring, and on the public page a hover in the color of the
-  business (only while the mark is at rest, so an open mark never repaints under the pointer).
+  `[n] heading, document` in the sources), `aria-expanded` and `aria-controls`, the focus ring, and on the public page a
+  hover in the color of the business (only while the mark is at rest, so an open mark never repaints under the pointer, in
+  the text or in the sources).
+- **Against its word:** in the text of an answer the space before a mark is dropped and the last word, the marks and the
+  punctuation that follows are one unit that never breaks (`whitespace-nowrap`), so a mark never starts a line alone. Only
+  the first two marks of an answer land when it arrives.
 - **Uses:** the sources of an answer, the numbered sections of the panel, the steps of the guided setup lane. A refusal
   uses the same square in ink with an en dash, and a failure the same square in coral with an exclamation mark.
 
@@ -331,18 +342,28 @@ Lime painted behind the words that matter, the second device. `.hl` paints `line
 
 - **`.hl-sweep`** paints it in once from `0% 100%` to `100% 100%` in `--dur-slow` with the expo curve.
 - **`.hl-on-ink`** is the variant on an ink ground: a solid lime block with ink text, because the half-height marker would
-  put paper text over lime (1.1:1). It is used with `.hl`.
+  put paper text over lime (1.22:1). It is used with `.hl`.
 - **Uses:** the last three words of a headline or a tagline (`highlightLast` in `lib/brand/highlight.ts`) and the whole
   excerpt of an open citation. It is text-level paint, not gradient text: the text color never changes to a gradient.
 
 ### The Ledger (signature component)
 
 The public chat is a list of turns, each an `li` with a top `--rule` line: the question as a label row ("You asked" over
-the question at 18px, 600), the answer at 18px with its citation marks inline, and the sources as an `aside` in a 220px
-right margin from 1024px (below it, after the answer), each source a mark and its document name. The open citation is a
-`Panel` under the answer with the excerpt in the highlighter, the document and the heading as a definition list and a
-`sm` secondary "Close" button. The waiting state is a line of text over a 2px bar in `--primary` moving with `bar`. The
-ask form is `sticky bottom-0` on paper with a top rule once the thread exists, so it stays in reach on a long thread.
+the question at 18px, 600), the answer at 18px with its citation marks inline, and the sources as a `group` named
+"Sources" (not a landmark: four entries would list four identical regions) in a 220px right margin from 1024px (below it,
+after the answer). Each source is a mark and, first, the heading of its passage (`text-sm`), then the file on a second line
+(`text-xs`, `--ink-2`, hidden when it would repeat the heading); its name is `[n] heading, document`. The open citation is
+a `Panel` under the answer with the excerpt in the highlighter, the document and the heading as a definition list and a
+`sm` secondary "Close" button; choosing another citation mounts a new note, so it enters and sweeps again. The waiting
+state is a line of text over a 2px bar in `--primary` moving with `bar`, with no live region of its own: one polite
+announcer, always in the page, says the wait and the entry that lands, once.
+
+A failure is a coral square and one sentence of the kind of failure, in the language of the page (`rate_limited`,
+`unavailable` or `network`), never what the server wrote, beside a Try again button. The ask form sticks to the foot on
+paper with a top rule once the thread exists, but only from 560px of viewport height (`[@media(min-height:560px)]:sticky`,
+the scroll padding reserved under the same condition): on a phone on its side or at 200% and 400% zoom it stays in the flow
+and the last answer is never under it. Once threaded its label is for the screen reader only and the field and the button
+share one row at every width, with the safe-area padding.
 
 ### The Band (signature component)
 
@@ -350,6 +371,17 @@ The top of the public page and the embed: a full-width `header` (`data-public="b
 `--on-primary`, `py-10` (`lg:py-14`; the embed uses a slim `py-4` strip), the logo when there is one, the business name as
 the one `h1` and the language switch at the end. With no business yet the band is ink, the wordmark `lg` is the visible
 name and the `h1` "Cited" is visually hidden.
+
+The band and the footer sit beside `main`, so the page has a banner and a contentinfo. The footer is one `text-sm` row under a
+`--rule` line that lines up with the column: the small wordmark, `Answers by Cited` / `Respuestas de Cited`, a middot and the
+real flame (decoration, `alt=""`) with `Built by Katalis` / `Hecho por Katalis`. The tab is named for the business (`Cited`
+while there is none), and the placeholder of the box is neutral (`Type your question` / `Escribe tu pregunta`).
+
+### Asking before a delete
+
+A delete that cannot be undone asks first, in place: the button swaps for a group with a sentence ("Delete README.txt?" /
+"¿Borrar README.txt?"), a primary Delete and a secondary Keep. The focus moves to Keep, Escape keeps and gives the focus back
+to the first button, and nothing is sent until the second press. No modal (`ConfirmedDelete`).
 
 ## 6. Do's and Don'ts
 

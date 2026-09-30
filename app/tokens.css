@@ -20,7 +20,7 @@
 
   /*
    * The product tokens of the identity (decision 1 of `openspec/changes/brand-identity-ui/design.md`). They only add to
-   * the tokens above: `--ink-2` is the secondary text (7.0:1 on paper), `--rule` the divider (never the border of a
+   * the tokens above: `--ink-2` is the secondary text (7.63:1 on paper), `--rule` the divider (never the border of a
    * control) and the three durations are the only times the motion of `app/brand.css` may use.
    */
   --ink-2: #57534E;

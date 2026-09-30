@@ -108,10 +108,13 @@ derived from the two colours of Construye and with no colour of its own:
 fill of the panel, because the content of the panel does not depend on seeing its edge, and the `Chip` is the same
 case: it is a label and not a control, its word carries it and its edge is as decorative as the hairline of the panel.
 
-The focus indicator of the kit is the 2 px lime outline of decision 6 with the one pixel edge of ink that the design
-pairs with it. Measured on the rendered `/kit` with the computed colours, the lime is 1.22:1 on the paper and the edge
-is 17.93:1: the 3:1 the scenario asks is reached by the edge, which is what keeps the focus visible without giving up
-the lime of the design. `e2e/design-system.spec.ts` measures both parts, so neither the outline nor the edge can
+The focus indicator of the kit on paper and on the warm surface is a 2 px ink outline at a 2 px offset with a 2 px
+lime ring between it and the control (decision 33 of `brand-identity-ui`, which amends decision 6 of this change). Measured
+on the rendered `/kit` with the computed colours, the ink outline is 17.93:1 on the paper and the lime ring is 14.70:1
+against an ink control (an open citation mark): the 3:1 the scenario asks is reached by the outline everywhere, and the ring
+is what keeps an ink control's focus visible. The first design was a lime outline with a one pixel ink edge; lime is 1.22:1
+on paper, so only that pixel carried the focus and an ink control showed no change. On ink the outline is lime (14.70:1) and
+over the band of the business it is the color of the text. `e2e/design-system.spec.ts` measures the parts, so neither can
 disappear without the test saying so.
 
 ## 3. Outfit
@@ -151,9 +154,10 @@ They take their colors, their corners and their curve from the tokens, so a chan
 | `Chip` | a small label in microcaps, for the state of a capability |
 | `SectionTitle` | the microcaps eyebrow over a level of heading, with the tracking of the system |
 
-`focusRing`, in `components/ui/focus.ts`, is the focus of the kit: a 2 px lime outline with offset, as decision 6
-asks, plus a one pixel edge of ink. Lime on paper is 1.22:1, so the outline alone would be invisible on the ground
-most screens use; the edge is what keeps the focus visible without giving up the lime of the design.
+`focusRing`, in `components/ui/focus.ts`, is the focus of the kit on paper: a 2 px ink outline with offset and a 2 px lime
+ring inside it. Two more constants cover the other grounds, `focusRingOnInk` (the lime outline, for the column of the panel, the
+ghost button and the wordmark on ink) and `focusRingOnBrand` (`currentColor`, for the language switch over the band of the
+business).
 
 The route `/kit` shows one example of each component, in Spanish, the language of the first market. It is the
 reference anyone who forks the repository can open.
@@ -210,7 +214,7 @@ The second device: lime painted behind the words that matter, in `app/brand.css`
 | Class | What it does |
 |---|---|
 | `.hl` | `linear-gradient(transparent 55%, var(--lime) 55%)`, no repeat, `background-size: 100% 100%`, `padding: 0 0.08em`, `box-decoration-break: clone` |
-| `.hl-on-ink` | the variant for an ink ground: a solid lime block with ink text, because the half-height marker would put paper text over lime (1.1:1); used together with `.hl` |
+| `.hl-on-ink` | the variant for an ink ground: a solid lime block with ink text, because the half-height marker would put paper text over lime (1.22:1); used together with `.hl` |
 | `.hl-sweep` | paints the highlighter in once, from `0% 100%` to `100% 100%`, in `--dur-slow` on `--ease-out-expo` |
 
 `highlightLast(text, words)` of `lib/brand/highlight.ts` picks the words to paint: the last three when the text has six
