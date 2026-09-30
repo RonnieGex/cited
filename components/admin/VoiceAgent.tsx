@@ -1,13 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Button, Panel } from "@/components/ui";
+import { adminStrings } from "@/lib/i18n/admin";
 import { voiceStrings } from "@/lib/i18n/voice";
+import { BUSINESS_UNNAMED, VOICE_NOT_CONFIGURED } from "@/lib/voice/client";
 import type { Lang } from "@/lib/settings/business";
 
 // The one button of the voice screen (task 3.2): it asks `/api/admin/voice` for the agent of this business. The route
 // holds the key of ElevenLabs and this component never sees it, and the second press updates the same agent because
 // the route finds its ids in the store.
+//
+// The route answers a reason code and never the name of a variable of the environment (`voice-owner-words`, design
+// decision 3): `voice_not_configured` becomes the sentence of the owner with the link "For the installer", which is
+// the only place where a variable is named, and `voice_provider_failed` becomes the sentence of the provider that did
+// not answer. The raw `error` of a payload is never read here, and the codes come from `lib/voice/client.ts`, the one
+// module of the voice lane a bundle of the browser may carry (the rest of `lib/voice/` names the variables of the
+// server, and `tests/voice-secrets.test.ts` refuses it in a client file).
 
 export type VoiceAgentStatus = {
   agentId: string | null;
@@ -18,11 +28,14 @@ type Outcome =
   | { kind: "idle" }
   | { kind: "created"; agentId: string }
   | { kind: "updated"; agentId: string }
-  | { kind: "missing"; variables: string[] }
-  | { kind: "failed"; message: string };
+  | { kind: "not-configured" }
+  | { kind: "business-unnamed" }
+  | { kind: "provider-failed" };
 
 export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentStatus }) {
   const words = voiceStrings(lang);
+  const installer = adminStrings(lang).navSetup;
+  const business = adminStrings(lang).navBusiness;
   const [agentId, setAgentId] = useState(status.agentId);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
@@ -38,14 +51,15 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
       });
       const payload = (await response.json()) as {
         status?: string;
+        reason?: string;
         agentId?: string;
         created?: boolean;
-        missing?: string[];
-        error?: string;
       };
 
-      if (response.status === 503 && payload.status === "unconfigured") {
-        setOutcome({ kind: "missing", variables: payload.missing ?? [] });
+      if (response.status === 503 && payload.reason === VOICE_NOT_CONFIGURED) {
+        setOutcome({ kind: "not-configured" });
+      } else if (response.status === 409 && payload.reason === BUSINESS_UNNAMED) {
+        setOutcome({ kind: "business-unnamed" });
       } else if (response.ok && typeof payload.agentId === "string") {
         setAgentId(payload.agentId);
         setOutcome({
@@ -53,10 +67,12 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
           agentId: payload.agentId,
         });
       } else {
-        setOutcome({ kind: "failed", message: payload.error ?? "" });
+        // `voice_provider_failed` and every other failure that reaches this screen share the sentence: from here the
+        // owner can only try again, and the diagnostic belongs to the log of the server and to "For the installer".
+        setOutcome({ kind: "provider-failed" });
       }
     } catch {
-      setOutcome({ kind: "failed", message: "" });
+      setOutcome({ kind: "provider-failed" });
     } finally {
       setBusy(false);
     }
@@ -80,15 +96,27 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
         {message}
       </p>
 
-      {outcome.kind === "missing" ? (
+      {outcome.kind === "not-configured" ? (
         <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
-          {words.agentMissing.replace("{variables}", outcome.variables.join(", "))}
+          {words.voiceNotConfigured}{" "}
+          <Link className="underline underline-offset-2" href="/admin">
+            {installer}
+          </Link>
         </p>
       ) : null}
 
-      {outcome.kind === "failed" ? (
+      {outcome.kind === "business-unnamed" ? (
         <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
-          {words.agentFailed}
+          {words.voiceBusinessUnnamed}{" "}
+          <Link className="underline underline-offset-2" href="/admin/business">
+            {business}
+          </Link>
+        </p>
+      ) : null}
+
+      {outcome.kind === "provider-failed" ? (
+        <p data-testid="voice-agent-error" className="border-l-2 border-coral pl-4 text-sm text-ink">
+          {words.voiceProviderFailed}
         </p>
       ) : null}
 

@@ -44,13 +44,29 @@ function databasePath(name: string): string {
   return join(root, "store.sqlite");
 }
 
+// Decision 9 of `voice-owner-words`: Windows keeps the file of a libsql store of this process locked for a while after
+// the connection is closed, so one `rmSync` of the folder answers `EPERM` and turns the whole run red. The shared
+// stores are closed above and the removal is the one of every other file of the suite, retried until the filter of the
+// system lets the folder go.
+async function removeLater(root: string): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+
+      return;
+    } catch {
+      await new Promise((wake) => setTimeout(wake, 200));
+    }
+  }
+}
+
 afterAll(async () => {
   const { closeSharedStores } = await import("@/lib/store/instance");
 
   await closeSharedStores();
 
   for (const root of roots) {
-    rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    await removeLater(root);
   }
 });
 

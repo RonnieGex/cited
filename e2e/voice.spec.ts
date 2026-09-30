@@ -178,7 +178,7 @@ test("the widget offers the same microphone", async ({ page }) => {
   await expect(page.getByTestId("voice-state")).toHaveText("I'm listening…");
 });
 
-test("the signed URL of the server names the missing variable and the browser never gets the key", async ({
+test("the signed URL of the server answers a code and the browser never gets the key", async ({
   page,
 }) => {
   const bodies: string[] = [];
@@ -203,7 +203,11 @@ test("the signed URL of the server names the missing variable and the browser ne
 
   console.log(`the browser saw ${chunks.length} scripts, ${seen.length} characters of them`);
 
-  expect(seen).toContain("ELEVENLABS_API_KEY");
+  // Amended by `voice-owner-words`: the visitor reads a status and a reason code, and the name of the variable that is
+  // missing stays in the log of the server and on the page "For the installer" (`e2e/affiliate.spec.ts` reads every
+  // answer of the panel and the voice routes in the same state).
+  expect(seen).toContain("voice_unavailable");
+  expect(seen).not.toContain("ELEVENLABS_API_KEY");
   expect(seen).not.toContain("xi-api-key");
   expect(seen).not.toContain(sentinel);
 });

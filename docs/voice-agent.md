@@ -57,10 +57,10 @@ ceiling of model calls, the retention of the conversations and the forbidden top
 ## 4. The signed URL and the key
 
 The browser never sees the key of ElevenLabs. The panel asks `GET /api/voice/signed-url`, which asks the provider for a
-short-lived URL with `ELEVENLABS_API_KEY` and returns `{"url": "..."}` and nothing else. The route is the only place
-where the key is read, it answers `503` naming the missing variable when the key or the agent is missing, and no
-response to the browser and no file of the client carries the key or the header `xi-api-key`
-(`tests/voice-secrets.test.ts`).
+short-lived URL with `ELEVENLABS_API_KEY` and answers `{"url": "..."}` and nothing else. The route is the only place
+where the key is read, it answers `503` with the status and the reason code `voice_unavailable` when the key or the
+agent is missing (`docs/voice.md`), and no response to the browser and no file of the client carries the key or the
+header `xi-api-key` (`tests/voice-secrets.test.ts`).
 
 The session of the panel is the private WebSocket one of `@elevenlabs/react`: a signed URL opens it, and a text-only
 session never asks for the microphone, which is the path of whoever cannot or does not want to speak.
@@ -99,8 +99,9 @@ duration needs the end of a call to reach the server, and the change that adds i
 | `DAILY_VOICE_MINUTE_LIMIT` | the voice minutes of one UTC day, 30 by default | no |
 | `ALLOWED_ORIGINS` | the origins allowed to embed the widget, which are also allowed to start a conversation | no |
 
-A key is never written in the repository, in a log or in an answer: an empty value is an absent value, and the routes
-name the variable instead of its value.
+A key is never written in the repository, in a log or in an answer: an empty value is an absent value, and the names
+of the voice lane are written to the log of the server once per process and stay on the page "For the installer"
+(`docs/voice.md`).
 
 ## 8. The privacy note
 

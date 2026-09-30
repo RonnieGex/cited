@@ -2,13 +2,19 @@
  * The voice screen of the panel: the state of the agent and the one button that creates or updates it. The route is
  * behind the session guard of `/admin`; the key of ElevenLabs is read from the environment of the server and never
  * travels back in the answer.
+ *
+ * An installation without voice answers the code `voice_not_configured` and the words of the owner, and the names of
+ * the variables that are missing go once to the log of the server and stay on the page "For the installer"
+ * (`voice-owner-words`, design decisions 1 and 2). A provider that fails answers `voice_provider_failed` and the text
+ * of its error never travels back, the same rule as the lane of the keys in the panel.
  */
 
-import { guardRequest } from "../../../../lib/admin/guard.ts";
+import { guardRequest, writeOnce } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
 import { readBusiness } from "../../../../lib/settings/business.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 import { provisionVoiceAgent } from "../../../../lib/voice/agent.ts";
+import { VOICE_NOT_CONFIGURED, VOICE_PROVIDER_FAILED, BUSINESS_UNNAMED } from "../../../../lib/voice/client.ts";
 import { declared, originOf } from "../../../../lib/voice/config.ts";
 
 export const runtime = "nodejs";
@@ -53,16 +59,21 @@ export async function POST(request: Request): Promise<Response> {
     return json({ status: "ok", agentId: outcome.agentId, created: outcome.created });
   }
 
-  if (outcome.status === "unconfigured") {
-    return json(
-      {
-        status: "unconfigured",
-        missing: outcome.missing,
-        error: `the voice agent needs ${outcome.missing.join(" and ")} in the environment of the server`,
-      },
-      503,
-    );
+  if (outcome.status === "unnamed") {
+    // The owner reads the sentence of the screen and the panel links "Business": ElevenLabs received nothing, so
+    // nothing of this answer may say that the provider failed (decision 7).
+    return json({ status: "incomplete", reason: BUSINESS_UNNAMED }, 409);
   }
 
-  return json({ status: "unavailable", error: outcome.message }, 503);
+  if (outcome.status === "unconfigured") {
+    // The diagnostic of whoever installs, once per process: the owner reads the code and the sentence of the screen,
+    // and whoever installs reads the names in the log of the server and on the page "For the installer".
+    writeOnce(
+      `the voice agent is not configured: the environment of the server is missing ${outcome.missing.join(", ")}`,
+    );
+
+    return json({ status: "unconfigured", reason: VOICE_NOT_CONFIGURED }, 503);
+  }
+
+  return json({ status: "unavailable", reason: VOICE_PROVIDER_FAILED }, 503);
 }
