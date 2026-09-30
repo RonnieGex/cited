@@ -17,9 +17,11 @@ whose key could no longer be opened answered `keyState: "unreadable"` and `chatP
 `setupChecklist()` still said `verified`, because the branch of the panel only asked whether `tested_at` existed.
 
 - `lib/admin/setup-checklist.ts`: step 1 is verified only when `chatProblem()` returns nothing for the resolved
-  provider, and a provider of the panel also passed its last test. A provider that cannot answer needs attention as
-  soon as the owner did something about it — the server set it, or the panel saved and tested it — and stays in
-  progress while the owner is in the middle of the step, which is what a row without a test is.
+  provider, and a provider of the panel also passed its last test. A provider that cannot answer — the server without
+  its key, the key of the panel that can no longer be read, a row of the panel without a key — needs attention, whether
+  or not a test was stored; the step stays in progress only while the provider can answer and its last test is still
+  missing. The strict reading of the decision landed after this report, in `7ddce38` (red) and `af14a9b` (green), and
+  section 4 of `reports/2026-09-30-step-11-2-checks.md` carries it.
 - `lib/i18n/admin.ts`: `stepKeyBody` and `stepKeyAction` in both languages. The sentence is the one of the decision:
   "The saved key can no longer be read. Connect your AI again." / "La llave guardada ya no se puede leer. Conecta tu IA
   otra vez."
@@ -28,9 +30,9 @@ whose key could no longer be opened answered `keyState: "unreadable"` and `chatP
 - `app/admin/page.tsx`: the notice reads which one it is from the state of the panel it already had (`provider.chat`).
 
 The cases: `tests/setup-checklist.test.ts` — a provider sealed with one encryption key and resolved with another is
-`attention` with a test and `progress` without one, and the existing case of the verified step now seals its key with
-the key of the environment; `tests/setup-ui.test.tsx` — the notice of the panel in both languages, its button and the
-absence of the installer link.
+`attention` with a test and also without one, and the existing case of the verified step now seals its key with the key
+of the environment; `tests/setup-ui.test.tsx` — the notice of the panel in both languages, its button and the absence
+of the installer link.
 
 ## Decision 21 · A ZIP is not a DOCX
 
