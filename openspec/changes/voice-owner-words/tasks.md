@@ -57,3 +57,21 @@ commit. No network call to a real provider. No personal path in a tracked file.
 - [x] 9.1 `docs/voice.md` (the codes, and where the installer reads the names) and the delivery
       `katalis-dev/tasks/entrega-community-15.md` in Spanish with `## Issues` — report:
       `reports/2026-09-29-step-9-docs.md`
+
+## 10. Amendment after the review of Codex (`katalis-dev/tasks/revision-community-15.md`, design decisions 6 to 10)
+
+- [ ] 10.1 `tests/readme.test.ts` back to its text at `2f9a75b`; the whole suite green with the `MODIFIED` delta of
+      `voice-agent` (decision 6) — report: `reports/2026-09-29-step-10-1-readme-guard.md`
+- [ ] 10.2 Red, then green: a route test of `POST /api/admin/voice` for `business_unnamed` (409, no request to the
+      double of ElevenLabs) and a component test of `VoiceAgent.tsx` in English and Spanish with the link to "Business"
+      (decision 7) — report: `reports/2026-09-29-step-10-2-business-unnamed.md`
+- [ ] 10.3 The `EPERM` of `tests/voice-minute-cap.test.ts` and of any test with the same pattern (decision 9); `npm test`
+      twice in a row on Windows with Node 24.15 or newer, and once in a `node:24` Linux container — report:
+      `reports/2026-09-29-step-10-3-windows-stability.md`
+- [ ] 10.4 The checks of 5.1, the curl of 6.1 plus the business without a name, `CI=1 npm run test:e2e`, and
+      `openspec archive` simulated in a disposable clone: the resulting `openspec/specs/voice-agent/spec.md` has no
+      sentence that orders naming a variable (`grep -n "naming" ` shows none) — report:
+      `reports/2026-09-29-step-10-4-checks.md`
+- [ ] 10.5 `docs/voice.md` with the code `business_unnamed`, and the delivery `katalis-dev/tasks/entrega-community-15.md`
+      corrected (the two classes of the link, decision 10) with its `## Issues` — report:
+      `reports/2026-09-29-step-10-5-docs.md`

@@ -26,3 +26,10 @@ SHALL point to the page "For the installer", the only place where the variable m
 - **THEN** `POST /api/admin/voice` answers `503` with the code `voice_not_configured` and no variable name, the screen
   says in the owner's words that the installer turns voice on and links "For the installer", and the names reach only
   the server log
+
+#### Scenario: A business without a name
+
+- **WHEN** the owner presses the button of the voice screen, voice is set up, and the business has no name yet
+- **THEN** `POST /api/admin/voice` answers `409` with the code `business_unnamed`, no request reaches ElevenLabs, and the
+  screen says in the owner's words to give the business a name first and links the page "Business", never that
+  ElevenLabs failed
