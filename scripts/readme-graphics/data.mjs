@@ -55,6 +55,11 @@ export const statusRows = [
     reference: "openspec/specs/admin-panel/spec.md",
   },
   {
+    capability: "The guided setup: from zero to a published answer in four steps",
+    state: "Available",
+    reference: "openspec/specs/owner-setup/spec.md",
+  },
+  {
     capability: "Public chat of the business, with the widget any site can embed",
     state: "Available",
     reference: "openspec/specs/public-chat/spec.md",
