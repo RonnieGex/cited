@@ -29,7 +29,6 @@ export type ProviderConnectProps = {
   links?: Record<string, { href: string; paid: boolean }>;
   /** The hosted offer of `HOSTED_OFFER_URL`, under the list, or an empty string. */
   offer?: string;
-  affiliate?: boolean;
   keyword?: boolean;
   initialProvider?: string | null;
 };
@@ -48,7 +47,6 @@ export function ProviderConnect({
   encryptionReady,
   links = {},
   offer = "",
-  affiliate = true,
   keyword = false,
   initialProvider = null,
 }: ProviderConnectProps) {

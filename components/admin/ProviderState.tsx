@@ -60,7 +60,6 @@ export function ProviderState({
         <>
           <p className="text-sm font-semibold text-ink">{strings.notConnected}</p>
           <ProviderConnect
-            affiliate={affiliate}
             encryptionReady={encryptionReady}
             entries={entries}
             initialProvider={view.provider}
