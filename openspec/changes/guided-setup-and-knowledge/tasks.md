@@ -89,7 +89,7 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 11. Second amendment (`katalis-dev/tasks/revision-community-13b.md`, design decisions 20 to 22)
 
-- [ ] 11.1 Red, then green: step 1 with an unreadable panel key is "needs attention" in both languages (decision 20); a
+- [x] 11.1 Red, then green: step 1 with an unreadable panel key is "needs attention" in both languages (decision 20); a
       ZIP renamed `.docx` is "type not supported" (decision 21); the E2E leaves `git status` clean in its clone (decision
       22) — report: `reports/2026-09-30-step-11-1-amendment.md`
 - [ ] 11.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
