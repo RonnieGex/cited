@@ -21,8 +21,40 @@ export type IngestedDocument = {
   passages: number;
 };
 
+/**
+ * One file of a multipart form, before anything is read from it. Decision 15: the size limit is checked on the size the
+ * browser sent, so the bytes of a file that crosses it are never read into memory, and the name is reduced to its base
+ * name before it is stored or shown. A file that crossed the limit carries the sentence the panel classifies, exactly
+ * like the failure of the ingestion.
+ */
+export type UploadField =
+  | { name: string; bytes: Uint8Array; failure: null }
+  | { name: string; bytes: null; failure: string };
+
+export async function readUploadField(entry: {
+  name: string;
+  size: number;
+  arrayBuffer: () => Promise<ArrayBuffer>;
+}): Promise<UploadField> {
+  const name = safeName(entry.name);
+
+  if (entry.size > MAX_FILE_BYTES) {
+    return {
+      name,
+      bytes: null,
+      failure: `${name} crosses the size limit: ${entry.size} bytes is above the maximum of ${MAX_FILE_BYTES}.`,
+    };
+  }
+
+  return { name, bytes: new Uint8Array(await entry.arrayBuffer()), failure: null };
+}
+
+// Decision 15 of the amendment to `openspec/changes/guided-setup-and-knowledge/design.md`: a name with `..`, a slash
+// or a control character never reaches the store or the panel, and the base name is what is kept. A backslash is a
+// separator of a Windows path, and the store of a container is not Windows: both are reduced the same way here.
 function safeName(name: string): string {
-  const cleaned = basename(name)
+  const cleaned = basename(name.replaceAll("\\", "/"))
+    .replaceAll(/[\u0000-\u001f\u007f]+/g, "_")
     .replaceAll(/[^\w.\- ]+/g, "_")
     .replace(/^\.+/, "")
     .slice(0, 120);
@@ -83,6 +115,68 @@ export async function ingestUpload(
   } finally {
     await rm(folder, { recursive: true, force: true });
   }
+}
+
+/**
+ * One file of an upload, as the panel of the guided setup reads it (decision 3): the name, what the ingestion wrote
+ * when it failed — with the folder of the temporary file removed, so the reason reads as a sentence of the owner and
+ * carries no path of the machine — and the passages it produced. A file whose type cannot be read fails here, alone, and
+ * the other files of the same upload keep going: this is the function that asks and never throws for a bad file.
+ */
+export async function ingestOne(
+  store: Store,
+  embeddings: EmbeddingProvider | null,
+  name: string,
+  bytes: Uint8Array,
+  signature?: string,
+): Promise<IngestReport["failed"][number] | IngestReport["ingested"][number]> {
+  let report: IngestReport;
+
+  try {
+    report = await ingestUpload(store, embeddings, name, bytes, signature);
+  } catch (error) {
+    // The size limit is refused before the temporary file exists and its message quotes the name `ingestUpload()`
+    // sanitized: the owner reads it in the panel and no path of this machine is in it.
+    return { path: safeName(name), reason: messageOf(error) };
+  }
+
+  const read = report.ingested[0];
+
+  return read ?? report.failed[0] ?? { path: safeName(name), reason: "the file has no readable text" };
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * One file of an upload as the route answers it (decision 3): the name, whether it was read, how many passages it
+ * produced and, when it failed, the sentence the ingestion wrote. The panel classifies that sentence and prints the
+ * words of the owner; the raw reason never reaches the page as a sentence.
+ */
+export type UploadedFile = {
+  name: string;
+  state: "ready" | "failed";
+  passages: number;
+  failure: string | null;
+};
+
+export function uploadedFile(
+  result: IngestReport["failed"][number] | IngestReport["ingested"][number],
+): UploadedFile {
+  return ingestedOne(result)
+    ? { name: result.name, state: "ready", passages: result.passages, failure: null }
+    : { name: result.path, state: "failed", passages: 0, failure: result.reason };
+}
+
+/**
+ * Whether the ingestion read a document or not, whichever half of the report it came in. `ingested` carries the
+ * passages; `failed` carries the reason and no passages.
+ */
+export function ingestedOne(
+  result: IngestReport["failed"][number] | IngestReport["ingested"][number],
+): result is IngestReport["ingested"][number] {
+  return "passages" in result;
 }
 
 export async function reingestDocument(

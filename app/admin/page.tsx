@@ -1,39 +1,28 @@
-import { cookies } from "next/headers";
-import { TestButton } from "@/components/admin/TestButton";
-import { Chip, Panel, SectionTitle, focusRing } from "@/components/ui";
-import { exampleText, setupGroups, type SetupGroup } from "@/lib/admin/setup";
-import { adminStrings, type AdminStrings } from "@/lib/i18n/admin";
+import { cookies, headers } from "next/headers";
+import { ProviderState } from "@/components/admin/ProviderState";
+import { AttentionNotice } from "@/components/setup/AttentionNotice";
+import { InfoPanel } from "@/components/setup/InfoPanel";
+import { SetupSteps } from "@/components/setup/SetupSteps";
+import { TryItPanel } from "@/components/setup/TryItPanel";
+import { PublishPanel } from "@/components/setup/PublishPanel";
+import { documentSummaries } from "@/lib/admin/documents";
+import { providerPanelState, panelUnknownProvider } from "@/lib/admin/provider-panel";
+import { suggestedQuestions } from "@/lib/admin/questions";
+import { setupChecklist, stepState } from "@/lib/admin/setup-checklist";
+import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
-import { SETUP_GROUPS } from "@/lib/i18n/setup-groups";
+import { affiliateLinks, chatCatalogue, embeddingsCatalogue, hostedOfferOf } from "@/lib/providers/catalog";
+import { readBusiness } from "@/lib/settings/business";
+import { sharedStore } from "@/lib/store/instance";
 import { panelMetadata } from "@/lib/admin/titles";
+import { allowedOrigins } from "@/lib/headers/csp";
 
-const row = "flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 py-2";
+// The guided setup (decisions 1 and 2): one page with the four steps, each opening in place with its state, and the
+// content of every step rendered here on the server. A first visit shows the welcome; a finished owner sees the four
+// steps verified and not the lane again.
 
-/**
- * The values of one group. A set value carries the kit chip; a missing one is plain ink-2 words in sentence case, so the two
- * never look alike and no capital badge shouts. Lime stays for a citation, a verified step and the current place.
- */
-function Settings({ group, detail, strings }: { group: SetupGroup; detail: string; strings: AdminStrings }) {
-  return (
-    <>
-      {detail.length === 0 ? null : <p className="max-w-[65ch] text-sm text-ink/80">{detail}</p>}
-      <ul>
-        {group.variables.map((variable) => (
-          <li className={row} key={variable.name}>
-            <span className="font-mono text-sm text-ink">{variable.name}</span>
-            {variable.configured ? (
-              <Chip>{strings.configured}</Chip>
-            ) : (
-              <span className="text-sm text-ink-2">{strings.missing}</span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </>
-  );
-}
+export const dynamic = "force-dynamic";
 
-// Decision 24 of `openspec/changes/brand-identity-ui/design.md`: the title of this page, in the language of the panel.
 export async function generateMetadata() {
   return panelMetadata("setup");
 }
@@ -42,50 +31,106 @@ export default async function AdminSetup() {
   const stored = await cookies();
   const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
   const strings = adminStrings(lang);
-  const groups = setupGroups(exampleText(), process.env);
-  // The words of the groups name variables of the environment (this is the page of whoever installs), so they are read here, on
-  // the server, and never travel inside `strings`, which the client components of every page of the panel receive whole.
-  const table = SETUP_GROUPS[lang];
-
+  const store = await sharedStore(process.env);
+  const checklist = await setupChecklist(store, process.env);
+  const documents = await documentSummaries(store);
+  const passages = await store.getPassages({ limit: 500 });
+  const grouped = documents.map((document) => ({
+    name: document.name,
+    passages: passages.filter((passage) => passage.name === document.name),
+  }));
+  const provider = await providerPanelState(process.env, store);
+  const business = await readBusiness();
+  const suggestions = await suggestedQuestions(store, lang);
+  const origin = await siteOrigin();
   return (
-    <div className="flex flex-col gap-8">
-      <SectionTitle level="h1">
-        {strings.setupTitle}
-      </SectionTitle>
-      <p className="max-w-[65ch] text-ink/80">{strings.setupIntro}</p>
-
-      <div className="flex flex-wrap gap-4">
-        <TestButton strings={strings} target="chat" />
-        <TestButton strings={strings} target="embeddings" />
-      </div>
-
-      {groups.map((group) => {
-        // Decision 29: the words of a group come from the table of the language of the panel, keyed by the id of the group
-        // in the template; the text of the template is only the fallback for a group that has no entry yet. The one group
-        // that stays open is the one the template marks as required, not the one whose English title says so.
-        const words = table[group.id] ?? { title: group.title, detail: group.detail };
-
-        return (
-          <Panel className="flex flex-col gap-3" data-admin="setup-group" key={group.id}>
-            <SectionTitle level="h2">{words.title}</SectionTitle>
-            {group.required ? (
-              <Settings group={group} detail={words.detail} strings={strings} />
-            ) : (
-              <details>
-                {/* A list item, so the summary keeps the disclosure triangle; 44 px tall for a thumb. */}
-                <summary className={`-mx-2 min-h-11 cursor-pointer px-2 py-3 text-sm font-semibold text-ink ${focusRing}`}>
-                  {strings.setupCount
-                    .replace("{set}", String(group.variables.filter((variable) => variable.configured).length))
-                    .replace("{total}", String(group.variables.length))}
-                </summary>
-                <div className="flex flex-col gap-3 pt-2">
-                  <Settings group={group} detail={words.detail} strings={strings} />
-                </div>
-              </details>
-            )}
-          </Panel>
-        );
-      })}
-    </div>
+    <SetupSteps checklist={checklist} lang={lang} strings={strings}>
+      {{
+        ai: (
+          <div className="flex flex-col gap-10">
+            {/* Decisions 14, 20 and 23 of the amendment: a chat provider that cannot answer shows the first step as
+                needing attention. A provider of the server sends the owner to the page of whoever installs; one saved
+                in the panel says that its key can no longer be read, or that Cited does not know the provider, and
+                reopens step 1, which is where it is connected again. Decision 24 of the fourth amendment adds the
+                reason that has no action of its own: the AI answers and the search is not chosen, so the notice carries
+                the words of the decision and the two doors of the section below are what finishes the step. */}
+            {stepState(checklist, "ai") === "attention" ? (
+              <AttentionNotice
+                source={
+                  checklist.attention === "search"
+                    ? "search"
+                    : provider.chat.source === "server"
+                      ? "server"
+                      : panelUnknownProvider(provider.chat)
+                        ? "unknown"
+                        : "panel"
+                }
+                strings={strings}
+              />
+            ) : null}
+            {/* Decision 10: the page "AI and keys" is the first step, so the two sections of that page live here: the
+                answers and the search. The second one is what lets a business whose provider has no meaning search
+                keep going with search by words, which is the door the uploads of step 2 need. */}
+            <ProviderState
+              affiliate={affiliateLinks(process.env)}
+              encryptionReady={provider.encryption}
+              entries={chatCatalogue(process.env)}
+              kind="chat"
+              lang={lang}
+              offer={hostedOfferOf(process.env)}
+              reindex={provider.reindex}
+              strings={strings}
+              view={provider.chat}
+            />
+            <ProviderState
+              affiliate={affiliateLinks(process.env)}
+              encryptionReady={provider.encryption}
+              entries={embeddingsCatalogue(process.env)}
+              kind="embeddings"
+              lang={lang}
+              offer={hostedOfferOf(process.env)}
+              reindex={provider.reindex}
+              strings={strings}
+              view={provider.embeddings}
+            />
+          </div>
+        ),
+        information: (
+          <InfoPanel
+            documents={documents}
+            sampleLoaded={checklist.documents > 0}
+            searchChosen={checklist.searchChosen}
+            strings={strings}
+          />
+        ),
+        try: (
+          <TryItPanel
+            documents={grouped}
+            lang={lang}
+            strings={strings}
+            suggestions={suggestions}
+          />
+        ),
+        publish: (
+          <PublishPanel
+            business={business}
+            published={checklist.flags.published}
+            site={origin}
+            strings={strings}
+            widgetSites={allowedOrigins(process.env["ALLOWED_ORIGINS"])}
+          />
+        ),
+      }}
+    </SetupSteps>
   );
+}
+
+// The origin of the installation, which is what the public link and the widget code carry. It is read from the request
+// headers on the server, so no environment variable has to hold it and nothing is hard-coded.
+async function siteOrigin(): Promise<string> {
+  const found = await headers();
+  const host = found.get("host") ?? "localhost:3000";
+  const forwarded = found.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? "";
+
+  return `${forwarded.length > 0 ? forwarded : "http"}://${host}`;
 }

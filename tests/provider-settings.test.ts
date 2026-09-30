@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { sealSecret } from "@/lib/secrets";
 import {
+  chatConfigured,
   chatProblem,
   embeddingsProblem,
   embeddingsSignature,
@@ -134,6 +135,37 @@ describe("resolveChat", () => {
     expect(resolution.missing).toEqual(["OPENAI_API_KEY"]);
     expect(chatProblem(resolution)).toContain("OPENAI_API_KEY");
     expect(chatProblem(resolution)).not.toContain(panelKey);
+  });
+
+  // Decision 23 of the third amendment: the resolver checks a panel row against the catalogue before it trusts it. A row
+  // that names a provider Cited does not know is not a provider: it resolves with a problem, so no model is built from
+  // it and the step that reads this resolution asks for attention (the Major M-8 of
+  // `katalis-dev/tasks/revision-community-13c.md`).
+  it("does not trust a panel row that names a provider outside the catalogue", async () => {
+    const store = await freshStore();
+
+    await withPanelChat(store, { provider: "unknown-provider" });
+
+    const resolution = await resolveChat({ environment: { ENCRYPTION_KEY: key }, store });
+
+    expect(resolution.source).toBe("panel");
+    expect(resolution.provider).toBeNull();
+    expect(chatProblem(resolution)).toContain("not one Cited knows");
+    expect(chatProblem(resolution)).not.toContain(panelKey);
+    expect(chatConfigured(resolution)).toBe(false);
+  });
+
+  // The same check guards the provider the server environment names: an unknown value is a problem of the
+  // installation that the panel shows, not an exception that leaves the page without an answer.
+  it("resolves a server provider Cited does not know with a problem instead of an exception", async () => {
+    const store = await freshStore();
+
+    const resolution = await resolveChat({ environment: { CHAT_PROVIDER: "chatgpt" }, store });
+
+    expect(resolution.source).toBe("server");
+    expect(resolution.provider).toBeNull();
+    expect(chatProblem(resolution)).toContain("not one Cited knows");
+    expect(chatConfigured(resolution)).toBe(false);
   });
 
   it("keeps the ciphertext in the row and never the key", async () => {
@@ -289,7 +321,7 @@ describe("resolveEmbeddings", () => {
 describe("the tables this change added", () => {
   it("says which ones the store has to carry, for the reader of the state", () => {
     // Task 10.6 of the contract: `scripts/store-state.ts` prints the tables of the schema, and this list is the one
-    // it reads. The three names of the end are the ones this change added to the schema.
+    // it reads. The names of the end are the ones this change and the guided setup added to the schema.
     expect(storeTables).toContain("documents");
     expect(storeTables).toContain("passages");
     expect(storeTables).toContain("passages_fts");
@@ -298,10 +330,11 @@ describe("the tables this change added", () => {
     expect(storeTables).toContain("conversations");
     expect(storeTables).toContain("login_attempts");
     expect(storeTables).toContain("business");
-    expect(storeTables.slice(-3)).toEqual([
+    expect(storeTables.slice(-4)).toEqual([
       "provider_settings",
       "provider_tests",
       "document_index",
+      "setup_flags",
     ]);
     expect(new Set(storeTables).size).toBe(storeTables.length);
   });

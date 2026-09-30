@@ -1,6 +1,6 @@
 import type { EmbeddingProviderName } from "../embeddings/types.ts";
 import { DEFAULT_EMBEDDING_DIMENSIONS, EMBEDDING_PROVIDER_NAMES } from "../embeddings/types.ts";
-import { chatModelName, type ChatEnvironment, type ChatProviderName } from "../models/types.ts";
+import { chatModelName, CHAT_PROVIDER_NAMES, type ChatEnvironment, type ChatProviderName } from "../models/types.ts";
 import { serverChatCredentials } from "../models/providers.ts";
 import { openSecret } from "../secrets/index.ts";
 import { providerEntry } from "../providers/catalog.ts";
@@ -36,6 +36,12 @@ export const DEFAULT_EMBEDDING_DIMENSIONS_BY_ID: Record<string, number> = {
 export type ChatResolution = {
   source: ProviderSource;
   provider: ChatProviderName | null;
+  /**
+   * The name a row of the panel or the environment gave and the catalogue does not know: it is a problem of the
+   * configuration and never a provider, so no model is built from it (decision 23 of the third amendment, the Major
+   * M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+   */
+  unknownProvider: string | null;
   model: string;
   key: string;
   baseUrl: string;
@@ -70,6 +76,23 @@ function none(): ChatResolution {
   return {
     source: "none",
     provider: null,
+    unknownProvider: null,
+    model: "",
+    key: "",
+    baseUrl: "",
+    keyState: "missing",
+    missing: [],
+  };
+}
+
+// A name the catalogue does not know, from a row of the panel or from the environment of the server: the resolution
+// carries no provider and `chatProblem()` says what happened. The answers path refuses what this returns, so the test
+// double never writes an answer for a configuration the panel shows as ready (decision 23 of the third amendment).
+function unknownProvider(source: ProviderSource, name: string): ChatResolution {
+  return {
+    source,
+    provider: null,
+    unknownProvider: name,
     model: "",
     key: "",
     baseUrl: "",
@@ -114,14 +137,25 @@ function transportOf(
 
 export async function resolveChat(options: ResolveOptions = {}): Promise<ChatResolution> {
   const environment = options.environment ?? process.env;
+  const declared = environment["CHAT_PROVIDER"]?.trim() ?? "";
 
-  if ((environment["CHAT_PROVIDER"]?.trim() ?? "").length > 0) {
+  if (declared.length > 0) {
+    const selected = declared.toLowerCase();
+
+    // Decision 23 of the third amendment: the same check guards the provider the server environment names. An unknown
+    // value is a problem the panel shows and the answers path refuses, not an exception that leaves the page without an
+    // answer; `selectedChatProvider()` keeps throwing for whoever builds a model straight from the environment.
+    if (CHAT_PROVIDER_NAMES.includes(selected as ChatProviderName) === false) {
+      return unknownProvider("server", selected);
+    }
+
     const server = serverChatCredentials(environment);
     const declaredModel = (environment["CHAT_MODEL"]?.trim() ?? "").length > 0;
 
     return {
       source: "server",
       provider: server.provider,
+      unknownProvider: null,
       model: declaredModel ? chatModelName(environment) : server.model,
       key: server.key,
       baseUrl: server.baseUrl,
@@ -137,8 +171,19 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
     return none();
   }
 
-  const provider = row.provider.trim() as ChatProviderName;
-  const entry = providerEntry(provider, "chat", environment);
+  const name = row.provider.trim();
+  const entry = providerEntry(name, "chat", environment);
+
+  // Decision 23 of the third amendment: a row of the panel is trusted only when the catalogue knows its provider. A row
+  // that names something else — an import, a hand-edited store, a name the catalogue dropped — resolves with a problem,
+  // so step 1 asks for attention and no model is built from it. The catalogue is what the panel offers, so `fake` is
+  // not a row the panel can hold: the deterministic double belongs to the environment of whoever installs (the Major
+  // M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+  if (entry === null) {
+    return unknownProvider("panel", name);
+  }
+
+  const provider = name as ChatProviderName;
   const local = localProvider(provider);
   const fetch = transportOf(row.baseUrl, provider, "chat", environment, options.resolve);
   const transport = fetch === undefined ? {} : { fetch };
@@ -147,6 +192,7 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
     return {
       source: "panel",
       provider,
+      unknownProvider: null,
       model: row.model?.trim() || entry?.chatModel || "",
       key: "",
       baseUrl: row.baseUrl?.trim() || entry?.baseUrl || "",
@@ -161,6 +207,7 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
   return {
     source: "panel",
     provider,
+    unknownProvider: null,
     model: row.model?.trim() || entry?.chatModel || "",
     key: opened.ok ? opened.value : "",
     baseUrl: row.baseUrl?.trim() || entry?.baseUrl || "",
@@ -294,6 +341,15 @@ export function embeddingsConfigured(resolution: EmbeddingsResolution): boolean 
 
 // The message the panel and `/api/ask` give: it names what is missing and never a value of a variable.
 export function chatProblem(resolution: ChatResolution): string | null {
+  // Decision 23 of the third amendment: the catalogue does not know the name a row or the environment gave, so there is
+  // no provider to use. The panel says it in the words of the owner and step 1 asks for attention; the answers path
+  // refuses the resolution before it builds a model (the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+  if (resolution.unknownProvider !== null) {
+    return resolution.source === "server"
+      ? `CHAT_PROVIDER names ${resolution.unknownProvider}, which is not one Cited knows: fill it with one of ${CHAT_PROVIDER_NAMES.join(", ")}`
+      : `the chat provider saved in the panel (${resolution.unknownProvider}) is not one Cited knows: connect the provider again`;
+  }
+
   if (resolution.provider === null) {
     return "the AI is not connected yet: connect your AI in the panel, or fill CHAT_PROVIDER in the environment of the server";
   }

@@ -3,6 +3,7 @@ import { extname } from "node:path";
 import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
 import type { ParsedDocument, SourceType } from "./types.ts";
+import { holdsWordDocument } from "./zip.ts";
 
 export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 export const MAX_PAGES = 500;
@@ -30,15 +31,78 @@ const binaryExtensions = [
   ".ttf",
 ];
 
-export function detectType(head: Uint8Array, name: string): SourceType | null {
-  const prefix = Buffer.from(head).toString("latin1");
+// Decision 15 of the amendment to `openspec/changes/guided-setup-and-knowledge/design.md`: a file is what its bytes
+// say. These are the signatures of the binary formats the ingestion refuses by their content, whatever the name claims:
+// a PNG renamed to `.txt` is a picture and not a text (the Major M-2 of `katalis-dev/tasks/revision-community-13.md`).
+const pdfHead = [0x25, 0x50, 0x44, 0x46, 0x2d];
+const zipHead = [0x50, 0x4b, 0x03, 0x04];
+const binaryHeads: number[][] = [
+  [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], // PNG
+  [0xff, 0xd8, 0xff], // JPEG
+  [0x47, 0x49, 0x46, 0x38], // GIF
+  pdfHead,
+  zipHead,
+  [0x50, 0x4b, 0x05, 0x06], // an empty ZIP
+  [0x50, 0x4b, 0x07, 0x08], // a spanned ZIP
+  [0x1f, 0x8b], // gzip
+  [0x42, 0x5a, 0x68], // bzip2
+  [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00], // xz
+  [0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c], // 7z
+  [0x52, 0x61, 0x72, 0x21, 0x1a, 0x07], // rar
+  [0x42, 0x4d], // BMP
+  [0x49, 0x49, 0x2a, 0x00], // TIFF, little endian
+  [0x4d, 0x4d, 0x00, 0x2a], // TIFF, big endian
+  [0x52, 0x49, 0x46, 0x46], // RIFF: WEBP, WAV, AVI
+  [0x49, 0x44, 0x33], // MP3 with its tag
+  [0x77, 0x4f, 0x46, 0x46], // wOFF
+  [0x77, 0x4f, 0x46, 0x32], // wOF2
+  [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1], // the old Office container: doc, xls, ppt
+  [0x7f, 0x45, 0x4c, 0x46], // ELF
+  [0x4d, 0x5a], // a Windows executable
+];
 
-  if (prefix.startsWith("%PDF-")) {
+function startsWith(data: Uint8Array, head: number[]): boolean {
+  return head.length <= data.length && head.every((byte, index) => data[index] === byte);
+}
+
+function binaryHead(data: Uint8Array): boolean {
+  return binaryHeads.some((head) => startsWith(data, head));
+}
+
+/**
+ * Whether the bytes are text: they decode as UTF-8, carry no NUL byte and start with no known binary signature. This is
+ * the gate of decision 15 and the reason a permitted extension never decides the type on its own.
+ */
+function textBytes(data: Uint8Array): boolean {
+  if (data.includes(0) || binaryHead(data)) {
+    return false;
+  }
+
+  try {
+    new TextDecoder("utf-8", { fatal: true }).decode(data);
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function detectType(data: Uint8Array, name: string): SourceType | null {
+  // The signature decides first, in both directions: a real PDF and a real DOCX are read even when the name lies, and
+  // a picture keeps being a picture whatever the extension says.
+  if (startsWith(data, pdfHead)) {
     return "pdf";
   }
 
-  if (prefix.startsWith("PK\u0003\u0004")) {
-    return "docx";
+  if (startsWith(data, zipHead)) {
+    // Decision 21 of the second amendment: the head `PK\x03\x04` says "a ZIP", not "a DOCX". Only the archive that
+    // holds the document of Word is read as one; any other ZIP is refused as a type, with the list of the accepted
+    // types, like every other file whose content is not one of them (the Minor m-4 of `revision-community-13b.md`).
+    return holdsWordDocument(data) ? "docx" : null;
+  }
+
+  if (textBytes(data) === false) {
+    return null;
   }
 
   const extension = extname(name).toLowerCase();
@@ -51,11 +115,10 @@ export function detectType(head: Uint8Array, name: string): SourceType | null {
     return "txt";
   }
 
-  if (binaryExtensions.includes(extension)) {
-    return null;
-  }
-
-  return prefix.includes("\u0000") ? null : "txt";
+  // Text that claims to be a picture, a compressed file or a program is still refused: the accepted types are PDF,
+  // DOCX, Markdown and plain text, and a renamed file is read as what its content is (the scenario "A renamed file" of
+  // `openspec/specs/knowledge-search/spec.md`).
+  return binaryExtensions.includes(extension) ? null : "txt";
 }
 
 function docxToMarkdown(html: string): string {
@@ -79,6 +142,12 @@ function docxToMarkdown(html: string): string {
     .trim();
 }
 
+// `pdf-parse` marks every page it extracts ("-- 1 of 1 --"). Those markers are not what the document says, and a PDF
+// with no text layer carries nothing else: with them, a scan would be ingested as one passage of a page number. They go
+// before the text leaves here, so a scanned PDF reaches the ingestion with no text at all and the panel answers the
+// sentence of the scenario "A scanned PDF" (decision 3 of `openspec/changes/guided-setup-and-knowledge/design.md`).
+const pageMarker = /^\s*--\s*\d+\s+of\s+\d+\s*--\s*$/gm;
+
 async function parsePdf(data: Uint8Array, maxPages: number, name: string): Promise<ParsedDocument> {
   const parser = new PDFParse({ data });
 
@@ -93,7 +162,7 @@ async function parsePdf(data: Uint8Array, maxPages: number, name: string): Promi
 
     const result = await parser.getText();
 
-    return { type: "pdf", text: result.text, pages: information.total };
+    return { type: "pdf", text: result.text.replace(pageMarker, ""), pages: information.total };
   } finally {
     await parser.destroy();
   }
@@ -110,7 +179,7 @@ export async function parseBuffer(
   name: string,
   maxPages: number = MAX_PAGES,
 ): Promise<ParsedDocument> {
-  const type = detectType(data.subarray(0, 8), name);
+  const type = detectType(data, name);
 
   if (type === null) {
     throw new Error(

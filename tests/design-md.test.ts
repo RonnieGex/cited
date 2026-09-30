@@ -184,15 +184,15 @@ describe("DESIGN.md, the visual system of Cited for the next screens", () => {
     }
   });
 
-  it("describes the chips of the setup page as app/admin/page.tsx renders them", () => {
+  it("describes the chips of the installer page as app/admin/settings/page.tsx renders them", () => {
     const text = read(designFile);
-    const page = read("app/admin/page.tsx");
+    const page = read("app/admin/settings/page.tsx");
     const kit = read("components/ui/Chip.tsx");
     const chips = [...page.matchAll(/<Chip\b[^>]*>/g)].map((match) => match[0]);
     const chipSection = text.slice(text.indexOf("### Chips"), text.indexOf("\n### ", text.indexOf("### Chips") + 1));
     const limeRole = /^- \*\*Lime\*\*[\s\S]*?(?=\n- \*\*|\n\n)/m.exec(text)?.[0] ?? "";
 
-    expect(chips.length, "the setup page renders its state in a Chip").toBeGreaterThan(0);
+    expect(chips.length, "the installer page renders its state in a Chip").toBeGreaterThan(0);
     expect(kit, "the kit chip is paper with an ink border at 20% and ink text").toMatch(
       /border-ink\/20[^"`]*bg-paper[^"`]*text-ink/,
     );
@@ -210,7 +210,7 @@ describe("DESIGN.md, the visual system of Cited for the next screens", () => {
 
     const missingIsChip = /<Chip\b[^>]*>\s*\{?[^<]*strings\.missing/.test(page);
 
-    expect(page, "the setup page renders the missing state").toContain("strings.missing");
+    expect(page, "the installer page renders the missing state").toContain("strings.missing");
     expect(
       /missing one is plain\s+`--ink-2` words/.test(chipSection),
       "the Chips section says a missing value is plain ink-2 words exactly when the page does not put it in a Chip",

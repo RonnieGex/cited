@@ -90,7 +90,7 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
             <thead>
               <tr>
                 <th className={head} scope="col">
-                  {strings.question}
+                  {strings.questionColumn}
                 </th>
                 <th className={head} scope="col">
                   {strings.status}

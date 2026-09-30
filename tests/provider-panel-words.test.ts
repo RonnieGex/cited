@@ -3,10 +3,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";import AdminAi from "@/app/admin/ai/page";
-import AdminBusiness from "@/app/admin/business/page";
 import AdminConversations from "@/app/admin/conversations/page";
-import AdminDocuments from "@/app/admin/documents/page";
-import AdminSetup from "@/app/admin/page";
+import AdminHome from "@/app/admin/home/page";
+import AdminInformation from "@/app/admin/information/page";
+import AdminPublish from "@/app/admin/publish/page";
+import AdminSettings from "@/app/admin/settings/page";
 import { DELETE as providersRemove, GET as providersState } from "@/app/api/admin/providers/route";
 import { POST as providersReindex } from "@/app/api/admin/providers/reindex/route";
 import { POST as providersSave } from "@/app/api/admin/providers/save/route";
@@ -54,6 +55,7 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => (langCookie === undefined ? undefined : { name, value: langCookie }),
   }),
+  headers: async () => ({ get: () => null }),
 }));
 
 beforeEach(() => {
@@ -253,16 +255,28 @@ describe("the pages of the panel", () => {
       ENCRYPTION_KEY: "",
     });
 
+    // The guided setup of `/admin` is not rendered here: its lane is a client component and this file renders on the
+    // server without a router. Its words are read from their own file, which is what the case below does.
     const rendered = await Promise.all([
       AdminAi(),
-      AdminBusiness(),
+      AdminHome(),
+      AdminInformation(),
+      AdminPublish(),
       AdminConversations(),
-      AdminDocuments(),
     ]);
 
     for (const one of rendered) {
       expect(namesIn(renderToStaticMarkup(one))).toEqual([]);
     }
+  });
+
+  it("keeps the words of the guided setup out of every variable too", () => {
+    // Decision 1: the four steps are written in the words of the owner, so the file that holds them names no variable.
+    const words = readFileSync(join(import.meta.dirname, "..", "lib", "admin", "setup-copy.ts"), "utf8");
+    const checklist = readFileSync(join(import.meta.dirname, "..", "lib", "admin", "setup-checklist.ts"), "utf8");
+
+    expect(namesIn(words)).toEqual([]);
+    expect(namesIn(checklist)).toEqual([]);
   });
 
   it("names them in For the installer, which is the page of whoever installs", async () => {
@@ -272,7 +286,7 @@ describe("the pages of the panel", () => {
       ...half,
     });
 
-    const html = renderToStaticMarkup(await AdminSetup());
+    const html = renderToStaticMarkup(await AdminSettings());
 
     expect(namesIn(html)).toContain("OPENAI_API_KEY");
     expect(namesIn(html)).toContain("EMBEDDINGS_PROVIDER");

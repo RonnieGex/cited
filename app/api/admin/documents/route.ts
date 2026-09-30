@@ -1,15 +1,44 @@
-import { documentSummaries, ingestUpload } from "../../../../lib/admin/documents.ts";
+import {
+  documentSummaries,
+  ingestOne,
+  readUploadField,
+  uploadedFile,
+  type UploadField,
+  type UploadedFile,
+} from "../../../../lib/admin/documents.ts";
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
 import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
-import { sanitizeOutbound } from "../../../../lib/guards/outbound.ts";
-import { embeddingsSignature, panelEmbeddingsProblem, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
+import { panelEmbeddingsProblem, embeddingsSignature, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
 
-function messageOf(error: unknown): string {
-  return sanitizeOutbound(error instanceof Error ? error.message : "the document could not be read");
+// The route of the information lane of the guided setup: the files of one upload, one result per file. The browser may
+// send them one request at a time — that is what lets the page say, file by file, which one is uploading, reading and
+// splitting, and which one failed while the others keep going (decision 3) — and every request goes through the same
+// ingestion the command line runs.
+//
+// Decision 15 of the amendment: the size of every file is read from what the browser sent, before its bytes are read
+// into memory, and a name with a parent folder is reduced to its base name. A file that crosses the limit answers the
+// same shape as a file the ingestion refused, so the panel says it in the words of the owner.
+//
+// The answer carries `results`, one entry per file, and `documents`, the list of the panel after the upload. The
+// sentence the ingestion wrote for a failure travels as the reason of that file and the panel classifies it: it names
+// folders, limits and providers, and it is never printed as it is.
+
+async function filesOf(form: FormData): Promise<UploadField[]> {
+  const files: UploadField[] = [];
+
+  for (const entry of form.getAll("document")) {
+    if (entry === null || typeof entry === "string") {
+      continue;
+    }
+
+    files.push(await readUploadField(entry));
+  }
+
+  return files;
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -38,9 +67,9 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const form = await request.formData();
-  const file = form.get("document");
+  const files = await filesOf(form);
 
-  if (file === null || typeof file === "string") {
+  if (files.length === 0) {
     return json({ status: "invalid", error: "the form must carry a document file" }, 400);
   }
 
@@ -54,33 +83,18 @@ export async function POST(request: Request): Promise<Response> {
     return json({ status: "invalid", error: problem }, 400);
   }
 
-  let report;
+  const embeddings = embeddingsFrom(resolution);
+  const signature = embeddingsSignature(resolution);
+  const results: UploadedFile[] = [];
 
-  try {
-    report = await ingestUpload(
-      store,
-      embeddingsFrom(resolution),
-      file.name,
-      new Uint8Array(await file.arrayBuffer()),
-      embeddingsSignature(resolution),
-    );
-  } catch (error) {
-    return json({ status: "invalid", error: messageOf(error) }, 400);
+  for (const file of files) {
+    if (file.failure !== null) {
+      results.push(uploadedFile({ path: file.name, reason: file.failure }));
+      continue;
+    }
+
+    results.push(uploadedFile(await ingestOne(store, embeddings, file.name, file.bytes, signature)));
   }
 
-  if (report.ingested.length === 0) {
-    return json(
-      {
-        status: "invalid",
-        error: sanitizeOutbound(report.failed[0]?.reason ?? "the file carried no readable text"),
-      },
-      400,
-    );
-  }
-
-  return json({
-    status: "ok",
-    report,
-    documents: await documentSummaries(store),
-  });
+  return json({ status: "ok", results, documents: await documentSummaries(store) });
 }

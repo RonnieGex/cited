@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AdminLayout from "@/app/admin/layout";
-import AdminSetup from "@/app/admin/page";
+import AdminSettings from "@/app/admin/settings/page";
 import { ConversationsPanel } from "@/components/admin/ConversationsPanel";
 import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
 import { TestButton } from "@/components/admin/TestButton";
@@ -28,14 +28,30 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => (name === "cited-lang" && langCookie !== undefined ? { name, value: langCookie } : undefined),
   }),
+  headers: async () => ({ get: () => null }),
 }));
 
 vi.mock("@/lib/admin/guard", () => ({
   guardSession: () => guarded,
 }));
 
+// The guided setup reads the state of its four steps from the store (decision 2 of
+// `openspec/changes/guided-setup-and-knowledge/design.md`): a fresh store is an installation where nothing was done yet.
 vi.mock("@/lib/store/instance", () => ({
-  sharedStore: async () => ({ readVoiceAgent: async () => null }),
+  sharedStore: async () => ({
+    readVoiceAgent: async () => null,
+    readProviderSetting: async () => null,
+    readBusiness: async () => null,
+    listSetupFlags: async () => ({}),
+    saveSetupFlag: async () => undefined,
+    countPassages: async () => 0,
+    countPassagesNeedingIndex: async () => 0,
+    listDocuments: async () => [],
+    listDocumentsNeedingIndex: async () => [],
+    getPassages: async () => [],
+    reserveProviderTest: async () => false,
+    listRecentTurns: async () => [],
+  }),
 }));
 
 vi.mock("@/lib/admin/documents", () => ({ documentSummaries: async () => [] }));
@@ -61,19 +77,33 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-// Decision 24 of `design.md`.
+// Decision 24 of `design.md`, with the sections of decision 11 of `openspec/changes/guided-setup-and-knowledge`: every
+// page of the panel has a title of its own, in the language of the panel.
 describe("every page of the panel has a title in the language of the panel (decision 24)", () => {
   const pages = [
-    { name: "the setup", load: () => import("@/app/admin/page"), en: "For the installer · Cited", es: undefined },
-    { name: "the business", load: () => import("@/app/admin/business/page"), en: "Business · Cited", es: "Negocio · Cited" },
-    { name: "the documents", load: () => import("@/app/admin/documents/page"), en: "Documents · Cited", es: "Documentos · Cited" },
+    { name: "the guided setup", load: () => import("@/app/admin/page"), en: english.pageTitle.setup, es: spanish.pageTitle.setup },
+    { name: "the home", load: () => import("@/app/admin/home/page"), en: english.pageTitle.home, es: spanish.pageTitle.home },
+    {
+      name: "the information",
+      load: () => import("@/app/admin/information/page"),
+      en: english.pageTitle.information,
+      es: spanish.pageTitle.information,
+    },
+    { name: "try it", load: () => import("@/app/admin/try/page"), en: english.pageTitle.try, es: spanish.pageTitle.try },
+    {
+      name: "look and publish",
+      load: () => import("@/app/admin/publish/page"),
+      en: english.pageTitle.publish,
+      es: spanish.pageTitle.publish,
+    },
+    { name: "Settings", load: () => import("@/app/admin/settings/page"), en: english.pageTitle.settings, es: spanish.pageTitle.settings },
     {
       name: "the conversations",
       load: () => import("@/app/admin/conversations/page"),
-      en: "Conversations · Cited",
-      es: "Conversaciones · Cited",
+      en: english.pageTitle.conversations,
+      es: spanish.pageTitle.conversations,
     },
-    { name: "AI and keys", load: () => import("@/app/admin/ai/page"), en: "AI and keys · Cited", es: "IA y llaves · Cited" },
+    { name: "AI and keys", load: () => import("@/app/admin/ai/page"), en: english.pageTitle.ai, es: spanish.pageTitle.ai },
   ] as const;
 
   async function titleOf(load: () => Promise<unknown>): Promise<unknown> {
@@ -89,7 +119,7 @@ describe("every page of the panel has a title in the language of the panel (deci
       expect(await titleOf(page.load)).toBe(page.en);
 
       langCookie = "es";
-      expect(await titleOf(page.load)).toBe(page.es ?? `${spanish.navSetup} · Cited`);
+      expect(await titleOf(page.load)).toBe(page.es);
     });
   }
 
@@ -283,7 +313,9 @@ describe("the Spanish panel is whole (decision 29)", () => {
   it("prints no title and no detail of the English template on the Spanish Setup, and keeps only the required group open", async () => {
     langCookie = "es";
     vi.stubEnv("CHAT_PROVIDER", "fake");
-    render(await AdminSetup());
+    // The words of the template and the groups live on "For the installer" since decision 11 of
+    // `guided-setup-and-knowledge`, which is the page of whoever installs under Settings.
+    render(await AdminSettings());
     vi.unstubAllEnvs();
 
     const groups = [...document.querySelectorAll<HTMLElement>('[data-admin="setup-group"]')];

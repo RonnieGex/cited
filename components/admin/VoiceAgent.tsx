@@ -35,8 +35,8 @@ type Outcome =
 
 export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentStatus }) {
   const words = voiceStrings(lang);
-  const installer = adminStrings(lang).navSetup;
-  const business = adminStrings(lang).navBusiness;
+  const installer = adminStrings(lang).navSettings;
+  const business = adminStrings(lang).navPublish;
   const [agentId, setAgentId] = useState(status.agentId);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>({ kind: "idle" });
@@ -102,7 +102,7 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
           <Marker tone="coral" glyph="!" />
           <p data-testid="voice-agent-error">
             {words.voiceNotConfigured}{" "}
-            <Link className="underline underline-offset-2" href="/admin">
+            <Link className="underline underline-offset-2" href="/admin/settings">
               {installer}
             </Link>
           </p>
@@ -114,7 +114,7 @@ export function VoiceAgent({ lang, status }: { lang: Lang; status: VoiceAgentSta
           <Marker tone="coral" glyph="!" />
           <p data-testid="voice-agent-error">
             {words.voiceBusinessUnnamed}{" "}
-            <Link className="underline underline-offset-2" href="/admin/business">
+            <Link className="underline underline-offset-2" href="/admin/publish">
               {business}
             </Link>
           </p>

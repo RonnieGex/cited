@@ -3,11 +3,11 @@ import { act, type ReactNode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import AdminBusiness from "@/app/admin/business/page";
 import AdminConversations from "@/app/admin/conversations/page";
-import AdminDocuments from "@/app/admin/documents/page";
+import AdminInformation from "@/app/admin/information/page";
 import AdminLayout from "@/app/admin/layout";
 import AdminSetup from "@/app/admin/page";
+import AdminSettings from "@/app/admin/settings/page";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { ConversationsPanel } from "@/components/admin/ConversationsPanel";
 import { DocumentsPanel } from "@/components/admin/DocumentsPanel";
@@ -18,26 +18,46 @@ import { adminStrings, formatWhen } from "@/lib/i18n/admin";
 // the tagline, and the unconfigured page lives in the same shell. What a browser must measure (the ink column at 1440 px,
 // the bar that scrolls sideways at 375 px, the contrast, axe) is in `e2e/admin-brand.spec.ts`; this file reads the markup.
 
-let pathname: string | null = "/admin/documents";
+let pathname: string | null = "/admin/information";
 let langCookie: string | undefined;
 let guarded: { status: string; missing?: string[] } = { status: "ok" };
 
 vi.mock("next/navigation", () => ({
   usePathname: () => pathname,
+  // The lane of the guided setup is a client component: it keeps the step in the address and asks the router for it.
+  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), prefetch: vi.fn() }),
 }));
 
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => (name === "cited-lang" && langCookie !== undefined ? { name, value: langCookie } : undefined),
   }),
+  headers: async () => ({ get: () => null }),
 }));
 
 vi.mock("@/lib/admin/guard", () => ({
   guardSession: () => guarded,
 }));
 
+// The guided setup reads the state of its four steps from the store (decision 2 of
+// `openspec/changes/guided-setup-and-knowledge/design.md`): a fresh store, which is what this stub is, is an installation
+// where nothing has been done yet, and that is the state the welcome of the first visit paints.
 vi.mock("@/lib/store/instance", () => ({
-  sharedStore: async () => ({ readVoiceAgent: async () => null }),
+  sharedStore: async () => ({
+    readVoiceAgent: async () => null,
+    readProviderSetting: async () => null,
+    readBusiness: async () => null,
+    listSetupFlags: async () => ({}),
+    saveSetupFlag: async () => undefined,
+    countPassages: async () => 0,
+    countPassagesNeedingIndex: async () => 0,
+    listDocuments: async () => [],
+    listDocumentsNeedingIndex: async () => [],
+    getPassages: async () => [],
+    reserveProviderTest: async () => false,
+    listRecentTurns: async () => [],
+  }),
 }));
 
 vi.mock("@/lib/admin/documents", () => ({
@@ -68,7 +88,7 @@ const english = adminStrings("en");
 const spanish = adminStrings("es");
 
 beforeEach(() => {
-  pathname = "/admin/documents";
+  pathname = "/admin/information";
   langCookie = undefined;
   guarded = { status: "ok" };
 });
@@ -99,27 +119,32 @@ describe("the new strings of the panel, in both languages", () => {
 });
 
 describe("the numbered navigation of the panel (decision 7)", () => {
-  it("lists the five sections in order, each with its number as a citation mark", () => {
+  it("lists the seven sections of the workspace in order, each with its number as a citation mark", () => {
     render(<AdminNav lang="en" strings={english} />);
 
     const links = within(sidebar()).getAllByRole("link").filter((link) => link.closest("nav") !== null);
 
+    // Decision 11 of `openspec/changes/guided-setup-and-knowledge/design.md`: Home, Information, Try it, Conversations,
+    // Look and publish, AI and keys, Settings.
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
-      "/admin",
-      "/admin/business",
-      "/admin/documents",
+      "/admin/home",
+      "/admin/information",
+      "/admin/try",
       "/admin/conversations",
+      "/admin/publish",
       "/admin/ai",
+      "/admin/settings",
     ]);
 
     // The same pattern as `e2e/admin-brand.spec.ts`: the number, then the name, with or without a space between them.
-    // Decision 20: "AI and keys" of `main` is the fifth section, so Documents keeps the number 3 of the scenario.
     const names = [
-      english.navSetup,
-      english.navBusiness,
-      english.navDocuments,
+      english.navHome,
+      english.navInformation,
+      english.navTry,
       english.navConversations,
+      english.navPublish,
       english.navAi,
+      english.navSettings,
     ];
 
     for (const [index, link] of links.entries()) {
@@ -137,18 +162,16 @@ describe("the numbered navigation of the panel (decision 7)", () => {
     const current = sidebar().querySelectorAll('[aria-current="page"]');
 
     expect(current).toHaveLength(1);
-    expect(current[0]).toHaveTextContent(english.navDocuments);
-    expect(current[0]?.getAttribute("href")).toBe("/admin/documents");
+    expect(current[0]).toHaveTextContent(english.navInformation);
+    expect(current[0]?.getAttribute("href")).toBe("/admin/information");
   });
 
   it("marks the setup only on /admin itself, never on the sections under it", () => {
     pathname = "/admin";
     render(<AdminNav lang="en" strings={english} />);
 
-    const current = sidebar().querySelectorAll('[aria-current="page"]');
-
-    expect(current).toHaveLength(1);
-    expect(current[0]?.getAttribute("href")).toBe("/admin");
+    // The guided setup is not one of the seven sections: on its own path no section is current (decision 11).
+    expect(sidebar().querySelectorAll('[aria-current="page"]')).toHaveLength(0);
   });
 
   it("keeps a section current while the path is below it", () => {
@@ -494,9 +517,9 @@ describe("the keyboard in the bar that scrolls sideways", () => {
     expect(scrolled).not.toHaveBeenCalled();
   });
 
-  // The list is 375 px wide with 24 px of padding; the boxes are those of Spanish at 375 px: Configuración 24 to 172, Negocio
-  // 176 to 284, Documentos 288 to 426.
-  function place(current: { left: number; right: number }): void {
+    // The list is 375 px wide with 24 px of padding; the boxes are those of Spanish at 375 px: Ajustes 24 to 172,
+   // Publicación 176 to 284, Información 288 to 426.
+   function place(current: { left: number; right: number }): void {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
       const box = this.tagName === "NAV" ? { left: 0, right: 375 } : this.getAttribute("aria-current") === "page" ? current : { left: 0, right: 0 };
 
@@ -513,7 +536,7 @@ describe("the keyboard in the bar that scrolls sideways", () => {
   });
 
   it("stays at the start when the current section already fits there", () => {
-    pathname = "/admin/business";
+    pathname = "/admin/publish";
     measure({ scrollWidth: 600, clientWidth: 375 });
     place({ left: 176, right: 284 });
     render(<AdminNav lang="es" strings={spanish} />);
@@ -535,7 +558,7 @@ describe("the keyboard in the bar that scrolls sideways", () => {
     Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, writable: true, value: scrolled });
     render(<AdminNav lang="en" strings={english} />);
 
-    const setup = within(sidebar()).getByRole("link", { name: new RegExp(english.navSetup) });
+    const setup = within(sidebar()).getByRole("link", { name: new RegExp(english.navInformation) });
 
     fireEvent.focus(setup);
 
@@ -606,7 +629,7 @@ describe("the language, the chips and the headings of the panel", () => {
 
   it("paints the Setup chips with the plain kit chip, never lime and never an important override", async () => {
     vi.stubEnv("CHAT_PROVIDER", "fake");
-    render(await AdminSetup());
+    render(await AdminSettings());
     vi.unstubAllEnvs();
 
     const chips = screen.getAllByText(new RegExp(`^(${english.configured}|${english.missing})$`));
@@ -620,7 +643,7 @@ describe("the language, the chips and the headings of the panel", () => {
   });
 
   it("titles every page of the panel once, with no eyebrow above the h1", async () => {
-    for (const page of [AdminSetup, AdminBusiness, AdminDocuments, AdminConversations]) {
+    for (const page of [AdminSetup, AdminSettings, AdminInformation, AdminConversations]) {
       const { unmount } = render(await page());
 
       expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
@@ -629,9 +652,9 @@ describe("the language, the chips and the headings of the panel", () => {
     }
   });
 
-  it("keeps the heading inside the Documents and Conversations boxes for the reader of the screen only", async () => {
+  it("keeps the heading inside the Information and Conversations boxes for the reader of the screen only", async () => {
     for (const [page, title] of [
-      [AdminDocuments, english.documentsTitle],
+      [AdminInformation, english.documentsTitle],
       [AdminConversations, english.conversationsTitle],
     ] as const) {
       const { unmount } = render(await page());
@@ -643,15 +666,16 @@ describe("the language, the chips and the headings of the panel", () => {
   });
 });
 
-// Finding of the second review of step 12 (critique, major): Set and Missing looked identical and every group lay open. Until
-// the guided setup lane replaces this page, a missing value reads as plain ink-2 words in sentence case beside the kit chip of
-// a set one (lime stays for a citation, a verified step and the current place), and only the Required group stays open: every
-// other group folds into a `details` whose summary counts what is set.
+// Finding of the second review of step 12 (critique, major): Set and Missing looked identical and every group lay open.
+// The guided setup of `guided-setup-and-knowledge` moved these words to "For the installer", the page of whoever
+// installs, which lives under Settings (decision 11): a missing value reads as plain ink-2 words in sentence case
+// beside the kit chip of a set one (lime stays for a citation, a verified step and the current place), and only the
+// Required group stays open: every other group folds into a `details` whose summary counts what is set.
 describe("the Setup page an owner can scan", () => {
   async function setup(lang?: "es") {
     vi.stubEnv("CHAT_PROVIDER", "fake");
     langCookie = lang;
-    render(await AdminSetup());
+    render(await AdminSettings());
     vi.unstubAllEnvs();
   }
 

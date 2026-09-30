@@ -1,49 +1,57 @@
 # LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: brand-identity-ui (OpenSpec)
-ROUND: section 10 of the contract, tasks 10.0 to 10.7, the amendment after three rounds of verification
-BRANCH: feature/brand-identity-ui
-BASE: c07640b (main when the change started); `main` was merged twice in this round: d71220d (`ca6b1d8`) and f495d06
-(`0dd89fd`), one merge commit each
-HEAD AT THE START OF THE ROUND: 5602ee2 ("Amend the contract of brand-identity-ui after three rounds of verification")
-HEAD AT THE END OF THE ROUND: the closing commit that carries this file and the report of 10.7; the code is the one of
-`e9d1aa9`
-AGENT: Sonnet 5.5 (implementer), contract written by Fable
-DATE: 2026-09-29
+CHANGE: guided-setup-and-knowledge (OpenSpec), section 13 only
+BRANCH: feature/guided-setup-and-knowledge
+BASE: 5929b64 (main when the change started)
+HEAD AT THE START OF THE ROUND: 4607048 ("Amend the contract of guided-setup-and-knowledge a fourth time: step 1 is
+whole, the AI and how to search")
+AGENT: DeepSeek (implementer), contract amended by Fable (decision 24)
+DATE: 2026-09-30
 
 ## Objective
 
-Execute section 10 of `openspec/changes/brand-identity-ui/tasks.md` (design decisions 20 to 33) and nothing else:
-merge `main` into the branch in one merge commit, write the red tests, fix the sixteen majors and the minors that
-decision 33 fixes in this round, repeat the checks, the curl, the E2E and the state of the base on the merged tree,
-update `DESIGN.md`, `docs/design-system.md` and the delivery in `katalis-dev/tasks/entrega-community-14.md` with the
-section "Ronda 14c". One real report per `[x]` inside `openspec/changes/brand-identity-ui/reports/`, small commits, no
-push, no archive.
+Execute section 13 of `openspec/changes/guided-setup-and-knowledge/tasks.md` and nothing else: the fourth amendment
+after the real run with DeepSeek of `katalis-dev/tasks/entrega-community-13.md` and the review
+`katalis-dev/tasks/revision-community-13d.md`, with the design decision 24. Sections 0 to 12 were already marked and
+were not touched. Tests first, red before each fix, one real report per `[x]` inside the change, small commits, gitleaks
+on every commit, no push, no remote, no archive, no commit on `main`, no edit of the text of the tasks, of `design.md`
+or of the specs.
 
 ## Progress
 
-- **10.0**: `main` merged twice (it moved from d71220d to f495d06 during the round), every conflict listed in the report.
-- **10.1**: 83 new tests written first; 77 were red for the reason they were written for.
-- **10.2**: decisions 21 to 29 and 31 and the minors of decision 33 that are one line in a file the round touches; the 54
-  minors have a decision each (the report of 10.2 and the delivery).
-- **10.3**: the checks on the merged tree, Windows twice and a `node:24` Linux container, at `4246271` and again at the tip.
-- **10.4**: the curl of the merged tree, `/admin/ai`, and a failure of `/api/ask` in Spanish with no text of the server.
-- **10.5**: `CI=1 npm run test:e2e` 70 of 70, in a clean clone (the worktree has an ignored `.env.local` that Next reads);
-  the flame loop of decision 32, the short screens of decision 23, twenty captures of record from `next start`.
-- **10.6**: the state of the store on the merged tree, read with `npm run store:state`.
-- **10.7**: `DESIGN.md`, `docs/design-system.md`, the docs and the delivery with the section "Ronda 14c".
+- **13.1**: the red cases in `b6b6a5f` (unit suite: 7 failed | 56 passed of 63) and `0297080` (the browser case, with
+  the port of decision 17 in `playwright.config.ts` and `docs/testing.md`); the fix in `1954ed3` (step 1 is whole), the
+  byte of the contract in `c3199f1` and the owner guide in `237f066`; report
+  `reports/2026-09-30-step-13-1-step-one-whole.md`.
+- **13.2**: the checks of 10.3 and the E2E of 10.4 at the code of `1954ed3`; report
+  `reports/2026-09-30-step-13-2-checks.md`. The delivery `katalis-dev/tasks/entrega-community-13.md` carries the section
+  "Ronda 13e" with the only current table of results and its `## Issues` (this closing commit).
+
+Every box of section 13 is marked with its report inside the change, and every report names the commit it validates.
 
 ## Evidence
 
-- Reports: `openspec/changes/brand-identity-ui/reports/2026-09-29-step-10-{0,1,2,3,4,5,6,7}-*.md`.
-- `npm test` 79 files and 886 tests green on Windows (twice) and 884 + 2 skipped in the Linux container; `npm run typecheck`,
-  `npx eslint .`, `npm audit --audit-level=high`, gitleaks over `main..HEAD`, `openspec validate --all --strict` (13 of 13)
-  and `git diff --check main...HEAD`: green. `CI=1 npm run test:e2e`: 70 of 70.
+- Windows, twice, at the code of `1954ed3`, with Node 24.21.0: 85 files and 1018 tests passed, 75.68 s and 76.47 s.
+- The `node:24` container over a clean clone, with its own `npm ci`: Node 24.21.0, 85 files, 1016 passed and the 2 cases
+  that only measure on Windows skipped, 135.05 s, exit 0.
+- `CI=1` browser suite over a second clean clone: 87 passed, 1.8 min, with the two walks timed by themselves (2.0 s in
+  English, 1.1 s in Spanish) and the new case "the chat set by the server" green in 2.8 s; `git status --short` empty
+  afterwards and the 14 captures of the run under `test-results/captures/`, which `.gitignore` excludes.
+- `git diff --check main...HEAD` clean, `eslint` 0 problems, `tsc --noEmit` 0 errors, `npm audit --audit-level=high`
+  0 vulnerabilities, gitleaks with no leak, `openspec validate --all --strict` 13 of 13.
+- The finding of the real run is closed: step 1 is verified only with an AI that can answer and the search chosen; with
+  the chat set by the server and no search chosen it asks for attention with the sentence of the decision and the two
+  doors, and the sample button of step 2 links back to step 1 instead of failing after the press.
 
 ## Hard rules respected
 
-- No `.env` file with secrets was opened (only the public template `.env.example`); no push, no remote, no commit on `main`,
-  no archive; the worktrees `community`, `community-ins`, `community-main` and `community-preview` were not touched.
-- No test calls a real provider; no personal path in a versioned file; UTF-8 with LF; `MEMORY.md` is in no commit.
-- The text of no task, of `design.md` or of the specs is edited: the only change in `tasks.md` is the box of each task.
+- No `.env` file with secrets was opened; no push, no remote, no commit on `main`, no archive; the worktrees
+  `community`, `community-ui`, `community-main` and `community-preview` were not touched.
+- No test called a real provider: the deterministic providers of the unit suite and the local double the browser walks
+  serve on port 3216.
+- No personal path in a versioned file (a report writes `<worktree>` or `<clean clone>`); UTF-8 with LF; `MEMORY.md` is
+  in no commit.
+- The build, the E2E and the container ran in disposable clean clones, never in the working tree, which has an ignored
+  `.env.local` that was never opened.
+- The real run with the key of DeepSeek is Fable's (decision 18): this round never looked for a key and never used one.

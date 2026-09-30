@@ -96,6 +96,7 @@ describe("the state of the store around the voice agent", () => {
       "provider_settings",
       "provider_tests",
       "rate_limits",
+      "setup_flags",
       "voice_agent",
       "voice_minutes",
     ]);

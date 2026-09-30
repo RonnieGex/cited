@@ -4,13 +4,15 @@ import { expect, test } from "@playwright/test";
 // The two scenarios of the requirement "A widget for the owner's site" of
 // `openspec/changes/public-page-and-widget/specs/public-chat/spec.md`, with the allowed test origins the task asks for:
 // the spec serves its own sites from `http://127.0.0.1:3210` and `http://127.0.0.1:3212`, the two values of
-// ALLOWED_ORIGINS in `playwright.config.ts`, and the app runs on `http://127.0.0.1:3100`. The site on 3211 is not in
-// the list. Each test of this file serves its own port: the file runs in parallel with itself.
+// ALLOWED_ORIGINS in `playwright.config.ts`, and the app runs on `http://127.0.0.1:3100`. The site on 3216 is not in
+// the list; that port is the provider double of the other suites and this project never runs at the same time as one of
+// them, because the suite keeps one worker. Each test of this file serves its own port: the file runs in parallel with
+// itself.
 
 const appOrigin = "http://127.0.0.1:3100";
 const allowedSite = "http://127.0.0.1:3210";
 const secondAllowedSite = "http://127.0.0.1:3212";
-const refusedSite = "http://127.0.0.1:3211";
+const refusedSite = "http://127.0.0.1:3216";
 
 function shop(): string {
   return `<!doctype html>
@@ -88,7 +90,7 @@ test("Escape inside the iframe closes the widget and returns the focus to its bu
 });
 
 test("a site that is not allowed cannot embed the chat", async ({ page, request }) => {
-  const server = await serve(3211);
+  const server = await serve(3216);
 
   try {
     const embed = await request.get(`${appOrigin}/embed`);
@@ -96,14 +98,14 @@ test("a site that is not allowed cannot embed the chat", async ({ page, request 
 
     console.log(`the frame-ancestors of /embed: ${policy}`);
     expect(policy).toContain("frame-ancestors 'self' http://127.0.0.1:3210");
-    expect(policy).not.toContain("3211");
+    expect(policy).not.toContain("3216");
 
     const home = await request.get(`${appOrigin}/`);
     const homePolicy = home.headers()["content-security-policy"] ?? "";
 
     expect(homePolicy).toContain("frame-ancestors 'self'");
     expect(homePolicy).not.toContain("http://127.0.0.1:3210");
-    expect(homePolicy).not.toContain("3211");
+    expect(homePolicy).not.toContain("3216");
 
     await page.goto(refusedSite);
     await page.getByRole("button", { name: "Ask us" }).click();

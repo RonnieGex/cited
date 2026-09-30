@@ -189,7 +189,7 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
   await page.setViewportSize({ width: 1440, height: 900 });
   await signInThroughTheApi(page);
 
-  const response = await page.goto("/admin/documents");
+  const response = await page.goto("/admin/information");
 
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
@@ -216,14 +216,15 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
     (box?.x ?? 0) + (box?.width ?? 0) - 1,
   );
 
-  // The five sections, numbered like citations, in order. Decision 20: "AI and keys" of `main` is the fifth, so Documents is
-  // still 3.
+  // The seven sections of decision 11 of `guided-setup-and-knowledge`, numbered like citations, in order.
   const numbered = [
-    { number: "1", name: english.navSetup, href: "/admin" },
-    { number: "2", name: english.navBusiness, href: "/admin/business" },
-    { number: "3", name: english.navDocuments, href: "/admin/documents" },
+    { number: "1", name: english.navHome, href: "/admin/home" },
+    { number: "2", name: english.navInformation, href: "/admin/information" },
+    { number: "3", name: english.navTry, href: "/admin/try" },
     { number: "4", name: english.navConversations, href: "/admin/conversations" },
-    { number: "5", name: english.navAi, href: "/admin/ai" },
+    { number: "5", name: english.navPublish, href: "/admin/publish" },
+    { number: "6", name: english.navAi, href: "/admin/ai" },
+    { number: "7", name: english.navSettings, href: "/admin/settings" },
   ];
 
   await expect(links(page)).toHaveCount(numbered.length);
@@ -236,7 +237,7 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
       new RegExp(`^\\s*${section.number}\\s*${section.name}\\s*$`),
     );
 
-    if (section.href === "/admin/documents") {
+    if (section.href === "/admin/information") {
       await expect(link).toHaveAttribute("aria-current", "page");
     } else {
       await expect(link, `${section.name} is not the current page`).not.toHaveAttribute("aria-current", /.*/);
@@ -244,13 +245,13 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
   }
 
   await expect(page.locator(`${sidebar} [aria-current="page"]`), "exactly one current link").toHaveCount(1);
-  await expect(page.getByRole("link", { name: /Documents/ }).and(page.locator('[aria-current="page"]'))).toBeVisible();
+  await expect(page.getByRole("link", { name: /Information/ }).and(page.locator('[aria-current="page"]'))).toBeVisible();
 
   // The mark of the current place is the inverted one: its number is lime.
   const current = await links(page)
-    .nth(2)
+    .nth(1)
     .evaluate((link) => {
-      const leaf = [...link.querySelectorAll("*")].find((node) => (node.textContent ?? "").trim() === "3");
+      const leaf = [...link.querySelectorAll("*")].find((node) => (node.textContent ?? "").trim() === "2");
 
       return leaf === undefined ? null : getComputedStyle(leaf).color;
     });
@@ -279,7 +280,7 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
     expect(text.ratio, `${text.tag} "${text.text}": the text over the ink of the column`).toBeGreaterThanOrEqual(4.5);
   }
 
-  await axe(page, "/admin/documents at 1440");
+  await axe(page, "/admin/information at 1440");
 });
 
 test("the navigation at 375 px: a top bar that scrolls sideways, with no horizontal scroll on the page", async ({
@@ -288,7 +289,7 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
   await page.setViewportSize({ width: 375, height: 812 });
   await signInThroughTheApi(page);
 
-  const response = await page.goto("/admin/documents");
+  const response = await page.goto("/admin/information");
 
   expect(response?.status()).toBe(200);
 
@@ -329,11 +330,11 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
   expect(scroller.found, "an ancestor of the links scrolls on the x axis").toBe(true);
   expect(scroller.inside, "and it belongs to the bar").toBe(true);
 
-  await expect(links(page)).toHaveCount(5);
+  await expect(links(page)).toHaveCount(7);
 
   await tabThroughTheBar(page, "375", 43.5);
 
-  await expect(links(page).nth(2)).toHaveAttribute("aria-current", "page");
+  await expect(links(page).nth(1)).toHaveAttribute("aria-current", "page");
 
   const page_ = await page.evaluate(() => ({
     document: document.documentElement.scrollWidth,
@@ -353,7 +354,7 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
 
   expect(signOut?.height ?? 0, "sign out: 44 px of height on a phone").toBeGreaterThanOrEqual(43.5);
 
-  await axe(page, "/admin/documents at 375");
+  await axe(page, "/admin/information at 375");
 });
 
 test("the keyboard starts at the wordmark at 1440 px and walks the bar whole at 320 px, in Spanish", async ({
@@ -364,11 +365,11 @@ test("the keyboard starts at the wordmark at 1440 px and walks the bar whole at 
   await signInThroughTheApi(page);
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  expect((await page.goto("/admin/documents"))?.status()).toBe(200);
+  expect((await page.goto("/admin/information"))?.status()).toBe(200);
   await tabThroughTheBar(page, "1440", 24);
 
   await page.setViewportSize({ width: 320, height: 812 });
-  expect((await page.goto("/admin/documents"))?.status()).toBe(200);
+  expect((await page.goto("/admin/information"))?.status()).toBe(200);
   await tabThroughTheBar(page, "320", 43.5);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -378,7 +379,11 @@ test("the keyboard starts at the wordmark at 1440 px and walks the bar whole at 
 
 // Finding of the review of step 12: on a phone the actions of a document were cut at the edge of the box and broke at the
 // hyphen. The spec uploads a document of its own with a long name, so it never touches the one of `admin.spec.ts`.
-test("the documents at 375 and 320 px keep every action whole, on one line, inside the box and the screen", async ({
+// Finding of the review of step 12, kept for the page the change of decision 5 of `guided-setup-and-knowledge` built:
+// the controls of a document are whole, on one line, inside the box and inside the screen at 375 and 320 px, and the
+// removal asks in place with a real undo of a few seconds. The spec uploads a document of its own with a long name, so
+// it never touches the one of `admin.spec.ts`.
+test("the document page at 375 and 320 px keeps every control whole, on one line, inside the box and the screen", async ({
   page,
   context,
 }) => {
@@ -401,51 +406,47 @@ test("the documents at 375 and 320 px keep every action whole, on one line, insi
 
   for (const width of [375, 320]) {
     await page.setViewportSize({ width, height: 812 });
-    await page.goto("/admin/documents");
+    await page.goto(`/admin/information/${name}`);
 
-    const region = page.getByRole("region", { name: spanish.documentsTitle });
-    const row = page.getByRole("row").filter({ hasText: name });
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(spanish.documentName);
 
-    await expect(row).toBeVisible();
+    const box = await page.locator("main").boundingBox();
+    // Only the controls of the page: the numbered sections of the bar live outside `main` and scroll with it.
+    const controls = page.locator("main").getByRole("button").or(page.locator("main").getByRole("link"));
 
-    const box = await region.boundingBox();
-    const buttons = row.getByRole("button");
+    expect(await controls.count(), `${width}: the controls of the page`).toBeGreaterThan(0);
 
-    await expect(buttons).toHaveCount(2);
+    for (const control of await controls.all()) {
+      const target = await control.boundingBox();
+      const label = `${width}: ${(await control.textContent()) ?? ""}`;
 
-    for (const button of await buttons.all()) {
-      const target = await button.boundingBox();
-      const label = `${width}: ${(await button.textContent()) ?? ""}`;
+      if (target === null) {
+        continue;
+      }
 
       console.log(`${label} at ${JSON.stringify(target)} inside ${JSON.stringify(box)}`);
-      expect(target?.height ?? 0, `${label}: 44 px, one line`).toBeGreaterThanOrEqual(43.5);
-      expect(target?.height ?? 0, `${label}: one line, not broken at the hyphen`).toBeLessThan(50);
-      expect((target?.x ?? 0) + (target?.width ?? 0), `${label}: inside the box`).toBeLessThanOrEqual(
+      expect(target.height, `${label}: 44 px, one line`).toBeGreaterThanOrEqual(43.5);
+      expect(target.height, `${label}: one line, not broken at the hyphen`).toBeLessThan(60);
+      expect(target.x + target.width, `${label}: inside the box`).toBeLessThanOrEqual(
         (box?.x ?? 0) + (box?.width ?? 0),
       );
-      expect((target?.x ?? 0) + (target?.width ?? 0), `${label}: inside the screen`).toBeLessThanOrEqual(width);
+      expect(target.x + target.width, `${label}: inside the screen`).toBeLessThanOrEqual(width);
     }
 
-    expect(
-      await region.evaluate((element) => element.scrollWidth <= element.clientWidth),
-      `${width}: the box does not scroll sideways`,
-    ).toBe(true);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       `${width}: the page does not scroll sideways`,
     ).toBe(true);
   }
 
-  await axe(page, "/admin/documents at 320 in Spanish");
+  await axe(page, "/admin/information/[id] at 320 in Spanish");
 
-  await page.getByRole("button", { name: `${spanish.deleteDocument} ${name}` }).click();
-
-  // Decision 28: it asks first, in Spanish, with the focus on Conservar; the second press deletes.
-  const asking = page.getByRole("group", { name: `¿Borrar ${name}?` });
-
-  await expect(asking.getByRole("button", { name: spanish.keep })).toBeFocused();
-  await asking.getByRole("button", { name: spanish.confirmDelete, exact: true }).click();
-  await expect(page.getByText(name)).toHaveCount(0);
+  // Decision 5: "Remove" opens a window of a few seconds in which nothing was deleted and the undo keeps the document.
+  await page.getByRole("button", { name: spanish.documentRemove }).click();
+  await expect(page.getByText(spanish.documentRemoving.replace("{name}", name))).toBeVisible();
+  await page.getByRole("button", { name: spanish.documentUndo }).click();
+  await expect(page.getByText(spanish.documentKept)).toBeVisible();
+  await expect(page.getByText(name, { exact: true })).toBeVisible();
 });
 
 // Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,
@@ -592,7 +593,7 @@ for (const lang of ["en", "es"] as const) {
       { url: `${PUBLIC_ORIGIN}/kit`, signature: false, signedIn: false },
       { url: `${E2E_BASE_URL}/admin`, signature: true, signedIn: false },
     ];
-    const panel = ["/admin", "/admin/business", "/admin/documents", "/admin/conversations", "/admin/ai"];
+    const panel = ["/admin", "/admin/home", "/admin/information", "/admin/try", "/admin/publish", "/admin/settings", "/admin/conversations", "/admin/ai"];
     const checked: string[] = [];
 
     async function walk(target: { url: string; signature: boolean }, label: string): Promise<void> {

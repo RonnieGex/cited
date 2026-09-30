@@ -15,6 +15,12 @@ import type { Lang } from "@/lib/settings/business";
 // switch and the sign-out in one row. It is one DOM at every width, so the panel keeps exactly one language switch and one
 // sign-out.
 
+// Decision 11 of `openspec/changes/guided-setup-and-knowledge/design.md`: the navigation takes the sections of the
+// workspace in this order, each numbered with its citation mark: Home, Information, Try it, Conversations, Look and
+// publish, AI and keys, Settings. "For the installer" is not one of them — it is the page of whoever installs, and it
+// sits at the foot of the column as a quiet link, which is the only place of the panel where a variable of the
+// environment is named.
+
 export type AdminNavProps = {
   lang: Lang;
   strings: AdminStrings;
@@ -22,19 +28,21 @@ export type AdminNavProps = {
 
 type Section = {
   href: string;
-  name: "navSetup" | "navBusiness" | "navDocuments" | "navConversations" | "navAi";
+  name: "navHome" | "navInformation" | "navTry" | "navConversations" | "navPublish" | "navAi" | "navSettings";
 };
 
 const SECTIONS: readonly Section[] = [
-  { href: "/admin", name: "navSetup" },
-  { href: "/admin/business", name: "navBusiness" },
-  { href: "/admin/documents", name: "navDocuments" },
+  { href: "/admin/home", name: "navHome" },
+  { href: "/admin/information", name: "navInformation" },
+  { href: "/admin/try", name: "navTry" },
   { href: "/admin/conversations", name: "navConversations" },
+  { href: "/admin/publish", name: "navPublish" },
   { href: "/admin/ai", name: "navAi" },
+  { href: "/admin/settings", name: "navSettings" },
 ];
 
-// `/admin` is the setup and the parent of every other section, so it is current only on its own path; a section is current
-// on its path and on the paths below it.
+// `/admin` is the guided setup and the parent of every other section, so it is current only on its own path and on the
+// steps of the setup; a section is current on its path and on the paths below it.
 function isCurrent(pathname: string | null, href: string): boolean {
   if (pathname === null) {
     return false;
@@ -42,7 +50,7 @@ function isCurrent(pathname: string | null, href: string): boolean {
 
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
 
-  return href === "/admin" ? path === href : path === href || path.startsWith(`${href}/`);
+  return path === href || path.startsWith(`${href}/`);
 }
 
 // The focus is the lime outline of the kit, drawn inside the link: the list scrolls sideways, and an outline outside it
@@ -121,6 +129,9 @@ export function AdminNav({ lang, strings }: AdminNavProps) {
         <div data-testid="language-switch">
           <LanguageSwitch current={lang} tone="ink" />
         </div>
+        <Link className={`${link} text-paper/80 hover:text-paper`} href="/admin/settings">
+          {strings.panelInstaller}
+        </Link>
         <SignOutButton strings={strings} />
         <BuiltByKatalis label={strings.builtBy} className="max-lg:hidden" />
       </div>

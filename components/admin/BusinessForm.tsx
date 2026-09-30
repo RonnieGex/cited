@@ -9,6 +9,8 @@ import type { Business, Lang } from "@/lib/settings/business";
 export type BusinessFormProps = {
   strings: AdminStrings;
   business: Business | null;
+  /** What the page does after a save: the live preview of Publish comes back with the new business (decision 7). */
+  onSaved?: () => void;
 };
 
 type Answer = { status?: string; error?: string; business?: Business };
@@ -16,7 +18,7 @@ type Answer = { status?: string; error?: string; business?: Business };
 const label = "text-sm font-semibold text-ink";
 const field = "flex max-w-[560px] flex-col gap-2";
 
-export function BusinessForm({ strings, business }: BusinessFormProps) {
+export function BusinessForm({ strings, business, onSaved }: BusinessFormProps) {
   const [name, setName] = useState(business?.name ?? "");
   const [color, setColor] = useState(business?.primaryColor ?? "");
   const [tone, setTone] = useState(business?.tone ?? "");
@@ -51,6 +53,7 @@ export function BusinessForm({ strings, business }: BusinessFormProps) {
     if (response.ok) {
       setStored(answer.business?.hasLogo ?? stored);
       setMessage(strings.saved);
+      onSaved?.();
     } else {
       setError(answer.error ?? strings.saveFailed);
     }
@@ -77,6 +80,7 @@ export function BusinessForm({ strings, business }: BusinessFormProps) {
     if (response.ok) {
       setStored(true);
       setMessage(strings.logoSaved);
+      onSaved?.();
     } else {
       setError(answer.error ?? strings.logoFailed);
     }

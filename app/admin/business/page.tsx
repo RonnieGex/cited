@@ -1,35 +1,9 @@
-import { cookies } from "next/headers";
-import { BusinessForm } from "@/components/admin/BusinessForm";
-import { VoiceAgent } from "@/components/admin/VoiceAgent";
-import { SectionTitle } from "@/components/ui";
-import { adminStrings } from "@/lib/i18n/admin";
-import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
-import { readBusiness } from "@/lib/settings/business";
-import { sharedStore } from "@/lib/store/instance";
-import { panelMetadata } from "@/lib/admin/titles";
+import { redirect } from "next/navigation";
 
-// Decision 24 of `openspec/changes/brand-identity-ui/design.md`: the title of this page, in the language of the panel.
-export async function generateMetadata() {
-  return panelMetadata("business");
-}
+// Decision 11: the old page "Business" is "Look and publish" now (`/admin/publish`), which is the fourth step of the
+// guided setup as a page. The address of the old page keeps working so a link somebody saved still lands where the
+// business is edited.
 
-export default async function AdminBusiness() {
-  const stored = await cookies();
-  const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
-  const strings = adminStrings(lang);
-  const agent = await (await sharedStore(process.env)).readVoiceAgent();
-
-  return (
-    <div className="flex flex-col gap-8">
-      <SectionTitle level="h1">
-        {strings.businessTitle}
-      </SectionTitle>
-      <p className="max-w-[65ch] text-ink/80">{strings.businessIntro}</p>
-      <BusinessForm business={await readBusiness()} strings={strings} />
-      <VoiceAgent
-        lang={lang}
-        status={{ agentId: agent?.agentId ?? null, updatedAt: agent?.updatedAt ?? null }}
-      />
-    </div>
-  );
+export default function AdminBusinessMoved(): never {
+  redirect("/admin/publish");
 }

@@ -47,6 +47,7 @@ Cada fila está disponible hoy o planeada, y cada fila planeada nombra el cambio
 | Respuestas con citas de cualquier proveedor de modelo, límites de gasto | Disponible | [answering](openspec/specs/answering/spec.md) |
 | Las llaves de la IA en el panel, cifradas y probadas antes de guardarlas | Disponible | [provider-settings](openspec/specs/provider-settings/spec.md) |
 | El panel: la configuración, el negocio, los documentos y las conversaciones | Disponible | [admin-panel](openspec/specs/admin-panel/spec.md) |
+| La configuración guiada: de cero a una respuesta publicada en cuatro pasos | Disponible | [owner-setup](openspec/specs/owner-setup/spec.md) |
 | Chat público del negocio, con el widget que cualquier sitio puede incrustar | Disponible | [public-chat](openspec/specs/public-chat/spec.md) |
 | Agente de voz con ElevenLabs, creado en un clic | Disponible | [voice-agent](openspec/specs/voice-agent/spec.md) |
 | Design system compartido | Siguiente | `design-system-shared` |
@@ -91,15 +92,18 @@ guardado en el panel, por eso el chat lleva su banda.
 
 <img src="docs/images/chat-page.png" alt="El chat público de Cited bajo la banda de un negocio de muestra: una pregunta respondida en español con su cita numerada, el extracto del pasaje resaltado con su documento y su encabezado, el selector English | Español y el campo de la pregunta" width="1280">
 
-**Y el dueño lo maneja desde el navegador.** El panel de `/admin` muestra qué está configurado, guarda el negocio y
-su logo, sube los documentos y lista las preguntas con los pasajes que usaron. Abre en inglés, con el selector
+**Y el dueño lo maneja desde el navegador.** El panel de `/admin` lleva al dueño de la nada a una respuesta publicada
+en cuatro pasos: conecta tu IA, agrega tu información, pruébalo, publícalo. Cada paso se abre en su lugar y se prueba
+antes del siguiente, y el panel guarda el negocio, su logo y sus documentos. Abre en inglés, con el selector
 `English | Español` en su encabezado, y lo sirve la misma aplicación que responde las preguntas.
+
+<img src="docs/images/admin/guided-welcome-1440.png" alt="La alta guiada del panel de Cited: la bienvenida del primer ingreso con una frase de valor, 4 pasos unos 5 minutos y el botón de empezar, y los cuatro pasos numerados debajo" width="1280">
 
 <picture><img src="docs/images/admin/panel.png" alt="La pantalla del negocio del panel de Cited, con el nombre, el color, el tono, el idioma, los temas prohibidos, las dos bienvenidas y el logo del negocio" width="1280"></picture>
 
-`docs/admin.md` explica las pantallas, las rutas, el store y las reglas del logo; la captura es una corrida real de
-la aplicación construida, tomada por la suite de extremo a extremo de `e2e/admin.spec.ts` con los proveedores
-deterministas.
+`docs/owner-guide.md` es el recorrido del dueño, paso a paso y en los dos idiomas, con las capturas de cada pantalla;
+`docs/admin.md` explica las pantallas, las rutas, el store y las reglas del logo. Las dos capturas son corridas reales
+de la aplicación construida, tomadas por la suite de extremo a extremo con los proveedores deterministas.
 
 ## Hoja de ruta
 
@@ -159,7 +163,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 56 ms, rss 129 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 30 ms, rss 130 MB
 ```
 
 ```
@@ -182,7 +186,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 92 MB
+8 results, 4 ms, rss 94 MB
 ```
 
 ```
@@ -194,7 +198,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 35 ms, rss 102 MB
+citations 1, 38 ms, rss 102 MB
 ```
 
 El almacén vive en `.data/katalis.sqlite`, que git ignora. `docs/search.md` explica el esquema, el troceado y el

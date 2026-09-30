@@ -1,16 +1,18 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { POST as conversationsDelete } from "@/app/api/admin/conversations/delete/route";
 import { GET as conversations } from "@/app/api/admin/conversations/route";
 import { POST as documentsDelete } from "@/app/api/admin/documents/delete/route";
 import { POST as documentsReingest } from "@/app/api/admin/documents/reingest/route";
 import { GET as documents, POST as documentsUpload } from "@/app/api/admin/documents/route";
 import { REFUSALS } from "@/lib/answer/prompt";
+import { readUploadField } from "@/lib/admin/documents";
 import { SESSION_COOKIE, sessionToken } from "@/lib/admin/session";
 import { hashIp } from "@/lib/guards/ip";
 import { dayOf, hourWindowStart } from "@/lib/guards/window";
+import { MAX_FILE_BYTES } from "@/lib/ingest";
 import { sharedStore } from "@/lib/store/instance";
 import {
   ADMIN_SECRET,
@@ -54,15 +56,19 @@ describe("the documents of the panel", () => {
 
     const uploaded = await documentsUpload(upload("cafe-la-horquilla.md", sample));
     const report = (await uploaded.json()) as {
-      report: { ingested: Array<{ name: string; passages: number }>; failed: unknown[] };
+      results: Array<{ name: string; state: string; passages: number; failure: string | null }>;
       documents: Listed["documents"];
     };
 
     expect(uploaded.status).toBe(200);
-    expect(report.report.failed).toEqual([]);
-    expect(report.report.ingested[0]?.name).toBe("cafe-la-horquilla.md");
+    // The answer of an upload is one result per file since the guided setup (decision 3): `state` says whether the
+    // file was read and `failure` carries the sentence of the ingestion, which the panel classifies.
+    expect(report.results).toHaveLength(1);
+    expect(report.results[0]?.state).toBe("ready");
+    expect(report.results[0]?.failure).toBeNull();
+    expect(report.results[0]?.name).toBe("cafe-la-horquilla.md");
 
-    const passages = report.report.ingested[0]?.passages ?? 0;
+    const passages = report.results[0]?.passages ?? 0;
 
     expect(passages).toBeGreaterThanOrEqual(1);
     expect(report.documents.find((one) => one.name === "cafe-la-horquilla.md")?.passages).toBe(
@@ -90,7 +96,7 @@ describe("the documents of the panel", () => {
     expect(await store.countIndexed()).toBe(0);
   });
 
-  it("refuses a type the ingestion does not accept and a file with no readable text", async () => {
+  it("refuses a type the ingestion does not accept and a file with no readable text, one result per file", async () => {
     await environmentOf({ ...configured(), CHAT_PROVIDER: "fake", EMBEDDINGS_PROVIDER: "fake" });
 
     const renamed = new Request("http://localhost/api/admin/documents", {
@@ -100,11 +106,18 @@ describe("the documents of the panel", () => {
     });
     const picture = await documentsUpload(renamed);
     const empty = await documentsUpload(upload("vacio.md", "   \n\n  "));
+    const pictureBody = (await picture.json()) as { results: Array<{ state: string; failure: string | null }> };
+    const emptyBody = (await empty.json()) as { results: Array<{ state: string; failure: string | null }> };
     const store = await sharedStore();
 
-    expect(picture.status).toBe(400);
-    expect(await picture.text()).not.toContain("claims to be a PNG image");
-    expect(empty.status).toBe(400);
+    // A file that cannot be read fails alone and the request still answers 200: that is what lets the other files of
+    // the same upload keep going (the scenario "A scanned PDF" of `specs/owner-setup/spec.md`).
+    expect(picture.status).toBe(200);
+    expect(pictureBody.results[0]?.state).toBe("failed");
+    expect(pictureBody.results[0]?.failure).not.toBeNull();
+    expect(JSON.stringify(pictureBody)).not.toContain("claims to be a PNG image");
+    expect(empty.status).toBe(200);
+    expect(emptyBody.results[0]?.state).toBe("failed");
     expect(await store.countDocuments()).toBe(0);
   });
 
@@ -146,8 +159,70 @@ describe("the documents of the panel", () => {
     expect(ingest).toContain("export async function ingestPaths");
     expect(panel).toContain('from "../ingest/index.ts"');
     expect(panel).toContain("ingestPaths([path]");
-    expect(route).toContain("ingestUpload");
+    // The route asks `ingestOne()`, which is the same `ingestUpload()` for one file and answers instead of throwing, so
+    // a failure is one result and the files after it keep going (decision 3).
+    expect(route).toContain("ingestOne");
+    expect(panel).toContain("ingestUpload");
     expect(route).not.toContain("chunkText(");
+  });
+});
+
+describe("the files of an upload, read the way decision 15 asks", () => {
+  it("refuses a file above the size limit by its size, before reading its bytes", async () => {
+    const read = vi.fn(async () => new ArrayBuffer(0));
+    const field = await readUploadField({ name: "grande.txt", size: MAX_FILE_BYTES + 1, arrayBuffer: read });
+
+    expect(field.name).toBe("grande.txt");
+    expect(field.bytes).toBeNull();
+    expect(field.failure).toMatch(/size limit/i);
+    expect(read, "the bytes are never read").not.toHaveBeenCalled();
+  });
+
+  it("reads the bytes of a file that fits", async () => {
+    const bytes = new TextEncoder().encode("# Notas\n\nAbrimos de martes a domingo.\n");
+    const field = await readUploadField({
+      name: "notas.md",
+      size: bytes.byteLength,
+      arrayBuffer: async () => bytes.buffer as ArrayBuffer,
+    });
+
+    expect(field.failure).toBeNull();
+    expect(field.bytes?.byteLength).toBe(bytes.byteLength);
+  });
+
+  it("reduces a name with a parent folder to its base name before it is stored or shown", async () => {
+    for (const name of ["../../notas.md", "..\\..\\notas.md", "/tmp/notas.md", ".."]) {
+      const field = await readUploadField({
+        name,
+        size: 0,
+        arrayBuffer: async () => new ArrayBuffer(0),
+      });
+
+      expect(field.name.includes("/"), name).toBe(false);
+      expect(field.name.includes("\\"), name).toBe(false);
+      expect(field.name.startsWith("."), name).toBe(false);
+    }
+  });
+
+  it("drops the control characters of a name", async () => {
+    const field = await readUploadField({
+      name: "no\u0007tas.txt",
+      size: 0,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    });
+
+    expect(field.name).not.toContain("\u0007");
+    expect(field.name.endsWith(".txt")).toBe(true);
+  });
+
+  it("is what the route asks, so the bytes of an oversized file never travel", () => {
+    const route = readFileSync(
+      join(repositoryRoot, "app", "api", "admin", "documents", "route.ts"),
+      "utf8",
+    );
+
+    expect(route).toContain("readUploadField");
+    expect(route).not.toMatch(/entry\.arrayBuffer\(\)/);
   });
 });
 

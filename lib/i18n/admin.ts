@@ -1,12 +1,100 @@
+import type { AskFailureKind } from "../chat/client.ts";
 import type { Lang } from "../settings/business.ts";
 
 export type AdminStrings = {
   panelEyebrow: string;
-  navSetup: string;
   navAi: string;
-  navBusiness: string;
-  navDocuments: string;
   navConversations: string;
+  navHome: string;
+  navInformation: string;
+  navTry: string;
+  navPublish: string;
+  navSettings: string;
+  panelInstaller: string;
+  stepTodo: string;
+  stepProgress: string;
+  stepVerified: string;
+  stepAttention: string;
+  stepAttentionBody: string;
+  stepKeyBody: string;
+  stepUnknownProviderBody: string;
+  stepSearchBody: string;
+  stepKeyAction: string;
+  setupWelcomeTitle: string;
+  setupWelcomeBody: string;
+  setupMinutes: string;
+  setupStart: string;
+  setupSkip: string;
+  setupOpen: string;
+  setupSkippedNote: string;
+  setupReopen: string;
+  setupDoneTitle: string;
+  setupDoneBody: string;
+  setupStepsTitle: string;
+  setupCountOf: string;
+  uploadDrop: string;
+  uploadOr: string;
+  uploadReady: string;
+  uploadScanTitle: string;
+  uploadScanAdvice: string;
+  uploadTooLargeTitle: string;
+  uploadTooLargeAdvice: string;
+  uploadTypeTitle: string;
+  uploadTypeAdvice: string;
+  uploadNoTextTitle: string;
+  uploadNoTextAdvice: string;
+  uploadSearchTitle: string;
+  uploadSearchAdvice: string;
+  uploadFailedTitle: string;
+  uploadFailedAdvice: string;
+  uploadWorking: string;
+  uploadReading: string;
+  uploadSplitting: string;
+  sampleTry: string;
+  sampleLoaded: string;
+  sampleUndo: string;
+  documentAdded: string;
+  documentOpen: string;
+  documentBack: string;
+  documentRemove: string;
+  /** The window of the undo of a removal: the document is still there and the owner can keep it. */
+  documentRemoving: string;
+  documentUndo: string;
+  documentKept: string;
+  documentUndone: string;
+  documentNoPassages: string;
+  noHeading: string;
+  suggestedTitle: string;
+  thisIsRight: string;
+  thisIsNotRight: string;
+  answerRightSaved: string;
+  answerWrongSaved: string;
+  tryNoDocuments: string;
+  tryRefusalAdvice: string;
+  tryAnswerTitle: string;
+  tryPassageTitle: string;
+  tryNoCitation: string;
+  previewTitle: string;
+  publishPreviewNote: string;
+  publish: string;
+  published: string;
+  publicLink: string;
+  copyLink: string;
+  copied: string;
+  openLink: string;
+  widgetTitle: string;
+  widgetSites: string;
+  widgetNoSites: string;
+  voiceTitle: string;
+  voiceBody: string;
+  homeTitle: string;
+  homeIntro: string;
+  homeMissing: string;
+  homeLatest: string;
+  homeNoConversations: string;
+  homeOpenPanel: string;
+  homeAllDone: string;
+  settingsTitle: string;
   signOut: string;
   tagline: string;
   builtBy: string;
@@ -38,6 +126,7 @@ export type AdminStrings = {
   serverExplanation: string;
   notConnected: string;
   providerLabel: string;
+  processingLabel: string;
   keyLabel: string;
   keyHint: string;
   showKey: string;
@@ -79,6 +168,7 @@ export type AdminStrings = {
   businessIntro: string;
   businessName: string;
   businessColor: string;
+  businessColorAdjusted: string;
   businessTone: string;
   businessLanguage: string;
   businessTopics: string;
@@ -111,7 +201,17 @@ export type AdminStrings = {
   noDocuments: string;
   conversationsTitle: string;
   conversationsIntro: string;
-  question: string;
+  /** The ask box of Try it: the same three words the public chat uses. */
+  question: { label: string; placeholder: string; submit: string };
+  /** The header of the column of questions of the conversations table. */
+  questionColumn: string;
+  /** The question is being looked up in the documents. */
+  loading: string;
+  sources: string;
+  /** The words of a citation mark, `{n}` for its number: a string, because this object travels to client components. */
+  citationLabel: string;
+  /** One sentence per kind of failure of a question: the panel never prints what the server wrote. */
+  errors: Record<AskFailureKind, string>;
   status: string;
   citations: string;
   when: string;
@@ -139,16 +239,112 @@ export type AdminStrings = {
     business: string;
     documents: string;
     conversations: string;
+    home: string;
+    information: string;
+    try: string;
+    publish: string;
+    settings: string;
+    privacy: string;
+    document: string;
   };
 };
 
 export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
   en: {
     panelEyebrow: "Cited panel",
-    navSetup: "For the installer",
+    navHome: "Home",
+    navInformation: "Information",
+    navTry: "Try it",
+    navPublish: "Look and publish",
+    navSettings: "Settings",
+    panelInstaller: "For the installer",
+    stepTodo: "To do",
+    stepProgress: "In progress",
+    stepVerified: "Verified",
+    stepAttention: "Needs attention",
+    stepAttentionBody:
+      "The AI is set on the server and cannot answer yet. Whoever installs Cited has to finish it.",
+    stepKeyBody: "The saved key can no longer be read. Connect your AI again.",
+    stepUnknownProviderBody: "The saved AI provider is not one Cited knows. Connect your AI again.",
+    stepSearchBody: "Your AI is connected. Choose how to search your documents: by meaning or by words.",
+    stepKeyAction: "Connect your AI again",
+    setupWelcomeTitle: "Your documents answer your customers",
+    setupWelcomeBody:
+      "Cited turns what you already wrote into answers with the passage they came from, and says when the documents do not say it. You need no server and no technical knowledge: everything happens here, in your panel.",
+    setupMinutes: "4 steps, about 5 minutes",
+    setupStart: "Start",
+    setupSkip: "Skip for now",
+    setupOpen: "Open the setup",
+    setupSkippedNote: "The setup is hidden. You can open it again whenever you want.",
+    setupReopen: "Open the setup again",
+    setupDoneTitle: "Your assistant is ready",
+    setupDoneBody: "The four steps are done. Share your link or add more documents whenever you want.",
+    setupStepsTitle: "Your setup",
+    setupCountOf: "{done} of {total} steps done",
+    uploadDrop: "Drag your files here",
+    uploadOr: "or",
+    uploadReady: "Ready, {n} passages",
+    uploadScanTitle: "This looks like a scan",
+    uploadScanAdvice: "Scanned PDFs are not supported yet. Upload a version with text, or a Word or text file.",
+    uploadTooLargeTitle: "This file is too large to read",
+    uploadTooLargeAdvice: "A file of 20 MB at most. Split it or save it as a smaller one.",
+    uploadTypeTitle: "This is not a type we can read",
+    uploadTypeAdvice: "PDF, Word, Markdown or plain text. An image or a spreadsheet is not read yet.",
+    uploadNoTextTitle: "This file has no text",
+    uploadNoTextAdvice: "Check that the file is not empty and upload it again.",
+    uploadSearchTitle: "The search is not connected yet",
+    uploadSearchAdvice: "Finish step 1, or choose search by words in AI and keys.",
+    uploadFailedTitle: "This file could not be read",
+    uploadFailedAdvice: "Try again, or upload it in another format.",
+    uploadWorking: "Uploading…",
+    uploadReading: "Reading the file…",
+    uploadSplitting: "Splitting into passages…",
+    sampleTry: "Try it with a sample business (Café La Horquilla)",
+    sampleLoaded: "{name} is loaded. You can remove its documents whenever you want.",
+    sampleUndo: "Remove the sample documents",
+    documentAdded: "Added {when}",
+    documentOpen: "Open",
+    documentBack: "All the documents",
+    documentRemove: "Remove",
+    documentRemoving: "Removing {name}. You can still keep it for a few seconds.",
+    documentUndo: "Keep it",
+    documentKept: "Kept. Nothing was removed.",
+    documentUndone: "Removed. Upload it again whenever you want.",
+    documentNoPassages: "This document has no passages yet.",
+    noHeading: "Without a heading",
+    suggestedTitle: "Ask about",
+    thisIsRight: "This answer is right",
+    thisIsNotRight: "This answer is not right",
+    answerRightSaved: "Marked as right. Step 3 is verified.",
+    answerWrongSaved: "Marked. Add or fix a document about this and try again.",
+    tryNoDocuments: "There is nothing to ask yet. Add a document in step 2.",
+    tryRefusalAdvice: "The documents do not say it. Add a document about this in step 2 and ask again.",
+    tryAnswerTitle: "The answer",
+    tryPassageTitle: "The passage it came from",
+    tryNoCitation: "Choose a citation in the answer to read the passage it came from.",
+    previewTitle: "The page as your visitors will see it",
+    publishPreviewNote: "This is the real page. It saves when you press Save.",
+    publish: "Publish",
+    published: "Your page is published.",
+    publicLink: "Your public link",
+    copyLink: "Copy",
+    copied: "Copied.",
+    openLink: "Open the page",
+    widgetTitle: "Put it on your own site",
+    widgetSites: "The sites that may show it",
+    widgetNoSites:
+      "No site is allowed yet. Whoever installs Cited adds your site's address to the allowed sites of the server.",
+    voiceTitle: "Talk to the documents",
+    voiceBody: "A voice agent that answers with the same documents. It is the third way to publish, after the page and the widget.",
+    homeTitle: "Home",
+    homeIntro: "What is missing and what your visitors asked.",
+    homeMissing: "What is missing",
+    homeLatest: "The latest questions",
+    homeNoConversations: "Nobody has asked anything yet.",
+    homeOpenPanel: "Open the panel",
+    homeAllDone: "Nothing is missing.",
+    settingsTitle: "Settings",
     navAi: "AI and keys",
-    navBusiness: "Business",
-    navDocuments: "Documents",
     navConversations: "Conversations",
     signOut: "Sign out",
     tagline: "Every answer shows where it came from.",
@@ -185,6 +381,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     serverExplanation: "Whoever installed Cited set this on the server, so it is read only here.",
     notConnected: "Not connected yet",
     providerLabel: "Provider",
+    processingLabel: "Where it processes the data",
     keyLabel: "API key",
     keyHint: "Paste the key you created in the provider's site. Cited tests it before saving it.",
     showKey: "Show",
@@ -229,6 +426,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
       "The name, the logo, the color, the tone and the words the assistant uses with the visitors.",
     businessName: "Business name",
     businessColor: "Primary color",
+    businessColorAdjusted:
+      "That color is too light or too dark to read over it, so the page uses lime instead. Pick a darker or a lighter one to see your own.",
     businessTone: "Tone",
     businessLanguage: "Language",
     businessTopics: "Forbidden topics",
@@ -262,7 +461,16 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     noDocuments: "No document yet. Upload the first one.",
     conversationsTitle: "Conversations",
     conversationsIntro: "The latest questions, whether each was answered or refused, and the numbers of the sources it cited.",
-    question: "Question",
+    question: { label: "Your question", placeholder: "Type your question", submit: "Ask" },
+    questionColumn: "Question",
+    loading: "Looking it up in your documents…",
+    sources: "Sources",
+    citationLabel: "Citation {n}",
+    errors: {
+      rate_limited: "Too many questions from here. Try again in a while.",
+      unavailable: "The assistant cannot answer right now. Try again in a moment.",
+      network: "The connection failed. Check yours and try again.",
+    },
     status: "Status",
     citations: "Citations",
     when: "When",
@@ -282,19 +490,117 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     pageTitle: {
       signIn: "Sign in · Cited",
       unconfigured: "The panel cannot start · Cited",
-      setup: "For the installer · Cited",
+      setup: "Your setup · Cited",
       ai: "AI and keys · Cited",
       business: "Business · Cited",
       documents: "Documents · Cited",
       conversations: "Conversations · Cited",
+      home: "Home · Cited",
+      information: "Information · Cited",
+      try: "Try it · Cited",
+      publish: "Look and publish · Cited",
+      settings: "Settings · Cited",
+      privacy: "Privacy · Cited",
+      document: "Document · Cited",
     },
   },
   es: {
     panelEyebrow: "Panel de Cited",
-    navSetup: "Para quien instala",
+    navHome: "Inicio",
+    navInformation: "Información",
+    navTry: "Pruébalo",
+    navPublish: "Apariencia y publicación",
+    navSettings: "Ajustes",
+    panelInstaller: "Para quien instala",
+    stepTodo: "Pendiente",
+    stepProgress: "En curso",
+    stepVerified: "Verificado",
+    stepAttention: "Necesita atención",
+    stepAttentionBody:
+      "La IA está fijada en el servidor y todavía no puede responder. Quien instala Cited tiene que terminarla.",
+    stepKeyBody: "La llave guardada ya no se puede leer. Conecta tu IA otra vez.",
+    stepUnknownProviderBody: "El proveedor de IA guardado no es uno que Cited conozca. Conecta tu IA otra vez.",
+    stepSearchBody: "Tu IA está conectada. Elige cómo buscar en tus documentos: por significado o por palabras.",
+    stepKeyAction: "Conectar tu IA otra vez",
+    setupWelcomeTitle: "Tus documentos responden a tus clientes",
+    setupWelcomeBody:
+      "Cited convierte lo que ya escribiste en respuestas con el pasaje del que salieron, y dice cuando los documentos no lo dicen. No necesitas servidor ni conocimientos técnicos: todo ocurre aquí, en tu panel.",
+    setupMinutes: "4 pasos, unos 5 minutos",
+    setupStart: "Empezar",
+    setupSkip: "Saltar por ahora",
+    setupOpen: "Abrir la alta guiada",
+    setupSkippedNote: "La alta guiada está oculta. Puedes abrirla otra vez cuando quieras.",
+    setupReopen: "Abrir la alta guiada otra vez",
+    setupDoneTitle: "Tu asistente está listo",
+    setupDoneBody: "Los cuatro pasos están hechos. Comparte tu enlace o agrega más documentos cuando quieras.",
+    setupStepsTitle: "Tu alta guiada",
+    setupCountOf: "{done} de {total} pasos hechos",
+    uploadDrop: "Arrastra tus archivos aquí",
+    uploadOr: "o",
+    uploadReady: "Listo, {n} pasajes",
+    uploadScanTitle: "Esto parece un escaneo",
+    uploadScanAdvice:
+      "Los PDF escaneados todavía no se admiten. Sube una versión con texto, o un archivo de Word o de texto.",
+    uploadTooLargeTitle: "Este archivo es demasiado grande para leerlo",
+    uploadTooLargeAdvice: "Un archivo de 20 MB como máximo. Divídelo o guárdalo más pequeño.",
+    uploadTypeTitle: "Este tipo de archivo no se puede leer",
+    uploadTypeAdvice: "PDF, Word, Markdown o texto plano. Una imagen o una hoja de cálculo todavía no se leen.",
+    uploadNoTextTitle: "Este archivo viene sin texto",
+    uploadNoTextAdvice: "Revisa que el archivo no esté vacío y súbelo otra vez.",
+    uploadSearchTitle: "La búsqueda todavía no está conectada",
+    uploadSearchAdvice: "Termina el paso 1, o elige búsqueda por palabras en IA y llaves.",
+    uploadFailedTitle: "Este archivo no se pudo leer",
+    uploadFailedAdvice: "Inténtalo otra vez, o súbelo en otro formato.",
+    uploadWorking: "Subiendo…",
+    uploadReading: "Leyendo el archivo…",
+    uploadSplitting: "Dividiendo en pasajes…",
+    sampleTry: "Pruébalo con un negocio de ejemplo (Café La Horquilla)",
+    sampleLoaded: "{name} está cargado. Puedes quitar sus documentos cuando quieras.",
+    sampleUndo: "Quitar los documentos del ejemplo",
+    documentAdded: "Agregado {when}",
+    documentOpen: "Abrir",
+    documentBack: "Todos los documentos",
+    documentRemove: "Quitar",
+    documentRemoving: "Quitando {name}. Todavía puedes conservarlo unos segundos.",
+    documentUndo: "Conservarlo",
+    documentKept: "Conservado. No se quitó nada.",
+    documentUndone: "Quitado. Súbelo otra vez cuando quieras.",
+    documentNoPassages: "Este documento todavía no tiene pasajes.",
+    noHeading: "Sin apartado",
+    suggestedTitle: "Pregunta por",
+    thisIsRight: "Esta respuesta es correcta",
+    thisIsNotRight: "Esta respuesta no es correcta",
+    answerRightSaved: "Marcada como correcta. El paso 3 queda verificado.",
+    answerWrongSaved: "Marcada. Agrega o corrige un documento sobre esto y vuelve a probar.",
+    tryNoDocuments: "Todavía no hay nada que preguntar. Agrega un documento en el paso 2.",
+    tryRefusalAdvice: "Los documentos no lo dicen. Agrega un documento sobre esto en el paso 2 y pregunta otra vez.",
+    tryAnswerTitle: "La respuesta",
+    tryPassageTitle: "El pasaje del que salió",
+    tryNoCitation: "Elige una cita en la respuesta para leer el pasaje del que salió.",
+    previewTitle: "La página tal como la verán quienes te visiten",
+    publishPreviewNote: "Esta es la página real. Se guarda cuando pulsas Guardar.",
+    publish: "Publicar",
+    published: "Tu página está publicada.",
+    publicLink: "Tu enlace público",
+    copyLink: "Copiar",
+    copied: "Copiado.",
+    openLink: "Abrir la página",
+    widgetTitle: "Ponlo en tu propia web",
+    widgetSites: "Los sitios que pueden mostrarlo",
+    widgetNoSites:
+      "Todavía no hay ningún sitio permitido. Quien instala Cited agrega la dirección de tu web a los sitios permitidos del servidor.",
+    voiceTitle: "Habla con los documentos",
+    voiceBody:
+      "Un agente de voz que responde con los mismos documentos. Es la tercera forma de publicar, después de la página y del widget.",
+    homeTitle: "Inicio",
+    homeIntro: "Lo que falta y lo que preguntaron quienes te visitan.",
+    homeMissing: "Lo que falta",
+    homeLatest: "Las últimas preguntas",
+    homeNoConversations: "Todavía no ha preguntado nadie.",
+    homeOpenPanel: "Abrir el panel",
+    homeAllDone: "No falta nada.",
+    settingsTitle: "Ajustes",
     navAi: "IA y llaves",
-    navBusiness: "Negocio",
-    navDocuments: "Documentos",
     navConversations: "Conversaciones",
     signOut: "Salir",
     tagline: "Cada respuesta enseña de dónde salió.",
@@ -331,6 +637,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     serverExplanation: "Quien instaló Cited lo fijó en el servidor, así que aquí solo se lee.",
     notConnected: "Todavía sin conectar",
     providerLabel: "Proveedor",
+    processingLabel: "Dónde trata los datos",
     keyLabel: "Llave de API",
     keyHint: "Pega la llave que creaste en la web del proveedor. Cited la prueba antes de guardarla.",
     showKey: "Mostrar",
@@ -376,6 +683,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
       "El nombre, el logo, el color, el tono y las palabras que el asistente usa con quien pregunta.",
     businessName: "Nombre del negocio",
     businessColor: "Color principal",
+    businessColorAdjusted:
+      "Ese color es demasiado claro u oscuro para leer encima, así que la página usa la lima. Elige uno más oscuro o más claro para ver el tuyo.",
     businessTone: "Tono",
     businessLanguage: "Idioma",
     businessTopics: "Temas prohibidos",
@@ -409,7 +718,16 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     noDocuments: "Todavía no hay documentos. Sube el primero.",
     conversationsTitle: "Conversaciones",
     conversationsIntro: "Las últimas preguntas, si se respondieron o se rechazaron, y los números de las fuentes que citaron.",
-    question: "Pregunta",
+    question: { label: "Tu pregunta", placeholder: "Escribe tu pregunta", submit: "Preguntar" },
+    questionColumn: "Pregunta",
+    loading: "Buscando en tus documentos…",
+    sources: "Fuentes",
+    citationLabel: "Cita {n}",
+    errors: {
+      rate_limited: "Demasiadas preguntas desde aquí. Vuelve a intentarlo en un rato.",
+      unavailable: "El asistente no puede responder ahora mismo. Inténtalo en un momento.",
+      network: "La conexión falló. Revisa la tuya y vuelve a intentarlo.",
+    },
     status: "Estado",
     citations: "Citas",
     when: "Cuándo",
@@ -429,11 +747,18 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     pageTitle: {
       signIn: "Iniciar sesión · Cited",
       unconfigured: "El panel no puede arrancar · Cited",
-      setup: "Para quien instala · Cited",
+      setup: "Tu configuración · Cited",
       ai: "IA y llaves · Cited",
       business: "Negocio · Cited",
       documents: "Documentos · Cited",
       conversations: "Conversaciones · Cited",
+      home: "Inicio · Cited",
+      information: "Información · Cited",
+      try: "Pruébalo · Cited",
+      publish: "Apariencia y publicación · Cited",
+      settings: "Ajustes · Cited",
+      privacy: "Privacidad · Cited",
+      document: "Documento · Cited",
     },
   },
 };

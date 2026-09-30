@@ -7,6 +7,20 @@ export const E2E_DATABASE_URL = ".data/e2e-admin.sqlite";
 // The second service of the panel is the one where the owner connects the AI (`e2e/providers.spec.ts`): its port, its
 // store and its encryption key live in `playwright.config.ts`, which starts it. The third one
 // (`e2e/affiliate.spec.ts`) has its own fixture here, because two specs read the same values.
+// The fourth service is the panel of the guided setup (`e2e/setup.spec.ts`): it starts with no provider at all and its
+// store is empty, because the owner of that suite goes from nothing to a published answer in front of the browser. Its
+// port and its store live in `playwright.config.ts`, which starts it; the constants are here because the spec names
+// them.
+export const E2E_SETUP_PORT = 3217;
+export const E2E_SETUP_BASE_URL = `http://127.0.0.1:${E2E_SETUP_PORT}`;
+export const E2E_SETUP_DATABASE_URL = ".data/e2e-setup.sqlite";
+
+// The fifth service is the same walk in Spanish (`e2e/setup-es.spec.ts`): its own port, its own store and its own
+// encryption key, because "from zero to an answer" in the other language needs a store no earlier suite walked.
+export const E2E_SETUP_ES_PORT = 3211;
+export const E2E_SETUP_ES_BASE_URL = `http://127.0.0.1:${E2E_SETUP_ES_PORT}`;
+export const E2E_SETUP_ES_DATABASE_URL = ".data/e2e-setup-es.sqlite";
+
 export const E2E_AFFILIATE_PORT = 3215;
 export const E2E_AFFILIATE_BASE_URL = `http://127.0.0.1:${E2E_AFFILIATE_PORT}`;
 export const E2E_AFFILIATE_DATABASE_URL = ".data/e2e-affiliate.sqlite";

@@ -20,4 +20,5 @@ export const storeTables = [
   "provider_settings",
   "provider_tests",
   "document_index",
+  "setup_flags",
 ];

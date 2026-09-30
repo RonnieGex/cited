@@ -28,6 +28,14 @@ export type ProviderView = {
   mode: string | null;
 };
 
+// Decision 23 of the third amendment: a row of the panel that names a provider the catalogue does not know resolves
+// with no provider at all and a problem, and it is the only state of the panel that has no provider — every row the
+// catalogue knows resolves with its name (the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`). The page of
+// the setup reads this to choose the words of the notice that reopens step 1.
+export function panelUnknownProvider(view: ProviderView): boolean {
+  return view.source === "panel" && view.provider === null;
+}
+
 export type ProviderPanelState = {
   chat: ProviderView;
   embeddings: ProviderView;

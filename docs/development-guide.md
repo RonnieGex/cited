@@ -35,7 +35,7 @@ is missing. Without it, a commit with a secret is not scanned.
 | `npm run lint` | ESLint over the repository |
 | `npm test` | Vitest in run mode |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright; it builds with `build:e2e` and starts it twice, the public page on port 3100 and the panel on port 3213 |
+| `npm run test:e2e` | Playwright; it builds with `build:e2e` and starts the servers of the fixed set of ports that `docs/testing.md` lists |
 | `npm run verify:no-test-sdk` | fails when the production output carries a marker of the test SDK, or when the browser output carries the real package or the `xi-api-key` header of the provider |
 | `npm run verify:test-sdk` | the same guard with the expectation of the end-to-end build, which `build:e2e` runs on its own |
 | `npm run texture:orb` | writes `public/voice/perlin-noise.png`, the texture of the Orb, byte for byte |
@@ -71,9 +71,17 @@ node scripts/render-voice-captures.mjs <the directory of the captures> [http://1
 | Port | Used by |
 |---|---|
 | 3000 | `npm run dev` and `npm start` |
-| 3100 | the app that Playwright builds and starts for the end-to-end suite |
+| 3100 | the server of the public app that the browser suite builds |
 | 3200 | the manual verification and the captures; `node scripts/render-delivery-captures.mjs` and `node scripts/render-voice-captures.mjs` read it |
-| 3213 | the panel of the end-to-end suite; 3210 and 3212 are the sites of the widget tests |
+| 3210, 3212 | the sites of the widget tests that may embed the chat |
+| 3211 | the guided setup walked in Spanish |
+| 3213 | the panel of the browser suite |
+| 3214 | the panel of the keys of the browser suite |
+| 3215 | the panel with the affiliate switch on |
+| 3216 | the deterministic provider double of the browser suite, served by one spec at a time |
+| 3217 | the guided setup walked in English |
+
+The set of the browser suite is 3100 and 3210 to 3217, and `docs/testing.md` lists it with the suites that use it.
 
 No other service of the machine is touched by this repository.
 

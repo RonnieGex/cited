@@ -7,7 +7,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { LanguageModel } from "ai";
 import { createFakeChatModel } from "./fake.ts";
 import type { ChatEnvironment, ChatProviderName } from "./types.ts";
-import { CHAT_PROVIDER_KEYS, chatModelName, selectedChatProvider } from "./types.ts";
+import { CHAT_PROVIDER_KEYS, CHAT_PROVIDER_NAMES, chatModelName, selectedChatProvider } from "./types.ts";
 
 const defaultOpenRouterUrl = "https://openrouter.ai/api/v1";
 const defaultOllamaUrl = "http://localhost:11434/v1";
@@ -114,7 +114,13 @@ export function chatModelFrom(credentials: ChatCredentials): LanguageModel {
         ...transport,
       })(model);
     default:
-      return createFakeChatModel();
+      // Decision 23 of the third amendment: the test double is built only for a provider that is literally `fake`.
+      // Every other name has to be one the catalogue knows; a row of the store or a variable of the server that names
+      // something else stops here instead of falling to the double in silence (the Major M-8 of
+      // `katalis-dev/tasks/revision-community-13c.md`).
+      throw new Error(
+        `the chat provider ${provider} is not one Cited knows: it must be one of ${CHAT_PROVIDER_NAMES.join(", ")}.`,
+      );
   }
 }
 

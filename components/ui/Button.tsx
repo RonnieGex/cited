@@ -36,11 +36,12 @@ export function Button({
   className = "",
   ...rest
 }: ButtonProps) {
-  return (
-    <button
-      {...rest}
-      type={type}
-      className={`${base} ${sizes[size]} ${variants[variant]} ${variant === "ghost" ? focusRingOnInk : focusRing} ${className}`}
-    />
-  );
+  return <button {...rest} type={type} className={`${buttonClass(variant, size)} ${className}`} />;
+}
+
+// The same classes for a control that is a link and not a button: the sample business of the guided setup is the door
+// back to step 1 while the search is not chosen (decision 24 of `guided-setup-and-knowledge`), and it has to read as the
+// button it replaces. One source for the style, no override at the point of use.
+export function buttonClass(variant: keyof typeof variants = "primary", size: keyof typeof sizes = "md"): string {
+  return `${base} ${sizes[size]} ${variants[variant]} ${variant === "ghost" ? focusRingOnInk : focusRing}`;
 }

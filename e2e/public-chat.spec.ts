@@ -486,6 +486,11 @@ test("the public page and the embed pass axe at level A and AA", async ({ page }
 
     expect(response?.status(), path).toBe(200);
 
+    // The entrance animations (`rise`) fade their opacity in: measuring in the middle of one reports the color of a
+    // half-painted element, which is not the contrast the page offers. The product respects the preference, so axe
+    // reads the page at rest (WCAG 2.3.3).
+    await page.emulateMedia({ reducedMotion: "reduce" });
+
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
@@ -496,7 +501,10 @@ test("the public page and the embed pass axe at level A and AA", async ({ page }
 
     expect(
       results.violations.map(
-        (violation) => `${path} ${violation.id} (${violation.impact}): ${violation.nodes.length} nodes`,
+        (violation) =>
+          `${path} ${violation.id} (${violation.impact}): ${violation.nodes
+            .map((node) => `${node.target.join(" ")} — ${node.failureSummary ?? ""}`)
+            .join(" | ")}`,
       ),
     ).toEqual([]);
   }

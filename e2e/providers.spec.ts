@@ -95,7 +95,9 @@ async function signIn(page: Page): Promise<void> {
   await page.goto("/admin");
   await page.getByLabel(english.passwordLabel).fill(E2E_ADMIN_PASSWORD);
   await page.getByRole("button", { name: english.signIn }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupTitle);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    new RegExp(`${english.setupWelcomeTitle}|${english.setupStepsTitle}|${english.setupDoneTitle}`),
+  );
 
   await page.goto("/admin/ai");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(english.aiTitle);
@@ -152,7 +154,7 @@ test("a rejected key is said in words and nothing is saved", async ({ page }) =>
 
   const answers = page.getByRole("region", { name: english.answersSection });
 
-  await answers.getByLabel(english.providerLabel).selectOption("openai");
+  await answers.getByRole("radio", { name: /OpenAI/ }).check();
   await answers.getByLabel(english.keyLabel).fill(badKey);
   await answers.getByRole("button", { name: english.testKey }).click();
 
@@ -175,7 +177,7 @@ test("a chat provider is connected through its double and only its last four cha
 
   const answers = page.getByRole("region", { name: english.answersSection });
 
-  await answers.getByLabel(english.providerLabel).selectOption("openai");
+  await answers.getByRole("radio", { name: /OpenAI/ }).check();
   await answers.getByLabel(english.keyLabel).fill(goodKey);
   await answers.getByRole("button", { name: english.testKey }).click();
 

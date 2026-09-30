@@ -7,7 +7,7 @@ import { createFakeEmbeddings } from "@/lib/embeddings/fake";
 import { resolveEmbeddingsProvider } from "@/lib/embeddings/providers";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestPaths, parseFile } from "@/lib/ingest";
 import { openStore, type Store } from "@/lib/store";
-import { buildDocx, buildPdf } from "./fixtures/documents";
+import { asZip64, buildDocx, buildPdf, buildZip } from "./fixtures/documents";
 
 const root = mkdtempSync(join(tmpdir(), "katalis-ingest-"));
 const stores: Store[] = [];
@@ -99,6 +99,94 @@ describe("type detection", () => {
 
   it("refuses a file whose content is not an accepted type", async () => {
     const path = document("drawing.svg", '<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  // Decision 15 of the amendment: a file is what its bytes say. A permitted extension never proves that the content is
+  // text, so the signature of a picture refuses it even when the name claims `.txt` (the Major M-2 of
+  // `revision-community-13.md`), and a text name whose bytes are not UTF-8 is refused as well.
+  it("refuses a PNG renamed to a text extension", async () => {
+    const path = document(
+      "imagen.txt",
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x01, 0x41]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("refuses a JPEG renamed to Markdown", async () => {
+    const path = document(
+      "foto.md",
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("refuses a text name whose bytes are not UTF-8 text", async () => {
+    const path = document("notas.md", Buffer.from([0xc3, 0x28, 0x00, 0x41, 0x42, 0x43]));
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("reads a PDF and a DOCX named `.txt` by their content", async () => {
+    const pdf = await parseFile(document("aviso.txt", buildPdf([["Aviso del taller"]])));
+    const docx = await parseFile(document("guia.txt", buildDocx([{ text: "Aceptamos efectivo y tarjeta." }])));
+
+    expect(pdf.type).toBe("pdf");
+    expect(pdf.text).toContain("Aviso del taller");
+    expect(docx.type).toBe("docx");
+    expect(docx.text).toContain("Aceptamos efectivo y tarjeta.");
+  });
+
+  // Decision 21 of the second amendment: a ZIP is not a DOCX. The head `PK\x03\x04` says "an archive", not "the
+  // document of Word": a ZIP is read only when its archive holds `word/document.xml`, and any other one is refused as
+  // a type, with the list of the accepted types, like every other rejected file (the Minor m-4 of
+  // `revision-community-13b.md`).
+  it("refuses a ZIP renamed `.docx` that holds no document of Word", async () => {
+    const path = document(
+      "paquete.docx",
+      buildZip([{ name: "notas.txt", content: "Abrimos de martes a domingo." }]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+    await expect(parseFile(path)).rejects.toThrowError(/PDF, DOCX, Markdown or plain text/);
+  });
+
+  it("refuses a ZIP whose entry only ends like the document of a DOCX", async () => {
+    const path = document(
+      "casi.docx",
+      buildZip([{ name: "copia/word/document.xml", content: "<w:document/>" }]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("keeps reading a real DOCX by the entry it holds", async () => {
+    const path = document("acta.docx", buildDocx([{ text: "El lunes permanecemos cerrados." }]));
+    const parsed = await parseFile(path);
+
+    expect(parsed.type).toBe("docx");
+    expect(parsed.text).toContain("El lunes permanecemos cerrados.");
+  });
+
+  it("reads a DOCX whose writer chose the ZIP64 directory", async () => {
+    const path = document(
+      "acta-zip64.docx",
+      asZip64(buildDocx([{ text: "El lunes permanecemos cerrados." }])),
+    );
+    const parsed = await parseFile(path);
+
+    expect(parsed.type).toBe("docx");
+    expect(parsed.text).toContain("El lunes permanecemos cerrados.");
+  });
+
+  it("refuses a ZIP64 archive that holds no document of Word", async () => {
+    const path = document(
+      "paquete-zip64.docx",
+      asZip64(buildZip([{ name: "notas.txt", content: "Abrimos de martes a domingo." }])),
+    );
 
     await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
   });
