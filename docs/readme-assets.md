@@ -67,11 +67,16 @@ five dark variants once came out painted white.
 |---|---|---|
 | `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited`, with its benefit headline |
 | `reason-citations-{dark,light}.png` | 400 × 300 | the second reason |
-| `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with `Next` |
-| `how-it-works-{dark,light}.png` | 1280 × 480 | the flow, with `Next` only on the voice branch |
+| `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with its benefit headline |
+| `how-it-works-{dark,light}.png` | 1280 × 480 | the flow of an answer, written and out loud |
 | `demo-{dark,light}.png` | 1280 × 560 | the real run of the quick start, with the first result in lime |
-| `roadmap-{dark,light}.png` | 1280 × 700 | the status table as a board, `Next` on the planned column |
-| `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice teaser, with `Next · ElevenLabs` |
+| `roadmap-{dark,light}.png` | 1280 × 720 | the status table as a board, `Next` on the planned column |
+| `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice: one click in the panel and ElevenLabs carries the voice |
+
+The roadmap is the only graphic whose layout is a little denser than the page of the others (`.roadmap` of the render
+script): the change `elevenlabs-voice-agent` moved the voice row from the planned column to the available one, and
+every available row of the status table has to fit inside the 720 px of decision 11 without going below the 16 px of
+the smallest text.
 | `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` with the flame of the maker to its left |
 
 One image of the README is not drawn by that script: the real capture of the public chat with an answer and its open

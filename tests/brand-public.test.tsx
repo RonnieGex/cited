@@ -22,9 +22,17 @@ const es = PUBLIC_STRINGS.es;
 
 let business: Business | null = null;
 let langCookie: string | undefined;
+let notReady = false;
 
 vi.mock("@/lib/settings/business.ts", () => ({
   readBusiness: async () => business,
+}));
+
+// Decision 20 of `design.md`: the page of `main` asks the resolver whether the assistant is ready, and the test decides the
+// answer instead of opening a store (the same mock as `tests/public-page.test.tsx`).
+vi.mock("@/lib/settings/providers.ts", () => ({
+  resolveChat: async () => ({ source: "panel", provider: "deepseek", model: "deepseek-flash" }),
+  chatProblem: () => (notReady ? "the AI is not connected yet: connect your AI in the panel" : null),
 }));
 
 vi.mock("next/headers", () => ({
@@ -50,6 +58,7 @@ const workshop: Business = {
 beforeEach(() => {
   business = null;
   langCookie = undefined;
+  notReady = false;
 });
 
 class MemoryStorage {
@@ -902,5 +911,41 @@ describe("the review of step 12", () => {
     expect(band.className).not.toContain("bg-[var(--primary)]");
     expect(band.className).toContain("py-4");
     expect(within(band).getByRole("button", { name: "English" }).className).toContain("text-lime");
+  });
+});
+
+// Decision 20 of `design.md` (task 10.0): `main` brought the voice launcher on `/` and `/embed` and the not-ready state of
+// the public page. Their behaviour wins, and both live inside the band and the column of the new look.
+describe("what main brings, inside the new look (decision 20)", () => {
+  it("keeps the voice launcher under the chat on the public page and on the embed", async () => {
+    const page = render(await Home());
+
+    expect(within(page.container).getByTestId("voice-launcher")).toBeInTheDocument();
+    expect(page.container.querySelector('[data-public="band"]')?.contains(page.getByTestId("voice-launcher"))).toBe(false);
+    page.unmount();
+
+    const embed = render(await Embed());
+
+    expect(within(embed.container).getByTestId("voice-launcher")).toBeInTheDocument();
+  });
+
+  it("says the assistant is not ready under the band, with the way to the panel and no question box", async () => {
+    notReady = true;
+    business = workshop;
+
+    const { container } = render(await Home());
+    const notice = container.querySelector('[data-cited="not-ready"]') as HTMLElement;
+
+    expect(container.querySelector('[data-public="band"]'), "the band is still there").not.toBeNull();
+    expect(notice, "the not-ready panel").not.toBeNull();
+    expect(within(notice).getByText(en.notReadyTitle)).toBeInTheDocument();
+    expect(within(notice).getByRole("link", { name: en.notReadyPanel })).toHaveAttribute("href", "/admin");
+    expect(screen.queryByLabelText(en.question.label)).toBeNull();
+  });
+
+  it("is rendered on demand, not prerendered: the answer depends on the settings of every request", async () => {
+    const source = readFileSync(resolve(repositoryRoot, "app/page.tsx"), "utf8");
+
+    expect(source).toContain('export const dynamic = "force-dynamic"');
   });
 });

@@ -5,9 +5,12 @@ import type {
   KeywordMatch,
   PassageFilter,
   PassageInput,
+  ProviderKind,
+  ProviderSettingInput,
   StoreEnvironment,
   StoredDocument,
   StoredPassage,
+  StoredProviderSetting,
   VectorMatch,
 } from "./types.ts";
 
@@ -41,6 +44,19 @@ const schemaStatements = [
     day TEXT PRIMARY KEY,
     count INTEGER NOT NULL DEFAULT 0
   )`,
+  `CREATE TABLE IF NOT EXISTS voice_minutes (
+    day TEXT PRIMARY KEY,
+    minutes INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE TABLE IF NOT EXISTS voice_agent (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    agent_id TEXT NOT NULL DEFAULT '',
+    secret_id TEXT NOT NULL DEFAULT '',
+    tool_id TEXT NOT NULL DEFAULT '',
+    sources_tool_id TEXT NOT NULL DEFAULT '',
+    language TEXT NOT NULL DEFAULT 'en',
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
   `CREATE TABLE IF NOT EXISTS conversations (
     session_id TEXT NOT NULL,
     turn INTEGER NOT NULL,
@@ -69,10 +85,37 @@ const schemaStatements = [
     welcome_es TEXT NOT NULL DEFAULT '',
     updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   )`,
+  `CREATE TABLE IF NOT EXISTS provider_settings (
+    kind TEXT PRIMARY KEY CHECK (kind IN ('chat','embeddings')),
+    provider TEXT NOT NULL,
+    model TEXT,
+    key_ciphertext TEXT,
+    key_last4 TEXT,
+    base_url TEXT,
+    mode TEXT,
+    tested_at TEXT,
+    test_latency_ms INTEGER,
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS provider_tests (
+    window_start TEXT PRIMARY KEY,
+    count INTEGER NOT NULL DEFAULT 0
+  )`,
+  `CREATE TABLE IF NOT EXISTS document_index (
+    document_id INTEGER PRIMARY KEY,
+    signature TEXT NOT NULL,
+    indexed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
 ];
 
 const searchableToken = /[\p{L}\p{N}]+/gu;
 const remoteProtocol = /^(libsql|https?|wss?|ws):/;
+
+// The tables of the schema, for whoever reads the state of a store without opening the application
+// (`scripts/store-state.ts`, task 10.6 of the contract of the keys in the panel). The list itself lives in
+// `./tables.ts`, which imports nothing: a reader of the state must be able to know the names without loading the
+// libSQL client of this module (task 11.4).
+export { storeTables } from "./tables.ts";
 
 type Row = Record<string, unknown>;
 
@@ -141,6 +184,27 @@ function toPassage(row: Row): StoredPassage {
   };
 }
 
+function toProviderSetting(row: Row): StoredProviderSetting {
+  const text = (value: unknown): string | null =>
+    value === null || value === undefined ? null : String(value);
+
+  return {
+    kind: String(row["kind"]) === "embeddings" ? "embeddings" : "chat",
+    provider: String(row["provider"]),
+    model: text(row["model"]),
+    keyCiphertext: text(row["key_ciphertext"]),
+    keyLast4: text(row["key_last4"]),
+    baseUrl: text(row["base_url"]),
+    mode: text(row["mode"]),
+    testedAt: text(row["tested_at"]),
+    testLatencyMs:
+      row["test_latency_ms"] === null || row["test_latency_ms"] === undefined
+        ? null
+        : Number(row["test_latency_ms"]),
+    updatedAt: String(row["updated_at"]),
+  };
+}
+
 export type StoredTurn = {
   sessionId: string;
   turn: number;
@@ -188,6 +252,23 @@ export type StoredLogo = {
   bytes: Uint8Array;
 };
 
+export type StoredVoiceAgent = {
+  agentId: string;
+  secretId: string;
+  toolId: string;
+  sourcesToolId: string;
+  language: string;
+  updatedAt: string;
+};
+
+export type VoiceAgentRowInput = {
+  agentId: string;
+  secretId: string;
+  toolId: string;
+  sourcesToolId: string;
+  language: string;
+};
+
 export type Store = {
   readonly path: string;
   replaceDocument(document: DocumentInput, passages: PassageInput[]): Promise<void>;
@@ -205,6 +286,11 @@ export type Store = {
   questionsInWindow(ipHash: string, windowStart: string): Promise<number>;
   reserveModelCall(day: string, limit: number): Promise<number | null>;
   modelCallsOn(day: string): Promise<number>;
+  reserveVoiceMinutes(day: string, minutes: number, limit: number): Promise<number | null>;
+  voiceMinutesOn(day: string): Promise<number>;
+  deleteVoiceMinutesBefore(day: string): Promise<number>;
+  readVoiceAgent(): Promise<StoredVoiceAgent | null>;
+  saveVoiceAgent(row: VoiceAgentRowInput): Promise<void>;
   appendTurn(turn: TurnInput): Promise<number>;
   turnsOf(sessionId: string, limit: number): Promise<StoredTurn[]>;
   deleteConversationsBefore(iso: string): Promise<number>;
@@ -218,6 +304,14 @@ export type Store = {
   saveBusiness(row: BusinessRowInput): Promise<void>;
   saveBusinessLogo(mime: string, bytes: Uint8Array): Promise<void>;
   readBusinessLogo(): Promise<StoredLogo | null>;
+  readProviderSetting(kind: ProviderKind): Promise<StoredProviderSetting | null>;
+  saveProviderSetting(row: ProviderSettingInput): Promise<void>;
+  deleteProviderSetting(kind: ProviderKind): Promise<number>;
+  reserveProviderTest(windowStart: string): Promise<number>;
+  saveIndexSignature(documentName: string, signature: string): Promise<void>;
+  countPassagesNeedingIndex(signature: string): Promise<number>;
+  listDocumentsNeedingIndex(signature: string): Promise<StoredDocument[]>;
+  countVectorized(): Promise<number>;
   listRecentTurns(limit: number): Promise<StoredTurn[]>;
   countTurns(): Promise<number>;
   deleteAllTurns(): Promise<number>;
@@ -261,6 +355,10 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
     }
 
     await transaction.execute({
+      sql: "DELETE FROM document_index WHERE document_id = ?",
+      args: [Number(previous)],
+    });
+    await transaction.execute({
       sql: "DELETE FROM passages WHERE document_id = ?",
       args: [Number(previous)],
     });
@@ -286,16 +384,24 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
         const documentId = Number(inserted.lastInsertRowid);
 
         for (const passage of passages) {
-          const stored = await transaction.execute({
-            sql: "INSERT INTO passages (document_id, position, heading, text, embedding) VALUES (?, ?, ?, ?, vector(?))",
-            args: [
-              documentId,
-              passage.position,
-              passage.heading,
-              passage.text,
-              new Uint8Array(Float32Array.from(passage.embedding).buffer),
-            ],
-          });
+          // Keyword mode stores no vector: the row keeps an empty blob and the search ranks with FTS5 alone. The
+          // `vector()` conversion needs bytes, so an empty embedding is written without it.
+          const stored =
+            passage.embedding.length === 0
+              ? await transaction.execute({
+                  sql: "INSERT INTO passages (document_id, position, heading, text, embedding) VALUES (?, ?, ?, ?, x'')",
+                  args: [documentId, passage.position, passage.heading, passage.text],
+                })
+              : await transaction.execute({
+                  sql: "INSERT INTO passages (document_id, position, heading, text, embedding) VALUES (?, ?, ?, ?, vector(?))",
+                  args: [
+                    documentId,
+                    passage.position,
+                    passage.heading,
+                    passage.text,
+                    new Uint8Array(Float32Array.from(passage.embedding).buffer),
+                  ],
+                });
 
           await transaction.execute({
             sql: "INSERT INTO passages_fts (rowid, text) VALUES (?, ?)",
@@ -498,6 +604,75 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
       return Number(found.rows[0]?.["count"] ?? 0);
     },
 
+    async reserveVoiceMinutes(day: string, minutes: number, limit: number): Promise<number | null> {
+      // The guard has to be in the `SELECT` and not only in the `ON CONFLICT` branch: the first reservation of a day
+      // inserts instead of updating, so a limit smaller than the reservation would let the first session through and
+      // store more minutes than the day allows.
+      const counted = await client.execute({
+        sql: `INSERT INTO voice_minutes (day, minutes)
+          SELECT ?, ? WHERE ? <= ?
+          ON CONFLICT (day) DO UPDATE SET minutes = minutes + excluded.minutes WHERE minutes + excluded.minutes <= ?
+          RETURNING minutes`,
+        args: [day, minutes, minutes, limit, limit],
+      });
+      const row = counted.rows[0];
+
+      return row === undefined ? null : Number(row["minutes"]);
+    },
+
+    async voiceMinutesOn(day: string): Promise<number> {
+      const found = await client.execute({
+        sql: "SELECT minutes FROM voice_minutes WHERE day = ?",
+        args: [day],
+      });
+
+      return Number(found.rows[0]?.["minutes"] ?? 0);
+    },
+
+    async deleteVoiceMinutesBefore(day: string): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM voice_minutes WHERE day < ?",
+        args: [day],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    async readVoiceAgent(): Promise<StoredVoiceAgent | null> {
+      const found = await client.execute(
+        "SELECT agent_id, secret_id, tool_id, sources_tool_id, language, updated_at FROM voice_agent WHERE id = 1",
+      );
+      const row = found.rows[0];
+
+      if (row === undefined || String(row["agent_id"]).length === 0) {
+        return null;
+      }
+
+      return {
+        agentId: String(row["agent_id"]),
+        secretId: String(row["secret_id"] ?? ""),
+        toolId: String(row["tool_id"] ?? ""),
+        sourcesToolId: String(row["sources_tool_id"] ?? ""),
+        language: String(row["language"] ?? "en"),
+        updatedAt: String(row["updated_at"]),
+      };
+    },
+
+    async saveVoiceAgent(row: VoiceAgentRowInput): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO voice_agent (id, agent_id, secret_id, tool_id, sources_tool_id, language, updated_at)
+          VALUES (1, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (id) DO UPDATE SET
+            agent_id = excluded.agent_id,
+            secret_id = excluded.secret_id,
+            tool_id = excluded.tool_id,
+            sources_tool_id = excluded.sources_tool_id,
+            language = excluded.language,
+            updated_at = excluded.updated_at`,
+        args: [row.agentId, row.secretId, row.toolId, row.sourcesToolId, row.language],
+      });
+    },
+
     async appendTurn(turn: TurnInput): Promise<number> {
       const stored = await client.execute({
         sql: `INSERT INTO conversations (session_id, turn, question, answer, created_at)
@@ -669,6 +844,120 @@ export async function openStore(path: string, options: StoreOptions = {}): Promi
         mime: String(row["logo_mime"] ?? "application/octet-stream"),
         bytes: new Uint8Array(row["logo_bytes"] as ArrayBufferLike),
       };
+    },
+
+    async readProviderSetting(kind: ProviderKind): Promise<StoredProviderSetting | null> {
+      const found = await client.execute({
+        sql: "SELECT kind, provider, model, key_ciphertext, key_last4, base_url, mode, tested_at, test_latency_ms, updated_at FROM provider_settings WHERE kind = ?",
+        args: [kind],
+      });
+      const row = found.rows[0];
+
+      return row === undefined ? null : toProviderSetting(row as Row);
+    },
+
+    async saveProviderSetting(row: ProviderSettingInput): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO provider_settings (kind, provider, model, key_ciphertext, key_last4, base_url, mode, tested_at, test_latency_ms, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+          ON CONFLICT (kind) DO UPDATE SET
+            provider = excluded.provider,
+            model = excluded.model,
+            key_ciphertext = excluded.key_ciphertext,
+            key_last4 = excluded.key_last4,
+            base_url = excluded.base_url,
+            mode = excluded.mode,
+            tested_at = excluded.tested_at,
+            test_latency_ms = excluded.test_latency_ms,
+            updated_at = excluded.updated_at`,
+        args: [
+          row.kind,
+          row.provider,
+          row.model,
+          row.keyCiphertext,
+          row.keyLast4,
+          row.baseUrl,
+          row.mode,
+          row.testedAt,
+          row.testLatencyMs,
+        ],
+      });
+    },
+
+    async deleteProviderSetting(kind: ProviderKind): Promise<number> {
+      const deleted = await client.execute({
+        sql: "DELETE FROM provider_settings WHERE kind = ?",
+        args: [kind],
+      });
+
+      return Number(deleted.rowsAffected);
+    },
+
+    // The requirement "The test limit holds under concurrency": reading the counter and incrementing it in two
+    // operations let forty simultaneous tests observe the same value before any of them reserved its slot (Major M-2
+    // of `revision-community-12.md`). This writes first and counts after, and the two statements travel as one batch in
+    // write mode, which is one atomic transaction: the row that the twentieth request leaves behind is the wall the
+    // twenty-first one finds. The rows of the windows that are not the current one are removed in the same batch,
+    // which is what keeps the table from growing for ever.
+    async reserveProviderTest(windowStart: string): Promise<number> {
+      const answers = await client.batch(
+        [
+          { sql: "DELETE FROM provider_tests WHERE window_start <> ?", args: [windowStart] },
+          {
+            sql: `INSERT INTO provider_tests (window_start, count) VALUES (?, 1)
+              ON CONFLICT (window_start) DO UPDATE SET count = count + 1
+              RETURNING count`,
+            args: [windowStart],
+          },
+        ],
+        "write",
+      );
+
+      return Number(answers[1]?.rows[0]?.["count"] ?? 0);
+    },
+
+    async saveIndexSignature(documentName: string, signature: string): Promise<void> {
+      await client.execute({
+        sql: `INSERT INTO document_index (document_id, signature, indexed_at)
+          SELECT id, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now') FROM documents WHERE name = ?
+          ON CONFLICT (document_id) DO UPDATE SET
+            signature = excluded.signature,
+            indexed_at = excluded.indexed_at`,
+        args: [signature, documentName],
+      });
+    },
+
+    async countPassagesNeedingIndex(signature: string): Promise<number> {
+      const found = await client.execute({
+        sql: `SELECT count(*) AS total FROM passages AS p
+          JOIN documents AS d ON d.id = p.document_id
+          LEFT JOIN document_index AS i ON i.document_id = d.id
+          WHERE i.signature IS NULL OR i.signature <> ?`,
+        args: [signature],
+      });
+
+      return Number(found.rows[0]?.["total"] ?? 0);
+    },
+
+    async listDocumentsNeedingIndex(signature: string): Promise<StoredDocument[]> {
+      const found = await client.execute({
+        sql: `SELECT d.id AS id, d.name AS name, d.sha256 AS sha256, d.type AS type, d.pages AS pages, d.ingested_at AS ingested_at
+          FROM documents AS d
+          LEFT JOIN document_index AS i ON i.document_id = d.id
+          WHERE i.signature IS NULL OR i.signature <> ?
+          ORDER BY d.name`,
+        args: [signature],
+      });
+
+      return found.rows.map((row) => toDocument(row as Row));
+    },
+
+    async countVectorized(): Promise<number> {
+      const found = await client.execute(
+        "SELECT count(*) AS total FROM passages WHERE length(embedding) > 0",
+      );
+
+      return Number(found.rows[0]?.["total"] ?? 0);
     },
 
     async listRecentTurns(limit: number): Promise<StoredTurn[]> {

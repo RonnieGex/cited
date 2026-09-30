@@ -14,6 +14,7 @@ the API balance of the owner.
 | No secret is committed | Enforced by the pipeline | the blocking `secrets` job of `.github/workflows/ci.yml` scans every commit of the history with the gitleaks command line over the rules of `.gitleaks.toml` |
 | Environment files never enter the history | Done | `.gitignore` (`.env*` except `.env.example`) |
 | No key has a value in the repository | Done | `.env.example` with empty values |
+| A key the owner pastes in the panel is encrypted and never returns to the browser | Done | `lib/secrets/` (AES-256-GCM under `ENCRYPTION_KEY`), the table `provider_settings` and the routes of `/api/admin/providers` |
 | Dependency vulnerabilities above the high level stop the pipeline | Done | `.github/workflows/ci.yml`, `npm run audit:high` |
 | Static analysis of the code in the pipeline | Done | `.github/workflows/codeql.yml` (JavaScript and TypeScript) runs on every push to `main`, on every pull request and on a weekly schedule while the repository is public; while it is private the analysis job is skipped, not failed, because GitHub accepts code scanning uploads from a private repository only with a paid plan |
 | Dependency updates reviewed | Done | `.github/dependabot.yml` |
@@ -53,6 +54,11 @@ Anyone can ask a question, so the endpoint is treated as hostile input.
   `admin-panel-and-onboarding`.
 - Every data fetch of the panel is behind the same session, every mutation also checks the origin of the request, and
   nothing is hidden only in the interface. **Done** in `admin-panel-and-onboarding`.
+- The keys of the providers are pasted in the panel, tested before they are saved and stored encrypted with
+  AES-256-GCM under `ENCRYPTION_KEY`; the browser sees the provider, the model, the last four characters and the last
+  test, and never the key nor its ciphertext; a value the server sets wins and is read only. The test, the save and the
+  removal require the session and the origin, the calls to a provider are bounded by ten seconds and both routes share
+  a limit of twenty tests per hour. **Done** in `provider-keys-in-panel`.
 
 ## 3. The balance of the owner
 
@@ -60,19 +66,29 @@ The API key belongs to the person who forks the project, so an abuse spends thei
 
 - A limit of questions per IP address. **Done** in `pluggable-models-and-ask`.
 - A configurable daily cap of model calls and of voice minutes. **Done** in `pluggable-models-and-ask` for the model
-  calls; the voice minutes are **Planned** in `elevenlabs-voice-agent`.
+  calls and in `elevenlabs-voice-agent` for the voice minutes: a session reserves five minutes of the UTC day before
+  the signed URL is asked for, and the day answers `429` when the cap of `DAILY_VOICE_MINUTE_LIMIT` is reached.
 - A cap of tokens per answer. **Done** in `pluggable-models-and-ask`.
-- The panel shows whether each key is present and offers a test button; the key is never shown again and never stored
-  in the database. **Done** in `admin-panel-and-onboarding`.
+- The panel tests a key before saving it and never shows it again, only its last four characters. **Done** in
+  `provider-keys-in-panel`; the panel of `admin-panel-and-onboarding` shows whether a key of the environment is set
+  and never its value.
 
-## 4. The widget and the voice agent, both planned
+## 4. The widget and the voice agent
 
-- An allowlist of domains for the widget, applied both in CORS and in the voice provider. **Planned** in
-  `public-page-and-widget` and `elevenlabs-voice-agent`.
+- An allowlist of domains for the widget, applied both in CORS and in the voice provider. **Done** in
+  `public-page-and-widget` for `frame-ancestors`, and in `elevenlabs-voice-agent` for the agent: the allowlist of
+  `platform_settings.auth` carries the hostname of the installation and the ones of `ALLOWED_ORIGINS`, and nothing
+  else, so no other site can start a conversation with the agent.
 - The voice key never reaches the browser: the browser asks the server for a signed URL that expires in 15 minutes.
-  **Planned** in `elevenlabs-voice-agent`.
-- The tool the voice agent calls requires a secret of its own installation, sent as a Bearer token. **Planned** in
-  `elevenlabs-voice-agent`.
+  **Done** in `elevenlabs-voice-agent`: `GET /api/voice/signed-url` is the only reader of `ELEVENLABS_API_KEY` and it
+  answers the URL alone.
+- The tool the voice agent calls requires a secret of its own installation, sent as a Bearer token. **Done** in
+  `elevenlabs-voice-agent`: `POST /api/voice/tool` compares `VOICE_TOOL_SECRET` in constant time and refuses every call
+  of an installation that declares none.
+- The microphone of the public site and of the widget needs `connect-src` for the two endpoints of ElevenLabs, and
+  `worker-src` with `blob:` for the audio worklet the SDK loads when no path is given. **Done** in
+  `elevenlabs-voice-agent`, and `tests/csp.test.ts` pins the three directives whole. `script-src` keeps its nonce with
+  `strict-dynamic`.
 
 ## 5. Uploaded content
 
@@ -94,8 +110,9 @@ The API key belongs to the person who forks the project, so an abuse spends thei
   them. **Done** in `pluggable-models-and-ask` for the retention and in `admin-panel-and-onboarding` for the button.
 - Zero telemetry to Katalis. No counter, no beacon and no call home. **Planned** in `security-hardening`, which
   verifies it by inspecting the network calls of a running installation.
-- The keys of the owner are the only credentials, and they live in the environment of the server. **Planned** in
-  `pluggable-models-and-ask`.
+- The keys of the owner are the only credentials: they live in the environment of the server, or encrypted with
+  AES-256-GCM in the store of the installation when the owner pasted them in the panel, and the raw answer of a
+  provider never reaches the browser. **Done** in `provider-keys-in-panel`.
 
 ## 8. Supply chain
 

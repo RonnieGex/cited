@@ -1,11 +1,12 @@
 export const pageWords = /\bpages?\b|p[áa]ginas?/i;
 
 // Amended by the change `public-page-and-widget`: the public chat and the widget that any site can embed are available
-// from this change on, so `widget` stopped being a word that needs a `Next` tag. What still needs one is a capability
-// the status table marks Planned: the voice agent, the administration panel, the shared design system, the hardening
-// and the deploy.
+// from this change on, so `widget` stopped being a word that needs a `Next` tag. Amended again by
+// `elevenlabs-voice-agent`: the agent created in one click and the microphone of the public page are available from
+// this change on, so a voice agent stopped being a capability that needs one. What still needs a `Next` tag is a
+// capability the status table marks Planned: the shared design system, the hardening and the deploy.
 export const plannedWords =
-  /\bvoice\s+agent\b|\bagente\s+de\s+voz\b|\badmin\s+panel\b|\bpanel\s+de\s+administraci[óo]n\b|one-click\s+deploy|despliegue\s+en\s+un\s+clic|\bDocker\s+image\b|\bimagen\s+de\s+Docker\b/i;
+  /\badmin\s+panel\b|\bpanel\s+de\s+administraci[óo]n\b|one-click\s+deploy|despliegue\s+en\s+un\s+clic|\bDocker\s+image\b|\bimagen\s+de\s+Docker\b/i;
 
 export const plannedMark = new RegExp(
   [

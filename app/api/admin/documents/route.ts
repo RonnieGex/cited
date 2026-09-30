@@ -1,13 +1,15 @@
-import { resolveEmbeddingsProvider } from "../../../../lib/embeddings/providers.ts";
 import { documentSummaries, ingestUpload } from "../../../../lib/admin/documents.ts";
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
+import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
+import { sanitizeOutbound } from "../../../../lib/guards/outbound.ts";
+import { embeddingsSignature, panelEmbeddingsProblem, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
 
 export const runtime = "nodejs";
 
 function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : "the document could not be read";
+  return sanitizeOutbound(error instanceof Error ? error.message : "the document could not be read");
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -43,14 +45,24 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const store = await sharedStore(process.env);
+  const resolution = await resolveEmbeddings({ environment: process.env, store });
+  const problem = panelEmbeddingsProblem(resolution);
+
+  // The owner reads the words of the panel and never the name of a variable of the server (Major M-3 of
+  // `revision-community-12.md`): the diagnostic that names `EMBEDDINGS_API_KEY` belongs to the command line.
+  if (problem !== null) {
+    return json({ status: "invalid", error: problem }, 400);
+  }
+
   let report;
 
   try {
     report = await ingestUpload(
       store,
-      resolveEmbeddingsProvider(process.env),
+      embeddingsFrom(resolution),
       file.name,
       new Uint8Array(await file.arrayBuffer()),
+      embeddingsSignature(resolution),
     );
   } catch (error) {
     return json({ status: "invalid", error: messageOf(error) }, 400);
@@ -60,7 +72,7 @@ export async function POST(request: Request): Promise<Response> {
     return json(
       {
         status: "invalid",
-        error: report.failed[0]?.reason ?? "the file carried no readable text",
+        error: sanitizeOutbound(report.failed[0]?.reason ?? "the file carried no readable text"),
       },
       400,
     );

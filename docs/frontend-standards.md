@@ -22,12 +22,13 @@ alwaysApply: true
 ```
 app/
   layout.tsx        # root layout, metadata and language
-  page.tsx          # public page of questions and answers (planned in public-page-and-widget)
+  page.tsx          # public site of questions and answers, the chat and the microphone
   globals.css       # Tailwind import and the theme of the project
-  admin/            # panel of the owner: the setup, the business, the documents and the conversations
-  api/              # route handlers: ask, voice, upload, health (changes 3, 4 and 5)
+  admin/            # panel of the owner: the setup, the business, the voice agent, the documents and the conversations
+  api/              # route handlers: ask, voice, the panel, the brand logo
 components/         # UI of this application, ported from the shared kit in change 1
-lib/                # search, models, guards, limits, settings
+  voice/            # the voice panel, the Orb on demand and the client tool of the sources
+lib/                # search, models, guards, limits, settings, voice
 tests/              # unit tests of the application, next to Vitest
 e2e/                # Playwright specs and their fixtures
 public/             # static assets, no licensed font

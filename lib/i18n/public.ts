@@ -26,6 +26,9 @@ export type PublicStrings = {
   language: string;
   history: string;
   footer: string;
+  notReadyTitle: string;
+  notReadyBody: string;
+  notReadyPanel: string;
   widget: { button: string; title: string; close: string };
 };
 
@@ -56,6 +59,9 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     language: "Language",
     history: "Conversation",
     footer: "Built by Katalis",
+    notReadyTitle: "This assistant is not ready yet",
+    notReadyBody: "This business has not connected its AI yet. If the business is yours, connect it in the panel.",
+    notReadyPanel: "Open the panel",
     widget: { button: "Ask us", title: "Ask this business", close: "Close" },
   },
   es: {
@@ -84,6 +90,10 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     language: "Idioma",
     history: "Conversación",
     footer: "Hecho por Katalis",
+    notReadyTitle: "Este asistente todavía no está listo",
+    notReadyBody:
+      "Este negocio aún no ha conectado su IA. Si el negocio es tuyo, conéctala en el panel.",
+    notReadyPanel: "Abrir el panel",
     widget: { button: "Pregúntanos", title: "Pregunta a este negocio", close: "Cerrar" },
   },
 };

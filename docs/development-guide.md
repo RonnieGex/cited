@@ -29,12 +29,16 @@ is missing. Without it, a commit with a secret is not scanned.
 |---|---|
 | `npm run dev` | development server on port 3000 |
 | `npm run build` | production build |
+| `npm run build:e2e` | the build the browser suite drives: `next build` with `KATALIS_VOICE_FAKE_SDK=1`, which resolves `@elevenlabs/react` to the test SDK, and then the guard of that SDK |
 | `npm start` | production server after a build (port 3000, `-- --port N` to change it) |
 | `npm run typecheck` | `next typegen` and `tsc --noEmit` |
 | `npm run lint` | ESLint over the repository |
 | `npm test` | Vitest in run mode |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright; it builds the application and starts it twice, the public page on port 3100 and the panel on port 3213 |
+| `npm run test:e2e` | Playwright; it builds with `build:e2e` and starts it twice, the public page on port 3100 and the panel on port 3213 |
+| `npm run verify:no-test-sdk` | fails when the production output carries a marker of the test SDK, or when the browser output carries the real package or the `xi-api-key` header of the provider |
+| `npm run verify:test-sdk` | the same guard with the expectation of the end-to-end build, which `build:e2e` runs on its own |
+| `npm run texture:orb` | writes `public/voice/perlin-noise.png`, the texture of the Orb, byte for byte |
 | `npm run audit:high` | `npm audit --audit-level=high` |
 | `npm run secrets:scan` | gitleaks over the whole history |
 | `npm run hooks:install` | installs the local git hooks |
@@ -53,13 +57,23 @@ Three more commands are only needed when the README or its corpus changes:
 The two render scripts need Chromium, and the banner needs network access to Google Fonts for the Outfit family.
 `docs/readme-assets.md` explains them, their templates and the size budget of `docs/images/`.
 
+One more script writes the captures a delivery shows of the voice panel. It needs the build of `build:e2e` running,
+because the conversation of a capture is the test SDK and never the real agent:
+
+```
+npm run build:e2e
+EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm start -- --port 3200
+node scripts/render-voice-captures.mjs <the directory of the captures> [http://127.0.0.1:3200]
+```
+
 ## 4. Ports
 
 | Port | Used by |
 |---|---|
 | 3000 | `npm run dev` and `npm start` |
 | 3100 | the app that Playwright builds and starts for the end-to-end suite |
-| 3200 | free; used by the manual verification of the bootstrap change |
+| 3200 | the manual verification and the captures; `node scripts/render-delivery-captures.mjs` and `node scripts/render-voice-captures.mjs` read it |
+| 3213 | the panel of the end-to-end suite; 3210 and 3212 are the sites of the widget tests |
 
 No other service of the machine is touched by this repository.
 

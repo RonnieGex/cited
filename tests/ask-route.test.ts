@@ -271,7 +271,10 @@ describe("POST /api/ask protects the wallet of the owner", () => {
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(503);
-    expect(JSON.stringify(body)).toMatch(/daily|diario/i);
+    // The route of the answers never names a variable of the environment and never quotes the provider: the sentence
+    // is one of its own (requirement "No provider error reaches the browser" and task 10.4 of the contract).
+    expect(JSON.stringify(body)).not.toMatch(/DAILY_MODEL_CALL_LIMIT|MAX_QUESTION_CHARS|RATE_LIMIT_PER_IP_PER_HOUR/);
+    expect(JSON.stringify(body)).toMatch(/could not answer/i);
     expect(Number(calls[0]?.["total"] ?? 0)).toBe(1);
   });
 
@@ -297,7 +300,7 @@ describe("POST /api/ask protects the wallet of the owner", () => {
 });
 
 describe("POST /api/ask refuses an unusable configuration", () => {
-  it("answers 503 naming the variable of the missing key and never its value", async () => {
+  it("answers 503 without naming the variable of the missing key and never its value", async () => {
     await corpusStore();
 
     setEnvironment({
@@ -310,9 +313,13 @@ describe("POST /api/ask refuses an unusable configuration", () => {
     const text = await response.text();
 
     expect(response.status).toBe(503);
-    expect(text).toContain("OPENAI_API_KEY");
+    // The diagnostic that names the variable belongs to whoever installs and is read in the command line
+    // (`npm run ask`); the browser of a visitor reads a closed sentence. `provider-review-errors.test.ts` proves both
+    // halves, and this file keeps the original guarantee: never the value.
+    expect(text).not.toContain("OPENAI_API_KEY");
     expect(text).not.toContain("sk-ant-value-that-must-not-travel");
     expect(text).not.toMatch(/sk-[a-z0-9]/i);
+    expect(text.toLowerCase()).toContain("panel");
   });
 
   it("answers 503 when the embeddings provider is not configured", async () => {
@@ -324,7 +331,8 @@ describe("POST /api/ask refuses an unusable configuration", () => {
     const text = await response.text();
 
     expect(response.status).toBe(503);
-    expect(text).toContain("EMBEDDINGS_PROVIDER");
+    expect(text).not.toContain("EMBEDDINGS_PROVIDER");
+    expect(text.toLowerCase()).toContain("panel");
   });
 
   it("refuses a body that is not JSON and a question that is not a question", async () => {

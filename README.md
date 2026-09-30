@@ -23,15 +23,16 @@ found, every claim numbered as a citation. Read the [status table](#status) befo
 
 ## Why Cited
 
-| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited reads only the documents you point it at" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Every passage of Cited carries its document, its heading and its position" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voice with ElevenLabs, planned for the next change" width="400"></picture> |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-sources-dark.png"><img src="docs/images/reason-sources-light.png" alt="Cited reads only the documents you point it at" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-citations-dark.png"><img src="docs/images/reason-citations-light.png" alt="Every passage of Cited carries its document, its heading and its position" width="400"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/reason-voice-dark.png"><img src="docs/images/reason-voice-light.png" alt="Voice with ElevenLabs, created in one click from the panel of Cited" width="400"></picture> |
 |---|---|---|
 
 1. **Only your documents.** Ingestion reads the files you point it at, and nothing else: no web, no model memory,
    nothing invented.
 2. **Every passage keeps its source.** Document, heading and position travel with the text, so a reader can open the
    document and land on the passage instead of trusting a summary.
-3. **Talk to it.** Cited answers with the passages it found and numbers every claim; talking to the same documents
-   with ElevenLabs arrives in a later change, and the card that shows it says `Next` for that reason.
+3. **Talk to it.** Cited answers with the passages it found and numbers every claim, in writing and out loud: the
+   microphone of the public site opens a voice agent built on the same documents, and the owner creates that agent in
+   one click from the panel.
 
 ## Status
 
@@ -41,12 +42,12 @@ Every row is either available today or planned, and each planned row names the c
 |---|---|---|
 | Ingestion of PDF, DOCX, Markdown and text with limits | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Hybrid search: full text and vectors, fused with Reciprocal Rank Fusion | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Embeddings through an OpenAI-compatible API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
-| Local libSQL file or Turso | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
+| Local libSQL or Turso, and embeddings by API or Ollama | Available | [knowledge-search](openspec/specs/knowledge-search/spec.md) |
 | Answers with citations from any model provider, spend limits | Available | [answering](openspec/specs/answering/spec.md) |
+| The keys of the AI in the panel, encrypted and tested before saving | Available | [provider-settings](openspec/specs/provider-settings/spec.md) |
 | The panel: the setup, the business, the documents and the conversations | Available | [admin-panel](openspec/specs/admin-panel/spec.md) |
 | Public chat of the business, with the widget any site can embed | Available | [public-chat](openspec/specs/public-chat/spec.md) |
-| Voice agent with ElevenLabs, created in one click | Planned | `elevenlabs-voice-agent` |
+| Voice agent with ElevenLabs, created in one click | Available | [voice-agent](openspec/specs/voice-agent/spec.md) |
 | Shared design system | Planned | `design-system-shared` |
 | Security hardening and abuse tests | Planned | `security-hardening` |
 | Deployed in one click, with a Docker image and bilingual docs | Planned | `docs-deploy-and-launch` |
@@ -55,7 +56,7 @@ Every row is either available today or planned, and each planned row names the c
 
 **From a folder of documents to a cited passage.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer with its numbered citations, with the voice marked Next" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/how-it-works-dark.png"><img src="docs/images/how-it-works-light.png" alt="How Cited works: documents, passages, libSQL, Reciprocal Rank Fusion and the answer with its numbered citations, answered in writing and out loud" width="1280"></picture>
 
 <details>
 <summary>The same flow as a text diagram</summary>
@@ -67,7 +68,7 @@ flowchart LR
   C --> D[Reciprocal Rank Fusion]
   D --> E[Answer with numbered citations]
   D --> F[Web widget]
-  D --> G[Voice agent (next)]
+  D --> G[Voice agent]
 ```
 
 </details>
@@ -104,16 +105,26 @@ the built application, taken by the end-to-end suite of `e2e/admin.spec.ts` with
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/roadmap-dark.png"><img src="docs/images/roadmap-light.png" alt="The roadmap of Cited: what is available today and what each next change adds" width="1280"></picture>
 
-The changes of the plan arrive in this order: the shared design system, then the voice with ElevenLabs, then the
-hardening, then the deploys and the docs.
+The changes of the plan arrive in this order: the voice with ElevenLabs, already in the repository, then the shared
+design system, then the hardening, then the deploys and the docs.
 
 ## Voice
 
 **Talk to your documents.**
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/voice-teaser-dark.png"><img src="docs/images/voice-teaser-light.png" alt="Voice agent of Cited, planned for the ElevenLabs change" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/voice-teaser-dark.png"><img src="docs/images/voice-teaser-light.png" alt="The voice agent of Cited: the owner creates it in one click and a visitor talks to the documents" width="1280"></picture>
 
-`elevenlabs-voice-agent` is planned, not built: it is marked `Next` in every graphic that shows it.
+The microphone button of the public site and of the widget opens the voice panel: the Orb, the state in words, the live
+transcript with the written question echoed once, and the citation chips named by document and section. The session
+speaks to the agent the owner creates with one button of the panel, and that agent answers through
+`/api/voice/tool` from the same documents and the same pipeline as the written chat. The key of ElevenLabs never
+reaches the browser: the document asks this server for a signed URL of fifteen minutes, and the day has a cap of
+minutes. `docs/voice-agent.md` explains the one-click agent, the two languages, the allowlist and the cap.
+
+The picture below is a real capture of the panel at 1440 px, taken by `scripts/render-voice-captures.mjs` over the
+build of the test SDK, which is the build the browser suite drives:
+
+<img src="docs/images/voice/panel.png" alt="The voice panel of Cited: the Orb, the state Answering, the transcript with a question and its answer, and two citation chips" width="860">
 
 ## Quick start
 
@@ -145,7 +156,7 @@ ingested README.txt (txt, no pages, 1 passages)
 ingested bike-workshop-policies.md (md, no pages, 5 passages)
 ingested cafe-la-horquilla.md (md, no pages, 4 passages)
 ingested notas-del-negocio.txt (txt, no pages, 1 passages)
-documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 29 ms, rss 114 MB
+documents 4, passages 11, skipped 0, store .data/katalis.sqlite, 56 ms, rss 129 MB
 ```
 
 ```
@@ -168,7 +179,7 @@ store: .data/katalis.sqlite
    Groups and events We host a Saturday ride that leaves the shop at 9:30. Groups of more than 8 people should write to us a week ahead so we can arrange a mechanic and a second guide.
 8. bike-workshop-policies.md [Bike workshop policies at Café La Horquilla] position 0 score 0.014925
    Bike workshop policies at Café La Horquilla Everything a customer needs to know before leaving a bicycle with us.
-8 results, 6 ms, rss 79 MB
+8 results, 6 ms, rss 92 MB
 ```
 
 ```
@@ -180,7 +191,7 @@ answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos.
 citations:
   [1] cafe-la-horquilla.md [Precios] position 2
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
-citations 1, 46 ms, rss 100 MB
+citations 1, 35 ms, rss 102 MB
 ```
 
 The store lives in `.data/katalis.sqlite`, which git ignores. `docs/search.md` explains the schema, the chunking and
@@ -211,6 +222,11 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `CHAT_MODEL` | optional model of the chat provider; without it each one uses its default | yes |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` | the key of the chosen chat provider, and of no other | yes |
 | `LMSTUDIO_BASE_URL` | base URL of a local LM Studio, `http://localhost:1234/v1` by default | yes |
+| `OPENAI_BASE_URL`, `ANTHROPIC_BASE_URL`, `GEMINI_BASE_URL`, `DEEPSEEK_BASE_URL`, `GROQ_BASE_URL`, `OPENROUTER_BASE_URL` | optional: point a provider at a compatible endpoint of your own, a gateway or a proxy; an empty value keeps its published address | yes |
+| `ENCRYPTION_KEY` | the key that encrypts the keys the owner pastes in the panel: 32 bytes in base64, and without it the panel stores none | yes |
+| `PROVIDER_TEST_TIMEOUT_MS` | how long the test of a provider waits before it says it took too long, ten seconds by default | yes |
+| `AFFILIATE_LINKS` | `off` turns every affiliate link of the provider catalogue into its plain link | yes |
+| `HOSTED_OFFER_URL` | address of the hosted version of Katalis that the panel offers under the list of providers | yes |
 | `MAX_QUESTION_CHARS` | the longest question the route accepts, 1000 characters by default | yes |
 | `RATE_LIMIT_PER_IP_PER_HOUR` | the questions one address may ask in an hour, 30 by default | yes |
 | `DAILY_MODEL_CALL_LIMIT` | the model calls of one UTC day, 500 by default | yes |
@@ -219,10 +235,11 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `TRUST_PROXY` | the number of proxies in front: `1` for Traefik alone, `2` for a CDN in front of Traefik; the visitor address is that many places from the right of `x-forwarded-for`, and without it the header is not trusted | yes |
 | `ADMIN_SESSION_SECRET` | secret that salts the hash of the visitor address and signs the session of the panel | yes |
 | `ADMIN_PASSWORD` | password of the panel, the one that opens `/admin` | yes |
-| `VOICE_TOOL_SECRET` | secret the voice tool expects in its Bearer token, planned in `elevenlabs-voice-agent` | no |
-| `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | model of the voice agent, planned in `elevenlabs-voice-agent` | no |
-| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs, planned in `elevenlabs-voice-agent` | no |
-| `DAILY_VOICE_MINUTE_LIMIT` | the voice minutes of one day, planned in `elevenlabs-voice-agent` | no |
+| `VOICE_TOOL_SECRET` | secret the voice tool expects in its Bearer token | yes |
+| `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` | the voice with ElevenLabs: the key of the owner and, optionally, the agent it pins | yes |
+| `ELEVENLABS_VOICE_ID` | optional voice of the voice agent; without it the default voice of the account | no |
+| `EMBEDDING_MODEL`, `EMBEDDING_API_KEY` | two names the template reserves and no code reads: the search takes `EMBEDDINGS_MODEL` and `EMBEDDINGS_API_KEY` | no |
+| `DAILY_VOICE_MINUTE_LIMIT` | the voice minutes of one UTC day, 30 by default | yes |
 | `ALLOWED_ORIGINS` | origins allowed to embed the widget, comma separated; only its own origin when it is empty | yes |
 
 A row marked `no` is a name the repository already reserves and no code reads yet. No key has a value in this

@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
-import { resolveEmbeddingsProvider } from "../lib/embeddings/providers.ts";
+import { embeddingsFrom } from "../lib/embeddings/providers.ts";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestFolder } from "../lib/ingest/index.ts";
+import { embeddingsSignature, resolveEmbeddings } from "../lib/settings/providers.ts";
 import { openStore } from "../lib/store/index.ts";
 import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
 
@@ -14,7 +15,11 @@ async function main(): Promise<void> {
 
   const storePath = storeLocation(process.env);
   const store = await openStore(prepareStorePath(storePath));
-  const embeddings = resolveEmbeddingsProvider(process.env);
+  // The resolver reads the environment of the server first and the panel after it, so the command line of an
+  // installation forked from the repository behaves like the panel does.
+  const resolution = await resolveEmbeddings({ environment: process.env, store });
+  const embeddings = embeddingsFrom(resolution);
+  const signature = embeddingsSignature(resolution);
   const started = Date.now();
   let documents = 0;
   let passages = 0;
@@ -24,6 +29,7 @@ async function main(): Promise<void> {
     const report = await ingestFolder(resolve(target), {
       store,
       embeddings,
+      signature,
       limits: { maxBytes: MAX_FILE_BYTES, maxPages: MAX_PAGES },
     });
 

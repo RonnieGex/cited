@@ -37,7 +37,7 @@ vi.mock("@/lib/admin/guard", () => ({
 }));
 
 vi.mock("@/lib/store/instance", () => ({
-  sharedStore: async () => ({}),
+  sharedStore: async () => ({ readVoiceAgent: async () => null }),
 }));
 
 vi.mock("@/lib/admin/documents", () => ({
@@ -99,7 +99,7 @@ describe("the new strings of the panel, in both languages", () => {
 });
 
 describe("the numbered navigation of the panel (decision 7)", () => {
-  it("lists the four sections in order, each with its number as a citation mark", () => {
+  it("lists the five sections in order, each with its number as a citation mark", () => {
     render(<AdminNav lang="en" strings={english} />);
 
     const links = within(sidebar()).getAllByRole("link").filter((link) => link.closest("nav") !== null);
@@ -109,10 +109,18 @@ describe("the numbered navigation of the panel (decision 7)", () => {
       "/admin/business",
       "/admin/documents",
       "/admin/conversations",
+      "/admin/ai",
     ]);
 
     // The same pattern as `e2e/admin-brand.spec.ts`: the number, then the name, with or without a space between them.
-    const names = [english.navSetup, english.navBusiness, english.navDocuments, english.navConversations];
+    // Decision 20: "AI and keys" of `main` is the fifth section, so Documents keeps the number 3 of the scenario.
+    const names = [
+      english.navSetup,
+      english.navBusiness,
+      english.navDocuments,
+      english.navConversations,
+      english.navAi,
+    ];
 
     for (const [index, link] of links.entries()) {
       expect(link.textContent ?? "").toMatch(new RegExp(String.raw`^\s*${index + 1}\s*${names[index]}\s*$`));
@@ -294,12 +302,15 @@ describe("the unconfigured page, in the same shell", () => {
     guarded = { status: "unconfigured", missing: ["ADMIN_PASSWORD", "ADMIN_SESSION_SECRET"] };
   });
 
-  it("keeps its heading and names what the server needs", async () => {
+  // Decision 20: the behaviour of `main` wins inside the new look. An installation that is not finished says it in the words
+  // of the owner and names no variable of the environment (they stay in the log and on "For the installer").
+  it("keeps its heading and says what is missing in the words of the owner, with no variable name", async () => {
     await layout();
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(english.unconfiguredTitle);
-    expect(screen.getByText(/ADMIN_PASSWORD, ADMIN_SESSION_SECRET/)).toBeInTheDocument();
+    expect(screen.getByText(english.panelNotConfigured)).toBeInTheDocument();
+    expect(document.body.textContent ?? "").not.toMatch(/ADMIN_PASSWORD|ADMIN_SESSION_SECRET/);
   });
 
   it("wears the same split shell as the sign-in, with the wordmark and the tagline", async () => {

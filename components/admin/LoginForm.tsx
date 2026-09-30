@@ -46,11 +46,18 @@ export function LoginForm({ strings, onSignedIn }: LoginFormProps) {
 
     const answer = (await response.json().catch(() => ({}))) as Answer;
 
+    // An installation that is not finished is answered with a code: the words are the ones of the owner and the name of
+    // the variable that is missing stays on the page "For the installer".
+    const blocked =
+      answer.status === "admin_password_too_short"
+        ? strings.panelPasswordTooShort
+        : strings.panelNotConfigured;
+
     setError(
       response.status === 429
         ? strings.locked
         : response.status === 503
-          ? (answer.error ?? strings.unconfigured)
+          ? blocked
           : strings.wrongPassword,
     );
   }

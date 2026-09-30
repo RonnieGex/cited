@@ -4,7 +4,8 @@ import { basename, join, sep } from "node:path";
 import type { EmbeddingProvider } from "../embeddings/types.ts";
 import { ingestPaths } from "../ingest/index.ts";
 import { MAX_FILE_BYTES } from "../ingest/parse.ts";
-import type { IngestReport, SourceType } from "../ingest/types.ts";
+import type { IngestReport } from "../ingest/types.ts";
+import { reindexDocument } from "../settings/indexing.ts";
 import type { Store } from "../store/index.ts";
 
 export type DocumentSummary = {
@@ -19,8 +20,6 @@ export type IngestedDocument = {
   name: string;
   passages: number;
 };
-
-const embeddingBatch = 32;
 
 function safeName(name: string): string {
   const cleaned = basename(name)
@@ -54,9 +53,10 @@ export async function documentSummaries(store: Store): Promise<DocumentSummary[]
 
 export async function ingestUpload(
   store: Store,
-  embeddings: EmbeddingProvider,
+  embeddings: EmbeddingProvider | null,
   name: string,
   bytes: Uint8Array,
+  signature?: string,
 ): Promise<IngestReport> {
   if (bytes.length > MAX_FILE_BYTES) {
     throw new Error(
@@ -71,7 +71,7 @@ export async function ingestUpload(
 
     await writeFile(path, bytes);
 
-    const report = await ingestPaths([path], { store, embeddings });
+    const report = await ingestPaths([path], { store, embeddings, signature });
 
     return {
       ingested: report.ingested,
@@ -87,7 +87,8 @@ export async function ingestUpload(
 
 export async function reingestDocument(
   store: Store,
-  embeddings: EmbeddingProvider,
+  embeddings: EmbeddingProvider | null,
+  signature: string,
   name: string,
 ): Promise<IngestedDocument | null> {
   const document = await store.findDocument(name);
@@ -96,29 +97,7 @@ export async function reingestDocument(
     return null;
   }
 
-  const passages = await store.getPassages({ name: document.name, limit: 10_000 });
-  const vectors: number[][] = [];
+  const passages = await reindexDocument(store, embeddings, signature, document.name);
 
-  for (let at = 0; at < passages.length; at += embeddingBatch) {
-    vectors.push(
-      ...(await embeddings.embed(passages.slice(at, at + embeddingBatch).map((one) => one.text))),
-    );
-  }
-
-  await store.replaceDocument(
-    {
-      name: document.name,
-      sha256: document.sha256,
-      type: document.type as SourceType,
-      pages: document.pages,
-    },
-    passages.map((passage, at) => ({
-      position: passage.position,
-      heading: passage.heading,
-      text: passage.text,
-      embedding: vectors[at] ?? [],
-    })),
-  );
-
-  return { name: document.name, passages: passages.length };
+  return { name: document.name, passages };
 }

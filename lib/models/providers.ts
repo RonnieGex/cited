@@ -33,57 +33,130 @@ function baseUrl(environment: ChatEnvironment, name: string, fallback: string): 
   return (environment[name]?.trim() ?? "").replace(/\/+$/, "") || fallback;
 }
 
-function withKeys(
-  environment: ChatEnvironment,
-  provider: ChatProviderName,
-): Record<string, string> {
-  const keys: Record<string, string> = {};
-
-  for (const variable of CHAT_PROVIDER_KEYS[provider]) {
-    keys[variable] = required(environment, variable, provider);
-  }
-
-  return keys;
+function optionalBaseUrl(environment: ChatEnvironment, name: string): string {
+  return (environment[name]?.trim() ?? "").replace(/\/+$/, "");
 }
 
-export function resolveChatModel(environment: ChatEnvironment = process.env): LanguageModel {
-  const provider = selectedChatProvider(environment);
-  const model = chatModelName(environment);
+export type ChatCredentials = {
+  provider: ChatProviderName;
+  model: string;
+  key: string;
+  baseUrl: string;
+  /** The transport of an address the owner wrote in the panel: it validates and pins every connection (task 11.2). */
+  fetch?: typeof fetch;
+};
+
+// The one place that builds a chat model, from credentials that the caller already resolved: the server environment
+// through `resolveChat()` (decision 3 of `openspec/changes/provider-keys-in-panel/design.md`) or the values the owner
+// pasted in the panel. The pipeline never reads a provider variable on its own.
+//
+// `fetch` is the transport of `lib/providers/pinned.ts` when the address came from the panel: the SDK then connects to
+// the address the guard classified and never to a second resolution of the name (requirement "The address that was
+// validated is the address that is connected to").
+export function chatModelFrom(credentials: ChatCredentials): LanguageModel {
+  const { provider, model, key, baseUrl: url } = credentials;
+  const transport = credentials.fetch === undefined ? {} : { fetch: credentials.fetch };
 
   if (provider === "fake") {
     return createFakeChatModel();
   }
 
-  const keys = withKeys(environment, provider);
+  const withUrl = (fallback: string): string => (url.length > 0 ? url : fallback);
 
   switch (provider) {
     case "openai":
-      return createOpenAI({ apiKey: keys["OPENAI_API_KEY"] })(model);
+      return createOpenAI(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "anthropic":
-      return createAnthropic({ apiKey: keys["ANTHROPIC_API_KEY"] })(model);
+      return createAnthropic(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "gemini":
-      return createGoogleGenerativeAI({ apiKey: keys["GEMINI_API_KEY"] })(model);
+      return createGoogleGenerativeAI(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "deepseek":
-      return createDeepSeek({ apiKey: keys["DEEPSEEK_API_KEY"] })(model);
+      return createDeepSeek(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "groq":
-      return createGroq({ apiKey: keys["GROQ_API_KEY"] })(model);
+      return createGroq(
+        url.length > 0
+          ? { apiKey: key, baseURL: url, ...transport }
+          : { apiKey: key, ...transport },
+      )(model);
     case "openrouter":
       return createOpenAICompatible({
         name: "openrouter",
-        baseURL: defaultOpenRouterUrl,
-        apiKey: keys["OPENROUTER_API_KEY"],
+        baseURL: withUrl(defaultOpenRouterUrl),
+        apiKey: key,
+        ...transport,
       })(model);
     case "ollama":
       return createOpenAICompatible({
         name: "ollama",
-        baseURL: baseUrl(environment, "OLLAMA_BASE_URL", defaultOllamaUrl),
+        baseURL: withUrl(defaultOllamaUrl),
+        ...transport,
       })(model);
     case "lmstudio":
       return createOpenAICompatible({
         name: "lmstudio",
-        baseURL: baseUrl(environment, "LMSTUDIO_BASE_URL", defaultLmStudioUrl),
+        baseURL: withUrl(defaultLmStudioUrl),
+        ...transport,
       })(model);
     default:
       return createFakeChatModel();
   }
+}
+
+export type ServerChat = {
+  provider: ChatProviderName;
+  model: string;
+  key: string;
+  baseUrl: string;
+  missing: string[];
+};
+
+// The chat provider the server environment names, with the variables it names and leaves empty instead of throwing:
+// the resolver needs to report them and the panel needs to show them without a value.
+export function serverChatCredentials(environment: ChatEnvironment = process.env): ServerChat {
+  const provider = selectedChatProvider(environment);
+  const names = CHAT_PROVIDER_KEYS[provider];
+  const first = names[0];
+  const key = first === undefined ? "" : (environment[first]?.trim() ?? "");
+  const declared = optionalBaseUrl(environment, `${provider.toUpperCase()}_BASE_URL`);
+
+  return {
+    provider,
+    model: chatModelName(environment),
+    key,
+    baseUrl:
+      declared.length > 0
+        ? declared
+        : provider === "ollama"
+          ? baseUrl(environment, "OLLAMA_BASE_URL", defaultOllamaUrl)
+          : provider === "lmstudio"
+            ? baseUrl(environment, "LMSTUDIO_BASE_URL", defaultLmStudioUrl)
+            : "",
+    missing: names.filter((name) => (environment[name]?.trim() ?? "").length === 0),
+  };
+}
+
+export function resolveChatModel(environment: ChatEnvironment = process.env): LanguageModel {
+  const credentials = serverChatCredentials(environment);
+
+  for (const name of credentials.missing) {
+    required(environment, name, credentials.provider);
+  }
+
+  return chatModelFrom(credentials);
 }

@@ -1,25 +1,36 @@
 import Image from "next/image";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import type { CSSProperties } from "react";
 import { Wordmark } from "@/components/brand";
 import { Chat } from "@/components/chat";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { Panel } from "@/components/ui";
+import { VoiceLauncher } from "@/components/voice";
 import { LANG_COOKIE } from "@/lib/i18n/language";
 import { PUBLIC_STRINGS } from "@/lib/i18n/public";
 import { FLAME, LOGO_ENDPOINT, readPublicBrand } from "@/lib/public/brand";
+import { chatProblem, resolveChat } from "@/lib/settings/providers";
 
 // The public page: the chat of the business, with its name, its logo and its primary color from the settings (the brand
 // of Cited when there are none yet). The requirement "Home page" of `specs/app-skeleton/spec.md` (MODIFIED) lives here:
-// one `main` element with one `h1` and the question box of the chat.
+// one `main` element with one `h1` and the question box of the chat. The scenario "Nothing configured anywhere" of
+// `specs/answering/spec.md` also lives here: when nobody connected a chat provider, the page says the assistant is not
+// ready and offers the owner the way to the panel instead of a question box that cannot answer.
 //
 // Decision 9 of `openspec/changes/brand-identity-ui/design.md`: the page wears the business first. A band across the
 // page carries the color of the business, its logo, its name as the `h1` and the language switch; without a business the
-// band is ink, the wordmark is the visible name and the `h1` ("Cited") stays for assistive technology.
+// band is ink, the wordmark is the visible name and the `h1` ("Cited") stays for assistive technology. Decision 20: the
+// not-ready state and the voice launcher of `main` live inside that band and that column.
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const cookie = (await cookies()).get(LANG_COOKIE)?.value;
   const brand = await readPublicBrand(cookie);
   const strings = PUBLIC_STRINGS[brand.lang];
+  const chat = await resolveChat({ environment: process.env });
+  const ready = chatProblem(chat) === null;
 
   return (
     <main
@@ -70,7 +81,21 @@ export default async function Home() {
       </header>
 
       <div className="mx-auto flex w-full max-w-[880px] flex-1 flex-col px-6 pt-10 lg:pt-14">
-        <Chat lang={brand.lang} welcome={brand.welcome} />
+        {ready ? (
+          <Chat lang={brand.lang} welcome={brand.welcome} />
+        ) : (
+          <Panel className="flex flex-col gap-3" data-cited="not-ready">
+            <p className="text-lg font-semibold text-ink">{strings.notReadyTitle}</p>
+            <p className="max-w-[65ch] text-ink-2">{strings.notReadyBody}</p>
+            <Link className="text-sm font-semibold text-ink underline underline-offset-4" href="/admin">
+              {strings.notReadyPanel}
+            </Link>
+          </Panel>
+        )}
+
+        <div className="mt-8">
+          <VoiceLauncher lang={brand.lang} />
+        </div>
       </div>
 
       <footer className="mx-auto mt-12 flex w-full max-w-[880px] items-center gap-3 border-t border-rule px-6 py-6 text-sm text-ink-2">

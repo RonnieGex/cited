@@ -216,12 +216,14 @@ test("the navigation at 1440 px: an ink column with the numbered sections, the c
     (box?.x ?? 0) + (box?.width ?? 0) - 1,
   );
 
-  // The four sections, numbered like citations, in order.
+  // The five sections, numbered like citations, in order. Decision 20: "AI and keys" of `main` is the fifth, so Documents is
+  // still 3.
   const numbered = [
     { number: "1", name: english.navSetup, href: "/admin" },
     { number: "2", name: english.navBusiness, href: "/admin/business" },
     { number: "3", name: english.navDocuments, href: "/admin/documents" },
     { number: "4", name: english.navConversations, href: "/admin/conversations" },
+    { number: "5", name: english.navAi, href: "/admin/ai" },
   ];
 
   await expect(links(page)).toHaveCount(numbered.length);
@@ -327,7 +329,7 @@ test("the navigation at 375 px: a top bar that scrolls sideways, with no horizon
   expect(scroller.found, "an ancestor of the links scrolls on the x axis").toBe(true);
   expect(scroller.inside, "and it belongs to the bar").toBe(true);
 
-  await expect(links(page)).toHaveCount(4);
+  await expect(links(page)).toHaveCount(5);
 
   await tabThroughTheBar(page, "375", 43.5);
 

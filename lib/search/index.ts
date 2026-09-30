@@ -16,7 +16,8 @@ export type SearchHit = {
 
 export type SearchOptions = {
   store: Store;
-  embeddings: EmbeddingProvider;
+  /** `null` is keyword mode: the ranking comes from FTS5 alone and no embeddings provider is called. */
+  embeddings: EmbeddingProvider | null;
   limit?: number;
   candidates?: number;
   k?: number;
@@ -26,9 +27,11 @@ export async function hybridSearch(question: string, options: SearchOptions): Pr
   const candidates = options.candidates ?? DEFAULT_CANDIDATES;
   const limit = options.limit ?? DEFAULT_RESULTS;
   const k = options.k ?? DEFAULT_RRF_K;
-  const embedding = await options.embeddings.embedQuery(question);
   const keyword = await options.store.keywordSearch(question, candidates);
-  const vector = await options.store.vectorSearch(embedding, candidates);
+  const vector =
+    options.embeddings === null
+      ? []
+      : await options.store.vectorSearch(await options.embeddings.embedQuery(question), candidates);
   const fused = reciprocalRankFusion(keyword, vector, k).slice(0, limit);
 
   if (fused.length === 0) {

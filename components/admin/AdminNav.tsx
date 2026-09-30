@@ -20,13 +20,17 @@ export type AdminNavProps = {
   strings: AdminStrings;
 };
 
-type Section = { href: string; name: "navSetup" | "navBusiness" | "navDocuments" | "navConversations" };
+type Section = {
+  href: string;
+  name: "navSetup" | "navBusiness" | "navDocuments" | "navConversations" | "navAi";
+};
 
 const SECTIONS: readonly Section[] = [
   { href: "/admin", name: "navSetup" },
   { href: "/admin/business", name: "navBusiness" },
   { href: "/admin/documents", name: "navDocuments" },
   { href: "/admin/conversations", name: "navConversations" },
+  { href: "/admin/ai", name: "navAi" },
 ];
 
 // `/admin` is the setup and the parent of every other section, so it is current only on its own path; a section is current

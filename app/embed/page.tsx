@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { cookies } from "next/headers";
 import { Chat } from "@/components/chat";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { VoiceLauncher } from "@/components/voice";
 import { LANG_COOKIE } from "@/lib/i18n/language";
 import { readPublicBrand } from "@/lib/public/brand";
 
@@ -10,7 +11,8 @@ import { readPublicBrand } from "@/lib/public/brand";
 //
 // Decision 12 of `openspec/changes/brand-identity-ui/design.md`: the band is a slim strip in the primary color with the
 // name at 18 px and the language switch; the rest is the same `Chat`. Like the public page (decision 9), without a business
-// the strip is ink with the ink switch: lime never fills a large area of a public surface.
+// the strip is ink with the ink switch: lime never fills a large area of a public surface. Decision 20: the voice launcher
+// of `main` stays under the chat.
 
 export default async function Embed() {
   const cookie = (await cookies()).get(LANG_COOKIE)?.value;
@@ -43,6 +45,9 @@ export default async function Embed() {
 
       <div className="mx-auto w-full max-w-[560px] px-4 py-6">
         <Chat lang={brand.lang} welcome={brand.welcome} variant="embed" />
+        <div className="mt-6">
+          <VoiceLauncher lang={brand.lang} />
+        </div>
       </div>
     </main>
   );
