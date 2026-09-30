@@ -134,3 +134,38 @@ Commit of the merge: `ca6b1d8`, parents `6e67d9b` (this branch) and `d71220d` (`
   folder; it is not versioned and the code of the change has no warning.
 - **UNKNOWN**: whether the `EPERM` of the two voice tests is only a Windows and libsql timing matter (the probe says so)
   or also shows on a machine where `main` was green; the retry makes the suite independent of it.
+
+## Second merge: `main` moved to `f495d06`
+
+While section 10 ran, `main` moved from `d71220d` to `f495d06` (the merge of `voice-owner-words`, archived by Fable: the voice routes and the voice screen
+answer with reason codes, a new `business_unnamed` code links to `/admin/business`, and no name of a variable reaches the owner). The instruction was to merge
+`main` again in a second merge commit, list its conflicts, and keep `main`'s behaviour of `components/admin/VoiceAgent.tsx`, `lib/i18n/voice.ts` and the voice
+routes inside the workspace look.
+
+```
+$ git merge --no-commit --no-ff main
+CONFLICT (content): Merge conflict in LOOP_STATE.md
+CONFLICT (content): Merge conflict in components/admin/VoiceAgent.tsx
+CONFLICT (content): Merge conflict in tests/voice-minute-cap.test.ts
+CONFLICT (content): Merge conflict in tests/voice-store-state.test.ts
+```
+
+| File and hunk | Ours | Theirs (`main`) | Resolution |
+|---|---|---|---|
+| `LOOP_STATE.md`, two hunks | state of this round | state of `voice-owner-words` | kept this round, as in the first merge |
+| `components/admin/VoiceAgent.tsx`, the errors | the two errors as a coral `Marker` square beside the text (the first merge had removed the side stripe of the old code) | three outcomes: `not-configured` with the link "For the installer", `business-unnamed` with the link to `/admin/business`, `provider-failed`, each in `border-l-2 border-coral pl-4` | `main`'s three outcomes, words, links and codes, each drawn with the coral `Marker` square; the side stripe stays out because `tests/brand-static.test.ts` bans it |
+| `tests/voice-minute-cap.test.ts`, one hunk | the retry loop of the first merge for the late release of the store file on Windows | `await removeLater(root)`, `main`'s own remedy for the same failure | `main`'s line; the loop is gone |
+| `tests/voice-store-state.test.ts`, one hunk | the same retry loop | `await removeLater(root)` | `main`'s line |
+
+Merged without a conflict and read for meaning: `app/api/admin/voice/route.ts`, `app/api/voice/signed-url/route.ts`, `lib/admin/guard.ts` (`writeOnce` is exported),
+`lib/i18n/voice.ts`, `lib/voice/agent.ts` and `lib/voice/client.ts`, `playwright.config.ts` (a comment), `e2e/voice.spec.ts`, `docs/voice-agent.md`, `docs/voice.md`,
+the two specs in force and the archive of the change. `components/admin/VoiceAgent.tsx` is a client component that already imports `adminStrings`; that is the reason the
+table of the groups of Setup lives outside `adminStrings` (report of 10.5).
+
+```
+$ npx -y -p node@24 -- npm test           Test Files 79 passed (79), Tests 886 passed (886)
+$ npx -y -p node@24 -- npm run typecheck  exit 0
+$ npx eslint .                            exit 0, 1 warning in an ignored reviewer script
+```
+
+Commit of the second merge: `0dd89fd`, parents `484560b` (this branch) and `f495d06` (`main`).
