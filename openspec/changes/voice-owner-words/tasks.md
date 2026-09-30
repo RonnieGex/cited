@@ -11,7 +11,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 1. The state of the base before
 
-- [ ] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, and
+- [x] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, and
       `npm run store:state -- <a store created by the code of the base>` — report:
       `reports/2026-09-29-step-1-base-before.md`
 
