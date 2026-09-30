@@ -264,5 +264,5 @@ el aviso.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="public/brand/katalis-flame-192.png"><img src="public/brand/katalis-flame-ink-192.png" alt="Katalis" height="48"></picture>
-  <a href="https://katalis.dev">Built by Katalis</a>
+  <a href="https://katalis.dev">Hecho por Katalis</a>
 </p>

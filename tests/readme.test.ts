@@ -1431,6 +1431,22 @@ describe("README, the flow and the foot", () => {
     expect(body).toContain(katalisFlame.light);
     expect(h2Titles(text).at(-1)).toBe(slug("License"));
   });
+
+  // Requirement "Katalis always signs with its flame" of the change `brand-identity-ui`: the closing line of a README
+  // reads in the language of the page, beside the flame.
+  it("closes the Spanish README with Hecho por Katalis beside the flame", () => {
+    const text = readText("README.es.md");
+    const body = bodyOf(text, "Licencia");
+    const signature = body.indexOf('<a href="https://katalis.dev">Hecho por Katalis</a>');
+    const flame = body.lastIndexOf(katalisFlame.light, signature);
+
+    expect(signature, "the closing line reads Hecho por Katalis").toBeGreaterThan(-1);
+    expect(flame, "the flame sits just before the closing line").toBeGreaterThan(-1);
+    expect(body.slice(flame, signature), "no other line between the flame and the signature").not.toMatch(
+      /<p\b|<\/p>/,
+    );
+    expect(text, "the Spanish README never signs in English").not.toContain("Built by Katalis");
+  });
 });
 
 describe("the product is named Cited", () => {

@@ -475,6 +475,13 @@ describe("the mark of the maker is the real flame", () => {
       expect(existsSync(absolute(`docs/images/${name}`)), `docs/images/${name}`).toBe(false);
     }
 
+    // Amended in `brand-identity-ui` (requirement "Katalis always signs with its flame"): the closing line reads in the
+    // language of the README, so the Spanish one signs "Hecho por Katalis".
+    const signatures: Record<string, string> = {
+      "README.md": "Built by Katalis",
+      "README.es.md": "Hecho por Katalis",
+    };
+
     for (const readme of ["README.md", "README.es.md"]) {
       const text = readText(readme);
       const foot = pictureBlocks(text).at(-1) ?? "";
@@ -488,7 +495,7 @@ describe("the mark of the maker is the real flame", () => {
       );
       expect(foot, `${readme}: the height of the foot`).toContain('height="48"');
       expect(text, `${readme}: the link of the foot`).toContain(
-        '<a href="https://katalis.dev">Built by Katalis</a>',
+        `<a href="https://katalis.dev">${signatures[readme]}</a>`,
       );
     }
   });
