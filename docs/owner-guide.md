@@ -21,8 +21,9 @@ The list of providers, each one with an honest line (what it costs, where it pro
 meaning search) and a link to get a key. Paste the key, press **Test** and the provider answers; only then can it be
 saved, encrypted, and from then on only its last four characters are shown.
 
-If the provider of the answers does not offer meaning search, the same step offers a second key for it or the search by
-words, which needs no key at all and is enough to start.
+The step is finished when the AI answers and the way to search is chosen: if the provider of the answers does not offer
+meaning search, the same step offers a second key for it or the search by words, which needs no key at all and is enough
+to start.
 
 ### 2. Add your information
 
@@ -90,8 +91,9 @@ abierto: la lista de proveedores, cada uno con una línea honesta (cuánto cuest
 búsqueda por significado) y un enlace para conseguir una llave. Pega la llave, pulsa **Probar** y el proveedor
 responde; solo entonces se puede guardar, cifrada, y desde ese momento solo se ven sus últimos cuatro caracteres.
 
-Si el proveedor de las respuestas no ofrece búsqueda por significado, el mismo paso ofrece una segunda llave para eso o
-la búsqueda por palabras, que no necesita ninguna y alcanza para empezar.
+El paso queda terminado cuando la IA responde y la forma de buscar está elegida: si el proveedor de las respuestas no
+ofrece búsqueda por significado, el mismo paso ofrece una segunda llave para eso o la búsqueda por palabras, que no
+necesita ninguna y alcanza para empezar.
 
 ### 2. Agrega tu información
 
