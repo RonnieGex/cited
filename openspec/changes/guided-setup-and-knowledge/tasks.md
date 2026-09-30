@@ -43,29 +43,29 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 5. Run the checks
 
-- [ ] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
+- [x] 5.1 `npm test` on Windows and in a `node:24` Linux container, `npm run typecheck`, `npm run lint`,
       `npm audit --audit-level=high`, gitleaks, `openspec validate --all --strict`, `git diff --check main...HEAD` —
       report: `reports/2026-09-30-step-5-checks.md`
 
 ## 6. Manual verification
 
-- [ ] 6.1 `npm run build && npm run start` with the fake providers: `curl.exe` of `/admin` without the session, of `/`
+- [x] 6.1 `npm run build && npm run start` with the fake providers: `curl.exe` of `/admin` without the session, of `/`
       with no provider (not ready) and with one (disclosure), and of `/privacy` in both languages — report:
       `reports/2026-09-30-step-6-curl.md`
 
 ## 7. End-to-end
 
-- [ ] 7.1 The E2E of 2.2 and the whole suite green; "From zero to an answer" under five minutes of scripted time;
+- [x] 7.1 The E2E of 2.2 and the whole suite green; "From zero to an answer" under five minutes of scripted time;
       captures at 1440 and 375 px of the welcome, each step, a document page, Try it with a highlighted passage,
       Publish with the preview, and the public page not ready and ready — report: `reports/2026-09-30-step-7-e2e.md`
 
 ## 8. The state of the base after
 
-- [ ] 8.1 Repeat 1.1, the state of the store included, and say which tables and counts changed and why — report: `reports/2026-09-30-step-8-base-after.md`
+- [x] 8.1 Repeat 1.1, the state of the store included, and say which tables and counts changed and why — report: `reports/2026-09-30-step-8-base-after.md`
 
 ## 9. Documentation
 
-- [ ] 9.1 `docs/owner-guide.md` (the four steps with captures, in both languages), the README (status table, a capture of
+- [x] 9.1 `docs/owner-guide.md` (the four steps with captures, in both languages), the README (status table, a capture of
       the guided setup, "What quality to expect" untouched) and its twin — report: `reports/2026-09-30-step-9-docs.md`
-- [ ] 9.2 The delivery `katalis-dev/tasks/entrega-community-13.md` in Spanish with `## Issues` — report:
+- [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-13.md` in Spanish with `## Issues` — report:
       `reports/2026-09-30-step-9-docs.md`
