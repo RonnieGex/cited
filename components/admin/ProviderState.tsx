@@ -1,4 +1,4 @@
-import { Panel, SectionTitle } from "@/components/ui";
+import { SectionTitle } from "@/components/ui";
 import type { ProviderView } from "@/lib/admin/provider-panel";
 import type { AdminStrings } from "@/lib/i18n/admin";
 import type { ProviderEntry } from "@/lib/providers/catalog";

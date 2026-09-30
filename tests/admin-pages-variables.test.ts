@@ -3,18 +3,19 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import AdminSetup from "@/app/admin/page";
 import AdminAi from "@/app/admin/ai/page";
-import AdminBusiness from "@/app/admin/business/page";
+import AdminHome from "@/app/admin/home/page";
+import AdminInformation from "@/app/admin/information/page";
+import AdminPublish from "@/app/admin/publish/page";
 import AdminConversations from "@/app/admin/conversations/page";
-import AdminDocuments from "@/app/admin/documents/page";
+import AdminSettings from "@/app/admin/settings/page";
 import { ADMIN_SECRET, cleanup, environmentOf, setEnvironment } from "./admin-helpers";
 
 // Section 10.4 of the contract, the Major M-3 of `katalis-dev/tasks/revision-community-12.md` and the amendment of
 // `proposal.md`: **no page of the panel shows the name of a variable of the environment**. "For the installer"
-// (`/admin`) is the only one that lists them, because that page exists for whoever installs and it is read only. The
-// API error bodies and the messages of the command line may name one ("the diagnostic of whoever installs"); the
-// interface of the owner may not.
+// (`/admin/settings` since `guided-setup-and-knowledge` decision 11, where that page lives under Settings) is the only
+// one that lists them, because that page exists for whoever installs and it is read only. The API error bodies and the
+// messages of the command line may name one ("the diagnostic of whoever installs"); the interface of the owner may not.
 //
 // This file renders every page of the panel as a browser would receive it and reads its text. The environment of the
 // pages is the one of an installation halfway through its setup, which is exactly when a diagnostic could leak.
@@ -39,6 +40,7 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => (langCookie === undefined ? undefined : { name, value: langCookie }),
   }),
+  headers: async () => ({ get: () => null }),
 }));
 
 beforeEach(() => {
@@ -99,10 +101,15 @@ describe("the pages of the panel never show the name of a variable", () => {
       ...half,
     });
 
+    // The sections of the workspace of decision 11, which are the pages an owner reads: Settings is not one of them
+    // here because it carries "For the installer", and that page is the case below. The guided setup of `/admin` is not
+    // rendered here because its lane is a client component and this file renders on the server without a router; its
+    // words are the ones of `lib/admin/setup-copy.ts`, which the case of `provider-panel-words.test.ts` reads.
     const rendered = await Promise.all([
-      AdminBusiness(),
+      AdminHome(),
+      AdminInformation(),
+      AdminPublish(),
       AdminConversations(),
-      AdminDocuments(),
     ]);
 
     for (const one of rendered) {
@@ -117,7 +124,7 @@ describe("the pages of the panel never show the name of a variable", () => {
       ...half,
     });
 
-    const html = renderToStaticMarkup(await AdminSetup());
+    const html = renderToStaticMarkup(await AdminSettings());
 
     expect(namesIn(html)).toContain("OPENAI_API_KEY");
     expect(namesIn(html)).toContain("EMBEDDINGS_PROVIDER");

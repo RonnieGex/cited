@@ -118,6 +118,26 @@ function messageOf(error: unknown): string {
 }
 
 /**
+ * One file of an upload as the route answers it (decision 3): the name, whether it was read, how many passages it
+ * produced and, when it failed, the sentence the ingestion wrote. The panel classifies that sentence and prints the
+ * words of the owner; the raw reason never reaches the page as a sentence.
+ */
+export type UploadedFile = {
+  name: string;
+  state: "ready" | "failed";
+  passages: number;
+  failure: string | null;
+};
+
+export function uploadedFile(
+  result: IngestReport["failed"][number] | IngestReport["ingested"][number],
+): UploadedFile {
+  return ingestedOne(result)
+    ? { name: result.name, state: "ready", passages: result.passages, failure: null }
+    : { name: result.path, state: "failed", passages: 0, failure: result.reason };
+}
+
+/**
  * Whether the ingestion read a document or not, whichever half of the report it came in. `ingested` carries the
  * passages; `failed` carries the reason and no passages.
  */

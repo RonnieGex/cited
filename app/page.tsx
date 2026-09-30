@@ -105,6 +105,15 @@ export default async function Home() {
           </Panel>
         )}
 
+        <div className="mt-6 flex flex-col gap-1" data-cited="disclosure">
+          <p className="max-w-[65ch] text-sm text-ink-2">{strings.discloseAi}</p>
+          <p>
+            <Link className="text-sm font-semibold text-ink underline underline-offset-4" href="/privacy">
+              {strings.privacyLink}
+            </Link>
+          </p>
+        </div>
+
         <div className="mt-8">
           <VoiceLauncher lang={brand.lang} />
         </div>

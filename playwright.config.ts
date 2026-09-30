@@ -10,6 +10,9 @@ import {
   E2E_BASE_URL,
   E2E_DATABASE_URL,
   E2E_PORT,
+  E2E_SETUP_BASE_URL,
+  E2E_SETUP_DATABASE_URL,
+  E2E_SETUP_PORT,
 } from "./e2e/admin-fixtures";
 
 const port = E2E_PORT;
@@ -58,6 +61,9 @@ const providerDoubleBaseURL = "http://127.0.0.1:3216/v1";
 // virtual store is the address a provider would publish, and `DEEPSEEK_AFFILIATE_URL` is the door the catalogue
 // opens for whoever joins a programme.
 const affiliateEncryptionKey = Buffer.alloc(32, 9).toString("base64");
+// The key of the disposable store of the guided setup: generated here, never committed, and the store it protects is
+// removed at the start of every run.
+const setupEncryptionKey = Buffer.alloc(32, 11).toString("base64");
 
 export default defineConfig({
   testDir: "./e2e",
@@ -105,6 +111,19 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         baseURL: E2E_AFFILIATE_BASE_URL,
+        trace: "on-first-retry",
+        extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
+      },
+    },
+    {
+      // The guided setup: the owner goes from nothing to a published answer, and the timing of that walk is the measure
+      // of the round. The store starts empty, no provider is set by the server, and the double the spec serves on port
+      // 3216 is the OpenAI entry of the catalogue.
+      name: "setup",
+      testMatch: "**/setup.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: E2E_SETUP_BASE_URL,
         trace: "on-first-retry",
         extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
       },
@@ -187,6 +206,33 @@ export default defineConfig({
         DEEPSEEK_AFFILIATE_URL: E2E_AFFILIATE_URL,
         AFFILIATE_LINKS: "on",
         HOSTED_OFFER_URL: "https://katalis.dev/cited",
+      },
+    },
+    {
+      // The server of the guided setup (`e2e/setup.spec.ts`). It starts with an empty store and with no chat provider
+      // and no embeddings provider at all, because the walk of that suite is exactly "from zero to an answer": the
+      // owner connects the AI in the panel, chooses how to search, loads the sample business, asks, verifies and
+      // publishes. The provider of the suite is the local double the spec serves on port 3216, the same one the panel
+      // of the keys uses; `workers: 1` keeps the two from holding the port at once.
+      command: `${reset(E2E_SETUP_DATABASE_URL)} && npm start -- --port ${E2E_SETUP_PORT}`,
+      url: E2E_SETUP_BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000,
+      env: {
+        ADMIN_PASSWORD: E2E_ADMIN_PASSWORD,
+        ADMIN_SESSION_SECRET: E2E_ADMIN_SECRET,
+        DATABASE_URL: E2E_SETUP_DATABASE_URL,
+        TRUST_PROXY: "1",
+        ENCRYPTION_KEY: setupEncryptionKey,
+        OPENAI_BASE_URL: providerDoubleBaseURL,
+        ALLOW_LOCAL_PROVIDERS: "1",
+        AFFILIATE_LINKS: "off",
+        RATE_LIMIT_PER_IP_PER_HOUR: "1000",
+        DAILY_MODEL_CALL_LIMIT: "1000",
+        ELEVENLABS_API_KEY: "",
+        ELEVENLABS_AGENT_ID: "",
+        ELEVENLABS_VOICE_ID: "",
+        VOICE_TOOL_SECRET: "",
       },
     },
   ],

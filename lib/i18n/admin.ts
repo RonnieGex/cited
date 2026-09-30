@@ -1,11 +1,9 @@
+import type { AskFailureKind } from "../chat/client.ts";
 import type { Lang } from "../settings/business.ts";
 
 export type AdminStrings = {
   panelEyebrow: string;
-  navSetup: string;
   navAi: string;
-  navBusiness: string;
-  navDocuments: string;
   navConversations: string;
   navHome: string;
   navInformation: string;
@@ -54,6 +52,10 @@ export type AdminStrings = {
   documentOpen: string;
   documentBack: string;
   documentRemove: string;
+  /** The window of the undo of a removal: the document is still there and the owner can keep it. */
+  documentRemoving: string;
+  documentUndo: string;
+  documentKept: string;
   documentUndone: string;
   documentNoPassages: string;
   noHeading: string;
@@ -88,21 +90,6 @@ export type AdminStrings = {
   homeOpenPanel: string;
   homeAllDone: string;
   settingsTitle: string;
-  privacyTitle: string;
-  privacyIntro: string;
-  privacyProvidersTitle: string;
-  privacyChat: string;
-  privacyEmbeddings: string;
-  privacyWords: string;
-  privacyWhere: string;
-  privacyNoProvider: string;
-  privacyProcessing: string;
-  privacyStoredTitle: string;
-  privacyStoredBody: string;
-  privacyContactTitle: string;
-  privacyContactBody: string;
-  discloseAi: string;
-  privacyLink: string;
   signOut: string;
   tagline: string;
   builtBy: string;
@@ -209,7 +196,16 @@ export type AdminStrings = {
   noDocuments: string;
   conversationsTitle: string;
   conversationsIntro: string;
-  question: string;
+  /** The ask box of Try it: the same three words the public chat uses. */
+  question: { label: string; placeholder: string; submit: string };
+  /** The header of the column of questions of the conversations table. */
+  questionColumn: string;
+  /** The question is being looked up in the documents. */
+  loading: string;
+  sources: string;
+  citation: (n: number) => string;
+  /** One sentence per kind of failure of a question: the panel never prints what the server wrote. */
+  errors: Record<AskFailureKind, string>;
   status: string;
   citations: string;
   when: string;
@@ -298,6 +294,9 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     documentOpen: "Open",
     documentBack: "All the documents",
     documentRemove: "Remove this document",
+    documentRemoving: "Removing {name}. You can still keep it for a few seconds.",
+    documentUndo: "Keep it",
+    documentKept: "Kept. Nothing was removed.",
     documentUndone: "Removed. Upload it again whenever you want.",
     documentNoPassages: "This document has no passages yet.",
     noHeading: "Without a heading",
@@ -333,28 +332,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     homeOpenPanel: "Open the panel",
     homeAllDone: "Nothing is missing.",
     settingsTitle: "Settings",
-    privacyTitle: "Privacy",
-    privacyIntro:
-      "This page says who writes the answers of this assistant, where that happens and what is kept of a conversation.",
-    privacyProvidersTitle: "Who processes your data",
-    privacyChat: "The answers",
-    privacyEmbeddings: "The search",
-    privacyWords: "Search by words, with no provider outside this server",
-    privacyWhere: "Where it processes the data",
-    privacyNoProvider: "Nothing is connected yet.",
-    privacyProcessing:
-      "The question you write and the passages that answer it travel to the provider above, so it can write the answer. The provider processes them under its own terms.",
-    privacyStoredTitle: "What this assistant keeps",
-    privacyStoredBody:
-      "The questions and the answers are kept in this server for a few days and then deleted. The documents the business uploaded stay in this server until the business removes them.",
-    privacyContactTitle: "Something to ask?",
-    privacyContactBody: "Write to the business that owns this assistant. Cited keeps no account of yours.",
-    discloseAi:
-      "Answers are written by AI from this business's documents and can be wrong. Do not share personal data.",
-    privacyLink: "Privacy",
     navAi: "AI and keys",
-    navBusiness: "Business",
-    navDocuments: "Documents",
     navConversations: "Conversations",
     signOut: "Sign out",
     tagline: "Every answer shows where it came from.",
@@ -471,7 +449,16 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     noDocuments: "No document yet. Upload the first one.",
     conversationsTitle: "Conversations",
     conversationsIntro: "The latest questions, whether each was answered or refused, and the numbers of the sources it cited.",
-    question: "Question",
+    question: { label: "Your question", placeholder: "Type your question", submit: "Ask" },
+    questionColumn: "Question",
+    loading: "Looking it up in your documents…",
+    sources: "Sources",
+    citation: (n) => `Citation ${n}`,
+    errors: {
+      rate_limited: "Too many questions from here. Try again in a while.",
+      unavailable: "The assistant cannot answer right now. Try again in a moment.",
+      network: "The connection failed. Check yours and try again.",
+    },
     status: "Status",
     citations: "Citations",
     when: "When",
@@ -491,7 +478,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     pageTitle: {
       signIn: "Sign in · Cited",
       unconfigured: "The panel cannot start · Cited",
-      setup: "For the installer · Cited",
+      setup: "Your setup · Cited",
       ai: "AI and keys · Cited",
       business: "Business · Cited",
       documents: "Documents · Cited",
@@ -540,7 +527,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     uploadTooLargeAdvice: "Un archivo de 20 MB como máximo. Divídelo o guárdalo más pequeño.",
     uploadTypeTitle: "Este tipo de archivo no se puede leer",
     uploadTypeAdvice: "PDF, Word, Markdown o texto plano. Una imagen o una hoja de cálculo todavía no se leen.",
-    uploadNoTextTitle: "Este archivo no tiene texto",
+    uploadNoTextTitle: "Este archivo viene sin texto",
     uploadNoTextAdvice: "Revisa que el archivo no esté vacío y súbelo otra vez.",
     uploadSearchTitle: "La búsqueda todavía no está conectada",
     uploadSearchAdvice: "Termina el paso 1, o elige búsqueda por palabras en IA y llaves.",
@@ -556,6 +543,9 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     documentOpen: "Abrir",
     documentBack: "Todos los documentos",
     documentRemove: "Quitar este documento",
+    documentRemoving: "Quitando {name}. Todavía puedes conservarlo unos segundos.",
+    documentUndo: "Conservarlo",
+    documentKept: "Conservado. No se quitó nada.",
     documentUndone: "Quitado. Súbelo otra vez cuando quieras.",
     documentNoPassages: "Este documento todavía no tiene pasajes.",
     noHeading: "Sin apartado",
@@ -592,29 +582,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     homeOpenPanel: "Abrir el panel",
     homeAllDone: "No falta nada.",
     settingsTitle: "Ajustes",
-    privacyTitle: "Privacidad",
-    privacyIntro:
-      "Esta página dice quién escribe las respuestas de este asistente, dónde ocurre y qué se guarda de una conversación.",
-    privacyProvidersTitle: "Quién trata tus datos",
-    privacyChat: "Las respuestas",
-    privacyEmbeddings: "La búsqueda",
-    privacyWords: "Búsqueda por palabras, sin ningún proveedor fuera de este servidor",
-    privacyWhere: "Dónde trata los datos",
-    privacyNoProvider: "Todavía no hay nada conectado.",
-    privacyProcessing:
-      "La pregunta que escribes y los pasajes que la responden viajan al proveedor de arriba, para que escriba la respuesta. El proveedor los trata según sus propias condiciones.",
-    privacyStoredTitle: "Qué guarda este asistente",
-    privacyStoredBody:
-      "Las preguntas y las respuestas se guardan en este servidor unos días y después se borran. Los documentos que subió el negocio se quedan en este servidor hasta que el negocio los quite.",
-    privacyContactTitle: "¿Algo que preguntar?",
-    privacyContactBody: "Escribe al negocio dueño de este asistente. Cited no guarda ninguna cuenta tuya.",
-    discloseAi:
-      "Las respuestas las escribe una IA a partir de los documentos de este negocio y pueden estar equivocadas. No compartas datos personales.",
-    privacyLink: "Privacidad",
-    navSetup: "Para quien instala",
     navAi: "IA y llaves",
-    navBusiness: "Negocio",
-    navDocuments: "Documentos",
     navConversations: "Conversaciones",
     signOut: "Salir",
     tagline: "Cada respuesta enseña de dónde salió.",
@@ -732,7 +700,16 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     noDocuments: "Todavía no hay documentos. Sube el primero.",
     conversationsTitle: "Conversaciones",
     conversationsIntro: "Las últimas preguntas, si se respondieron o se rechazaron, y los números de las fuentes que citaron.",
-    question: "Pregunta",
+    question: { label: "Tu pregunta", placeholder: "Escribe tu pregunta", submit: "Preguntar" },
+    questionColumn: "Pregunta",
+    loading: "Buscando en tus documentos…",
+    sources: "Fuentes",
+    citation: (n) => `Cita ${n}`,
+    errors: {
+      rate_limited: "Demasiadas preguntas desde aquí. Vuelve a intentarlo en un rato.",
+      unavailable: "El asistente no puede responder ahora mismo. Inténtalo en un momento.",
+      network: "La conexión falló. Revisa la tuya y vuelve a intentarlo.",
+    },
     status: "Estado",
     citations: "Citas",
     when: "Cuándo",
@@ -752,7 +729,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     pageTitle: {
       signIn: "Iniciar sesión · Cited",
       unconfigured: "El panel no puede arrancar · Cited",
-      setup: "Para quien instala · Cited",
+      setup: "Tu configuración · Cited",
       ai: "IA y llaves · Cited",
       business: "Negocio · Cited",
       documents: "Documentos · Cited",

@@ -33,6 +33,23 @@ export type PublicStrings = {
   notReadyTitle: string;
   notReadyBody: string;
   notReadyPanel: string;
+  /** Decision 8: always under the ask box, in the language of the visitor. */
+  discloseAi: string;
+  privacyLink: string;
+  privacyTitle: string;
+  privacyIntro: string;
+  privacyProvidersTitle: string;
+  privacyChat: string;
+  privacyEmbeddings: string;
+  privacyWords: string;
+  privacyWhere: string;
+  privacyNoProvider: string;
+  privacyProcessing: string;
+  privacyStoredTitle: string;
+  privacyStoredBody: string;
+  privacyContactTitle: string;
+  privacyContactBody: string;
+  privacyBack: string;
   widget: { button: string; title: string; close: string };
 };
 
@@ -71,6 +88,26 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     notReadyTitle: "This assistant is not ready yet",
     notReadyBody: "This business has not connected its AI yet. If the business is yours, connect it in the panel.",
     notReadyPanel: "Open the panel",
+    discloseAi:
+      "Answers are written by AI from this business's documents and can be wrong. Do not share personal data.",
+    privacyLink: "Privacy",
+    privacyTitle: "Privacy",
+    privacyIntro:
+      "This page says who writes the answers of this assistant, where that happens and what is kept of a conversation.",
+    privacyProvidersTitle: "Who processes your data",
+    privacyChat: "The answers",
+    privacyEmbeddings: "The search",
+    privacyWords: "Search by words, with no provider outside this server",
+    privacyWhere: "Where it processes the data",
+    privacyNoProvider: "Nothing is connected yet.",
+    privacyProcessing:
+      "The question you write and the passages that answer it travel to the provider above, so it can write the answer. The provider processes them under its own terms.",
+    privacyStoredTitle: "What this assistant keeps",
+    privacyStoredBody:
+      "The questions and the answers are kept in this server for a few days and then deleted. The documents the business uploaded stay in this server until the business removes them.",
+    privacyContactTitle: "Something to ask?",
+    privacyContactBody: "Write to the business that owns this assistant. Cited keeps no account of yours.",
+    privacyBack: "Back to the assistant",
     widget: { button: "Ask us", title: "Ask this business", close: "Close" },
   },
   es: {
@@ -108,6 +145,26 @@ export const PUBLIC_STRINGS: Record<Lang, PublicStrings> = {
     notReadyBody:
       "Este negocio aún no ha conectado su IA. Si el negocio es tuyo, conéctala en el panel.",
     notReadyPanel: "Abrir el panel",
+    discloseAi:
+      "Las respuestas las escribe una IA a partir de los documentos de este negocio y pueden estar equivocadas. No compartas datos personales.",
+    privacyLink: "Privacidad",
+    privacyTitle: "Privacidad",
+    privacyIntro:
+      "Esta página dice quién escribe las respuestas de este asistente, dónde ocurre y qué se guarda de una conversación.",
+    privacyProvidersTitle: "Quién trata tus datos",
+    privacyChat: "Las respuestas",
+    privacyEmbeddings: "La búsqueda",
+    privacyWords: "Búsqueda por palabras, sin ningún proveedor fuera de este servidor",
+    privacyWhere: "Dónde trata los datos",
+    privacyNoProvider: "Todavía no hay nada conectado.",
+    privacyProcessing:
+      "La pregunta que escribes y los pasajes que la responden viajan al proveedor de arriba, para que escriba la respuesta. El proveedor los trata según sus propias condiciones.",
+    privacyStoredTitle: "Qué guarda este asistente",
+    privacyStoredBody:
+      "Las preguntas y las respuestas se guardan en este servidor unos días y después se borran. Los documentos que subió el negocio se quedan en este servidor hasta que el negocio los quite.",
+    privacyContactTitle: "¿Algo que preguntar?",
+    privacyContactBody: "Escribe al negocio dueño de este asistente. Cited no guarda ninguna cuenta tuya.",
+    privacyBack: "Volver al asistente",
     widget: { button: "Pregúntanos", title: "Pregunta a este negocio", close: "Cerrar" },
   },
 };

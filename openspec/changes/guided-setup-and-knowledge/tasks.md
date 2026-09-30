@@ -28,18 +28,18 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 3. Implementation
 
-- [ ] 3.1 The welcome, the guided setup and the workspace navigation (decisions 1 and 2) — report:
+- [x] 3.1 The welcome, the guided setup and the workspace navigation (decisions 1 and 2) — report:
       `reports/2026-09-30-step-3-implementation.md`
-- [ ] 3.2 Information: uploads, the sample business, the document page (decisions 3 to 5) — report:
+- [x] 3.2 Information: uploads, the sample business, the document page (decisions 3 to 5) — report:
       `reports/2026-09-30-step-3-implementation.md`
-- [ ] 3.3 Try it (decision 6) — report: `reports/2026-09-30-step-3-implementation.md`
-- [ ] 3.4 Publish with the live preview (decision 7) — report: `reports/2026-09-30-step-3-implementation.md`
-- [ ] 3.5 The public page: not ready, the AI disclosure and `/privacy` (decision 8) — report:
+- [x] 3.3 Try it (decision 6) — report: `reports/2026-09-30-step-3-implementation.md`
+- [x] 3.4 Publish with the live preview (decision 7) — report: `reports/2026-09-30-step-3-implementation.md`
+- [x] 3.5 The public page: not ready, the AI disclosure and `/privacy` (decision 8) — report:
       `reports/2026-09-30-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests
 
-- [ ] 4.1 The whole suite; say which test changed and why — report: `reports/2026-09-30-step-4-existing-tests.md`
+- [x] 4.1 The whole suite; say which test changed and why — report: `reports/2026-09-30-step-4-existing-tests.md`
 
 ## 5. Run the checks
 

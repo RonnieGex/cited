@@ -27,13 +27,12 @@ export default async function AdminInformation() {
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.navInformation}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.documentsIntro}</p>
       <InfoPanel
         documents={documents}
-        lang={lang}
         sampleLoaded={documents.length > 0}
         sampleNames={sampleNames()}
         strings={strings}

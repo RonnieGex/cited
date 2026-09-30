@@ -10,7 +10,18 @@ import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 // The layout answers with the sign-in or with the unfinished installation whenever it cannot show the page, and the title
 // follows what the layout shows, so a signed-out visitor of `/admin/documents` reads the title of the sign-in.
 
-export type PanelPage = "setup" | "ai" | "business" | "documents" | "conversations";
+// Decision 11 of `openspec/changes/guided-setup-and-knowledge/design.md` renamed the sections of the workspace, so the
+// names of the titles are the ones of the new navigation, and every page of the round has its own.
+export type PanelPage =
+  | "setup"
+  | "ai"
+  | "conversations"
+  | "home"
+  | "information"
+  | "try"
+  | "publish"
+  | "settings"
+  | "document";
 
 export async function panelMetadata(page: PanelPage): Promise<Metadata> {
   const stored = await cookies();

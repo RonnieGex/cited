@@ -7,6 +7,9 @@ import { E2E_ADDRESS, E2E_ADMIN_PASSWORD, E2E_BASE_URL } from "./admin-fixtures"
 const english = adminStrings("en");
 const spanish = adminStrings("es");
 const password = E2E_ADMIN_PASSWORD;
+// The panel of this suite starts with its store empty and its two providers set by the server, so the guided setup of
+// `/admin` shows the lane with the first step already verified (decision 2 of `guided-setup-and-knowledge`).
+const welcome = new RegExp(`${english.setupWelcomeTitle}|${english.setupStepsTitle}|${english.setupDoneTitle}`);
 const sample = resolve(process.cwd(), "samples", "cafe-la-horquilla.md");
 const language = { name: "Español" };
 
@@ -31,7 +34,7 @@ async function signIn(page: Page): Promise<void> {
   await page.getByLabel(english.passwordLabel).fill(password);
   await page.getByRole("button", { name: english.signIn }).click();
 
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupTitle);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(welcome);
 }
 
 test("the panel opens in English and signs the owner in", async ({ page }) => {
@@ -48,7 +51,7 @@ test("the panel opens in English and signs the owner in", async ({ page }) => {
 
   await page.getByLabel(english.passwordLabel).fill(password);
   await page.getByRole("button", { name: english.signIn }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupTitle);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(welcome);
 
   await axe(page);
 });
@@ -75,10 +78,12 @@ test("the sixth attempt of one address is locked", async ({ browser }) => {
   await context.close();
 });
 
-test("the setup page lists the variables without their values and tests a provider", async ({
+test("For the installer lists the variables without their values and tests a provider", async ({
   page,
 }) => {
   await signIn(page);
+  // Decision 11: the names of the variables live only here, under Settings, and this is the page of whoever installs.
+  await page.goto("/admin/settings");
 
   // The Required group lies open; the other groups fold into a details and are opened here before they are read.
   await expect(page.getByText("ADMIN_PASSWORD", { exact: true })).toBeVisible();
@@ -101,9 +106,9 @@ test("the setup page lists the variables without their values and tests a provid
   await axe(page);
 });
 
-test("the business form is saved and the panel speaks Spanish", async ({ page }) => {
+test("the business form is saved in Look and publish and the panel speaks Spanish", async ({ page }) => {
   await signIn(page);
-  await page.goto("/admin/business");
+  await page.goto("/admin/publish");
 
   await page.getByLabel(english.businessName).fill("Café La Horquilla");
   await page.getByLabel(english.businessTone).fill("cercano y breve");
@@ -111,7 +116,7 @@ test("the business form is saved and the panel speaks Spanish", async ({ page })
   await page.getByLabel(english.welcomeEn).fill("Welcome. Ask about our policies.");
   await page.getByLabel(english.welcomeEs).fill("Bienvenido. Pregunta por nuestras políticas.");
   await page.getByRole("button", { name: english.saveBusiness }).click();
-  await expect(page.getByRole("status")).toContainText(english.saved);
+  await expect(page.getByRole("status").first()).toContainText(english.saved);
 
   await expect(page.getByTestId("language-switch").getByRole("button", { name: language.name })).toBeVisible();
   await page.getByRole("button", { name: language.name }).click();
@@ -123,9 +128,9 @@ test("the business form is saved and the panel speaks Spanish", async ({ page })
   await axe(page);
 });
 
-test("an SVG logo is refused and a document is uploaded, listed and deleted", async ({ page }) => {
+test("an SVG logo is refused and a document is uploaded, opened and removed with its undo", async ({ page }) => {
   await signIn(page);
-  await page.goto("/admin/business");
+  await page.goto("/admin/publish");
 
   await page.getByLabel(english.logoLabel).setInputFiles({
     name: "logo.svg",
@@ -135,35 +140,32 @@ test("an SVG logo is refused and a document is uploaded, listed and deleted", as
   await page.getByRole("button", { name: english.uploadLogo }).click();
   await expect(page.getByText(/not a PNG, JPEG or WebP/)).toBeVisible();
 
-  await page.goto("/admin/documents");
+  // The information lane: one file, its result in words and its page.
+  await page.goto("/admin/information");
   await page.getByLabel(english.uploadDocument).setInputFiles(sample);
-  await page.getByRole("button", { name: english.upload }).click();
-  await expect(page.getByText("cafe-la-horquilla.md")).toBeVisible();
+  await expect(page.getByText(english.uploadReady.replace("{n}", "4"))).toBeVisible();
 
-  const row = page.getByRole("row", { name: /cafe-la-horquilla\.md/ });
-
-  await expect(row).toContainText("4");
-  await row.getByRole("button", { name: `${english.deleteDocument} cafe-la-horquilla.md` }).click();
-
-  // Decision 28 of `brand-identity-ui`: the first press asks, in place, and the focus is on Keep; only the second deletes.
-  const asking = page.getByRole("group", { name: "Delete cafe-la-horquilla.md?" });
-
-  await expect(asking).toBeVisible();
-  await expect(asking.getByRole("button", { name: english.keep })).toBeFocused();
-  await expect(page.getByRole("dialog"), "no modal").toHaveCount(0);
-  await expect(row, "nothing is deleted on the first press").toBeVisible();
-  await asking.getByRole("button", { name: english.confirmDelete, exact: true }).click();
-  await expect(page.getByText("cafe-la-horquilla.md")).toHaveCount(0);
+  await page.getByRole("link", { name: "cafe-la-horquilla.md" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.documentName);
+  await expect(page.getByRole("heading", { level: 2, name: "Horario" })).toBeVisible();
 
   await axe(page);
+
+  // Decision 5: the removal opens a window of a few seconds in which nothing was deleted, and the undo keeps the file.
+  await page.getByRole("button", { name: english.documentRemove }).click();
+  await expect(page.getByText(english.documentRemoving.replace("{name}", "cafe-la-horquilla.md"))).toBeVisible();
+  await page.getByRole("button", { name: english.documentUndo }).click();
+  await expect(page.getByText(english.documentKept)).toBeVisible();
+
+  await page.goto("/admin/information");
+  await expect(page.getByRole("link", { name: "cafe-la-horquilla.md" })).toBeVisible();
 });
 
 test("the conversations are listed and deleted", async ({ page }) => {
   await signIn(page);
-  await page.goto("/admin/documents");
+  await page.goto("/admin/information");
   await page.getByLabel(english.uploadDocument).setInputFiles(sample);
-  await page.getByRole("button", { name: english.upload }).click();
-  await expect(page.getByText("cafe-la-horquilla.md")).toBeVisible();
+  await expect(page.getByText(english.uploadReady.replace("{n}", "4"))).toBeVisible();
 
   const answered = await page.request.post("/api/ask", {
     data: { question: "¿Cuánto cuesta una afinación de bicicleta?", sessionId: "e2e-panel" },

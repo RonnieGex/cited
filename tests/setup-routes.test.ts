@@ -48,12 +48,14 @@ async function signedEnvironment(overrides: Record<string, string | undefined> =
 
   const environment = await environmentOf({ ...configured(), DATABASE_URL: path, ...overrides });
 
-  token = sessionToken(ADMIN_SECRET, new Date(), environment);
+  // The token is signed with the secret of the environment that `environmentOf()` just set, which is the one the
+  // routes read: `sessionToken()` takes the secret and the moment, and nothing else.
+  expect(environment["ADMIN_SESSION_SECRET"]).toBe(ADMIN_SECRET);
+  token = sessionToken(ADMIN_SECRET, new Date());
   storePath = path;
 
   return path;
 }
-
 function request(path: string, body: unknown, method = "POST"): Request {
   return new Request(`http://localhost${path}`, {
     method,

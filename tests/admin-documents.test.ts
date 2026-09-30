@@ -54,15 +54,19 @@ describe("the documents of the panel", () => {
 
     const uploaded = await documentsUpload(upload("cafe-la-horquilla.md", sample));
     const report = (await uploaded.json()) as {
-      report: { ingested: Array<{ name: string; passages: number }>; failed: unknown[] };
+      results: Array<{ name: string; state: string; passages: number; failure: string | null }>;
       documents: Listed["documents"];
     };
 
     expect(uploaded.status).toBe(200);
-    expect(report.report.failed).toEqual([]);
-    expect(report.report.ingested[0]?.name).toBe("cafe-la-horquilla.md");
+    // The answer of an upload is one result per file since the guided setup (decision 3): `state` says whether the
+    // file was read and `failure` carries the sentence of the ingestion, which the panel classifies.
+    expect(report.results).toHaveLength(1);
+    expect(report.results[0]?.state).toBe("ready");
+    expect(report.results[0]?.failure).toBeNull();
+    expect(report.results[0]?.name).toBe("cafe-la-horquilla.md");
 
-    const passages = report.report.ingested[0]?.passages ?? 0;
+    const passages = report.results[0]?.passages ?? 0;
 
     expect(passages).toBeGreaterThanOrEqual(1);
     expect(report.documents.find((one) => one.name === "cafe-la-horquilla.md")?.passages).toBe(
@@ -90,7 +94,7 @@ describe("the documents of the panel", () => {
     expect(await store.countIndexed()).toBe(0);
   });
 
-  it("refuses a type the ingestion does not accept and a file with no readable text", async () => {
+  it("refuses a type the ingestion does not accept and a file with no readable text, one result per file", async () => {
     await environmentOf({ ...configured(), CHAT_PROVIDER: "fake", EMBEDDINGS_PROVIDER: "fake" });
 
     const renamed = new Request("http://localhost/api/admin/documents", {
@@ -100,11 +104,18 @@ describe("the documents of the panel", () => {
     });
     const picture = await documentsUpload(renamed);
     const empty = await documentsUpload(upload("vacio.md", "   \n\n  "));
+    const pictureBody = (await picture.json()) as { results: Array<{ state: string; failure: string | null }> };
+    const emptyBody = (await empty.json()) as { results: Array<{ state: string; failure: string | null }> };
     const store = await sharedStore();
 
-    expect(picture.status).toBe(400);
-    expect(await picture.text()).not.toContain("claims to be a PNG image");
-    expect(empty.status).toBe(400);
+    // A file that cannot be read fails alone and the request still answers 200: that is what lets the other files of
+    // the same upload keep going (the scenario "A scanned PDF" of `specs/owner-setup/spec.md`).
+    expect(picture.status).toBe(200);
+    expect(pictureBody.results[0]?.state).toBe("failed");
+    expect(pictureBody.results[0]?.failure).not.toBeNull();
+    expect(JSON.stringify(pictureBody)).not.toContain("claims to be a PNG image");
+    expect(empty.status).toBe(200);
+    expect(emptyBody.results[0]?.state).toBe("failed");
     expect(await store.countDocuments()).toBe(0);
   });
 
@@ -146,7 +157,10 @@ describe("the documents of the panel", () => {
     expect(ingest).toContain("export async function ingestPaths");
     expect(panel).toContain('from "../ingest/index.ts"');
     expect(panel).toContain("ingestPaths([path]");
-    expect(route).toContain("ingestUpload");
+    // The route asks `ingestOne()`, which is the same `ingestUpload()` for one file and answers instead of throwing, so
+    // a failure is one result and the files after it keep going (decision 3).
+    expect(route).toContain("ingestOne");
+    expect(panel).toContain("ingestUpload");
     expect(route).not.toContain("chunkText(");
   });
 });

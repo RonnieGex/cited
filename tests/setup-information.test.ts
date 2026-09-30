@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { uploadResult, type UploadOutcome } from "@/lib/admin/upload-result";
+import { uploadResult, type UploadOutcome, type UploadResult } from "@/lib/admin/upload-result";
 import { SAMPLE_DOCUMENTS, SAMPLE_NAME } from "@/lib/admin/samples";
 import { documentSections } from "@/lib/admin/document-sections";
 import type { StoredPassage } from "@/lib/store/types";
@@ -12,6 +12,15 @@ function outcomeOf(failure: string, name = "notas.txt"): UploadOutcome {
   return { name, passages: 0, failure };
 }
 
+/** The failure of a result, with the union narrowed, so the words of a failure can be read. */
+function failed(answer: UploadResult): Extract<UploadResult, { state: "failed" }> {
+  if (answer.state !== "failed") {
+    throw new Error("the file was expected to fail");
+  }
+
+  return answer;
+}
+
 describe("the result of one file of an upload", () => {
   it("says ready with the number of passages it produced", () => {
     expect(uploadResult({ name: "precios.md", passages: 4, failure: null })).toEqual({
@@ -22,7 +31,7 @@ describe("the result of one file of an upload", () => {
   });
 
   it("says a PDF with no text layer looks like a scan and that scans are not supported yet", () => {
-    const answer = uploadResult(outcomeOf("the file has no readable text", "escaneo.pdf"));
+    const answer = failed(uploadResult(outcomeOf("the file has no readable text", "escaneo.pdf")));
 
     expect(answer.state).toBe("failed");
     expect(answer.title.en).toContain("scan");
@@ -32,7 +41,7 @@ describe("the result of one file of an upload", () => {
   });
 
   it("says a file over the size limit is too large and what the limit is", () => {
-    const answer = uploadResult(outcomeOf("notas.txt crosses the size limit: 9 bytes is above the maximum of 5."));
+    const answer = failed(uploadResult(outcomeOf("notas.txt crosses the size limit: 9 bytes is above the maximum of 5.")));
 
     expect(answer.state).toBe("failed");
     expect(answer.title.en.toLowerCase()).toContain("large");
@@ -40,7 +49,9 @@ describe("the result of one file of an upload", () => {
   });
 
   it("says a type that is not supported is not supported", () => {
-    const answer = uploadResult(outcomeOf("logo.svg is not an accepted type: the content is not PDF, DOCX, Markdown or plain text."));
+    const answer = failed(
+      uploadResult(outcomeOf("logo.svg is not an accepted type: the content is not PDF, DOCX, Markdown or plain text.")),
+    );
 
     expect(answer.state).toBe("failed");
     expect(answer.title.en.toLowerCase()).toContain("not a type");
@@ -48,7 +59,7 @@ describe("the result of one file of an upload", () => {
   });
 
   it("says a text file with nothing in it has no text", () => {
-    const answer = uploadResult(outcomeOf("the file has no readable text", "vacio.txt"));
+    const answer = failed(uploadResult(outcomeOf("the file has no readable text", "vacio.txt")));
 
     expect(answer.state).toBe("failed");
     expect(answer.title.en.toLowerCase()).toContain("no text");
@@ -56,7 +67,9 @@ describe("the result of one file of an upload", () => {
   });
 
   it("says the AI is not connected when that is what failed", () => {
-    const answer = uploadResult(outcomeOf("the embeddings provider saved in the panel has no key: connect it again"));
+    const answer = failed(
+      uploadResult(outcomeOf("the embeddings provider saved in the panel has no key: connect it again")),
+    );
 
     expect(answer.state).toBe("failed");
     expect(answer.title.en.toLowerCase()).toContain("search");
@@ -64,7 +77,7 @@ describe("the result of one file of an upload", () => {
   });
 
   it("never prints what the server wrote", () => {
-    const answer = uploadResult(outcomeOf("Error: connect ECONNREFUSED 127.0.0.1:11434"));
+    const answer = failed(uploadResult(outcomeOf("Error: connect ECONNREFUSED 127.0.0.1:11434")));
 
     expect(JSON.stringify(answer)).not.toContain("ECONNREFUSED");
     expect(JSON.stringify(answer)).not.toContain("127.0.0.1");

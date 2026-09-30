@@ -31,9 +31,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           </p>
           <Link
             className="text-sm font-semibold text-ink underline-offset-4 hover:underline"
-            href="/admin"
+            href="/admin/settings"
           >
-            {strings.navSetup}
+            {strings.panelInstaller}
           </Link>
         </Panel>
       </AuthShell>

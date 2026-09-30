@@ -289,7 +289,7 @@ describe("resolveEmbeddings", () => {
 describe("the tables this change added", () => {
   it("says which ones the store has to carry, for the reader of the state", () => {
     // Task 10.6 of the contract: `scripts/store-state.ts` prints the tables of the schema, and this list is the one
-    // it reads. The three names of the end are the ones this change added to the schema.
+    // it reads. The names of the end are the ones this change and the guided setup added to the schema.
     expect(storeTables).toContain("documents");
     expect(storeTables).toContain("passages");
     expect(storeTables).toContain("passages_fts");
@@ -298,10 +298,11 @@ describe("the tables this change added", () => {
     expect(storeTables).toContain("conversations");
     expect(storeTables).toContain("login_attempts");
     expect(storeTables).toContain("business");
-    expect(storeTables.slice(-3)).toEqual([
+    expect(storeTables.slice(-4)).toEqual([
       "provider_settings",
       "provider_tests",
       "document_index",
+      "setup_flags",
     ]);
     expect(new Set(storeTables).size).toBe(storeTables.length);
   });

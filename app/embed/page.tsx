@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { Chat } from "@/components/chat";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
+import { Panel } from "@/components/ui";
 import { VoiceLauncher } from "@/components/voice";
 import { LANG_COOKIE } from "@/lib/i18n/language";
+import { PUBLIC_STRINGS } from "@/lib/i18n/public";
 import { readPublicBrand } from "@/lib/public/brand";
+import { chatProblem, resolveChat } from "@/lib/settings/providers";
 
 // The page the widget frames: the same chat as the public page without its chrome. Its `frame-ancestors` is the one the
 // proxy sets, and `ALLOWED_ORIGINS` is the list of the sites that may embed it.
@@ -25,6 +29,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Embed() {
   const cookie = (await cookies()).get(LANG_COOKIE)?.value;
   const brand = await readPublicBrand(cookie);
+  const strings = PUBLIC_STRINGS[brand.lang];
+  const chat = await resolveChat({ environment: process.env });
+  const ready = chatProblem(chat) === null;
 
   return (
     <div
@@ -52,7 +59,29 @@ export default async function Embed() {
       </header>
 
       <main className="mx-auto w-full max-w-[560px] px-4 py-6">
-        <Chat lang={brand.lang} welcome={brand.welcome} variant="embed" />
+        {ready ? (
+          <Chat lang={brand.lang} welcome={brand.welcome} variant="embed" />
+        ) : (
+          // Decision 8 of `openspec/changes/guided-setup-and-knowledge/design.md`: the widget is honest about its state
+          // too, and it offers the owner the way in instead of a box that cannot answer.
+          <Panel className="flex flex-col gap-2" data-cited="not-ready">
+            <p className="text-lg font-semibold text-ink">{strings.notReadyTitle}</p>
+            <p className="text-ink-2">{strings.notReadyBody}</p>
+            <Link className="text-sm font-semibold text-ink underline underline-offset-4" href="/admin">
+              {strings.notReadyPanel}
+            </Link>
+          </Panel>
+        )}
+
+        <div className="mt-6 flex flex-col gap-1" data-cited="disclosure">
+          <p className="text-sm text-ink-2">{strings.discloseAi}</p>
+          <p>
+            <Link className="text-sm font-semibold text-ink underline underline-offset-4" href="/privacy">
+              {strings.privacyLink}
+            </Link>
+          </p>
+        </div>
+
         <div className="mt-6">
           <VoiceLauncher lang={brand.lang} />
         </div>

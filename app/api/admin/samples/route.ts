@@ -1,8 +1,7 @@
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
-import { ingestOne, ingestedOne } from "../../../../lib/admin/documents.ts";
+import { ingestOne, uploadedFile, type UploadedFile } from "../../../../lib/admin/documents.ts";
 import { SAMPLE_DOCUMENTS, SAMPLE_NAME } from "../../../../lib/admin/samples.ts";
-import { uploadResult, type UploadResult } from "../../../../lib/admin/upload-result.ts";
 import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
 import { embeddingsSignature, panelEmbeddingsProblem, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
@@ -31,20 +30,17 @@ export async function POST(request: Request): Promise<Response> {
 
   const embeddings = embeddingsFrom(resolution);
   const signature = embeddingsSignature(resolution);
-  const results: UploadResult[] = [];
+  const results: UploadedFile[] = [];
   const documents: string[] = [];
 
   for (const sample of SAMPLE_DOCUMENTS) {
     const read = await ingestOne(store, embeddings, sample.name, sample.bytes, signature);
+    const file = uploadedFile(read);
 
-    results.push(
-      ingestedOne(read)
-        ? uploadResult({ name: read.name, passages: read.passages, failure: null })
-        : uploadResult({ name: read.path, passages: 0, failure: read.reason }),
-    );
+    results.push(file);
 
-    if (ingestedOne(read)) {
-      documents.push(read.name);
+    if (file.state === "ready") {
+      documents.push(file.name);
     }
   }
 

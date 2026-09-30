@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useRef, useState, type DragEvent } from "react";
-import { Button, Panel, focusRing } from "@/components/ui";
+import { Button, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { DocumentSummary } from "@/lib/admin/documents";
 import type { AdminStrings } from "@/lib/i18n/admin";
-import type { UploadResult } from "@/lib/admin/upload-result";
-import type { Lang } from "@/lib/settings/business";
+import { uploadCopy, uploadResult, type UploadOutcome, type UploadResult } from "@/lib/admin/upload-result";
 
 // Decision 3 of `openspec/changes/guided-setup-and-knowledge/design.md`: the owner drags several files at once — or
 // picks them with the button of the same control — and every file says, in words, what is happening to it and how it
@@ -22,7 +21,6 @@ import type { Lang } from "@/lib/settings/business";
 
 export type InfoPanelProps = {
   strings: AdminStrings;
-  lang: Lang;
   documents: DocumentSummary[];
   sampleNames?: string[];
   sampleLoaded?: boolean;
@@ -40,7 +38,7 @@ type Progress = {
 type Answer = {
   status?: string;
   error?: string;
-  results?: UploadResult[];
+  results?: UploadOutcome[];
   documents?: DocumentSummary[];
   name?: string;
   documents_added?: string[];
@@ -53,7 +51,7 @@ const ACCEPT = ".pdf,.docx,.md,.markdown,.mdx,.txt,.text,.csv,.log,.tsv";
 const fileField =
   "min-h-11 p-2 text-sm file:mr-4 file:cursor-pointer file:rounded-none file:border-0 file:bg-ink file:px-4 file:py-2 file:text-sm file:font-bold file:uppercase file:tracking-[0.05em] file:text-paper hover:file:bg-surface-dark";
 
-export function InfoPanel({ strings, lang, documents, sampleNames = [], sampleLoaded = false }: InfoPanelProps) {
+export function InfoPanel({ strings, documents, sampleNames = [], sampleLoaded = false }: InfoPanelProps) {
   const [list, setList] = useState(documents);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -87,12 +85,15 @@ export function InfoPanel({ strings, lang, documents, sampleNames = [], sampleLo
     setBusy(true);
     setMessage(null);
     setError(null);
-    setProgress(files.map((file, index) => ({ id: `${index}-${file.name}`, name: file.name, phase: "uploading", result: null })));
+    setProgress(files.map((file) => ({ id: file.name, name: file.name, phase: "uploading", result: null })));
 
-    for (const [index, file] of files.entries()) {
-      const id = `${index}-${file.name}`;
+    // One file per request, in the order the owner chose them: that is what lets one file fail while the ones after it
+    // keep being read, and what makes the progress of every file true (decision 3). The answer carries one result per
+    // file it read — the request sends one — and every result of the answer takes its row, so a route that answered
+    // about more than the file in flight is shown too and never dropped.
+    for (const file of files) {
       const step = (phase: Phase): void => {
-        setProgress((current) => current.map((one) => (one.id === id ? { ...one, phase } : one)));
+        setProgress((current) => current.map((one) => (one.id === file.name ? { ...one, phase } : one)));
       };
 
       step("reading");
@@ -113,16 +114,28 @@ export function InfoPanel({ strings, lang, documents, sampleNames = [], sampleLo
 
       step("splitting");
 
-      const result: UploadResult =
-        answer.results?.[0] ??
-        ({
-          state: "failed",
-          name: file.name,
-          title: { en: strings.uploadFailedTitle, es: strings.uploadFailedTitle },
-          advice: { en: strings.uploadFailedAdvice, es: strings.uploadFailedAdvice },
-        } satisfies UploadResult);
+      const outcomes: UploadOutcome[] =
+        answer.results !== undefined && answer.results.length > 0
+          ? answer.results
+          : [{ name: file.name, passages: 0, failure: "unknown" }];
 
-      setProgress((current) => current.map((one) => (one.id === id ? { ...one, phase: "done", result } : one)));
+      setProgress((current) => {
+        const next = [...current];
+
+        for (const outcome of outcomes) {
+          const result: UploadResult = uploadResult(outcome);
+          const row = { id: outcome.name, name: outcome.name, phase: "done" as Phase, result };
+          const at = next.findIndex((one) => one.id === outcome.name);
+
+          if (at === -1) {
+            next.push(row);
+          } else {
+            next[at] = row;
+          }
+        }
+
+        return next;
+      });
 
       if (answer.documents !== undefined) {
         setList(answer.documents);
@@ -250,9 +263,9 @@ export function InfoPanel({ strings, lang, documents, sampleNames = [], sampleLo
               ) : (
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-semibold text-ink" role="alert">
-                    {one.result.title[lang]}
+                    {uploadCopy(one.result.reason, strings).title}
                   </p>
-                  <p className="max-w-[65ch] text-sm text-ink-2">{one.result.advice[lang]}</p>
+                  <p className="max-w-[65ch] text-sm text-ink-2">{uploadCopy(one.result.reason, strings).advice}</p>
                 </div>
               )}
             </li>
@@ -282,7 +295,12 @@ export function InfoPanel({ strings, lang, documents, sampleNames = [], sampleLo
         </p>
       )}
 
-      <Panel className={`overflow-x-auto ${focusRing}`}>
+      <Panel className={`flex flex-col gap-3 overflow-x-auto ${focusRing}`}>
+        {/* The h1 of the page already says it: the box keeps its heading for the reader of the screen only. */}
+        <SectionTitle className="sr-only" level="h2">
+          {strings.documentsTitle}
+        </SectionTitle>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2">{strings.passages}</p>
         {list.length === 0 ? (
           <p className="text-sm text-ink/80">{strings.noDocuments}</p>
         ) : (
@@ -298,9 +316,10 @@ export function InfoPanel({ strings, lang, documents, sampleNames = [], sampleLo
                 >
                   {document.name}
                 </Link>
-                <span className="text-sm text-ink-2 tabular-nums">
-                  {strings.uploadReady.replace("{n}", String(document.passages))}
-                </span>
+                {/* The number of passages of the document, once it is in the store: the row of an upload says it in
+                    words ("Ready, N passages") and this list keeps the count, which is what the page of the document
+                    opens with (decision 5). */}
+                <span className="text-sm text-ink-2 tabular-nums">{document.passages}</span>
               </li>
             ))}
           </ul>

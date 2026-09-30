@@ -35,7 +35,7 @@ export default async function AdminDocument({ params }: PageProps<"/admin/inform
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.navInformation}>
+      <SectionTitle level="h1">
         {strings.documentName}
       </SectionTitle>
       <DocumentPanel document={summary} lang={lang} passages={passages} strings={strings} />

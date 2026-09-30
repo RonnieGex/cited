@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CitationMark, Highlight } from "@/components/brand";
 import { Button, Panel, focusRing } from "@/components/ui";
 import { documentSections } from "@/lib/admin/document-sections";
@@ -14,8 +14,38 @@ import type { StoredPassage } from "@/lib/store/types";
 // type and when it was added; its passages grouped under their headings in reading order, exactly as the store keeps
 // them; and "Remove" with an undo of a few seconds, in place, with no modal.
 //
+// The undo is real: the press opens a window of a few seconds in which nothing has been deleted yet and the page says
+// so, and the request leaves when the window closes. The timer lives outside the component so that walking to another
+// page of the panel does not cancel the removal the owner asked for.
+//
 // The page is also where a citation of Try it lands when the owner wants the whole document, so the passage a citation
 // opened is the one the page highlights.
+
+const UNDO_MS = 6000;
+
+let pending: { name: string; timer: ReturnType<typeof setTimeout> } | null = null;
+
+function cancelPending(): void {
+  if (pending !== null) {
+    clearTimeout(pending.timer);
+    pending = null;
+  }
+}
+
+function removeNow(name: string, onDone: () => void): void {
+  cancelPending();
+
+  const timer = setTimeout(() => {
+    pending = null;
+    void fetch("/api/admin/documents/delete", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name }),
+    }).then(onDone);
+  }, UNDO_MS);
+
+  pending = { name, timer };
+}
 
 export type DocumentPanelProps = {
   strings: AdminStrings;
@@ -27,26 +57,34 @@ export type DocumentPanelProps = {
 };
 
 export function DocumentPanel({ strings, lang, document, passages, highlight = null }: DocumentPanelProps) {
-  const [gone, setGone] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  const [waiting, setWaiting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const mounted = useRef(true);
   const sections = documentSections(passages);
 
-  async function remove(): Promise<void> {
-    setBusy(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
-    const response = await fetch("/api/admin/documents/delete", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: document.name }),
+  function ask(): void {
+    setWaiting(true);
+    setMessage(strings.documentRemoving.replace("{name}", document.name));
+    removeNow(document.name, () => {
+      if (mounted.current) {
+        setWaiting(false);
+        setRemoved(true);
+        setMessage(strings.documentUndone);
+      }
     });
+  }
 
-    if (response.ok) {
-      setGone(true);
-      setMessage(strings.documentUndone);
-    }
-
-    setBusy(false);
+  function keep(): void {
+    cancelPending();
+    setWaiting(false);
+    setMessage(strings.documentKept);
   }
 
   return (
@@ -90,6 +128,9 @@ export function DocumentPanel({ strings, lang, document, passages, highlight = n
                     ) : (
                       <p className="max-w-[65ch] text-[16px] leading-[1.6] text-ink">{passage.text}</p>
                     )}
+                    <span className="sr-only">
+                      {lang === "es" ? `Pasaje ${passage.position}` : `Passage ${passage.position}`}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -98,18 +139,29 @@ export function DocumentPanel({ strings, lang, document, passages, highlight = n
         </div>
       )}
 
-      {gone ? (
+      {removed ? (
         <p className="text-sm font-semibold text-ink" role="status">
           {message}
         </p>
       ) : (
         <Panel className="flex flex-col gap-3">
           <p className="max-w-[65ch] text-sm text-ink/80">{strings.confirmDeleteDocument.replace("{name}", document.name)}</p>
-          <div>
-            <Button disabled={busy} onClick={() => void remove()} variant="secondary">
+          <div className="flex flex-wrap gap-4">
+            <Button disabled={waiting} onClick={ask} variant="secondary">
               {strings.documentRemove}
             </Button>
+            {waiting ? (
+              // The window of the undo: the document is still in the store and this button keeps it there.
+              <Button onClick={keep} variant="secondary">
+                {strings.documentUndo}
+              </Button>
+            ) : null}
           </div>
+          {message === null ? null : (
+            <p className="text-sm font-semibold text-ink" role="status" data-document-state={waiting ? "waiting" : "idle"}>
+              {message}
+            </p>
+          )}
         </Panel>
       )}
     </div>

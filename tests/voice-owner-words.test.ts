@@ -321,7 +321,7 @@ describe("the screen of the voice agent", () => {
   }
 
   for (const lang of ["en", "es"] as const) {
-    it(`shows voice_not_configured in the words of the owner and links For the installer (${lang})`, async () => {
+    it(`shows voice_not_configured in the words of the owner and links Settings (${lang})`, async () => {
       stubAnswer(503, {
         status: "unconfigured",
         reason: "voice_not_configured",
@@ -334,8 +334,8 @@ describe("the screen of the voice agent", () => {
       expect(error).toHaveTextContent(VOICE_STRINGS[lang].voiceNotConfigured);
       expect(namesIn(error.textContent ?? "")).toEqual([]);
       expect(
-        within(error).getByRole("link", { name: adminStrings(lang).navSetup }),
-      ).toHaveAttribute("href", "/admin");
+        within(error).getByRole("link", { name: adminStrings(lang).navSettings }),
+      ).toHaveAttribute("href", "/admin/settings");
     });
 
     it(`shows voice_provider_failed in the words of the owner and never the raw error (${lang})`, async () => {
@@ -352,7 +352,7 @@ describe("the screen of the voice agent", () => {
       expect(namesIn(error.textContent ?? "")).toEqual([]);
     });
 
-    it(`shows business_unnamed in the words of the owner and links Business (${lang})`, async () => {
+    it(`shows business_unnamed in the words of the owner and links Look and publish (${lang})`, async () => {
       stubAnswer(409, { status: "incomplete", reason: "business_unnamed" });
 
       const error = await press(lang);
@@ -361,8 +361,8 @@ describe("the screen of the voice agent", () => {
       expect(error).not.toHaveTextContent(VOICE_STRINGS[lang].voiceProviderFailed);
       expect(namesIn(error.textContent ?? "")).toEqual([]);
       expect(
-        within(error).getByRole("link", { name: adminStrings(lang).navBusiness }),
-      ).toHaveAttribute("href", "/admin/business");
+        within(error).getByRole("link", { name: adminStrings(lang).navPublish }),
+      ).toHaveAttribute("href", "/admin/publish");
     });
   }
 });

@@ -37,7 +37,7 @@ async function open(path: string): Promise<Store> {
   return store;
 }
 
-async function storeWith(sections: Array<[string, string | null]>): Promise<Store> {
+async function storeWith(sections: Array<[string | null, string]>): Promise<Store> {
   const root = mkdtempSync(join(tmpdir(), "cited-questions-"));
 
   roots.push(root);

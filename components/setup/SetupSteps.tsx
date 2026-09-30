@@ -55,7 +55,7 @@ export function SetupSteps({ checklist, lang, strings, children }: SetupStepsPro
   if (checklist.done) {
     return (
       <div className="flex flex-col gap-8">
-        <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+        <SectionTitle level="h1">
           {strings.setupDoneTitle}
         </SectionTitle>
         <p className="max-w-[65ch] text-ink/80">{strings.setupDoneBody}</p>
@@ -72,10 +72,35 @@ export function SetupSteps({ checklist, lang, strings, children }: SetupStepsPro
     );
   }
 
+  if (checklist.skipped) {
+    // Decision 2: "Skip for now" hides the setup until the owner opens it again from Home. This is the door back, and
+    // it clears the flag so the lane is where it was.
+    return (
+      <div className="flex flex-col gap-8">
+        <SectionTitle level="h1">
+          {strings.setupSkippedNote}
+        </SectionTitle>
+        <div className="flex flex-wrap gap-4">
+          <Button
+            disabled={busy}
+            onClick={() => {
+              void flag("skipped", false);
+            }}
+          >
+            {strings.setupOpen}
+          </Button>
+          <Button onClick={() => router.push("/admin/home")} variant="secondary">
+            {strings.homeTitle}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (checklist.started === false) {
     return (
       <div className="flex flex-col gap-8">
-        <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+        <SectionTitle level="h1">
           {strings.setupWelcomeTitle}
         </SectionTitle>
         <p className="max-w-[65ch] text-ink/80">{strings.setupWelcomeBody}</p>
@@ -96,7 +121,7 @@ export function SetupSteps({ checklist, lang, strings, children }: SetupStepsPro
 
   return (
     <div className="flex flex-col gap-10">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.setupStepsTitle}
       </SectionTitle>
       <SetupLane
@@ -106,8 +131,8 @@ export function SetupSteps({ checklist, lang, strings, children }: SetupStepsPro
         onSkip={() => {
           void flag("skipped", true);
         }}
-        steps={checklist.steps}
         strings={strings}
+        steps={checklist.steps}
       >
         {children}
       </SetupLane>

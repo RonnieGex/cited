@@ -6,11 +6,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { NextRequest } from "next/server";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import AdminAi from "@/app/admin/ai/page";
-import AdminBusiness from "@/app/admin/business/page";
 import AdminConversations from "@/app/admin/conversations/page";
-import AdminDocuments from "@/app/admin/documents/page";
+import AdminHome from "@/app/admin/home/page";
+import AdminInformation from "@/app/admin/information/page";
 import AdminLayout from "@/app/admin/layout";
-import AdminSetup from "@/app/admin/page";
+import AdminSettings from "@/app/admin/settings/page";
 import { proxy } from "@/proxy";
 import { ADMIN_PASSWORD, cleanup, environmentOf } from "./admin-helpers";
 
@@ -41,9 +41,9 @@ const routes = import.meta.glob("../app/api/admin/**/route.ts", { eager: true })
 
 const pages: Array<{ name: string; element: ReactElement }> = [
   { name: "/admin/ai", element: <AdminAi /> },
-  { name: "/admin/business", element: <AdminBusiness /> },
+  { name: "/admin/home", element: <AdminHome /> },
+  { name: "/admin/information", element: <AdminInformation /> },
   { name: "/admin/conversations", element: <AdminConversations /> },
-  { name: "/admin/documents", element: <AdminDocuments /> },
 ];
 
 vi.mock("next/headers", () => ({
@@ -110,7 +110,8 @@ async function everyPage(): Promise<string[]> {
 
     expect(namesIn(html), page.name).toEqual([]);
     expect(html.toLowerCase(), page.name).toContain("install");
-    expect(html, page.name).toContain('href="/admin"');
+    // The door of the shell that cannot start is "For the installer", which lives under Settings (decision 11).
+    expect(html, page.name).toContain('href="/admin/settings"');
 
     rendered.push(page.name);
   }
@@ -121,7 +122,7 @@ async function everyPage(): Promise<string[]> {
 async function everyBlockedPage(): Promise<string[]> {
   const answered: string[] = [];
 
-  for (const path of ["/admin/ai", "/admin/business", "/admin/conversations", "/admin/documents"]) {
+  for (const path of ["/admin/ai", "/admin/home", "/admin/information", "/admin/conversations"]) {
     const response = proxy(new NextRequest(`http://localhost${path}`));
     const text = await response.text();
 
@@ -231,7 +232,7 @@ describe("an installation that is not finished", () => {
       ADMIN_SESSION_SECRET: "un-secreto-de-sesion-de-prueba",
     });
 
-    const html = renderToStaticMarkup(await AdminSetup());
+    const html = renderToStaticMarkup(await AdminSettings());
 
     expect(namesIn(html)).toContain("ADMIN_PASSWORD");
     expect(namesIn(html)).toContain("ADMIN_SESSION_SECRET");

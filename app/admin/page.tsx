@@ -11,7 +11,7 @@ import { sampleNames } from "@/lib/admin/samples";
 import { setupChecklist } from "@/lib/admin/setup-checklist";
 import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
-import { affiliateLinks, chatCatalogue, hostedOfferOf } from "@/lib/providers/catalog";
+import { affiliateLinks, chatCatalogue, embeddingsCatalogue, hostedOfferOf } from "@/lib/providers/catalog";
 import { readBusiness } from "@/lib/settings/business";
 import { sharedStore } from "@/lib/store/instance";
 import { panelMetadata } from "@/lib/admin/titles";
@@ -47,22 +47,37 @@ export default async function AdminSetup() {
     <SetupSteps checklist={checklist} lang={lang} strings={strings}>
       {{
         ai: (
-          <ProviderState
-            affiliate={affiliateLinks(process.env)}
-            encryptionReady={provider.encryption}
-            entries={chatCatalogue(process.env)}
-            kind="chat"
-            lang={lang}
-            offer={hostedOfferOf(process.env)}
-            reindex={provider.reindex}
-            strings={strings}
-            view={provider.chat}
-          />
+          <div className="flex flex-col gap-10">
+            {/* Decision 10: the page "AI and keys" is the first step, so the two sections of that page live here: the
+                answers and the search. The second one is what lets a business whose provider has no meaning search
+                keep going with search by words, which is the door the uploads of step 2 need. */}
+            <ProviderState
+              affiliate={affiliateLinks(process.env)}
+              encryptionReady={provider.encryption}
+              entries={chatCatalogue(process.env)}
+              kind="chat"
+              lang={lang}
+              offer={hostedOfferOf(process.env)}
+              reindex={provider.reindex}
+              strings={strings}
+              view={provider.chat}
+            />
+            <ProviderState
+              affiliate={affiliateLinks(process.env)}
+              encryptionReady={provider.encryption}
+              entries={embeddingsCatalogue(process.env)}
+              kind="embeddings"
+              lang={lang}
+              offer={hostedOfferOf(process.env)}
+              reindex={provider.reindex}
+              strings={strings}
+              view={provider.embeddings}
+            />
+          </div>
         ),
         information: (
           <InfoPanel
             documents={documents}
-            lang={lang}
             sampleLoaded={checklist.documents > 0}
             sampleNames={sampleNames()}
             strings={strings}
@@ -79,7 +94,6 @@ export default async function AdminSetup() {
         publish: (
           <PublishPanel
             business={business}
-            lang={lang}
             published={checklist.flags.published}
             site={origin}
             strings={strings}

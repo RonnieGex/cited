@@ -95,7 +95,9 @@ test("the affiliate link is labelled before the click and the plain link is nowh
   await page.goto("/admin");
   await page.getByLabel(english.passwordLabel).fill(E2E_ADMIN_PASSWORD);
   await page.getByRole("button", { name: english.signIn }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupTitle);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    new RegExp(`${english.setupWelcomeTitle}|${english.setupStepsTitle}|${english.setupDoneTitle}`),
+  );
 
   await page.goto("/admin/ai");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(english.aiTitle);
@@ -124,14 +126,16 @@ test("the key is tested, saved, and never comes back in any response nor in the 
   await page.getByRole("button", { name: english.signIn }).click();
   // The sign-in of the panel is a navigation of the browser: it has to settle before the next `goto`, or the second
   // one lands while the first is still in flight.
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupTitle);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    new RegExp(`${english.setupWelcomeTitle}|${english.setupStepsTitle}|${english.setupDoneTitle}`),
+  );
 
   await page.goto("/admin/ai");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(english.aiTitle);
 
   const answers = page.getByRole("region", { name: english.answersSection });
 
-  await answers.getByLabel(english.providerLabel).selectOption("deepseek");
+  await answers.getByRole("radio", { name: /DeepSeek/ }).check();
   await answers.getByLabel(english.keyLabel).fill(goodKey);
   await answers.getByRole("button", { name: english.testKey }).click();
   await expect(answers.getByRole("status")).toContainText("deepseek-flash");
@@ -156,6 +160,13 @@ test("the key is tested, saved, and never comes back in any response nor in the 
     { path: "/api/admin/providers", method: "DELETE", body: { kind: "embeddings" } },
     { path: "/api/admin/setup", method: "GET" },
     { path: "/api/admin/setup/test", method: "POST", body: { target: "chat" } },
+    // The guided setup of `guided-setup-and-knowledge`: the flags the owner presses, the mark of a right answer and
+    // the sample business. Without an embeddings provider the sample refuses in the words of the owner (400), which is
+    // the answer this installation gives.
+    { path: "/api/admin/setup/flags", method: "GET" },
+    { path: "/api/admin/setup/flags", method: "PUT", body: { flag: "started", value: true } },
+    { path: "/api/admin/try/verify", method: "PUT", body: { right: true } },
+    { path: "/api/admin/samples", method: "POST", body: {} },
     { path: "/api/admin/documents", method: "GET" },
     {
       path: "/api/admin/documents",
@@ -213,7 +224,9 @@ test("the key is tested, saved, and never comes back in any response nor in the 
   await page.goto("/admin");
   await page.getByLabel(english.passwordLabel).fill(E2E_ADMIN_PASSWORD);
   await page.getByRole("button", { name: english.signIn }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupTitle);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    new RegExp(`${english.setupWelcomeTitle}|${english.setupStepsTitle}|${english.setupDoneTitle}`),
+  );
 
   const state = await page.request.get("/api/admin/providers");
   const stateText = await state.text();

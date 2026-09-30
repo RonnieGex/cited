@@ -1,11 +1,11 @@
 import {
   documentSummaries,
   ingestOne,
-  ingestedOne,
+  uploadedFile,
+  type UploadedFile,
 } from "../../../../lib/admin/documents.ts";
 import { guardRequest } from "../../../../lib/admin/guard.ts";
 import { guardResponse, json } from "../../../../lib/admin/respond.ts";
-import { uploadResult, type UploadResult } from "../../../../lib/admin/upload-result.ts";
 import { embeddingsFrom } from "../../../../lib/embeddings/providers.ts";
 import { panelEmbeddingsProblem, embeddingsSignature, resolveEmbeddings } from "../../../../lib/settings/providers.ts";
 import { sharedStore } from "../../../../lib/store/instance.ts";
@@ -17,9 +17,9 @@ export const runtime = "nodejs";
 // splitting, and which one failed while the others keep going (decision 3) — and every request goes through the same
 // ingestion the command line runs.
 //
-// The answer carries `results`, one entry per file, and `documents`, the list of the panel after the upload. What the
-// ingestion wrote is classified by `uploadResult()` before it leaves the server: that sentence names folders, limits
-// and providers, and none of it reaches the browser.
+// The answer carries `results`, one entry per file, and `documents`, the list of the panel after the upload. The
+// sentence the ingestion wrote for a failure travels as the reason of that file and the panel classifies it: it names
+// folders, limits and providers, and it is never printed as it is.
 
 type Stored = { name: string; bytes: Uint8Array };
 
@@ -81,16 +81,10 @@ export async function POST(request: Request): Promise<Response> {
 
   const embeddings = embeddingsFrom(resolution);
   const signature = embeddingsSignature(resolution);
-  const results: UploadResult[] = [];
+  const results: UploadedFile[] = [];
 
   for (const file of files) {
-    const read = await ingestOne(store, embeddings, file.name, file.bytes, signature);
-
-    results.push(
-      ingestedOne(read)
-        ? uploadResult({ name: read.name, passages: read.passages, failure: null })
-        : uploadResult({ name: read.path, passages: 0, failure: read.reason }),
-    );
+    results.push(uploadedFile(await ingestOne(store, embeddings, file.name, file.bytes, signature)));
   }
 
   return json({ status: "ok", results, documents: await documentSummaries(store) });

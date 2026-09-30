@@ -124,17 +124,24 @@ describe("the state of a provider", () => {
       />,
     );
 
-    const list = screen.getByRole("list", { name: spanish.answersSection });
+    // Decision 10 of `openspec/changes/guided-setup-and-knowledge/design.md`: the list of the providers is the list of
+    // selectable rows of `ProviderConnect`, so it is the section of the answers that carries it and nothing appears
+    // twice.
+    const section = screen.getByRole("region", { name: spanish.answersSection });
+    const list = within(section).getByRole("list");
 
     for (const entry of chat) {
       const item = within(list).getByText(entry.name).closest("li") as HTMLElement;
 
       expect(item).not.toBeNull();
-      expect(within(item).getByText(entry.cost.es)).toBeInTheDocument();
-      expect(within(item).getByText(entry.processing.es)).toBeInTheDocument();
+      expect(within(item).getByText(new RegExp(entry.cost.es))).toBeInTheDocument();
+      // The row of the provider says where it processes the data beside the label of the group.
+      expect(within(item).getByText(new RegExp(entry.processing.es))).toBeInTheDocument();
       expect(
         within(item).getByText(entry.embeddings ? spanish.meansYes : spanish.meansNo),
       ).toBeInTheDocument();
+      // The row of the provider is a radio of the group the owner chooses from.
+      expect(within(item).getByRole("radio")).toBeInTheDocument();
     }
 
     const links = within(list).getAllByRole("link", { name: spanish.getKey });
@@ -301,6 +308,7 @@ describe("connecting a provider", () => {
         encryptionReady
         entries={chat}
         kind="chat"
+        lang="en"
         strings={english}
       />,
     );
@@ -321,9 +329,9 @@ describe("connecting a provider", () => {
       body: { status: "ok", ok: false, reason: "rejected_key" },
     });
 
-    render(<ProviderConnect encryptionReady entries={chat} kind="chat" strings={english} />);
+    render(<ProviderConnect encryptionReady entries={chat} kind="chat" lang="en" strings={english} />);
 
-    fireEvent.change(screen.getByLabelText(english.providerLabel), { target: { value: "openai" } });
+    fireEvent.click(screen.getByRole("radio", { name: /OpenAI/ }));
     fireEvent.change(screen.getByLabelText(english.keyLabel), { target: { value: "sk-rechazada" } });
     fireEvent.click(screen.getByRole("button", { name: english.testKey }));
 
@@ -336,7 +344,7 @@ describe("connecting a provider", () => {
     expect(screen.getByRole("button", { name: english.saveKey })).toBeDisabled();
   });
 
-  it("answers a refused address in the words of the owner and links For the installer", async () => {
+  it("answers a refused address in the words of the owner and links Settings", async () => {
     // Requirement "The owner never reads a variable name in an answer of the panel" (task 11.3): the code
     // `address_not_allowed` is the whole answer of the route, and the page is what turns it into a sentence of the
     // owner and a link to the only page that names the variable of whoever installs.
@@ -345,9 +353,9 @@ describe("connecting a provider", () => {
       body: { status: "address_not_allowed", ok: false, reason: "address_not_allowed" },
     });
 
-    render(<ProviderConnect encryptionReady entries={chat} kind="chat" strings={english} />);
+    render(<ProviderConnect encryptionReady entries={chat} kind="chat" lang="en" strings={english} />);
 
-    fireEvent.change(screen.getByLabelText(english.providerLabel), { target: { value: "ollama" } });
+    fireEvent.click(screen.getByRole("radio", { name: /Ollama/ }));
     fireEvent.click(screen.getByRole("button", { name: english.testKey }));
 
     const alert = await screen.findByRole("alert");
@@ -356,7 +364,7 @@ describe("connecting a provider", () => {
     expect(alert.textContent).not.toContain("ALLOW_LOCAL_PROVIDERS");
     expect(
       within(alert).getByRole("link", { name: english.reasonAddressNotAllowedLink }),
-    ).toHaveAttribute("href", "/admin");
+    ).toHaveAttribute("href", "/admin/settings");
   });
 
   it("tests and saves a good key, then shows only the last four characters", async () => {
@@ -365,9 +373,9 @@ describe("connecting a provider", () => {
       { status: 200, body: { status: "ok", saved: true, model: "gpt-4o-mini", latencyMs: 118, last4: "7788" } },
     );
 
-    render(<ProviderConnect encryptionReady entries={chat} kind="chat" strings={english} />);
+    render(<ProviderConnect encryptionReady entries={chat} kind="chat" lang="en" strings={english} />);
 
-    fireEvent.change(screen.getByLabelText(english.providerLabel), { target: { value: "openai" } });
+    fireEvent.click(screen.getByRole("radio", { name: /OpenAI/ }));
     fireEvent.change(screen.getByLabelText(english.keyLabel), { target: { value: "sk-buena-7788" } });
     fireEvent.click(screen.getByRole("button", { name: english.testKey }));
 
@@ -390,7 +398,7 @@ describe("connecting a provider", () => {
   });
 
   it("says that the server needs an encryption key and keeps the save disabled", () => {
-    render(<ProviderConnect encryptionReady={false} entries={chat} kind="chat" strings={english} />);
+    render(<ProviderConnect encryptionReady={false} entries={chat} kind="chat" lang="en" strings={english} />);
 
     expect(screen.getByText(english.noEncryptionKey)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: english.saveKey })).toBeDisabled();
@@ -398,7 +406,7 @@ describe("connecting a provider", () => {
 
   it("offers keyword search without a key for the meaning search", () => {
     render(
-      <ProviderConnect encryptionReady entries={embeddings} keyword kind="embeddings" strings={english} />,
+      <ProviderConnect encryptionReady entries={embeddings} keyword kind="embeddings" lang="en" strings={english} />,
     );
 
     expect(screen.getByRole("button", { name: english.keywordChoose })).toBeInTheDocument();

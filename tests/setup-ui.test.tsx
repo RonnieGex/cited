@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { DocumentPanel } from "@/components/setup/DocumentPanel";
 import { InfoPanel } from "@/components/setup/InfoPanel";
 import { PublishPanel } from "@/components/setup/PublishPanel";
 import { SetupLane } from "@/components/setup/SetupLane";
@@ -45,6 +46,7 @@ describe("the lane of the guided setup", () => {
     render(
       <SetupLane
         current="information"
+        lang="en"
         onCurrent={vi.fn()}
         onSkip={vi.fn()}
         steps={steps}
@@ -73,6 +75,7 @@ describe("the lane of the guided setup", () => {
     render(
       <SetupLane
         current="information"
+        lang="en"
         onCurrent={vi.fn()}
         onSkip={vi.fn()}
         steps={steps}
@@ -97,7 +100,7 @@ describe("the lane of the guided setup", () => {
     const asked = vi.fn();
 
     render(
-      <SetupLane current="information" onCurrent={asked} onSkip={vi.fn()} steps={steps} strings={english}>
+      <SetupLane current="information" lang="en" onCurrent={asked} onSkip={vi.fn()} steps={steps} strings={english}>
         {{
           ai: <p>Connect your AI here</p>,
           information: <p>Your information here</p>,
@@ -115,7 +118,7 @@ describe("the lane of the guided setup", () => {
   it("says what each step does and what to do next, in both languages", () => {
     for (const strings of [english, spanish]) {
       const { unmount } = render(
-        <SetupLane current="ai" onCurrent={vi.fn()} onSkip={vi.fn()} steps={steps} strings={strings}>
+        <SetupLane current="ai" lang={strings === english ? "en" : "es"} onCurrent={vi.fn()} onSkip={vi.fn()} steps={steps} strings={strings}>
           {{
             ai: <p>content</p>,
             information: <p>content</p>,
@@ -135,7 +138,7 @@ describe("the lane of the guided setup", () => {
     const attention: SetupStep[] = [step("ai", "attention"), step("information", "todo"), step("try", "todo"), step("publish", "todo")];
 
     render(
-      <SetupLane current="ai" onCurrent={vi.fn()} onSkip={vi.fn()} steps={attention} strings={english}>
+      <SetupLane current="ai" lang="en" onCurrent={vi.fn()} onSkip={vi.fn()} steps={attention} strings={english}>
         {{
           ai: <p>content</p>,
           information: <p>content</p>,
@@ -146,7 +149,8 @@ describe("the lane of the guided setup", () => {
     );
 
     expect(screen.getByText(english.stepAttention)).toBeInTheDocument();
-    expect(screen.getByText(english.stepTodo)).toBeInTheDocument();
+    // The three steps that are not the one with attention say the same words, one each.
+    expect(screen.getAllByText(english.stepTodo)).toHaveLength(3);
   });
 });
 
@@ -187,7 +191,7 @@ describe("the information lane", () => {
 
     vi.stubGlobal("fetch", fetched);
 
-    render(<InfoPanel documents={[]} lang="en" strings={english} />);
+    render(<InfoPanel documents={[]} strings={english} />);
 
     const chooser = screen.getByLabelText(english.uploadDocument) as HTMLInputElement;
 
@@ -224,7 +228,7 @@ describe("the information lane", () => {
       ),
     );
 
-    render(<InfoPanel documents={[]} lang="en" strings={english} />);
+    render(<InfoPanel documents={[]} strings={english} />);
 
     fireEvent.change(screen.getByLabelText(english.uploadDocument), {
       target: { files: [new File(["%PDF-"], "escaneo.pdf", { type: "application/pdf" })] },
@@ -252,7 +256,7 @@ describe("the information lane", () => {
 
     vi.stubGlobal("fetch", fetched);
 
-    render(<InfoPanel documents={[]} lang="en" strings={english} />);
+    render(<InfoPanel documents={[]} strings={english} />);
 
     fireEvent.click(screen.getByRole("button", { name: english.sampleTry }));
 
@@ -276,7 +280,6 @@ describe("the information lane", () => {
             passages: 4,
           },
         ]}
-        lang="en"
         strings={english}
       />,
     );
@@ -288,7 +291,7 @@ describe("the information lane", () => {
 
   it("offers the drop zone with a real control inside it, in both languages", () => {
     for (const strings of [english, spanish]) {
-      const { unmount } = render(<InfoPanel documents={[]} lang="en" strings={strings} />);
+      const { unmount } = render(<InfoPanel documents={[]} strings={strings} />);
 
       expect(screen.getByText(strings.uploadDrop)).toBeInTheDocument();
       expect(screen.getByLabelText(strings.uploadDocument)).toBeInTheDocument();
@@ -299,7 +302,7 @@ describe("the information lane", () => {
   });
 
   it("says what to do next when there is no document yet", () => {
-    render(<InfoPanel documents={[]} lang="en" strings={english} />);
+    render(<InfoPanel documents={[]} strings={english} />);
 
     expect(screen.getByText(english.noDocuments)).toBeInTheDocument();
   });
@@ -534,5 +537,80 @@ describe("the publish lane", () => {
         expect.objectContaining({ method: "PUT" }),
       ),
     );
+  });
+});
+
+describe("the page of a document", () => {
+  const summary = {
+    name: "cafe-la-horquilla.md",
+    type: "md",
+    pages: null,
+    ingestedAt: "2026-09-30T12:00:00.000Z",
+    passages: 1,
+  };
+  const listed = [
+    { id: 1, name: "cafe-la-horquilla.md", position: 1, heading: "Horario", text: "Martes a viernes: 8:00 a 19:00." },
+  ];
+
+  it("groups the passages under their headings, with the cited one in the highlighter", () => {
+    render(<DocumentPanel document={summary} highlight={1} lang="en" passages={listed} strings={english} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Horario" })).toBeInTheDocument();
+    expect(screen.getByText("Martes a viernes: 8:00 a 19:00.")).toBeInTheDocument();
+    expect(document.querySelector('[data-document-passage="open"]')).not.toBeNull();
+  });
+
+  it("removes a document only after the window of the undo closes", async () => {
+    vi.useFakeTimers();
+
+    const fetched = vi.fn(async () => new Response(JSON.stringify({ status: "ok" }), { status: 200 }));
+
+    vi.stubGlobal("fetch", fetched);
+
+    render(<DocumentPanel document={summary} lang="en" passages={listed} strings={english} />);
+
+    fireEvent.click(screen.getByRole("button", { name: english.documentRemove }));
+
+    expect(screen.getByText(english.documentRemoving.replace("{name}", summary.name))).toBeInTheDocument();
+    expect(fetched, "nothing is deleted while the undo is open").not.toHaveBeenCalled();
+
+    await act(async () => {
+      vi.advanceTimersByTime(7000);
+    });
+
+    expect(fetched).toHaveBeenCalledWith(
+      "/api/admin/documents/delete",
+      expect.objectContaining({ method: "POST" }),
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText(english.documentUndone)).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("keeps the document when the owner presses the undo", async () => {
+    vi.useFakeTimers();
+
+    const fetched = vi.fn(async () => new Response(JSON.stringify({ status: "ok" }), { status: 200 }));
+
+    vi.stubGlobal("fetch", fetched);
+
+    render(<DocumentPanel document={summary} lang="en" passages={listed} strings={english} />);
+
+    fireEvent.click(screen.getByRole("button", { name: english.documentRemove }));
+    fireEvent.click(screen.getByRole("button", { name: english.documentUndo }));
+
+    await act(async () => {
+      vi.advanceTimersByTime(7000);
+    });
+
+    expect(fetched, "the undo cancels the removal").not.toHaveBeenCalled();
+    expect(screen.getByText(english.documentKept)).toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 });

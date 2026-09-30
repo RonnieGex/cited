@@ -32,7 +32,7 @@ export default async function AdminTry() {
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionTitle level="h1" eyebrow={strings.panelEyebrow}>
+      <SectionTitle level="h1">
         {strings.navTry}
       </SectionTitle>
       <TryItPanel

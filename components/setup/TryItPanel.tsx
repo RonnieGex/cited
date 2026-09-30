@@ -64,7 +64,9 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
   const sends = ask ?? ((input: { question: string; sessionId: string }) => askCited(input));
   const citation = result?.status === "answered" ? (result.citations.find((one) => one.n === open) ?? null) : null;
   const document = citation === null ? null : (documents.find((one) => one.name === citation.document) ?? null);
-  const hasDocuments = documents.some((one) => one.passages.length > 0);
+  // The lane invites step 2 only when the business has no document at all: a document of the store always carries its
+  // passages, so the empty state is "there is nothing to ask yet" and not "this document looks empty".
+  const hasDocuments = documents.length > 0;
 
   async function send(text: string): Promise<void> {
     const trimmed = text.trim();
@@ -79,7 +81,12 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
     setAsked(trimmed);
 
     try {
-      setResult(await sends({ question: trimmed, sessionId }));
+      const answer = await sends({ question: trimmed, sessionId });
+
+      setResult(answer);
+      // The first citation of the answer is the one the panel opens on the right: the owner reads the passage the
+      // answer came from without having to guess which mark to press (decision 6), and any other mark opens its own.
+      setOpen(answer.status === "answered" ? (answer.citations[0]?.n ?? null) : null);
     } catch {
       setResult({ status: "failed", kind: "unavailable" });
     }

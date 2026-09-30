@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 import { CitationMark } from "@/components/brand";
 import { Button, focusRing } from "@/components/ui";
-import type { SetupStep, SetupStepId, SetupState } from "@/lib/admin/setup-checklist";
+import type { SetupStep, SetupState } from "@/lib/admin/setup-checklist";
+import type { SetupStepId } from "@/lib/admin/setup-copy";
 import type { AdminStrings } from "@/lib/i18n/admin";
 import type { Lang } from "@/lib/settings/business";
 
