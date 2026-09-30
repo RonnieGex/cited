@@ -439,12 +439,19 @@ test("the documents at 375 and 320 px keep every action whole, on one line, insi
   await axe(page, "/admin/documents at 320 in Spanish");
 
   await page.getByRole("button", { name: `${spanish.deleteDocument} ${name}` }).click();
+
+  // Decision 28: it asks first, in Spanish, with the focus on Conservar; the second press deletes.
+  const asking = page.getByRole("group", { name: `¿Borrar ${name}?` });
+
+  await expect(asking.getByRole("button", { name: spanish.keep })).toBeFocused();
+  await asking.getByRole("button", { name: spanish.confirmDelete, exact: true }).click();
   await expect(page.getByText(name)).toHaveCount(0);
 });
 
 // Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,
-// so it never touches the document that `admin.spec.ts` uploads and deletes; the two files run in parallel against the same
-// store, and the delete-all of `admin.spec.ts` may clear the turn between the question and the page, so the pair is retried.
+// so it never touches the document that `admin.spec.ts` uploads and deletes. The question is asked once, with a text of its
+// own, and only the reading of the page is polled (finding 44 of the third review): a retry that asked again would hide a race
+// and spend the limit of the address. The suite runs on one worker, so no other spec clears the turn in between.
 // The reader lives far from any server (UTC+14, second review of step 12): the date is printed in the zone of the browser,
 // not in the zone of the container, so an owner never reads another hour or another day.
 const READER_ZONE = "Pacific/Kiritimati";
@@ -482,15 +489,15 @@ test.describe("a reader in another zone", () => {
 
     expect(uploaded.status(), "the document of this spec is ingested").toBe(200);
 
-    const question = "¿El taller de bicicletas abre los sábados?";
+    const question = `¿El taller de bicicletas abre los sábados? (${Date.now()})`;
     const row = page.getByRole("row").filter({ hasText: question }).first();
+    const asked = await page.request.post("/api/ask", {
+      data: { question, sessionId: `e2e-fechas-${Date.now()}` },
+    });
+
+    expect(asked.status(), "the question is answered once").toBe(200);
 
     await expect(async () => {
-      const asked = await page.request.post("/api/ask", {
-        data: { question, sessionId: `e2e-fechas-${Date.now()}` },
-      });
-
-      expect(asked.status()).toBe(200);
       await page.goto("/admin/conversations");
       await expect(row).toBeVisible({ timeout: 2_000 });
     }).toPass({ timeout: 30_000 });
@@ -524,6 +531,109 @@ test.describe("a reader in another zone", () => {
     expect(removed.status(), "the document of this spec is removed").toBe(200);
   });
 });
+
+// Decision 32 of `design.md`, the scenario "Every signature carries the flame" of the requirement "Katalis always signs with
+// its flame": one loop over `/`, `/embed`, `/kit`, `/admin` signed out and every page of the panel (with `/admin/ai`), in
+// English and in Spanish, that finds every signature ("Built by Katalis", "Hecho por Katalis", "by Katalis") and checks a flame
+// image (`/brand/katalis-flame*.png`) beside it, and that the Spanish pages read "Hecho por Katalis". A sentence that only mentions
+// Katalis inside the text of the kit is not a signature: a signature is an element whose own text ends with "by Katalis".
+// The public pages are served by the other server of the suite, on the port that `e2e/widget.spec.ts` names as its origin.
+const PUBLIC_ORIGIN = "http://127.0.0.1:3100";
+
+type Signature = { text: string; visible: boolean; flames: number };
+
+async function signaturesOf(page: Page): Promise<Signature[]> {
+  return page.evaluate(() => {
+    const found: Array<{ text: string; visible: boolean; flames: number }> = [];
+
+    for (const element of document.querySelectorAll("body *")) {
+      const own = [...element.childNodes]
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .map((node) => node.textContent ?? "")
+        .join("")
+        .trim();
+
+      if (/(?:Built by|Hecho por|by) Katalis$/.test(own) === false) {
+        continue;
+      }
+
+      const box = element.getBoundingClientRect();
+      const scope = element.parentElement ?? element;
+      const flames = [...scope.querySelectorAll("img"), ...element.querySelectorAll("img")].filter((image) =>
+        /\/brand\/katalis-flame[^"]*\.png/.test(image.getAttribute("src") ?? ""),
+      );
+
+      found.push({
+        text: own,
+        visible: box.width > 0 && box.height > 0 && getComputedStyle(element).visibility !== "hidden",
+        flames: new Set(flames).size,
+      });
+    }
+
+    return found;
+  });
+}
+
+for (const lang of ["en", "es"] as const) {
+  test(`in ${lang} every signature of Katalis carries the real flame, on every page of the product`, async ({ page, context }) => {
+    const line = lang === "es" ? "Hecho por Katalis" : "Built by Katalis";
+    const other = lang === "es" ? "Built by Katalis" : "Hecho por Katalis";
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await context.addCookies([
+      { name: "cited-lang", value: lang, url: E2E_BASE_URL },
+      { name: "cited-lang", value: lang, url: PUBLIC_ORIGIN },
+    ]);
+
+    // `signature` says whether the page has one at all: the embed and the kit carry no signature of their own.
+    const pages: Array<{ url: string; signature: boolean; signedIn: boolean }> = [
+      { url: `${PUBLIC_ORIGIN}/`, signature: true, signedIn: false },
+      { url: `${PUBLIC_ORIGIN}/embed`, signature: false, signedIn: false },
+      { url: `${PUBLIC_ORIGIN}/kit`, signature: false, signedIn: false },
+      { url: `${E2E_BASE_URL}/admin`, signature: true, signedIn: false },
+    ];
+    const panel = ["/admin", "/admin/business", "/admin/documents", "/admin/conversations", "/admin/ai"];
+    const checked: string[] = [];
+
+    async function walk(target: { url: string; signature: boolean }, label: string): Promise<void> {
+      const response = await page.goto(target.url);
+
+      expect(response?.status(), label).toBe(200);
+
+      const signatures = await signaturesOf(page);
+      const text = (await page.locator("body").innerText()).replace(/\s+/g, " ");
+
+      for (const signature of signatures) {
+        expect(signature.flames, `${label}: a flame beside "${signature.text}"`).toBeGreaterThanOrEqual(1);
+      }
+
+      if (target.signature) {
+        expect(signatures.length, `${label}: the page signs`).toBeGreaterThanOrEqual(1);
+        expect(signatures.every((signature) => signature.visible), `${label}: every signature is visible`).toBe(true);
+        expect(
+          signatures.some((signature) => signature.text.endsWith(line)),
+          `${label}: the signature reads "${line}"`,
+        ).toBe(true);
+      }
+
+      expect(text, `${label}: never the line of the other language`).not.toContain(other);
+      checked.push(`${label} (${signatures.length})`);
+    }
+
+    for (const target of pages) {
+      await walk(target, `${lang} ${target.url.replace(/^https?:\/\/[^/]+/, "")}${target.url.startsWith(PUBLIC_ORIGIN) ? " public" : " signed out"}`);
+    }
+
+    await signInThroughTheApi(page);
+
+    for (const path of panel) {
+      await walk({ url: `${E2E_BASE_URL}${path}`, signature: true }, `${lang} ${path} signed in`);
+    }
+
+    console.log(`the flame in ${lang}: ${checked.join(", ")}`);
+    expect(checked.length, "every page of the loop was walked").toBe(pages.length + panel.length);
+  });
+}
 
 test.describe("the sign-in", () => {
   test("in Spanish it shows the tagline with its last words highlighted, keeps its form and passes axe", async ({

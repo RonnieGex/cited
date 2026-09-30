@@ -144,6 +144,15 @@ test("an SVG logo is refused and a document is uploaded, listed and deleted", as
 
   await expect(row).toContainText("4");
   await row.getByRole("button", { name: `${english.deleteDocument} cafe-la-horquilla.md` }).click();
+
+  // Decision 28 of `brand-identity-ui`: the first press asks, in place, and the focus is on Keep; only the second deletes.
+  const asking = page.getByRole("group", { name: "Delete cafe-la-horquilla.md?" });
+
+  await expect(asking).toBeVisible();
+  await expect(asking.getByRole("button", { name: english.keep })).toBeFocused();
+  await expect(page.getByRole("dialog"), "no modal").toHaveCount(0);
+  await expect(row, "nothing is deleted on the first press").toBeVisible();
+  await asking.getByRole("button", { name: english.confirmDelete, exact: true }).click();
   await expect(page.getByText("cafe-la-horquilla.md")).toHaveCount(0);
 
   await axe(page);
@@ -173,5 +182,11 @@ test("the conversations are listed and deleted", async ({ page }) => {
   await axe(page);
 
   await page.getByRole("button", { name: english.deleteAll }).click();
+
+  const asking = page.getByRole("group", { name: english.confirmDeleteAll });
+
+  await expect(asking.getByRole("button", { name: english.keep })).toBeFocused();
+  await expect(row, "nothing is deleted on the first press").toBeVisible();
+  await asking.getByRole("button", { name: english.confirmDelete, exact: true }).click();
   await expect(page.getByText("¿Cuánto cuesta una afinación de bicicleta?")).toHaveCount(0);
 });

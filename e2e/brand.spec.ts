@@ -554,8 +554,9 @@ test("the marks of an answer: lime buttons named Citation n, the sources beside 
   await expect(sources).toContainText("bike-workshop-policies.md");
 
   const listed = [
-    sources.getByRole("button", { name: "[1] cafe-la-horquilla.md" }),
-    sources.getByRole("button", { name: "[2] bike-workshop-policies.md" }),
+    // Decision 26: each source names its passage, `[n] heading, document`.
+    sources.getByRole("button", { name: "[1] Precios, cafe-la-horquilla.md" }),
+    sources.getByRole("button", { name: "[2] Guarantee, bike-workshop-policies.md" }),
   ];
 
   for (const source of listed) {

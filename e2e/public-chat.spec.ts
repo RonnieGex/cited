@@ -316,6 +316,29 @@ test("a four-answer thread at 375 x 812: the focus is never under the ask box an
   await expect(page.locator('[data-cited="announcer"]')).toHaveText("Answer with 2 sources");
   expect(await form.evaluate((element) => getComputedStyle(element).position)).toBe("sticky");
 
+  // Decision 23: once threaded, the label is for the reader of the screen only and the field and the button share one row,
+  // so the box takes a small part of the phone instead of a quarter of it.
+  const shape = await page.evaluate(() => {
+    const box = document.querySelector('[data-cited="ask"]') as HTMLElement;
+    const field = box.querySelector("input") as HTMLElement;
+    const button = box.querySelector('button[type="submit"]') as HTMLElement;
+    const label = box.querySelector("label") as HTMLElement;
+    const at = (element: HTMLElement) => element.getBoundingClientRect();
+
+    return {
+      boxHeight: at(box).height,
+      fieldMiddle: at(field).top + at(field).height / 2,
+      buttonMiddle: at(button).top + at(button).height / 2,
+      labelWidth: at(label).width,
+      labelHeight: at(label).height,
+      viewport: window.innerHeight,
+    };
+  });
+
+  expect(Math.abs(shape.fieldMiddle - shape.buttonMiddle), "the field and the button share one row").toBeLessThan(6);
+  expect(Math.max(shape.labelWidth, shape.labelHeight), "the label is for the screen reader only").toBeLessThanOrEqual(1);
+  expect(shape.boxHeight, "the box takes under a sixth of a phone").toBeLessThan(shape.viewport / 6);
+
   // Every control the keyboard reaches outside the box stays clear of it.
   const covered = (): { name: string; overlap: number } | null => {
     const active = document.activeElement as HTMLElement | null;
@@ -386,6 +409,75 @@ test("a four-answer thread at 375 x 812: the focus is never under the ask box an
   await expect(mark).toHaveAttribute("aria-expanded", "false");
   await expect(mark, "and gives the focus back to the mark").toBeFocused();
 });
+
+// The scenario "A short or zoomed screen" (decision 23 of `design.md`): 512 x 384 and 320 x 256 are 200% and 400% zoom of
+// a 1024 x 768 and a 1280 x 1024 screen. Under 560 px of height the ask box stays in the flow, so the last answer is never
+// hidden under it, on the page and on the embed. The answers are mocked so that four questions stay deterministic.
+for (const size of [
+  { width: 512, height: 384 },
+  { width: 320, height: 256 },
+]) {
+  for (const path of ["/", "/embed"]) {
+    test(`a four-answer thread at ${size.width} x ${size.height} on ${path}: the last answer sits above a box that does not stick`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(size);
+      await page.route("**/api/ask", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            status: "answered",
+            answer:
+              "The tune-up is 380 pesos [1] and it takes one working day. The tube change is 120 pesos [2] and is done " +
+              "while you wait.",
+            citations: [
+              { n: 1, document: "cafe-la-horquilla.md", heading: "Precios", position: 3, excerpt: "Afinación de bicicleta: 380 pesos." },
+              { n: 2, document: "bike-workshop-policies.md", heading: "Guarantee", position: 1, excerpt: "Cambio de cámara: 120 pesos." },
+            ],
+          }),
+        });
+      });
+      await page.goto(path);
+
+      for (let index = 1; index <= 4; index += 1) {
+        await ask(page, `Question ${index}: how much is a tune-up?`);
+        await expect(page.locator(answer)).toHaveCount(index);
+      }
+
+      const form = page.locator('[data-cited="ask"]');
+
+      expect(
+        await form.evaluate((element) => getComputedStyle(element).position),
+        "under 560 px of height the box does not stick",
+      ).not.toBe("sticky");
+
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+      const seen = await page.evaluate(() => {
+        const answers = document.querySelectorAll('[data-cited="answer"]');
+        const last = answers[answers.length - 1] as HTMLElement;
+        const text = (last.querySelector("p") ?? last) as HTMLElement;
+        const box = (document.querySelector('[data-cited="ask"]') as HTMLElement).getBoundingClientRect();
+        const rect = text.getBoundingClientRect();
+        const middle = Math.min(Math.max(rect.top + rect.height / 2, 1), window.innerHeight - 1);
+        const onTop = document.elementFromPoint(rect.left + Math.min(rect.width / 2, 30), middle);
+
+        return {
+          above: rect.bottom <= box.top + 0.5,
+          inView: rect.bottom > 0 && rect.top < window.innerHeight,
+          covered: onTop === null || last.contains(onTop) === false,
+          boxTop: box.top,
+          viewport: window.innerHeight,
+        };
+      });
+
+      expect(seen.above, "the text of the last answer ends above the question box").toBe(true);
+      expect(seen.inView, "and part of it is on the screen").toBe(true);
+      expect(seen.covered, "and nothing sits over it").toBe(false);
+    });
+  }
+}
 
 test("the public page and the embed pass axe at level A and AA", async ({ page }) => {
   for (const path of ["/", "/embed"]) {

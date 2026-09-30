@@ -737,7 +737,11 @@ describe("a kit of components", () => {
     const focus = readText("components/ui/focus.ts");
 
     expect(focus).toContain("focus-visible:outline-2");
+    // Decision 33 of `brand-identity-ui`: ink outline and lime ring on paper, lime outline on ink, the text color on the band.
+    expect(focus).toContain("focus-visible:outline-ink");
+    expect(focus).toContain("focus-visible:ring-lime");
     expect(focus).toContain("outline-lime");
+    expect(focus).toContain("outline-current");
 
     for (const name of ["Button", "Input"]) {
       expect(readText(`components/ui/${name}.tsx`), `${name}: the focus of the kit`).toContain(
