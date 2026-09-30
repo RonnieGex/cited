@@ -38,7 +38,7 @@ touches anything:
       160|     expect(offenders(repositoryRoot, homePrefix, ruleDefiningContracts…
 
 `design.md` of this very change carries the absolute path of a skill of a development machine in a parenthetical of
-its decision 1 (`C:\Users\...\.claude\skills\impeccable\reference\onboard.md`). The rule that file states is the rule
+its decision 1 (a home path to the `onboard.md` reference of the `impeccable` skill, since removed by Fable in `63b9a0a`). The rule that file states is the rule
 the test enforces, and the contract of this round forbids editing the text of `design.md`, so the two red cases are
 recorded here and in the delivery as a broken case of the base and are not touched. The command of the suite of this
 round is therefore read as "884 pass, and the same two known cases of `design.md` fail", and task 5.1 repeats it with
@@ -95,7 +95,7 @@ on the store the repository points at by default, so this reading does not open 
 
     $ npx -y -p node@24 node scripts/store-state.ts
 
-    store: C:\Users\Franc\Documents\katalis-dev\community-ins\.data\katalis.sqlite
+    store: <worktree>\.data\katalis.sqlite
     exists: true
     bytes: 151552
     tables: 14 (plus the 5 of the full-text index)
