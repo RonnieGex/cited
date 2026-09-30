@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { createServer, type Server } from "node:http";
+import type { Server } from "node:http";
 import { adminStrings } from "../lib/i18n/admin";
 import { PUBLIC_STRINGS } from "../lib/i18n/public";
 import { E2E_ADDRESS, E2E_ADMIN_PASSWORD } from "./admin-fixtures";

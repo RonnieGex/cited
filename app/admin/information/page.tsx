@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { InfoPanel } from "@/components/setup/InfoPanel";
 import { SectionTitle } from "@/components/ui";
 import { documentSummaries } from "@/lib/admin/documents";
-import { sampleNames } from "@/lib/admin/samples";
 import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 import { sharedStore } from "@/lib/store/instance";
@@ -31,12 +30,7 @@ export default async function AdminInformation() {
         {strings.navInformation}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.documentsIntro}</p>
-      <InfoPanel
-        documents={documents}
-        sampleLoaded={documents.length > 0}
-        sampleNames={sampleNames()}
-        strings={strings}
-      />
+      <InfoPanel documents={documents} sampleLoaded={documents.length > 0} strings={strings} />
       <p>
         <Link className="text-sm font-semibold text-ink underline underline-offset-4" href="/admin">
           {strings.setupReopen}

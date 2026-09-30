@@ -310,7 +310,6 @@ describe("the information lane", () => {
           },
         ]}
         sampleLoaded
-        sampleNames={["cafe-la-horquilla.md"]}
         strings={english}
       />,
     );

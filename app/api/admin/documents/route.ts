@@ -1,7 +1,9 @@
 import {
   documentSummaries,
   ingestOne,
+  readUploadField,
   uploadedFile,
+  type UploadField,
   type UploadedFile,
 } from "../../../../lib/admin/documents.ts";
 import { guardRequest } from "../../../../lib/admin/guard.ts";
@@ -17,21 +19,23 @@ export const runtime = "nodejs";
 // splitting, and which one failed while the others keep going (decision 3) — and every request goes through the same
 // ingestion the command line runs.
 //
+// Decision 15 of the amendment: the size of every file is read from what the browser sent, before its bytes are read
+// into memory, and a name with a parent folder is reduced to its base name. A file that crosses the limit answers the
+// same shape as a file the ingestion refused, so the panel says it in the words of the owner.
+//
 // The answer carries `results`, one entry per file, and `documents`, the list of the panel after the upload. The
 // sentence the ingestion wrote for a failure travels as the reason of that file and the panel classifies it: it names
 // folders, limits and providers, and it is never printed as it is.
 
-type Stored = { name: string; bytes: Uint8Array };
-
-async function filesOf(form: FormData): Promise<Stored[]> {
-  const files: Stored[] = [];
+async function filesOf(form: FormData): Promise<UploadField[]> {
+  const files: UploadField[] = [];
 
   for (const entry of form.getAll("document")) {
     if (entry === null || typeof entry === "string") {
       continue;
     }
 
-    files.push({ name: entry.name, bytes: new Uint8Array(await entry.arrayBuffer()) });
+    files.push(await readUploadField(entry));
   }
 
   return files;
@@ -84,6 +88,11 @@ export async function POST(request: Request): Promise<Response> {
   const results: UploadedFile[] = [];
 
   for (const file of files) {
+    if (file.failure !== null) {
+      results.push(uploadedFile({ path: file.name, reason: file.failure }));
+      continue;
+    }
+
     results.push(uploadedFile(await ingestOne(store, embeddings, file.name, file.bytes, signature)));
   }
 

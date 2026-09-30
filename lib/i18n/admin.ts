@@ -15,6 +15,7 @@ export type AdminStrings = {
   stepProgress: string;
   stepVerified: string;
   stepAttention: string;
+  stepAttentionBody: string;
   setupWelcomeTitle: string;
   setupWelcomeBody: string;
   setupMinutes: string;
@@ -257,6 +258,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     stepProgress: "In progress",
     stepVerified: "Verified",
     stepAttention: "Needs attention",
+    stepAttentionBody:
+      "The AI is set on the server and cannot answer yet. Whoever installs Cited has to finish it.",
     setupWelcomeTitle: "Your documents answer your customers",
     setupWelcomeBody:
       "Cited turns what you already wrote into answers with the passage they came from, and says when the documents do not say it. You need no server and no technical knowledge: everything happens here, in your panel.",
@@ -505,6 +508,8 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     stepProgress: "En curso",
     stepVerified: "Verificado",
     stepAttention: "Necesita atención",
+    stepAttentionBody:
+      "La IA está fijada en el servidor y todavía no puede responder. Quien instala Cited tiene que terminarla.",
     setupWelcomeTitle: "Tus documentos responden a tus clientes",
     setupWelcomeBody:
       "Cited convierte lo que ya escribiste en respuestas con el pasaje del que salieron, y dice cuando los documentos no lo dicen. No necesitas servidor ni conocimientos técnicos: todo ocurre aquí, en tu panel.",

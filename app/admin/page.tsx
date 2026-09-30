@@ -1,5 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { ProviderState } from "@/components/admin/ProviderState";
+import { AttentionNotice } from "@/components/setup/AttentionNotice";
 import { InfoPanel } from "@/components/setup/InfoPanel";
 import { SetupSteps } from "@/components/setup/SetupSteps";
 import { TryItPanel } from "@/components/setup/TryItPanel";
@@ -7,8 +8,7 @@ import { PublishPanel } from "@/components/setup/PublishPanel";
 import { documentSummaries } from "@/lib/admin/documents";
 import { providerPanelState } from "@/lib/admin/provider-panel";
 import { suggestedQuestions } from "@/lib/admin/questions";
-import { sampleNames } from "@/lib/admin/samples";
-import { setupChecklist } from "@/lib/admin/setup-checklist";
+import { setupChecklist, stepState } from "@/lib/admin/setup-checklist";
 import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
 import { affiliateLinks, chatCatalogue, embeddingsCatalogue, hostedOfferOf } from "@/lib/providers/catalog";
@@ -48,6 +48,9 @@ export default async function AdminSetup() {
       {{
         ai: (
           <div className="flex flex-col gap-10">
+            {/* Decision 14 of the amendment: a chat provider the server set that cannot answer shows the first step
+                as needing attention, and this is the way to the only page that names the variables of the server. */}
+            {stepState(checklist, "ai") === "attention" ? <AttentionNotice strings={strings} /> : null}
             {/* Decision 10: the page "AI and keys" is the first step, so the two sections of that page live here: the
                 answers and the search. The second one is what lets a business whose provider has no meaning search
                 keep going with search by words, which is the door the uploads of step 2 need. */}
@@ -79,7 +82,6 @@ export default async function AdminSetup() {
           <InfoPanel
             documents={documents}
             sampleLoaded={checklist.documents > 0}
-            sampleNames={sampleNames()}
             strings={strings}
           />
         ),

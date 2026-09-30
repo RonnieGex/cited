@@ -12,7 +12,7 @@ import { uploadCopy, uploadResult, type UploadOutcome, type UploadResult } from 
 // ended: uploading, reading, splitting into passages, ready with N passages, or the reason it failed and what to do.
 //
 // Decision 4: "Try it with a sample business (Café La Horquilla)" ingests the sample corpus in one press. The documents
-// it added can be removed together, which is what undoes the sample.
+// it added and the name it wrote are removed together, which is what undoes the sample (decision 16 of the amendment).
 //
 // Decision 5: every document opens as a page of its own, where the owner reads the passages the system understood.
 //
@@ -22,7 +22,6 @@ import { uploadCopy, uploadResult, type UploadOutcome, type UploadResult } from 
 export type InfoPanelProps = {
   strings: AdminStrings;
   documents: DocumentSummary[];
-  sampleNames?: string[];
   sampleLoaded?: boolean;
 };
 
@@ -51,7 +50,7 @@ const ACCEPT = ".pdf,.docx,.md,.markdown,.mdx,.txt,.text,.csv,.log,.tsv";
 const fileField =
   "min-h-11 p-2 text-sm file:mr-4 file:cursor-pointer file:rounded-none file:border-0 file:bg-ink file:px-4 file:py-2 file:text-sm file:font-bold file:uppercase file:tracking-[0.05em] file:text-paper hover:file:bg-surface-dark";
 
-export function InfoPanel({ strings, documents, sampleNames = [], sampleLoaded = false }: InfoPanelProps) {
+export function InfoPanel({ strings, documents, sampleLoaded = false }: InfoPanelProps) {
   const [list, setList] = useState(documents);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -182,13 +181,10 @@ export function InfoPanel({ strings, documents, sampleNames = [], sampleLoaded =
     setMessage(null);
     setError(null);
 
-    for (const name of sampleNames) {
-      await fetch("/api/admin/documents/delete", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-    }
+    // Decision 16 of the amendment: undoing the sample is one request, because it does two things that belong
+    // together — it removes the documents of the sample and clears the name the sample wrote, and only while the
+    // business still carries that name. Removing the documents one by one would leave the name of the example behind.
+    await fetch("/api/admin/samples", { method: "DELETE" });
 
     setSampleIn(false);
     setMessage(strings.documentUndone);

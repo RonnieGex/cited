@@ -24,7 +24,3 @@ function read(name: string): SampleDocument {
 }
 
 export const SAMPLE_DOCUMENTS: SampleDocument[] = SAMPLE_FILES.map(read);
-
-export function sampleNames(): string[] {
-  return SAMPLE_DOCUMENTS.map((document) => document.name);
-}

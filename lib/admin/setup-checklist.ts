@@ -1,13 +1,14 @@
 import type { ChatEnvironment } from "../models/types.ts";
-import { resolveChat } from "../settings/providers.ts";
+import { chatProblem, resolveChat } from "../settings/providers.ts";
 import type { Store } from "../store/index.ts";
 import { SETUP_STEP_ORDER, SETUP_STEP_WORDS, type SetupCopy, type SetupStepId } from "./setup-copy.ts";
 import { readSetupFlags, type SetupFlags } from "./setup-flags.ts";
 
 // Decision 2 of `openspec/changes/guided-setup-and-knowledge/design.md`: the state of each of the four steps is derived
-// from the real configuration, not stored. Step 1 is verified when the chat provider answered its test (or the server
-// set it), step 2 when a document has passages, step 3 when the owner pressed "This answer is right" and step 4 when
-// the business has a name and the owner pressed "Publish". The only stored things are the flags of `setup-flags.ts`.
+// from the real configuration, not stored. Step 1 is verified when the chat provider can answer — the key it saved
+// passed its test, or the server set a provider with everything it asks for (decision 14) —, step 2 when a document has
+// passages, step 3 when the owner pressed "This answer is right" and step 4 when the business has a name and the owner
+// pressed "Publish". The only stored things are the flags of `setup-flags.ts`.
 //
 //   todo      nothing was done yet
 //   progress  something is there and the step is not finished
@@ -56,14 +57,17 @@ export async function setupChecklist(
   const business = await store.readBusiness();
   const named = (business?.name.trim() ?? "").length > 0;
 
-  // The test of the provider is stored with the row (`tested_at`): a key that saved and answered is verified, a row
-  // without a test is in progress, and a server that sets the provider is verified because it was proven where it was
-  // installed.
-  const chatVerified =
-    chat.source === "server" ? chat.provider !== null : chatRow?.testedAt !== null && chatRow?.testedAt !== undefined;
-  const chatStarted = chat.source === "server" || (chatRow !== null && chatRow.provider.trim().length > 0);
+  // The test of the provider is stored with the row (`tested_at`): a key that saved and answered is verified, and a row
+  // without a test is in progress. Decision 14 of the amendment: a provider the server sets is not verified because of
+  // where it came from, but because it can answer — the same judgement the public page makes when it says the assistant
+  // is not ready — and one that cannot is the step that needs attention, with the way to the page of whoever installs.
+  const server = chat.source === "server";
+  const chatVerified = server
+    ? chat.provider !== null && chatProblem(chat) === null
+    : chatRow?.testedAt !== null && chatRow?.testedAt !== undefined;
+  const chatStarted = server || (chatRow !== null && chatRow.provider.trim().length > 0);
 
-  const ai: SetupState = chatVerified ? "verified" : chatStarted ? "progress" : "todo";
+  const ai: SetupState = chatVerified ? "verified" : server ? "attention" : chatStarted ? "progress" : "todo";
 
   const information: SetupState = passages > 0 ? "verified" : "todo";
 

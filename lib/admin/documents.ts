@@ -21,8 +21,40 @@ export type IngestedDocument = {
   passages: number;
 };
 
+/**
+ * One file of a multipart form, before anything is read from it. Decision 15: the size limit is checked on the size the
+ * browser sent, so the bytes of a file that crosses it are never read into memory, and the name is reduced to its base
+ * name before it is stored or shown. A file that crossed the limit carries the sentence the panel classifies, exactly
+ * like the failure of the ingestion.
+ */
+export type UploadField =
+  | { name: string; bytes: Uint8Array; failure: null }
+  | { name: string; bytes: null; failure: string };
+
+export async function readUploadField(entry: {
+  name: string;
+  size: number;
+  arrayBuffer: () => Promise<ArrayBuffer>;
+}): Promise<UploadField> {
+  const name = safeName(entry.name);
+
+  if (entry.size > MAX_FILE_BYTES) {
+    return {
+      name,
+      bytes: null,
+      failure: `${name} crosses the size limit: ${entry.size} bytes is above the maximum of ${MAX_FILE_BYTES}.`,
+    };
+  }
+
+  return { name, bytes: new Uint8Array(await entry.arrayBuffer()), failure: null };
+}
+
+// Decision 15 of the amendment to `openspec/changes/guided-setup-and-knowledge/design.md`: a name with `..`, a slash
+// or a control character never reaches the store or the panel, and the base name is what is kept. A backslash is a
+// separator of a Windows path, and the store of a container is not Windows: both are reduced the same way here.
 function safeName(name: string): string {
-  const cleaned = basename(name)
+  const cleaned = basename(name.replaceAll("\\", "/"))
+    .replaceAll(/[\u0000-\u001f\u007f]+/g, "_")
     .replaceAll(/[^\w.\- ]+/g, "_")
     .replace(/^\.+/, "")
     .slice(0, 120);
