@@ -15,6 +15,12 @@ export const E2E_SETUP_PORT = 3217;
 export const E2E_SETUP_BASE_URL = `http://127.0.0.1:${E2E_SETUP_PORT}`;
 export const E2E_SETUP_DATABASE_URL = ".data/e2e-setup.sqlite";
 
+// The fifth service is the same walk in Spanish (`e2e/setup-es.spec.ts`): its own port, its own store and its own
+// encryption key, because "from zero to an answer" in the other language needs a store no earlier suite walked.
+export const E2E_SETUP_ES_PORT = 3211;
+export const E2E_SETUP_ES_BASE_URL = `http://127.0.0.1:${E2E_SETUP_ES_PORT}`;
+export const E2E_SETUP_ES_DATABASE_URL = ".data/e2e-setup-es.sqlite";
+
 export const E2E_AFFILIATE_PORT = 3215;
 export const E2E_AFFILIATE_BASE_URL = `http://127.0.0.1:${E2E_AFFILIATE_PORT}`;
 export const E2E_AFFILIATE_DATABASE_URL = ".data/e2e-affiliate.sqlite";

@@ -1,11 +1,18 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
-import { createServer, type Server } from "node:http";
+import type { Server } from "node:http";
 import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
 import { PUBLIC_STRINGS } from "../lib/i18n/public";
+import { buildDocx, buildPdf } from "../tests/fixtures/documents";
 import { E2E_ADDRESS, E2E_ADMIN_PASSWORD } from "./admin-fixtures";
+import {
+  PROVIDER_DOUBLE_KEY,
+  closeDouble,
+  listenOnDoublePort,
+  providerDouble,
+} from "./provider-double";
 
 // The browser suite of `openspec/changes/guided-setup-and-knowledge/tasks.md`, tasks 2.2 and 7.1: every scenario of
 // `specs/owner-setup/spec.md`, the walk "from zero to an answer" timed end to end, an axe check of every page of the
@@ -24,8 +31,6 @@ const spanish = adminStrings("es");
 const publicEnglish = PUBLIC_STRINGS.en;
 const publicSpanish = PUBLIC_STRINGS.es;
 const password = E2E_ADMIN_PASSWORD;
-const goodKey = "sk-buena-0000000000007788";
-const doublePort = 3216;
 const sampleDocument = "cafe-la-horquilla.md";
 const color = "#0f5132";
 const colorRgb = "rgb(15, 81, 50)";
@@ -34,60 +39,6 @@ const secondsLimit = 300;
 
 let double: Server;
 
-// The answer of the double carries a citation mark, which is what `extractCitations()` reads: the panel shows the
-// answer with its numbered citation and the passage of the sample business beside it.
-function providerDouble(): Server {
-  return createServer((request, response) => {
-    const chunks: Buffer[] = [];
-
-    request.on("data", (chunk: Buffer) => chunks.push(chunk));
-    request.on("end", () => {
-      const authorization = request.headers.authorization ?? "";
-      const body = Buffer.concat(chunks).toString("utf8");
-
-      response.setHeader("content-type", "application/json");
-
-      if (authorization !== `Bearer ${goodKey}`) {
-        response.writeHead(401);
-        response.end(
-          JSON.stringify({
-            error: { message: "Incorrect API key provided", type: "invalid_request_error", code: "invalid_api_key" },
-          }),
-        );
-
-        return;
-      }
-
-      // The system prompt of the answer asks for the citation marks; the double answers a question about the prices of
-      // the sample business with the first passage it was handed. The shape of the answer is the one the SDK expects
-      // for the kind of request: a chat completion with its choices, or the list of an embeddings call.
-      const embedding = body.includes("\"input\"");
-
-      response.writeHead(200);
-      response.end(
-        embedding
-          ? JSON.stringify({
-              object: "list",
-              model: "text-embedding-3-small",
-              data: [{ object: "embedding", index: 0, embedding: Array.from({ length: 8 }, () => 0.1) }],
-            })
-          : JSON.stringify({
-              object: "chat.completion",
-              id: "chatcmpl-doble",
-              created: 1_700_000_000,
-              model: "gpt-4o-mini",
-              choices: [
-                {
-                  index: 0,
-                  message: { role: "assistant", content: "La afinación de bicicleta cuesta 380 pesos [1]." },
-                  finish_reason: "stop",
-                },
-              ],
-            }),
-      );
-    });
-  });
-}
 
 // A PDF with one page and no text layer at all: the header `%PDF-`, a catalogue, one page, an empty content stream and
 // a font nobody uses. `pdf-parse` reads it and finds no text, which is the scan of the scenario "A scanned PDF".
@@ -119,21 +70,19 @@ function blankPdf(): Buffer {
   return Buffer.from(document, "latin1");
 }
 
+// The head of a PNG and a payload: the bytes of a picture, whatever a name claims (decision 15).
+function pngBytes(): Buffer {
+  return Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, ...new Array<number>(24).fill(7)]);
+}
+
 test.beforeAll(async () => {
   double = providerDouble();
 
-  await new Promise<void>((resolve_) => {
-    double.listen(doublePort, "127.0.0.1", resolve_);
-  });
+  await listenOnDoublePort(double);
 });
 
 test.afterAll(async () => {
-  await new Promise<void>((resolve_) => {
-    double.closeAllConnections();
-    double.close(() => {
-      resolve_();
-    });
-  });
+  await closeDouble(double);
 });
 
 test.describe.configure({ mode: "serial" });
@@ -259,7 +208,7 @@ test("from zero to an answer, timed", async ({ page }) => {
   const answers = page.getByRole("region", { name: english.answersSection });
 
   await answers.getByRole("radio", { name: /OpenRouter/ }).check();
-  await answers.getByLabel(english.keyLabel).fill(goodKey);
+  await answers.getByLabel(english.keyLabel).fill(PROVIDER_DOUBLE_KEY);
   await answers.getByRole("button", { name: english.testKey }).click();
   await expect(answers.getByRole("status")).toContainText("gpt-4o-mini");
   await answers.getByRole("button", { name: english.saveKey }).click();
@@ -338,6 +287,92 @@ test("a scanned PDF is said in words while the other file is read", async ({ pag
   await expect(page.getByText(english.uploadScanTitle)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText(english.uploadScanAdvice)).toBeVisible();
   await expect(page.getByText(english.uploadReady.replace("{n}", "1"))).toBeVisible({ timeout: 60_000 });
+});
+
+// Task 10.1 of the amendment: the file cases in the browser. Decision 15 says a file is what its bytes say, so a PDF
+// and a DOCX are read by their signature even when the name lies, a picture renamed to `.txt` is refused, the size
+// limit is read from the file before its bytes, and a name with a parent folder keeps only its base name.
+test("a PDF and a DOCX are read by their content, even renamed", async ({ page }) => {
+  await signIn(page, "/admin/information");
+
+  await page.getByLabel(english.uploadDocument).setInputFiles([
+    {
+      name: "aviso-del-taller.pdf",
+      mimeType: "application/pdf",
+      buffer: buildPdf([["Aviso del taller"], ["El lunes permanecemos cerrados."]]),
+    },
+    {
+      // A real DOCX whose name claims plain text: the signature decides, not the extension.
+      name: "guia-del-taller.txt",
+      mimeType: "text/plain",
+      buffer: buildDocx([
+        { text: "Guía del taller", style: "Heading1" },
+        { text: "Aceptamos efectivo y tarjeta." },
+      ]),
+    },
+  ]);
+
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(2, { timeout: 60_000 });
+  await expect(page.getByRole("link", { name: "aviso-del-taller.pdf" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "guia-del-taller.txt" })).toBeVisible();
+});
+
+test("a picture renamed to a text extension is refused as a type", async ({ page }) => {
+  await signIn(page, "/admin/information");
+
+  await page.getByLabel(english.uploadDocument).setInputFiles([
+    { name: "dibujo.png", mimeType: "image/png", buffer: pngBytes() },
+    // The Major M-2 of `katalis-dev/tasks/revision-community-13.md`: the extension of a text file never proves that the
+    // content is text.
+    { name: "dibujo.txt", mimeType: "text/plain", buffer: pngBytes() },
+  ]);
+
+  await expect(page.locator('[data-upload-state="failed"]')).toHaveCount(2, { timeout: 60_000 });
+  await expect(page.getByText(english.uploadTypeTitle)).toHaveCount(2);
+  await expect(page.getByRole("link", { name: "dibujo.txt" })).toHaveCount(0);
+});
+
+test("a file above the size limit is refused with the limit in words", async ({ page }) => {
+  // The 20 MB travel through the browser of the test and through the server, which is the point of the case: the answer
+  // is the same for a file the route never reads into memory.
+  test.setTimeout(180_000);
+
+  await signIn(page, "/admin/information");
+
+  await page.getByLabel(english.uploadDocument).setInputFiles([
+    {
+      name: "grande.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.alloc(20 * 1024 * 1024 + 1, 0x61),
+    },
+  ]);
+
+  await expect(page.getByText(english.uploadTooLargeTitle)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(english.uploadTooLargeAdvice)).toBeVisible();
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(0);
+});
+
+test("a name with a parent folder is stored by its base name", async ({ page }) => {
+  await signIn(page, "/admin/information");
+
+  // The picker of a browser sends the base name of a local path, so the traversal name is built in the page itself:
+  // this is the only way the file reaches the server with `../` in its name.
+  await page.getByLabel(english.uploadDocument).evaluate((element) => {
+    const input = element as HTMLInputElement;
+    const transfer = new DataTransfer();
+
+    transfer.items.add(
+      new File(["# Notas del taller\n\nAbrimos de martes a domingo.\n"], "../notas-del-taller.txt", {
+        type: "text/plain",
+      }),
+    );
+    input.files = transfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(1, { timeout: 60_000 });
+  await expect(page.getByRole("link", { name: "notas-del-taller.txt" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "../notas-del-taller.txt" })).toHaveCount(0);
 });
 
 // The scenario "A document page": the headings in order with their passages, as the store keeps them.

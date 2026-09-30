@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { AttentionNotice } from "@/components/setup/AttentionNotice";
 import { DocumentPanel } from "@/components/setup/DocumentPanel";
 import { InfoPanel } from "@/components/setup/InfoPanel";
 import { PublishPanel } from "@/components/setup/PublishPanel";
@@ -134,7 +135,7 @@ describe("the lane of the guided setup", () => {
     }
   });
 
-  it("shows the state of a step in words, never in a badge of capitals", () => {
+  it("says the state of a step in words, never in a badge of capitals", () => {
     const attention: SetupStep[] = [step("ai", "attention"), step("information", "todo"), step("try", "todo"), step("publish", "todo")];
 
     render(
@@ -151,6 +152,22 @@ describe("the lane of the guided setup", () => {
     expect(screen.getByText(english.stepAttention)).toBeInTheDocument();
     // The three steps that are not the one with attention say the same words, one each.
     expect(screen.getAllByText(english.stepTodo)).toHaveLength(3);
+  });
+
+  // Decision 14 of the amendment: a chat provider the server set that cannot answer shows the step as needing
+  // attention, with the link to the only page allowed to name the variables (decision 11).
+  it("sends the owner to the installer when a step needs attention, in both languages", () => {
+    for (const strings of [english, spanish]) {
+      const { unmount } = render(<AttentionNotice strings={strings} />);
+
+      expect(screen.getByText(strings.stepAttentionBody)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: strings.panelInstaller })).toHaveAttribute(
+        "href",
+        "/admin/settings",
+      );
+
+      unmount();
+    }
   });
 });
 
@@ -266,6 +283,47 @@ describe("the information lane", () => {
 
     expect(url).toBe("/api/admin/samples");
     expect(options.method).toBe("POST");
+  });
+
+  // Decision 16 of the amendment: undoing the sample is one request that removes its documents and clears the name it
+  // set, and only when the business still carries that name.
+  it("undoes the sample business with one request that also clears its name", async () => {
+    const fetched = vi.fn(async (url: string, options?: RequestInit) => {
+      if (String(url) === "/api/admin/samples" && options?.method === "DELETE") {
+        return new Response(JSON.stringify({ status: "ok", name_cleared: true, documents: [] }), { status: 200 });
+      }
+
+      return new Response(JSON.stringify({ status: "ok", documents: [] }), { status: 200 });
+    });
+
+    vi.stubGlobal("fetch", fetched);
+
+    render(
+      <InfoPanel
+        documents={[
+          {
+            name: "cafe-la-horquilla.md",
+            type: "md",
+            pages: null,
+            ingestedAt: "2026-09-30T12:00:00.000Z",
+            passages: 4,
+          },
+        ]}
+        sampleLoaded
+        sampleNames={["cafe-la-horquilla.md"]}
+        strings={english}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: english.sampleUndo }));
+
+    await waitFor(() => expect(screen.getByText(english.documentUndone)).toBeInTheDocument());
+
+    expect(fetched).toHaveBeenCalledWith("/api/admin/samples", expect.objectContaining({ method: "DELETE" }));
+    expect(
+      fetched.mock.calls.some(([url]) => String(url) === "/api/admin/documents/delete"),
+      "the documents are not removed one by one",
+    ).toBe(false);
   });
 
   it("opens a document as a page of its own", () => {

@@ -139,6 +139,39 @@ describe("the derived state of the four steps", () => {
     expect(stateOf(checklist.steps, "ai")).toBe("verified");
   });
 
+  // Decision 14 of the amendment: green means usable. A provider the server names is not verified because of where it
+  // came from, but because it can answer: `chatProblem()` reads the key and the provider and this is the same judgement
+  // the public page makes when it says the assistant is not ready.
+  it("does not verify the first step with a server provider whose key is missing", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, { CHAT_PROVIDER: "openai", OPENAI_API_KEY: "" });
+
+    expect(stateOf(checklist.steps, "ai")).not.toBe("verified");
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
+  });
+
+  it("verifies the first step with a server provider that carries its key", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, {
+      CHAT_PROVIDER: "openai",
+      OPENAI_API_KEY: "sk-de-la-suite-000000000000",
+    });
+
+    expect(stateOf(checklist.steps, "ai")).toBe("verified");
+  });
+
+  it("keeps the words of the step that needs attention free of the name of a variable", async () => {
+    const store = await tempStore();
+    const checklist = await setupChecklist(store, { CHAT_PROVIDER: "openai", OPENAI_API_KEY: "" });
+    const step = checklist.steps.find((one) => one.id === "ai");
+
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
+
+    for (const name of ["OPENAI_API_KEY", "CHAT_PROVIDER", "OPENAI_BASE_URL", "CHAT_MODEL"]) {
+      expect(JSON.stringify(step)).not.toContain(name);
+    }
+  });
+
   it("verifies the second step with one document that has passages", async () => {
     const store = await tempStore();
 

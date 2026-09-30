@@ -7,11 +7,12 @@ import { GET as setupFlags, PUT as setupFlagsWrite } from "@/app/api/admin/setup
 import { PUT as tryVerify } from "@/app/api/admin/try/verify/route";
 import { GET as documents, POST as documentsUpload } from "@/app/api/admin/documents/route";
 import { POST as documentsDelete } from "@/app/api/admin/documents/delete/route";
-import { POST as sample } from "@/app/api/admin/samples/route";
+import { POST as sample, DELETE as sampleUndo } from "@/app/api/admin/samples/route";
 import { sessionToken } from "@/lib/admin/session";
+import { readBusiness } from "@/lib/settings/business";
 import { openStore } from "@/lib/store";
 import { closeSharedStores } from "@/lib/store/instance";
-import { ADMIN_SECRET, cleanup, configured, environmentOf, sessionHeader } from "./admin-helpers";
+import { ADMIN_SECRET, cleanup, configured, environmentOf, pngBytes, sessionHeader } from "./admin-helpers";
 
 // Decision 2 of `openspec/changes/guided-setup-and-knowledge/design.md`: the two flags the owner sets are read and
 // written through routes of the panel, behind the session of the panel and the origin of a mutation. Decision 4: the
@@ -245,6 +246,65 @@ describe("an upload of several files", () => {
     expect(body.results.map((result) => result.state)).toEqual(["failed", "ready"]);
   });
 
+  // Decision 15 of the amendment: a file is what its bytes say, and a name with a parent folder is reduced to its base
+  // name before it is stored or shown (the Major M-2 of `revision-community-13.md`).
+  it("refuses a PNG renamed to a text extension while the file after it is read", async () => {
+    await signedEnvironment({ EMBEDDINGS_PROVIDER: "fake" });
+
+    const form = new FormData();
+
+    form.append("document", new File([new Uint8Array(pngBytes())], "dibujo.txt", { type: "text/plain" }));
+    form.append(
+      "document",
+      new File(["# Horario\n\nAbrimos de martes a domingo.\n"], "horario.md", { type: "text/markdown" }),
+    );
+
+    const response = await documentsUpload(
+      new Request("http://localhost/api/admin/documents", {
+        method: "POST",
+        headers: { origin: "http://localhost", ...sessionHeader(token) },
+        body: form,
+      }),
+    );
+    const body = (await response.json()) as {
+      results: Array<{ name: string; state: string; failure: string | null }>;
+      documents: Array<{ name: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.results.map((result) => result.state)).toEqual(["failed", "ready"]);
+    expect(body.results[0]?.name).toBe("dibujo.txt");
+    expect(body.results[0]?.failure).toMatch(/not an accepted type/i);
+    expect(body.documents.map((document) => document.name)).toEqual(["horario.md"]);
+  });
+
+  it("reduces a name with a parent folder to its base name", async () => {
+    await signedEnvironment({ EMBEDDINGS_PROVIDER: "fake" });
+
+    const form = new FormData();
+
+    form.append(
+      "document",
+      new File(["# Notas\n\nAbrimos de martes a domingo.\n"], "../notas.txt", { type: "text/markdown" }),
+    );
+
+    const response = await documentsUpload(
+      new Request("http://localhost/api/admin/documents", {
+        method: "POST",
+        headers: { origin: "http://localhost", ...sessionHeader(token) },
+        body: form,
+      }),
+    );
+    const body = (await response.json()) as {
+      results: Array<{ name: string; state: string }>;
+      documents: Array<{ name: string }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.results.map((result) => result.name)).toEqual(["notas.txt"]);
+    expect(body.documents.map((document) => document.name)).toEqual(["notas.txt"]);
+  });
+
   it("still answers the list of documents of the panel", async () => {
     await signedEnvironment({ EMBEDDINGS_PROVIDER: "fake" });
 
@@ -337,6 +397,70 @@ describe("the sample business", () => {
         method: "POST",
         headers: { "content-type": "application/json", origin: "http://localhost" },
         body: "{}",
+      }),
+    );
+
+    expect(response.status).toBe(401);
+  });
+});
+
+// Decision 16 of the amendment: undo leaves nothing of the sample. Removing its documents is not enough while the
+// business keeps the name the sample wrote, and a name the owner typed after the sample is kept.
+describe("undoing the sample business", () => {
+  it("removes the documents it added and clears the name it set", async () => {
+    await signedEnvironment({ EMBEDDINGS_PROVIDER: "fake" });
+
+    await sample(request("/api/admin/samples", {}));
+
+    expect((await readBusiness())?.name).toBe("Café La Horquilla");
+
+    const response = await sampleUndo(request("/api/admin/samples", {}, "DELETE"));
+    const body = (await response.json()) as {
+      status: string;
+      name_cleared: boolean;
+      documents: unknown[];
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.status).toBe("ok");
+    expect(body.name_cleared).toBe(true);
+    expect(body.documents).toEqual([]);
+    expect(((await readBusiness())?.name ?? "").trim()).toBe("");
+  });
+
+  it("keeps a name the owner typed after the sample", async () => {
+    await signedEnvironment({ EMBEDDINGS_PROVIDER: "fake" });
+
+    await sample(request("/api/admin/samples", {}));
+
+    const store = await openStore(storePath);
+
+    await store.saveBusiness({
+      name: "Cafetería del Sur",
+      primaryColor: null,
+      tone: "",
+      language: "en",
+      forbiddenTopics: "",
+      welcomeEn: "",
+      welcomeEs: "",
+    });
+    store.close();
+
+    const response = await sampleUndo(request("/api/admin/samples", {}, "DELETE"));
+    const body = (await response.json()) as { name_cleared: boolean };
+
+    expect(response.status).toBe(200);
+    expect(body.name_cleared).toBe(false);
+    expect((await readBusiness())?.name).toBe("Cafetería del Sur");
+  });
+
+  it("needs the session of the panel", async () => {
+    await signedEnvironment({ EMBEDDINGS_PROVIDER: "fake" });
+
+    const response = await sampleUndo(
+      new Request("http://localhost/api/admin/samples", {
+        method: "DELETE",
+        headers: { origin: "http://localhost" },
       }),
     );
 

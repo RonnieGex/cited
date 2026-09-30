@@ -12,8 +12,17 @@ import {
   E2E_PORT,
   E2E_SETUP_BASE_URL,
   E2E_SETUP_DATABASE_URL,
+  E2E_SETUP_ES_BASE_URL,
+  E2E_SETUP_ES_DATABASE_URL,
+  E2E_SETUP_ES_PORT,
   E2E_SETUP_PORT,
 } from "./e2e/admin-fixtures";
+
+// Decision 17 of `guided-setup-and-knowledge`: the fixed set of ports of this suite is 3100 and 3210 to 3217, and no
+// spec opens a port outside it — 3100 serves the public page and the widget reads it from there; 3210 and 3212 serve
+// the sites of the widget tests, and 3211 the guided setup walked in Spanish; 3213 serves the panel, 3214 the panel of
+// the keys, 3215 the panel with the affiliate switch on; 3216 is the provider double that the specs of the keys, of the
+// guided setup and of the Spanish walk serve one at a time; 3217 is the guided setup of the walk in English.
 
 const port = E2E_PORT;
 const panelBaseURL = E2E_BASE_URL;
@@ -64,6 +73,9 @@ const affiliateEncryptionKey = Buffer.alloc(32, 9).toString("base64");
 // The key of the disposable store of the guided setup: generated here, never committed, and the store it protects is
 // removed at the start of every run.
 const setupEncryptionKey = Buffer.alloc(32, 11).toString("base64");
+// The key of the disposable store of the Spanish walk: generated here, never committed, and its store is removed at the
+// start of every run as well.
+const setupEsEncryptionKey = Buffer.alloc(32, 13).toString("base64");
 
 export default defineConfig({
   testDir: "./e2e",
@@ -72,8 +84,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
   // The suite of the panel and the suite of the keys serve their own provider double on the same port (3216), because
-  // the environment of the three services of the panel points at it. One worker at a time keeps them from taking the
-  // port from each other; the specs inside a file still run in parallel.
+  // the environment of the services of the panel points at it, and the two walks of the guided setup do the same. One
+  // worker at a time keeps them from taking the port from each other; the specs inside a file still run in parallel.
   workers: 1,
   projects: [
     {
@@ -93,9 +105,10 @@ export default defineConfig({
         "**/admin-brand.spec.ts",
         "**/providers.spec.ts",
         "**/affiliate.spec.ts",
-        // The suite of the guided setup drives the panel and the store of its own server: it runs in the project
-        // `setup`, never here.
+        // The suites of the guided setup drive the panel and the store of their own servers: they run in the projects
+        // `setup` and `setup-es`, never here.
         "**/setup.spec.ts",
+        "**/setup-es.spec.ts",
       ],
       use: {
         ...devices["Desktop Chrome"],
@@ -132,6 +145,19 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         baseURL: E2E_SETUP_BASE_URL,
+        trace: "on-first-retry",
+        extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
+      },
+    },
+    {
+      // The same walk in Spanish (task 10.1 of the amendment): its own server, its own empty store and the same double
+      // on 3216, which this spec serves while it runs. `workers: 1` keeps it from holding that port at the same time as
+      // the specs of the keys and of the English walk.
+      name: "setup-es",
+      testMatch: "**/setup-es.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: E2E_SETUP_ES_BASE_URL,
         trace: "on-first-retry",
         extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS },
       },
@@ -235,6 +261,31 @@ export default defineConfig({
         OPENAI_BASE_URL: providerDoubleBaseURL,
         // The double of this suite answers the Chat Completions API, which is the one OpenRouter speaks
         // (`createOpenAICompatible`), so the owner of the walk chooses that row and no test reaches a real provider.
+        OPENROUTER_BASE_URL: providerDoubleBaseURL,
+        ALLOW_LOCAL_PROVIDERS: "1",
+        AFFILIATE_LINKS: "off",
+        RATE_LIMIT_PER_IP_PER_HOUR: "1000",
+        DAILY_MODEL_CALL_LIMIT: "1000",
+        ELEVENLABS_API_KEY: "",
+        ELEVENLABS_AGENT_ID: "",
+        ELEVENLABS_VOICE_ID: "",
+        VOICE_TOOL_SECRET: "",
+      },
+    },
+    {
+      // The server of the walk in Spanish (`e2e/setup-es.spec.ts`): the same shape as the one above, with its own store,
+      // its own key of encryption and the port 3211, which the widget suite frees before this project runs.
+      command: `${reset(E2E_SETUP_ES_DATABASE_URL)} && npm start -- --port ${E2E_SETUP_ES_PORT}`,
+      url: E2E_SETUP_ES_BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000,
+      env: {
+        ADMIN_PASSWORD: E2E_ADMIN_PASSWORD,
+        ADMIN_SESSION_SECRET: E2E_ADMIN_SECRET,
+        DATABASE_URL: E2E_SETUP_ES_DATABASE_URL,
+        TRUST_PROXY: "1",
+        ENCRYPTION_KEY: setupEsEncryptionKey,
+        OPENAI_BASE_URL: providerDoubleBaseURL,
         OPENROUTER_BASE_URL: providerDoubleBaseURL,
         ALLOW_LOCAL_PROVIDERS: "1",
         AFFILIATE_LINKS: "off",

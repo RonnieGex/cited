@@ -1,16 +1,18 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { POST as conversationsDelete } from "@/app/api/admin/conversations/delete/route";
 import { GET as conversations } from "@/app/api/admin/conversations/route";
 import { POST as documentsDelete } from "@/app/api/admin/documents/delete/route";
 import { POST as documentsReingest } from "@/app/api/admin/documents/reingest/route";
 import { GET as documents, POST as documentsUpload } from "@/app/api/admin/documents/route";
 import { REFUSALS } from "@/lib/answer/prompt";
+import { readUploadField } from "@/lib/admin/documents";
 import { SESSION_COOKIE, sessionToken } from "@/lib/admin/session";
 import { hashIp } from "@/lib/guards/ip";
 import { dayOf, hourWindowStart } from "@/lib/guards/window";
+import { MAX_FILE_BYTES } from "@/lib/ingest";
 import { sharedStore } from "@/lib/store/instance";
 import {
   ADMIN_SECRET,
@@ -162,6 +164,65 @@ describe("the documents of the panel", () => {
     expect(route).toContain("ingestOne");
     expect(panel).toContain("ingestUpload");
     expect(route).not.toContain("chunkText(");
+  });
+});
+
+describe("the files of an upload, read the way decision 15 asks", () => {
+  it("refuses a file above the size limit by its size, before reading its bytes", async () => {
+    const read = vi.fn(async () => new ArrayBuffer(0));
+    const field = await readUploadField({ name: "grande.txt", size: MAX_FILE_BYTES + 1, arrayBuffer: read });
+
+    expect(field.name).toBe("grande.txt");
+    expect(field.bytes).toBeNull();
+    expect(field.failure).toMatch(/size limit/i);
+    expect(read, "the bytes are never read").not.toHaveBeenCalled();
+  });
+
+  it("reads the bytes of a file that fits", async () => {
+    const bytes = new TextEncoder().encode("# Notas\n\nAbrimos de martes a domingo.\n");
+    const field = await readUploadField({
+      name: "notas.md",
+      size: bytes.byteLength,
+      arrayBuffer: async () => bytes.buffer as ArrayBuffer,
+    });
+
+    expect(field.failure).toBeNull();
+    expect(field.bytes?.byteLength).toBe(bytes.byteLength);
+  });
+
+  it("reduces a name with a parent folder to its base name before it is stored or shown", async () => {
+    for (const name of ["../../notas.md", "..\\..\\notas.md", "/tmp/notas.md", ".."]) {
+      const field = await readUploadField({
+        name,
+        size: 0,
+        arrayBuffer: async () => new ArrayBuffer(0),
+      });
+
+      expect(field.name.includes("/"), name).toBe(false);
+      expect(field.name.includes("\\"), name).toBe(false);
+      expect(field.name.startsWith("."), name).toBe(false);
+    }
+  });
+
+  it("drops the control characters of a name", async () => {
+    const field = await readUploadField({
+      name: "no\u0007tas.txt",
+      size: 0,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    });
+
+    expect(field.name).not.toContain("\u0007");
+    expect(field.name.endsWith(".txt")).toBe(true);
+  });
+
+  it("is what the route asks, so the bytes of an oversized file never travel", () => {
+    const route = readFileSync(
+      join(repositoryRoot, "app", "api", "admin", "documents", "route.ts"),
+      "utf8",
+    );
+
+    expect(route).toContain("readUploadField");
+    expect(route).not.toMatch(/entry\.arrayBuffer\(\)/);
   });
 });
 

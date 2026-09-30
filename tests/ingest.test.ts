@@ -102,6 +102,43 @@ describe("type detection", () => {
 
     await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
   });
+
+  // Decision 15 of the amendment: a file is what its bytes say. A permitted extension never proves that the content is
+  // text, so the signature of a picture refuses it even when the name claims `.txt` (the Major M-2 of
+  // `revision-community-13.md`), and a text name whose bytes are not UTF-8 is refused as well.
+  it("refuses a PNG renamed to a text extension", async () => {
+    const path = document(
+      "imagen.txt",
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x01, 0x41]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("refuses a JPEG renamed to Markdown", async () => {
+    const path = document(
+      "foto.md",
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("refuses a text name whose bytes are not UTF-8 text", async () => {
+    const path = document("notas.md", Buffer.from([0xc3, 0x28, 0x00, 0x41, 0x42, 0x43]));
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("reads a PDF and a DOCX named `.txt` by their content", async () => {
+    const pdf = await parseFile(document("aviso.txt", buildPdf([["Aviso del taller"]])));
+    const docx = await parseFile(document("guia.txt", buildDocx([{ text: "Aceptamos efectivo y tarjeta." }])));
+
+    expect(pdf.type).toBe("pdf");
+    expect(pdf.text).toContain("Aviso del taller");
+    expect(docx.type).toBe("docx");
+    expect(docx.text).toContain("Aceptamos efectivo y tarjeta.");
+  });
 });
 
 describe("the limits", () => {
