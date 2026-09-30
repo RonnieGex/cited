@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState, type DragEvent } from "react";
-import { Button, Panel, SectionTitle, focusRing } from "@/components/ui";
+import { Button, Panel, SectionTitle, buttonClass, focusRing } from "@/components/ui";
 import type { DocumentSummary } from "@/lib/admin/documents";
 import type { AdminStrings } from "@/lib/i18n/admin";
 import { uploadCopy, uploadResult, type UploadOutcome, type UploadResult } from "@/lib/admin/upload-result";
@@ -14,6 +14,10 @@ import { uploadCopy, uploadResult, type UploadOutcome, type UploadResult } from 
 // Decision 4: "Try it with a sample business (Café La Horquilla)" ingests the sample corpus in one press. The documents
 // it added and the name it wrote are removed together, which is what undoes the sample (decision 16 of the amendment).
 //
+// Decision 24 of the fourth amendment: while the search is not chosen the ingestion of the sample cannot work, so the
+// same control is the door back to step 1 instead of a button that fails after the press. The route keeps refusing the
+// request, because the server never trusts a control of the browser.
+//
 // Decision 5: every document opens as a page of its own, where the owner reads the passages the system understood.
 //
 // The files travel one request at a time on purpose: it is what lets a file that cannot be read show its reason while
@@ -23,6 +27,8 @@ export type InfoPanelProps = {
   strings: AdminStrings;
   documents: DocumentSummary[];
   sampleLoaded?: boolean;
+  /** The search of the installation can look for meaning or by words: what the sample business needs to be ingested. */
+  searchChosen?: boolean;
 };
 
 type Phase = "waiting" | "uploading" | "reading" | "splitting" | "done";
@@ -50,7 +56,7 @@ const ACCEPT = ".pdf,.docx,.md,.markdown,.mdx,.txt,.text,.csv,.log,.tsv";
 const fileField =
   "min-h-11 p-2 text-sm file:mr-4 file:cursor-pointer file:rounded-none file:border-0 file:bg-ink file:px-4 file:py-2 file:text-sm file:font-bold file:uppercase file:tracking-[0.05em] file:text-paper hover:file:bg-surface-dark";
 
-export function InfoPanel({ strings, documents, sampleLoaded = false }: InfoPanelProps) {
+export function InfoPanel({ strings, documents, sampleLoaded = false, searchChosen = true }: InfoPanelProps) {
   const [list, setList] = useState(documents);
   const [progress, setProgress] = useState<Progress[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -270,9 +276,17 @@ export function InfoPanel({ strings, documents, sampleLoaded = false }: InfoPane
       )}
 
       <div className="flex flex-wrap items-center gap-4">
-        <Button disabled={busy} onClick={() => void takeSample()} variant="secondary">
-          {strings.sampleTry}
-        </Button>
+        {searchChosen ? (
+          <Button disabled={busy} onClick={() => void takeSample()} variant="secondary">
+            {strings.sampleTry}
+          </Button>
+        ) : (
+          // Decision 24: the step that owns the search is step 1, so this is where the owner goes, with the same words
+          // and the same look of the button it replaces.
+          <Link className={buttonClass("secondary")} href="/admin?step=ai">
+            {strings.sampleTry}
+          </Link>
+        )}
         {sampleIn ? (
           <Button disabled={busy} onClick={() => void undo()} variant="secondary" size="sm">
             {strings.sampleUndo}

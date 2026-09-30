@@ -1,4 +1,4 @@
-export { Button, type ButtonProps } from "./Button";
+export { Button, buttonClass, type ButtonProps } from "./Button";
 export { Chip, type ChipProps } from "./Chip";
 export { focusRing, focusRingOnBrand, focusRingOnInk } from "./focus";
 export { Input, type InputProps } from "./Input";

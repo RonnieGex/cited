@@ -1,14 +1,15 @@
 import type { ChatEnvironment } from "../models/types.ts";
-import { chatProblem, resolveChat } from "../settings/providers.ts";
+import { chatProblem, embeddingsConfigured, resolveChat, resolveEmbeddings } from "../settings/providers.ts";
 import type { Store } from "../store/index.ts";
 import { SETUP_STEP_ORDER, SETUP_STEP_WORDS, type SetupCopy, type SetupStepId } from "./setup-copy.ts";
 import { readSetupFlags, type SetupFlags } from "./setup-flags.ts";
 
 // Decision 2 of `openspec/changes/guided-setup-and-knowledge/design.md`: the state of each of the four steps is derived
-// from the real configuration, not stored. Step 1 is verified when the chat provider can answer (decisions 14 and 20:
-// `chatProblem()` returns nothing, and a provider of the panel also passed its last test), step 2 when a document has
-// passages, step 3 when the owner pressed "This answer is right" and step 4 when the business has a name and the owner
-// pressed "Publish". The only stored things are the flags of `setup-flags.ts`.
+// from the real configuration, not stored. Step 1 is verified when the chat provider can answer (decisions 14, 20 and
+// 23: `chatProblem()` returns nothing, and a provider of the panel also passed its last test) and the search is chosen
+// (decision 24: a meaning provider that is configured, or search by words), step 2 when a document has passages, step 3
+// when the owner pressed "This answer is right" and step 4 when the business has a name and the owner pressed
+// "Publish". The only stored things are the flags of `setup-flags.ts`.
 //
 //   todo      nothing was done yet
 //   progress  something is there and the step is not finished
@@ -37,6 +38,10 @@ export type SetupChecklist = {
   current: SetupStepId;
   /** Documents with passages. */
   documents: number;
+  /** The search of the installation can look for meaning or by words: the other half of the first step. */
+  searchChosen: boolean;
+  /** Why the first step asks for attention, when it does: the AI that cannot answer, or the search that is missing. */
+  attention: "chat" | "search" | null;
 };
 
 function step(id: SetupStepId, state: SetupState): SetupStep {
@@ -49,8 +54,12 @@ export async function setupChecklist(
 ): Promise<SetupChecklist> {
   const flags = await readSetupFlags(store);
   const chat = await resolveChat({ environment, store });
+  const embeddings = await resolveEmbeddings({ environment, store });
   const chatRow = await store.readProviderSetting("chat");
   const passages = await store.countPassages();
+  // Decision 24 of the fourth amendment: step 1 is the AI *and* how to search. The search is chosen when the resolver
+  // can look for meaning — a provider with everything it asks for — or when it ranks by words, which needs no key.
+  const searchChosen = embeddingsConfigured(embeddings);
   const documents = passages === 0 ? 0 : (await store.listDocuments()).length;
   // The business is read from the store this checklist was handed and not through the shared one of the environment:
   // the panel opens one store per request and the state of the steps describes that one.
@@ -79,7 +88,22 @@ export async function setupChecklist(
   const chatUnusable = problem !== null && (server || panelProvider);
   const panelStarted = panelProvider;
 
-  const ai: SetupState = chatVerified ? "verified" : chatUnusable ? "attention" : panelStarted ? "progress" : "todo";
+  // Decision 24 of the fourth amendment: with the chat set by the server and no search chosen, step 1 was green and
+  // closed while the search was never chosen, and the sample business of step 2 failed after the press. The step is
+  // whole only with both halves: an AI that can answer and a search. When the AI can answer and the search is missing
+  // the step asks for attention, in both shapes — the server that names the provider and the panel that saved one whose
+  // test passed — because the owner still has a decision to make inside the same step.
+  const ai: SetupState =
+    chatVerified && searchChosen
+      ? "verified"
+      : chatUnusable
+        ? "attention"
+        : chatVerified
+          ? "attention"
+          : panelStarted
+            ? "progress"
+            : "todo";
+  const attention: SetupChecklist["attention"] = ai === "attention" ? (chatUnusable ? "chat" : "search") : null;
 
   const information: SetupState = passages > 0 ? "verified" : "todo";
 
@@ -107,7 +131,7 @@ export async function setupChecklist(
   const done = steps.every((one) => one.state === "verified");
   const current = SETUP_STEP_ORDER.find((id) => steps.find((one) => one.id === id)?.state !== "verified") ?? "ai";
 
-  return { steps, flags, started: flags.started || done, skipped: flags.skipped, done, current, documents };
+  return { steps, flags, started: flags.started || done, skipped: flags.skipped, done, current, documents, searchChosen, attention };
 }
 
 export function stepState(checklist: SetupChecklist, id: SetupStepId): SetupState {

@@ -51,15 +51,19 @@ export default async function AdminSetup() {
             {/* Decisions 14, 20 and 23 of the amendment: a chat provider that cannot answer shows the first step as
                 needing attention. A provider of the server sends the owner to the page of whoever installs; one saved
                 in the panel says that its key can no longer be read, or that Cited does not know the provider, and
-                reopens step 1, which is where it is connected again. */}
+                reopens step 1, which is where it is connected again. Decision 24 of the fourth amendment adds the
+                reason that has no action of its own: the AI answers and the search is not chosen, so the notice carries
+                the words of the decision and the two doors of the section below are what finishes the step. */}
             {stepState(checklist, "ai") === "attention" ? (
               <AttentionNotice
                 source={
-                  provider.chat.source === "server"
-                    ? "server"
-                    : panelUnknownProvider(provider.chat)
-                      ? "unknown"
-                      : "panel"
+                  checklist.attention === "search"
+                    ? "search"
+                    : provider.chat.source === "server"
+                      ? "server"
+                      : panelUnknownProvider(provider.chat)
+                        ? "unknown"
+                        : "panel"
                 }
                 strings={strings}
               />
@@ -95,6 +99,7 @@ export default async function AdminSetup() {
           <InfoPanel
             documents={documents}
             sampleLoaded={checklist.documents > 0}
+            searchChosen={checklist.searchChosen}
             strings={strings}
           />
         ),

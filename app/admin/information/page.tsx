@@ -5,11 +5,15 @@ import { SectionTitle } from "@/components/ui";
 import { documentSummaries } from "@/lib/admin/documents";
 import { adminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
+import { embeddingsConfigured, resolveEmbeddings } from "@/lib/settings/providers";
 import { sharedStore } from "@/lib/store/instance";
 import { panelMetadata } from "@/lib/admin/titles";
 
 // Decision 11: "Information" is where the business's own documents live once the setup is done, and it is the same
 // component the second step of the guided setup embeds, so the owner learns one screen and not two.
+//
+// Decision 24 of the fourth amendment: this screen offers the same sample business, so it reads the search the way the
+// checklist does — the control is the door back to step 1 while the search is not chosen.
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +27,7 @@ export default async function AdminInformation() {
   const strings = adminStrings(lang);
   const store = await sharedStore(process.env);
   const documents = await documentSummaries(store);
+  const searchChosen = embeddingsConfigured(await resolveEmbeddings({ environment: process.env, store }));
 
   return (
     <div className="flex flex-col gap-8">
@@ -30,7 +35,12 @@ export default async function AdminInformation() {
         {strings.navInformation}
       </SectionTitle>
       <p className="max-w-[65ch] text-ink/80">{strings.documentsIntro}</p>
-      <InfoPanel documents={documents} sampleLoaded={documents.length > 0} strings={strings} />
+      <InfoPanel
+        documents={documents}
+        sampleLoaded={documents.length > 0}
+        searchChosen={searchChosen}
+        strings={strings}
+      />
       <p>
         <Link className="text-sm font-semibold text-ink underline underline-offset-4" href="/admin">
           {strings.setupReopen}
