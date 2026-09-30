@@ -111,4 +111,3 @@ will be public: no secret, no customer data, no personal path. No network call t
       (decision 24) — report: `reports/2026-09-30-step-13-1-step-one-whole.md`
 - [ ] 13.2 The checks of 10.3 and the E2E of 10.4 on the amended tree, each result with its commit, and the delivery with
       a section "Ronda 13e" — report: `reports/2026-09-30-step-13-2-checks.md`
-
