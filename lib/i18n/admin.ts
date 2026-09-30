@@ -17,6 +17,7 @@ export type AdminStrings = {
   stepAttention: string;
   stepAttentionBody: string;
   stepKeyBody: string;
+  stepUnknownProviderBody: string;
   stepKeyAction: string;
   setupWelcomeTitle: string;
   setupWelcomeBody: string;
@@ -263,6 +264,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     stepAttentionBody:
       "The AI is set on the server and cannot answer yet. Whoever installs Cited has to finish it.",
     stepKeyBody: "The saved key can no longer be read. Connect your AI again.",
+    stepUnknownProviderBody: "The saved AI provider is not one Cited knows. Connect your AI again.",
     stepKeyAction: "Connect your AI again",
     setupWelcomeTitle: "Your documents answer your customers",
     setupWelcomeBody:
@@ -515,6 +517,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     stepAttentionBody:
       "La IA está fijada en el servidor y todavía no puede responder. Quien instala Cited tiene que terminarla.",
     stepKeyBody: "La llave guardada ya no se puede leer. Conecta tu IA otra vez.",
+    stepUnknownProviderBody: "El proveedor de IA guardado no es uno que Cited conozca. Conecta tu IA otra vez.",
     stepKeyAction: "Conectar tu IA otra vez",
     setupWelcomeTitle: "Tus documentos responden a tus clientes",
     setupWelcomeBody:

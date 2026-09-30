@@ -6,7 +6,7 @@ import { SetupSteps } from "@/components/setup/SetupSteps";
 import { TryItPanel } from "@/components/setup/TryItPanel";
 import { PublishPanel } from "@/components/setup/PublishPanel";
 import { documentSummaries } from "@/lib/admin/documents";
-import { providerPanelState } from "@/lib/admin/provider-panel";
+import { providerPanelState, panelUnknownProvider } from "@/lib/admin/provider-panel";
 import { suggestedQuestions } from "@/lib/admin/questions";
 import { setupChecklist, stepState } from "@/lib/admin/setup-checklist";
 import { adminStrings } from "@/lib/i18n/admin";
@@ -48,13 +48,19 @@ export default async function AdminSetup() {
       {{
         ai: (
           <div className="flex flex-col gap-10">
-            {/* Decisions 14 and 20 of the amendment: a chat provider that cannot answer shows the first step as
+            {/* Decisions 14, 20 and 23 of the amendment: a chat provider that cannot answer shows the first step as
                 needing attention. A provider of the server sends the owner to the page of whoever installs; one saved
-                in the panel says that its key can no longer be read and reopens step 1, which is where it is connected
-                again. */}
+                in the panel says that its key can no longer be read, or that Cited does not know the provider, and
+                reopens step 1, which is where it is connected again. */}
             {stepState(checklist, "ai") === "attention" ? (
               <AttentionNotice
-                source={provider.chat.source === "panel" ? "panel" : "server"}
+                source={
+                  provider.chat.source === "server"
+                    ? "server"
+                    : panelUnknownProvider(provider.chat)
+                      ? "unknown"
+                      : "panel"
+                }
                 strings={strings}
               />
             ) : null}

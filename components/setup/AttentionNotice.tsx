@@ -12,18 +12,28 @@ import type { AdminStrings } from "@/lib/i18n/admin";
 // is the owner's, not the installer's: the words say what happened and the button reopens step 1, which is where the
 // key is connected again (the Major M-7 of `katalis-dev/tasks/revision-community-13b.md`).
 //
+// Decision 23 of the third amendment: a row of the panel that names a provider the catalogue does not know is the
+// owner's too. It is not a key that stopped working but a provider Cited cannot use, so the words say that and the same
+// button reopens step 1 (the Major M-8 of `katalis-dev/tasks/revision-community-13c.md`).
+//
 // It is a server component: the words come from the panel strings and the address is the page of the installer or the
 // step of the AI.
 
-export type AttentionSource = "server" | "panel";
+export type AttentionSource = "server" | "panel" | "unknown";
 
 export function AttentionNotice({ strings, source = "server" }: { strings: AdminStrings; source?: AttentionSource }) {
-  const panel = source === "panel";
+  const panel = source !== "server";
+  const body =
+    source === "server"
+      ? strings.stepAttentionBody
+      : source === "unknown"
+        ? strings.stepUnknownProviderBody
+        : strings.stepKeyBody;
 
   return (
     <div className="flex flex-col gap-1 border border-ink/20 p-4">
       <p className="max-w-[65ch] text-sm font-semibold text-ink" role="status">
-        {panel ? strings.stepKeyBody : strings.stepAttentionBody}
+        {body}
       </p>
       <p className="text-sm">
         {panel ? (
