@@ -246,6 +246,10 @@ function openChangeSpecs(capability: string): string[] {
     .filter((path) => addsCapability(path));
 }
 
+function requirementHeaders(text: string): string[] {
+  return text.match(/^### Requirement: .+$/gm)?.map((header) => header.trim()) ?? [];
+}
+
 function specIsDelivered(link: string): boolean {
   const capability = capabilityOf(link);
 
@@ -676,9 +680,22 @@ describe("README, the status table", () => {
 
         expect(capability, row.capability).not.toBeNull();
         expect(inForce || delivering.length > 0, row.capability).toBe(true);
-        // Amended in `brand-identity-ui`: the guard "a spec in force that an open change still adds is written by hand"
-        // is retired. A delta of `## ADDED Requirements` over a capability that is already in force is the standard
-        // OpenSpec form of new requirements and cannot be told apart, by its text, from a hand-written spec.
+        // Amended in `brand-identity-ui`: a delta of `## ADDED Requirements` over a capability already in force is the
+        // standard OpenSpec form of new requirements, so an open change may add to a spec in force. What stays
+        // forbidden is writing the delta by hand into the spec in force before the archive: no requirement an open
+        // change still adds is already a header of the spec in force.
+        if (inForce) {
+          const written = readText(linked);
+
+          for (const path of delivering) {
+            for (const header of requirementHeaders(readText(path))) {
+              expect(
+                written.includes(header),
+                `${row.capability}: ${path} still adds "${header}", which is never written by hand into ${linked}`,
+              ).toBe(false);
+            }
+          }
+        }
       } else {
         expect(plannedChanges, row.capability).toContain(row.reference.replaceAll("`", "").trim());
       }
