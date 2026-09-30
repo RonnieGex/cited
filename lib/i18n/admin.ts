@@ -1,5 +1,4 @@
 import type { Lang } from "../settings/business.ts";
-import { SETUP_GROUPS, type SetupGroupText } from "./setup-groups.ts";
 
 export type AdminStrings = {
   panelEyebrow: string;
@@ -131,8 +130,6 @@ export type AdminStrings = {
   providerEmbeddings: string;
   testOk: string;
   testFailed: string;
-  /** Decision 29: the words of each group of the template, keyed by its group id (`lib/i18n/setup-groups.ts`). */
-  setupGroups: Record<string, SetupGroupText>;
   /** Decision 24: the title of the tab of every page of the panel, and of the sign-in and the unfinished installation. */
   pageTitle: {
     signIn: string;
@@ -282,7 +279,6 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     providerEmbeddings: "The embeddings provider",
     testOk: "{provider} answered.",
     testFailed: "{provider} did not answer. Check the key and try again.",
-    setupGroups: SETUP_GROUPS.en,
     pageTitle: {
       signIn: "Sign in · Cited",
       unconfigured: "The panel cannot start · Cited",
@@ -430,7 +426,6 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
     providerEmbeddings: "El proveedor de embeddings",
     testOk: "{provider} respondió.",
     testFailed: "{provider} no respondió. Revisa la llave y vuelve a probar.",
-    setupGroups: SETUP_GROUPS.es,
     pageTitle: {
       signIn: "Iniciar sesión · Cited",
       unconfigured: "El panel no puede arrancar · Cited",

@@ -452,7 +452,8 @@ for (const size of [
         "under 560 px of height the box does not stick",
       ).not.toBe("sticky");
 
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      // The reader brings the box to the foot of the screen: the last answer has to sit right above it, and be seen.
+      await form.evaluate((element) => element.scrollIntoView({ block: "end" }));
 
       const seen = await page.evaluate(() => {
         const answers = document.querySelectorAll('[data-cited="answer"]');

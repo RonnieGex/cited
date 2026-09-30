@@ -4,6 +4,7 @@ import { Chip, Panel, SectionTitle, focusRing } from "@/components/ui";
 import { exampleText, setupGroups, type SetupGroup } from "@/lib/admin/setup";
 import { adminStrings, type AdminStrings } from "@/lib/i18n/admin";
 import { LANG_COOKIE, resolveLang } from "@/lib/i18n/language";
+import { SETUP_GROUPS } from "@/lib/i18n/setup-groups";
 import { panelMetadata } from "@/lib/admin/titles";
 
 const row = "flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 py-2";
@@ -39,8 +40,12 @@ export async function generateMetadata() {
 
 export default async function AdminSetup() {
   const stored = await cookies();
-  const strings = adminStrings(resolveLang(stored.get(LANG_COOKIE)?.value, "en"));
+  const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
+  const strings = adminStrings(lang);
   const groups = setupGroups(exampleText(), process.env);
+  // The words of the groups name variables of the environment (this is the page of whoever installs), so they are read here, on
+  // the server, and never travel inside `strings`, which the client components of every page of the panel receive whole.
+  const table = SETUP_GROUPS[lang];
 
   return (
     <div className="flex flex-col gap-8">
@@ -58,7 +63,7 @@ export default async function AdminSetup() {
         // Decision 29: the words of a group come from the table of the language of the panel, keyed by the id of the group
         // in the template; the text of the template is only the fallback for a group that has no entry yet. The one group
         // that stays open is the one the template marks as required, not the one whose English title says so.
-        const words = strings.setupGroups[group.id] ?? { title: group.title, detail: group.detail };
+        const words = table[group.id] ?? { title: group.title, detail: group.detail };
 
         return (
           <Panel className="flex flex-col gap-3" data-admin="setup-group" key={group.id}>

@@ -9,6 +9,7 @@ import { Wordmark } from "@/components/brand";
 import type { ConversationSummary } from "@/lib/admin/conversations";
 import { exampleText, setupGroups } from "@/lib/admin/setup";
 import { adminStrings } from "@/lib/i18n/admin";
+import { SETUP_GROUPS } from "@/lib/i18n/setup-groups";
 import type { Lang } from "@/lib/settings/business";
 
 // Task 10.1 of `openspec/changes/brand-identity-ui/tasks.md`: the tests of decisions 24, 28 and 29 of `design.md` (a title
@@ -248,10 +249,8 @@ describe("a delete asks first, inline (decision 28)", () => {
 
 // Decision 29 of `design.md`.
 describe("the Spanish panel is whole (decision 29)", () => {
-  type Localized = { setupGroups?: Record<string, { title?: string; detail?: string }> };
-
   function table(lang: Lang): Record<string, { title?: string; detail?: string }> {
-    return (adminStrings(lang) as unknown as Localized).setupGroups ?? {};
+    return SETUP_GROUPS[lang];
   }
 
   function idsOfTheTemplate(): string[] {
@@ -453,5 +452,23 @@ describe("the landmarks and the tab stops of the panel (decision 33)", () => {
 
     expect(screen.getByRole("columnheader", { name: english.citations }).className).toContain("max-sm:hidden");
     expect(screen.getByRole("columnheader", { name: english.when }).className).not.toContain("max-sm:hidden");
+  });
+});
+
+// Found by the browser suite of `main` (`e2e/providers.spec.ts`, "the page speaks Spanish completely") on the first run of 10.5:
+// the client components of every page of the panel receive `adminStrings(lang)` whole, so a table of words that names variables of
+// the environment cannot live inside it, or its text travels in the payload of every page even where nothing shows it.
+describe("the strings that reach the browser name no variable of the environment (decision 29)", () => {
+  for (const lang of ["en", "es"] as const) {
+    it(`carry no name of a variable in ${lang}`, () => {
+      const names = JSON.stringify(adminStrings(lang)).match(/\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b/g) ?? [];
+
+      expect(names, "names of variables inside the strings the client components receive").toEqual([]);
+    });
+  }
+
+  it("keeps the words of the groups of Setup in a table of their own, read only by the server page", () => {
+    expect(Object.keys(adminStrings("en"))).not.toContain("setupGroups");
+    expect(JSON.stringify(SETUP_GROUPS.es)).toMatch(/ENCRYPTION_KEY/);
   });
 });
