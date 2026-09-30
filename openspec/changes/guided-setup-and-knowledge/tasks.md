@@ -72,12 +72,12 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 10. Amendment after the review of Codex (`katalis-dev/tasks/revision-community-13.md`, design decisions 14 to 19)
 
-- [ ] 10.1 Red first: unit tests for decision 14 (a server provider without its key is not verified), decision 15 (a
+- [x] 10.1 Red first: unit tests for decision 14 (a server provider without its key is not verified), decision 15 (a
       PNG named `.txt`, an oversized file rejected before it is read, a name with `../`), decision 16 (undo clears the
       sample name and keeps a name the owner typed); E2E of "from zero to an answer" in Spanish and of the file cases
       in the browser (PDF with text, scanned PDF, DOCX, oversized, not supported, `../` name) — report:
       `reports/2026-09-30-step-10-1-tests-first.md`
-- [ ] 10.2 The fixes of decisions 14 to 16 and the ports of decision 17 — report:
+- [x] 10.2 The fixes of decisions 14 to 16 and the ports of decision 17 — report:
       `reports/2026-09-30-step-10-2-implementation.md`
 - [ ] 10.3 `git diff --check main...HEAD` clean, and the checks of 5.1 on the amended tree (Windows twice with Node 24.15
       or newer run directly, a `node:24` Linux container), each result with its commit (decision 19) — report:
