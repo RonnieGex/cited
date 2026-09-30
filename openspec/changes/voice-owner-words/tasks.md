@@ -68,7 +68,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 - [x] 10.3 The `EPERM` of `tests/voice-minute-cap.test.ts` and of any test with the same pattern (decision 9); `npm test`
       twice in a row on Windows with Node 24.15 or newer, and once in a `node:24` Linux container — report:
       `reports/2026-09-29-step-10-3-windows-stability.md`
-- [ ] 10.4 The checks of 5.1, the curl of 6.1 plus the business without a name, `CI=1 npm run test:e2e`, and
+- [x] 10.4 The checks of 5.1, the curl of 6.1 plus the business without a name, `CI=1 npm run test:e2e`, and
       `openspec archive` simulated in a disposable clone: the resulting `openspec/specs/voice-agent/spec.md` has no
       sentence that orders naming a variable (`grep -n "naming" ` shows none) — report:
       `reports/2026-09-29-step-10-4-checks.md`
