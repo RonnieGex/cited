@@ -4,10 +4,19 @@
  * (design decision 5): a session reserves five minutes before it starts, and a day without room answers 429 without
  * calling ElevenLabs at all. A limit below one session is answered before the configuration is read, so a visitor of an
  * installation without a key still learns that the voice is off for the cap and not for the key.
+ *
+ * A visitor never learns how the server is configured (`voice-owner-words`, design decision 4): every answer that is
+ * not a signed URL carries a status and a reason code only, and no name of a variable of the environment and no hint
+ * of which piece of the configuration is missing.
  */
 
 import { sharedStore } from "../../../../lib/store/instance.ts";
-import { ELEVENLABS_API, VOICE_SESSION_MINUTES, declared, voiceMinuteLimit } from "../../../../lib/voice/config.ts";
+import {
+  ELEVENLABS_API,
+  VOICE_UNAVAILABLE,
+  declared,
+  voiceMinuteLimit,
+} from "../../../../lib/voice/config.ts";
 import { capRefusal, reserveSession, type SessionRefusal } from "../../../../lib/voice/minutes.ts";
 import { voiceTransport } from "../../../../lib/voice/transport.ts";
 
@@ -24,19 +33,12 @@ function answer(body: unknown, status: number, headers: Record<string, string> =
   });
 }
 
-function limited(limit: number, reason: SessionRefusal): Response {
-  return answer(
-    {
-      status: "limited",
-      reason,
-      limit,
-      error:
-        reason === "below-session"
-          ? `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${limit}) is smaller than one session, which reserves ${VOICE_SESSION_MINUTES} minutes, so no session can start`
-          : `the daily limit of voice minutes (DAILY_VOICE_MINUTE_LIMIT=${limit}) is reached; it resets at 00:00 UTC`,
-    },
-    429,
-  );
+function unavailable(): Response {
+  return answer({ status: "unavailable", reason: VOICE_UNAVAILABLE }, 503);
+}
+
+function limited(reason: SessionRefusal): Response {
+  return answer({ status: "limited", reason }, 429);
 }
 
 export async function GET(): Promise<Response> {
@@ -45,16 +47,13 @@ export async function GET(): Promise<Response> {
   const refused = capRefusal(limit);
 
   if (refused !== null) {
-    return limited(limit, refused);
+    return limited(refused);
   }
 
   const key = declared(environment, "ELEVENLABS_API_KEY");
 
   if (key.length === 0) {
-    return answer(
-      { status: "unconfigured", missing: ["ELEVENLABS_API_KEY"] },
-      503,
-    );
+    return unavailable();
   }
 
   try {
@@ -63,13 +62,13 @@ export async function GET(): Promise<Response> {
     const agentId = declared(environment, "ELEVENLABS_AGENT_ID") || (stored?.agentId ?? "");
 
     if (agentId.length === 0) {
-      return answer({ status: "unconfigured", missing: ["ELEVENLABS_AGENT_ID"] }, 503);
+      return unavailable();
     }
 
     const room = await reserveSession(store, { environment });
 
     if (room.ok === false) {
-      return limited(room.limit, room.reason);
+      return limited(room.reason);
     }
 
     const url = `${ELEVENLABS_API}/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`;
@@ -80,26 +79,18 @@ export async function GET(): Promise<Response> {
     });
 
     if (response.ok === false) {
-      return answer(
-        { status: "unavailable", error: `ElevenLabs answered ${response.status} to the request of a signed URL` },
-        503,
-      );
+      return unavailable();
     }
 
     const payload = (await response.json()) as { signed_url?: unknown };
     const signed = typeof payload.signed_url === "string" ? payload.signed_url : "";
 
     if (signed.length === 0) {
-      return answer(
-        { status: "unavailable", error: "ElevenLabs answered without a signed URL" },
-        503,
-      );
+      return unavailable();
     }
 
     return answer({ url: signed }, 200);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "the server is not configured";
-
-    return answer({ status: "unavailable", error: message }, 503);
+  } catch {
+    return unavailable();
   }
 }

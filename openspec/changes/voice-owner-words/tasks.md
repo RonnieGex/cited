@@ -24,7 +24,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 3. Implementation
 
-- [ ] 3.1 The two routes and the log (decisions 1, 2 and 4) — report: `reports/2026-09-29-step-3-implementation.md`
+- [x] 3.1 The two routes and the log (decisions 1, 2 and 4) — report: `reports/2026-09-29-step-3-implementation.md`
 - [ ] 3.2 The screen and its strings (decision 3) — report: `reports/2026-09-29-step-3-implementation.md`
 
 ## 4. Review and update of the existing tests

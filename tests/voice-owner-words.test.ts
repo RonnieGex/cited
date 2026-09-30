@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createElement } from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VoiceAgent } from "@/components/admin/VoiceAgent";
 import { adminStrings } from "@/lib/i18n/admin";
 import { VOICE_STRINGS } from "@/lib/i18n/voice";
@@ -57,6 +57,13 @@ const signedUrlRoute = "GET http://localhost/api/voice/signed-url";
 afterEach(() => {
   useVoiceTransport(null);
   vi.unstubAllGlobals();
+});
+
+// No test of this file may reach a provider. Every route that needs an answer of ElevenLabs goes through
+// `voiceTransport()`, which is the double of `tests/fakes/elevenlabs-api.ts` while a test installs it; if a test ever
+// forgets, the global `fetch` below fails instead of opening a socket to `api.elevenlabs.io`.
+beforeEach(() => {
+  vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("a test tried to reach the network"))));
 });
 
 afterAll(cleanup);
@@ -138,26 +145,27 @@ describe("an installation with the panel configured and no voice", () => {
     const written = vi.spyOn(console, "error").mockImplementation(() => {});
 
     try {
-      vi.resetModules();
-
       const { POST } = await import("@/app/api/admin/voice/route");
 
-      await panel();
+      // The set that writes the names is the process of `lib/admin/guard.ts`, so this test asks for the one line no
+      // other test of this file asks for (the key is set and only the secret of the tool is missing): the two presses
+      // below are the only ones that can write it, and the second one must write nothing.
+      await panel({ ELEVENLABS_API_KEY: key, VOICE_TOOL_SECRET: "" });
 
       const first = await POST(signedIn("http://localhost/api/admin/voice", "POST", "{}"));
       const firstBody = (await first.json()) as Record<string, unknown>;
       const second = await POST(signedIn("http://localhost/api/admin/voice", "POST", "{}"));
       const lines = written.mock.calls
         .map((call) => call.map(String).join(" "))
-        .filter((line) => line.includes("ELEVENLABS_API_KEY"));
+        .filter((line) => line.includes("VOICE_TOOL_SECRET"));
 
       expect(first.status).toBe(503);
       expect(firstBody).toEqual({ status: "unconfigured", reason: "voice_not_configured" });
       expect(namesIn(JSON.stringify(firstBody))).toEqual([]);
       expect(second.status).toBe(503);
       expect(lines).toHaveLength(1);
-      expect(lines[0]).toContain("ELEVENLABS_API_KEY");
       expect(lines[0]).toContain("VOICE_TOOL_SECRET");
+      expect(namesIn(lines[0] ?? "")).toEqual(["VOICE_TOOL_SECRET"]);
     } finally {
       written.mockRestore();
     }
