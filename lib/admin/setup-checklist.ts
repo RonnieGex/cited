@@ -5,8 +5,8 @@ import { SETUP_STEP_ORDER, SETUP_STEP_WORDS, type SetupCopy, type SetupStepId } 
 import { readSetupFlags, type SetupFlags } from "./setup-flags.ts";
 
 // Decision 2 of `openspec/changes/guided-setup-and-knowledge/design.md`: the state of each of the four steps is derived
-// from the real configuration, not stored. Step 1 is verified when the chat provider can answer — the key it saved
-// passed its test, or the server set a provider with everything it asks for (decision 14) —, step 2 when a document has
+// from the real configuration, not stored. Step 1 is verified when the chat provider can answer (decisions 14 and 20:
+// `chatProblem()` returns nothing, and a provider of the panel also passed its last test), step 2 when a document has
 // passages, step 3 when the owner pressed "This answer is right" and step 4 when the business has a name and the owner
 // pressed "Publish". The only stored things are the flags of `setup-flags.ts`.
 //
@@ -60,14 +60,26 @@ export async function setupChecklist(
   // The test of the provider is stored with the row (`tested_at`): a key that saved and answered is verified, and a row
   // without a test is in progress. Decision 14 of the amendment: a provider the server sets is not verified because of
   // where it came from, but because it can answer — the same judgement the public page makes when it says the assistant
-  // is not ready — and one that cannot is the step that needs attention, with the way to the page of whoever installs.
+  // is not ready. Decision 20 of the second amendment gives the first step one rule whatever the source: it is verified
+  // only when `chatProblem()` returns nothing for the resolved provider, and a provider of the panel also needs its
+  // last test. A key that can no longer be read is a provider that cannot answer, so the step is not green (the Major
+  // M-7 of `katalis-dev/tasks/revision-community-13b.md`); it needs attention as soon as the owner did something about
+  // it — the server set it, or the panel saved and tested it — and it stays in progress while the owner is still in the
+  // middle of the step.
   const server = chat.source === "server";
-  const chatVerified = server
-    ? chat.provider !== null && chatProblem(chat) === null
-    : chatRow?.testedAt !== null && chatRow?.testedAt !== undefined;
-  const chatStarted = server || (chatRow !== null && chatRow.provider.trim().length > 0);
+  const problem = chatProblem(chat);
+  const tested = chatRow?.testedAt !== null && chatRow?.testedAt !== undefined;
+  const chatVerified = chat.provider !== null && problem === null && (server || tested);
+  const chatUnusable = chat.provider === null ? server : problem !== null;
+  const panelStarted = server === false && chatRow !== null && chatRow.provider.trim().length > 0;
 
-  const ai: SetupState = chatVerified ? "verified" : server ? "attention" : chatStarted ? "progress" : "todo";
+  const ai: SetupState = chatVerified
+    ? "verified"
+    : chatUnusable && (server || tested)
+      ? "attention"
+      : panelStarted
+        ? "progress"
+        : "todo";
 
   const information: SetupState = passages > 0 ? "verified" : "todo";
 

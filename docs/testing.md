@@ -28,6 +28,9 @@ from a local double the specs serve themselves: a key that reaches the suite nev
 The suite keeps one worker, because the specs of the keys and the two walks of the guided setup share the port of that
 double one at a time.
 
+The captures a run takes land in `test-results/captures/`, which `.gitignore` excludes: the suite never writes over an
+image the documentation tracks, and the images under `docs/images/` are re-rendered on purpose by their own scripts.
+
 ## 3. The ports of the browser suite
 
 The fixed set is 3100 and 3210 to 3217. No spec opens a port outside it.

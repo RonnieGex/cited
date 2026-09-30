@@ -3,6 +3,7 @@ import { extname } from "node:path";
 import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
 import type { ParsedDocument, SourceType } from "./types.ts";
+import { holdsWordDocument } from "./zip.ts";
 
 export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 export const MAX_PAGES = 500;
@@ -94,7 +95,10 @@ export function detectType(data: Uint8Array, name: string): SourceType | null {
   }
 
   if (startsWith(data, zipHead)) {
-    return "docx";
+    // Decision 21 of the second amendment: the head `PK\x03\x04` says "a ZIP", not "a DOCX". Only the archive that
+    // holds the document of Word is read as one; any other ZIP is refused as a type, with the list of the accepted
+    // types, like every other file whose content is not one of them (the Minor m-4 of `revision-community-13b.md`).
+    return holdsWordDocument(data) ? "docx" : null;
   }
 
   if (textBytes(data) === false) {

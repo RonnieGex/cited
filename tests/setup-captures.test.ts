@@ -32,8 +32,12 @@ describe("the captures of the browser suite", () => {
     expect(ignored, `.gitignore ignores /${declared?.[1]}`).toContain(`/${declared?.[1]}`);
   });
 
-  it("never name a tracked image of the documentation", () => {
-    expect(specNames().filter((name) => spec(name).includes("docs/images"))).toEqual([]);
+  it("never build a path into the documentation", () => {
+    // A path of the docs is written as a quoted segment (`"docs"`, `"images"`, `"admin"`): a comment may name the
+    // folder it protects, and a path the suite writes to may not.
+    expect(
+      specNames().filter((name) => spec(name).includes('"docs') || spec(name).includes("'docs")),
+    ).toEqual([]);
   });
 
   it("build every screenshot path of the walk from that folder", () => {

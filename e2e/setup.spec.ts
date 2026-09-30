@@ -34,7 +34,11 @@ const password = E2E_ADMIN_PASSWORD;
 const sampleDocument = "cafe-la-horquilla.md";
 const color = "#0f5132";
 const colorRgb = "rgb(15, 81, 50)";
-const captures = resolve(process.cwd(), "docs", "images", "admin");
+// Decision 22 of the second amendment: the captures of a run land in `test-results/`, which `.gitignore` excludes and
+// Playwright empties at the start of every run, and never over an image the documentation tracks. The images under
+// `docs/images/admin/` are re-rendered on purpose by their own script, so a green suite leaves its clone clean (the
+// Minor m-5 of `revision-community-13b.md`).
+const captures = resolve(process.cwd(), "test-results", "captures", "admin");
 const secondsLimit = 300;
 
 let double: Server;

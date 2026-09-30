@@ -48,9 +48,16 @@ export default async function AdminSetup() {
       {{
         ai: (
           <div className="flex flex-col gap-10">
-            {/* Decision 14 of the amendment: a chat provider the server set that cannot answer shows the first step
-                as needing attention, and this is the way to the only page that names the variables of the server. */}
-            {stepState(checklist, "ai") === "attention" ? <AttentionNotice strings={strings} /> : null}
+            {/* Decisions 14 and 20 of the amendment: a chat provider that cannot answer shows the first step as
+                needing attention. A provider of the server sends the owner to the page of whoever installs; one saved
+                in the panel says that its key can no longer be read and reopens step 1, which is where it is connected
+                again. */}
+            {stepState(checklist, "ai") === "attention" ? (
+              <AttentionNotice
+                source={provider.chat.source === "panel" ? "panel" : "server"}
+                strings={strings}
+              />
+            ) : null}
             {/* Decision 10: the page "AI and keys" is the first step, so the two sections of that page live here: the
                 answers and the search. The second one is what lets a business whose provider has no meaning search
                 keep going with search by words, which is the door the uploads of step 2 need. */}
