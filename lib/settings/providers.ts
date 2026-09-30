@@ -172,18 +172,18 @@ export async function resolveChat(options: ResolveOptions = {}): Promise<ChatRes
   }
 
   const name = row.provider.trim();
+  const entry = providerEntry(name, "chat", environment);
 
   // Decision 23 of the third amendment: a row of the panel is trusted only when the catalogue knows its provider. A row
   // that names something else — an import, a hand-edited store, a name the catalogue dropped — resolves with a problem,
   // so step 1 asks for attention and no model is built from it. The catalogue is what the panel offers, so `fake` is
   // not a row the panel can hold: the deterministic double belongs to the environment of whoever installs (the Major
   // M-8 of `katalis-dev/tasks/revision-community-13c.md`).
-  if (providerEntry(name, "chat", environment) === null) {
+  if (entry === null) {
     return unknownProvider("panel", name);
   }
 
   const provider = name as ChatProviderName;
-  const entry = providerEntry(provider, "chat", environment);
   const local = localProvider(provider);
   const fetch = transportOf(row.baseUrl, provider, "chat", environment, options.resolve);
   const transport = fetch === undefined ? {} : { fetch };
