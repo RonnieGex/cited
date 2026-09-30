@@ -246,26 +246,6 @@ function openChangeSpecs(capability: string): string[] {
     .filter((path) => addsCapability(path));
 }
 
-// Amended by `voice-owner-words` (2026-09-29). A change may ADD requirements to a capability that is already in force:
-// `specs/voice-agent/spec.md` of that change adds "A visitor never learns how the server is configured" to the voice
-// agent, whose spec came from an archived change and whose README row is Available. That is the normal amendment of a
-// later change, and it is not what this guard refuses. What it refuses is the spec written by hand while an open change
-// still adds it, and the signature of that is a spec in force that already carries a requirement the change still adds
-// (the archive is the one that writes it, and it moves the change out of `openspec/changes/` when it does).
-function requirementTitles(path: string): string[] {
-  return [...readText(path).matchAll(/^### Requirement: (.+)$/gm)].map((match) =>
-    (match[1] ?? "").trim(),
-  );
-}
-
-function handWrittenByAnOpenChange(capability: string, spec: string): string[] {
-  const inForce = requirementTitles(spec);
-
-  return openChangeSpecs(capability)
-    .flatMap((path) => requirementTitles(path))
-    .filter((title) => inForce.includes(title));
-}
-
 function specIsDelivered(link: string): boolean {
   const capability = capabilityOf(link);
 
@@ -698,9 +678,9 @@ describe("README, the status table", () => {
         expect(capability, row.capability).not.toBeNull();
         expect(inForce || delivering.length > 0, row.capability).toBe(true);
         expect(
-          inForce ? handWrittenByAnOpenChange(capability ?? "", linked) : [],
+          inForce && delivering.length > 0,
           `${row.capability}: a spec an open change still adds is never written by hand`,
-        ).toEqual([]);
+        ).toBe(false);
       } else {
         expect(plannedChanges, row.capability).toContain(row.reference.replaceAll("`", "").trim());
       }
