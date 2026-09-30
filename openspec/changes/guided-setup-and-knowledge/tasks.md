@@ -9,12 +9,12 @@ will be public: no secret, no customer data, no personal path. No network call t
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/guided-setup-and-knowledge`, created by Fable from `main` after `brand-identity-ui` is merged
+- [x] 0.1 Work on `feature/guided-setup-and-knowledge`, created by Fable from `main` after `brand-identity-ui` is merged
       (decision 11); confirm branch and base; `npm ci` — report: `reports/2026-09-30-step-0-branch.md`
 
 ## 1. The state of the base before
 
-- [ ] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status`, and the
+- [x] 1.1 `npm test`, `npm run typecheck`, `npm run lint`, `openspec validate --all --strict`, `git status`, and the
       state of the store (its tables and row counts, read with a command that is recorded) — report:
       `reports/2026-09-30-step-1-base-before.md`
 
