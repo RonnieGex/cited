@@ -96,7 +96,7 @@ flame.
       `reports/2026-09-29-step-10-2-implementation.md`
 - [x] 10.3 The checks of 5.1 on the merged tree (Windows twice and a `node:24` Linux container) — report:
       `reports/2026-09-29-step-10-3-checks.md`
-- [ ] 10.4 The curl of 6.1 on the merged tree, plus `/admin/ai` and a failure of `/api/ask` answered in Spanish with no
+- [x] 10.4 The curl of 6.1 on the merged tree, plus `/admin/ai` and a failure of `/api/ask` answered in Spanish with no
       server text — report: `reports/2026-09-29-step-10-4-curl.md`
 - [ ] 10.5 `CI=1 npm run test:e2e` whole and green, with the flame loop of decision 32 and the viewports 512x384 and
       320x256 of decision 23; the captures of 7.1 shot again at 1440 and 375 px — report:
