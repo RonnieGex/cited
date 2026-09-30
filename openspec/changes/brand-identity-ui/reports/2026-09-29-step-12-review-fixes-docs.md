@@ -33,9 +33,13 @@ two rows of step-12 commits in "Los commits" (the first round verified at `27ffe
 reintegrated), RISK 7 (the captures come from `next dev` and are in English), a new RISK 8 (the hour of Conversations
 and `d558911`), and NOT DONE: items 1 and 2 (decisions 18 and 19) removed because they are done, replaced by the tasks
 3.5 and 7.2 that only Fable can add and the English group titles of Setup in Spanish; item 4 narrowed to Conversations
-at 375 px.
+at 375 px. Also stale against HEAD and fixed on the way: the row of the README guard in the table of changed tests and
+RISK 6 (the guard was restored in `cafd148`), a new row for the foot test of `tests/design-system.test.ts`, and the
+"last HEAD tested" of "Lo que se midió" and UNKNOWN 1.
 
-The captures were re-shot. The first attempt stopped at the answer:
+The captures were re-shot. The e2e fixer re-shot the same set on the same HEAD at 19:01, straight into the delivery
+folder (`aeef0c3`); my set, taken into a temporary directory at 19:00, was copied over it at 19:04, so the files there are
+the ones described below and in the delivery. The first attempt stopped at the answer:
 
 ```
 $ ADMIN_PASSWORD=<from .env.local, never printed> node scripts/capture-ui.mjs <temp dir> http://localhost:3300
