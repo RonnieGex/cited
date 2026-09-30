@@ -80,7 +80,14 @@ test("the setup page lists the variables without their values and tests a provid
 }) => {
   await signIn(page);
 
+  // The Required group lies open; the other groups fold into a details and are opened here before they are read.
   await expect(page.getByText("ADMIN_PASSWORD", { exact: true })).toBeVisible();
+  await expect(page.getByText("EMBEDDINGS_PROVIDER", { exact: true })).toBeHidden();
+
+  for (const summary of await page.locator('[data-admin="setup-group"] summary').all()) {
+    await summary.click();
+  }
+
   await expect(page.getByText("EMBEDDINGS_PROVIDER", { exact: true })).toBeVisible();
   await expect(page.getByText("ALLOWED_ORIGINS", { exact: true })).toBeVisible();
 

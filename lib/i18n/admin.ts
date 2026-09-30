@@ -20,6 +20,8 @@ export type AdminStrings = {
   setupIntro: string;
   configured: string;
   missing: string;
+  /** The summary of a folded Setup group: how many of its values are set. */
+  setupCount: string;
   testChat: string;
   testEmbeddings: string;
   businessTitle: string;
@@ -91,6 +93,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
       "Every variable of the environment template, grouped by purpose. The panel shows whether each one is set and never its value.",
     configured: "Set",
     missing: "Missing",
+    setupCount: "Set: {set} of {total}",
     testChat: "Test the chat model",
     testEmbeddings: "Test the embeddings",
     businessTitle: "Business",
@@ -162,6 +165,7 @@ export const ADMIN_STRINGS: Record<Lang, AdminStrings> = {
       "Todas las variables de la plantilla del entorno, agrupadas por propósito. El panel dice si cada una está puesta y nunca su valor.",
     configured: "Puesta",
     missing: "Falta",
+    setupCount: "Puestas: {set} de {total}",
     testChat: "Probar el modelo de chat",
     testEmbeddings: "Probar los embeddings",
     businessTitle: "Negocio",

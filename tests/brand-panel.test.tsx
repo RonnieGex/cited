@@ -632,6 +632,86 @@ describe("the language, the chips and the headings of the panel", () => {
   });
 });
 
+// Finding of the second review of step 12 (critique, major): Set and Missing looked identical and every group lay open. Until
+// the guided setup lane replaces this page, a missing value reads as plain ink-2 words in sentence case beside the kit chip of
+// a set one (lime stays for a citation, a verified step and the current place), and only the Required group stays open: every
+// other group folds into a `details` whose summary counts what is set.
+describe("the Setup page an owner can scan", () => {
+  async function setup(lang?: "es") {
+    vi.stubEnv("CHAT_PROVIDER", "fake");
+    langCookie = lang;
+    render(await AdminSetup());
+    vi.unstubAllEnvs();
+  }
+
+  function groups(): HTMLElement[] {
+    return [...document.querySelectorAll<HTMLElement>('[data-admin="setup-group"]')];
+  }
+
+  it("tells a set value from a missing one: the kit chip for Set, plain ink-2 words in sentence case for Missing", async () => {
+    await setup();
+
+    const set = screen.getAllByText(english.configured, { exact: true });
+    const missing = screen.getAllByText(english.missing, { exact: true });
+
+    expect(set.length).toBeGreaterThan(0);
+    expect(missing.length).toBeGreaterThan(0);
+
+    for (const word of missing) {
+      expect(word.className).toContain("text-ink-2");
+      expect(word.className).not.toMatch(/uppercase/);
+      expect(word.className).not.toMatch(/(^|\s)border(\s|$)/);
+    }
+
+    for (const chip of set) {
+      expect(chip.className).toMatch(/uppercase/);
+      expect(chip.className).toMatch(/(^|\s)border(\s|$)/);
+    }
+  });
+
+  it("keeps the Required group open and folds every other group into a details that counts what is set", async () => {
+    await setup();
+
+    const all = groups();
+    const required = all.filter((group) => group.querySelector("h2")?.textContent === "Required");
+
+    expect(all.length).toBeGreaterThan(2);
+    expect(required).toHaveLength(1);
+    expect(required[0]?.querySelector("details")).toBeNull();
+    expect(within(required[0] as HTMLElement).getByText("ADMIN_PASSWORD")).toBeVisible();
+
+    for (const group of all.filter((each) => each !== required[0])) {
+      const folded = group.querySelector("details");
+      const title = group.querySelector("h2")?.textContent ?? "";
+
+      expect(folded, title).not.toBeNull();
+      expect(folded?.open, title).toBe(false);
+      expect(folded?.querySelector("ul"), title).not.toBeNull();
+      expect(folded?.querySelector("summary")?.textContent, title).toMatch(/^Set: \d+ of \d+$/);
+    }
+
+    expect(screen.getByText("EMBEDDINGS_PROVIDER")).not.toBeVisible();
+  });
+
+  it("counts in Spanish and says Falta in sentence case", async () => {
+    await setup("es");
+
+    expect(spanish.missing).toBe("Falta");
+
+    const summaries = [...document.querySelectorAll("summary")].map((summary) => summary.textContent ?? "");
+
+    expect(summaries.length).toBeGreaterThan(0);
+
+    for (const summary of summaries) {
+      expect(summary).toMatch(/^Puestas: \d+ de \d+$/);
+    }
+
+    for (const word of screen.getAllByText(spanish.missing, { exact: true })) {
+      expect(word.className).not.toMatch(/uppercase/);
+    }
+  });
+});
+
 // Finding of the review of step 12: at 375 px the actions column of Documents was cut at the edge of the box and its buttons
 // broke at the hyphen ("RE-/INGEST"). The actions now sit under the name of their document, on one line each, and the box is
 // a labelled region reachable by keyboard like the one of Conversations, in case a long name still makes it scroll.
