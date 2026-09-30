@@ -46,7 +46,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 7. End-to-end
 
-- [ ] 7.1 `CI=1 npm run test:e2e`, the whole suite green — report: `reports/2026-09-29-step-7-e2e.md`
+- [x] 7.1 `CI=1 npm run test:e2e`, the whole suite green — report: `reports/2026-09-29-step-7-e2e.md`
 
 ## 8. The state of the base after
 
