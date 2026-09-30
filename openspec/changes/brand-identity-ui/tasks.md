@@ -98,10 +98,10 @@ flame.
       `reports/2026-09-29-step-10-3-checks.md`
 - [x] 10.4 The curl of 6.1 on the merged tree, plus `/admin/ai` and a failure of `/api/ask` answered in Spanish with no
       server text — report: `reports/2026-09-29-step-10-4-curl.md`
-- [ ] 10.5 `CI=1 npm run test:e2e` whole and green, with the flame loop of decision 32 and the viewports 512x384 and
+- [x] 10.5 `CI=1 npm run test:e2e` whole and green, with the flame loop of decision 32 and the viewports 512x384 and
       320x256 of decision 23; the captures of 7.1 shot again at 1440 and 375 px — report:
       `reports/2026-09-29-step-10-5-e2e.md`
-- [ ] 10.6 Repeat 8.1 on the merged tree — report: `reports/2026-09-29-step-10-6-base-after.md`
+- [x] 10.6 Repeat 8.1 on the merged tree — report: `reports/2026-09-29-step-10-6-base-after.md`
 - [ ] 10.7 `DESIGN.md`, `docs/design-system.md` and the delivery `katalis-dev/tasks/entrega-community-14.md` with a
       section "Ronda 14c": what was fixed, the decision for each of the 54 minors, and `## Issues` (Setup as ff-13) —
       report: `reports/2026-09-29-step-10-7-docs.md`
