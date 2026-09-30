@@ -86,4 +86,3 @@ will be public: no secret, no customer data, no personal path. No network call t
       `reports/2026-09-30-step-10-4-e2e.md`
 - [ ] 10.5 The delivery `katalis-dev/tasks/entrega-community-13.md` with a section "Ronda 13b" and one current table of
       results, and the docs of the ports — report: `reports/2026-09-30-step-10-5-docs.md`
-

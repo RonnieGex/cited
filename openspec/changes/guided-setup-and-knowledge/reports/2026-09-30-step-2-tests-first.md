@@ -112,4 +112,3 @@ The walk "from zero to an answer" is the timing of the round, printed by the sui
 
 with the deterministic double of the provider. The real run with DeepSeek is the other half of decision 13 and it is
 recorded in the delivery.
-
