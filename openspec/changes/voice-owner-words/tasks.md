@@ -17,7 +17,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 2. Tests first
 
-- [ ] 2.1 Red: `tests/voice-owner-words.test.ts` (design decision 5), a route test of `POST /api/admin/voice` for both
+- [x] 2.1 Red: `tests/voice-owner-words.test.ts` (design decision 5), a route test of `POST /api/admin/voice` for both
       codes, a test of `GET /api/voice/signed-url` for `voice_unavailable`, and a component test of `VoiceAgent.tsx`
       that renders both codes in English and Spanish with no variable name and the link to "For the installer" —
       report: `reports/2026-09-29-step-2-tests-first.md`
