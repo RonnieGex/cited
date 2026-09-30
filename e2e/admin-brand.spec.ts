@@ -443,72 +443,84 @@ test("the documents at 375 and 320 px keep every action whole, on one line, insi
 // Scenario "Dates read like dates" (decision 19 of `design.md`). The spec uploads a document of its own and asks about it,
 // so it never touches the document that `admin.spec.ts` uploads and deletes; the two files run in parallel against the same
 // store, and the delete-all of `admin.spec.ts` may clear the turn between the question and the page, so the pair is retried.
-test("the conversations in Spanish print each date as a time an owner reads, with the stored value in dateTime", async ({
-  page,
-  context,
-}) => {
-  const hydration: string[] = [];
+// The reader lives far from any server (UTC+14, second review of step 12): the date is printed in the zone of the browser,
+// not in the zone of the container, so an owner never reads another hour or another day.
+const READER_ZONE = "Pacific/Kiritimati";
 
-  page.on("console", (message) => {
-    if (message.type() === "error" && /hydrat/i.test(message.text())) {
-      hydration.push(message.text());
-    }
-  });
+test.describe("a reader in another zone", () => {
+  test.use({ timezoneId: READER_ZONE });
 
-  await context.addCookies([{ name: "cited-lang", value: "es", url: E2E_BASE_URL }]);
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await signInThroughTheApi(page);
+  test("the conversations in Spanish print each date as a time an owner reads, with the stored value in dateTime", async ({
+    page,
+    context,
+  }) => {
+    const hydration: string[] = [];
 
-  const name = "e2e-fechas-del-taller.md";
-  const uploaded = await page.request.post("/api/admin/documents", {
-    headers: { origin: E2E_BASE_URL },
-    multipart: {
-      document: {
-        name,
-        mimeType: "text/markdown",
-        buffer: Buffer.from("# Horario del taller\n\nEl taller de bicicletas abre los sábados de diez a dos.\n"),
-      },
-    },
-  });
-
-  expect(uploaded.status(), "the document of this spec is ingested").toBe(200);
-
-  const question = "¿El taller de bicicletas abre los sábados?";
-  const row = page.getByRole("row").filter({ hasText: question }).first();
-
-  await expect(async () => {
-    const asked = await page.request.post("/api/ask", {
-      data: { question, sessionId: `e2e-fechas-${Date.now()}` },
+    page.on("console", (message) => {
+      if (message.type() === "error" && /hydrat/i.test(message.text())) {
+        hydration.push(message.text());
+      }
     });
 
-    expect(asked.status()).toBe(200);
-    await page.goto("/admin/conversations");
-    await expect(row).toBeVisible({ timeout: 2_000 });
-  }).toPass({ timeout: 30_000 });
+    await context.addCookies([{ name: "cited-lang", value: "es", url: E2E_BASE_URL }]);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await signInThroughTheApi(page);
 
-  const time = row.locator("time");
+    const name = "e2e-fechas-del-taller.md";
+    const uploaded = await page.request.post("/api/admin/documents", {
+      headers: { origin: E2E_BASE_URL },
+      multipart: {
+        document: {
+          name,
+          mimeType: "text/markdown",
+          buffer: Buffer.from("# Horario del taller\n\nEl taller de bicicletas abre los sábados de diez a dos.\n"),
+        },
+      },
+    });
 
-  await expect(time, "the date cell is a time element").toHaveCount(1);
+    expect(uploaded.status(), "the document of this spec is ingested").toBe(200);
 
-  const stored = (await time.getAttribute("datetime")) ?? "";
-  const shown = ((await time.textContent()) ?? "").trim();
+    const question = "¿El taller de bicicletas abre los sábados?";
+    const row = page.getByRole("row").filter({ hasText: question }).first();
 
-  console.log(`the date of the turn: dateTime="${stored}", text="${shown}"`);
-  expect(stored, "dateTime carries the stored ISO value").toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
-  expect(shown, "the visible text has no T and no Z").not.toMatch(/[TZ]/);
-  expect(shown, "the date and hour formatted for es").toBe(
-    formatWhen(stored, "es", Intl.DateTimeFormat().resolvedOptions().timeZone),
-  );
-  expect(hydration, "the server and the browser print the same date").toEqual([]);
+    await expect(async () => {
+      const asked = await page.request.post("/api/ask", {
+        data: { question, sessionId: `e2e-fechas-${Date.now()}` },
+      });
 
-  await axe(page, "/admin/conversations in Spanish");
+      expect(asked.status()).toBe(200);
+      await page.goto("/admin/conversations");
+      await expect(row).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 30_000 });
 
-  const removed = await page.request.post("/api/admin/documents/delete", {
-    headers: { origin: E2E_BASE_URL },
-    data: { name },
+    const time = row.locator("time");
+
+    await expect(time, "the date cell is a time element").toHaveCount(1);
+
+    const reader = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+    expect(reader, "the browser of this case lives in the zone it was given").toBe(READER_ZONE);
+
+    const stored = (await time.getAttribute("datetime")) ?? "";
+    const shown = ((await time.textContent()) ?? "").trim();
+
+    console.log(`the date of the turn: dateTime="${stored}", text="${shown}"`);
+    expect(stored, "dateTime carries the stored ISO value").toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+    expect(shown, "the visible text has no T and no Z").not.toMatch(/[TZ]/);
+    expect(shown, "the date and hour formatted for es in the zone of the reader").toBe(
+      formatWhen(stored, "es", reader),
+    );
+    expect(hydration, "the server and the browser print the same date").toEqual([]);
+
+    await axe(page, "/admin/conversations in Spanish");
+
+    const removed = await page.request.post("/api/admin/documents/delete", {
+      headers: { origin: E2E_BASE_URL },
+      data: { name },
+    });
+
+    expect(removed.status(), "the document of this spec is removed").toBe(200);
   });
-
-  expect(removed.status(), "the document of this spec is removed").toBe(200);
 });
 
 test.describe("the sign-in", () => {

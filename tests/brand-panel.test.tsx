@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { act, type ReactNode } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AdminBusiness from "@/app/admin/business/page";
 import AdminConversations from "@/app/admin/conversations/page";
@@ -323,8 +325,8 @@ describe("the unconfigured page, in the same shell", () => {
 });
 
 // Scenario "Dates read like dates" of `specs/admin-panel/spec.md` and decision 19 of `design.md`: the When column prints a
-// `time` whose `dateTime` is the stored ISO value and whose text is the date and hour in the language of the panel. The zone
-// is explicit, so the text rendered on the server and the text hydrated in the browser are the same.
+// `time` whose `dateTime` is the stored ISO value and whose text is the date and hour in the language of the panel, in the
+// zone of the reader (the block after this one covers the server in UTC and the reader elsewhere).
 describe("the dates of the conversations (decision 19)", () => {
   const stored = "2026-09-29T15:49:00.000Z";
   const turn = {
@@ -356,9 +358,87 @@ describe("the dates of the conversations (decision 19)", () => {
 
     expect(times).toHaveLength(1);
     expect(times[0]?.getAttribute("dateTime")).toBe(stored);
-    expect(times[0]?.textContent).toBe(formatWhen(stored, "es", "UTC"));
+    // The browser prints in the zone of the reader (the runtime here); the zone given by the server is only the first paint.
+    expect(times[0]?.textContent).toBe(formatWhen(stored, "es"));
     expect(times[0]?.textContent ?? "").not.toMatch(/[TZ]/);
     expect(screen.queryByText(stored)).toBeNull();
+  });
+});
+
+// Finding of the second review of step 12 (engineering, major): the container runs in UTC, the owner does not. The server
+// sends the text in its own zone so the hydration matches, and the browser prints it again in the zone of the reader. The
+// reader here is in Mexico City and the server in UTC, the case the review measured: 00:01 UTC on the 30th is 18:01 on the
+// 29th for the owner.
+describe("the dates of the conversations in the zone of the reader", () => {
+  const stored = "2026-09-30T00:01:23.744Z";
+  const reader = "America/Mexico_City";
+  const turn = {
+    sessionId: "sesion-b",
+    turn: 1,
+    question: "¿Abren el domingo?",
+    answer: "Sí [1]",
+    status: "answered" as const,
+    citations: [1],
+    createdAt: stored,
+  };
+  const inReader = (lang: "en" | "es") =>
+    new Intl.DateTimeFormat(lang, { dateStyle: "medium", timeStyle: "short", timeZone: reader }).format(new Date(stored));
+  let zone: string | undefined;
+
+  beforeEach(() => {
+    zone = process.env.TZ;
+    process.env.TZ = reader;
+  });
+
+  afterEach(() => {
+    if (zone === undefined) {
+      delete process.env.TZ;
+    } else {
+      process.env.TZ = zone;
+    }
+  });
+
+  it("formats in the zone of the runtime when no zone is given", () => {
+    expect(formatWhen(stored, "en")).toBe(inReader("en"));
+    expect(formatWhen(stored, "en")).toMatch(/Sep 29, 2026/);
+  });
+
+  it("prints the hour of the reader, not the one of the zone the server passed", () => {
+    render(<ConversationsPanel conversations={[turn]} lang="es" strings={spanish} timeZone="UTC" />);
+
+    const time = document.querySelector("table time");
+
+    expect(time?.getAttribute("dateTime")).toBe(stored);
+    expect(time?.textContent).toBe(inReader("es"));
+    expect(time?.textContent).toMatch(/18:01/);
+    expect(time?.textContent).not.toBe(formatWhen(stored, "es", "UTC"));
+  });
+
+  it("sends the text of the server in the HTML and hydrates it to the zone of the reader without a mismatch", async () => {
+    const panel = <ConversationsPanel conversations={[turn]} lang="es" strings={spanish} timeZone="UTC" />;
+    const html = renderToString(panel);
+
+    expect(html).toMatch(new RegExp(`datetime="${stored}"`, "i"));
+    expect(html).toContain(formatWhen(stored, "es", "UTC"));
+
+    const host = document.createElement("div");
+
+    host.innerHTML = html;
+    document.body.appendChild(host);
+
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    const recoverable = vi.fn();
+
+    await act(async () => {
+      hydrateRoot(host, panel, { onRecoverableError: recoverable });
+    });
+
+    expect(host.querySelector("time")?.getAttribute("dateTime")).toBe(stored);
+    expect(host.querySelector("time")?.textContent).toBe(inReader("es"));
+    expect(recoverable).not.toHaveBeenCalled();
+    expect(logged).not.toHaveBeenCalled();
+    logged.mockRestore();
+    host.remove();
   });
 });
 

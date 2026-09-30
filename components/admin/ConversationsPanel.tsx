@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button, Panel, SectionTitle, focusRing } from "@/components/ui";
 import type { ConversationSummary } from "@/lib/admin/conversations";
 import { formatWhen, type AdminStrings } from "@/lib/i18n/admin";
@@ -10,11 +10,32 @@ export type ConversationsPanelProps = {
   strings: AdminStrings;
   conversations: ConversationSummary[];
   lang: Lang;
-  /** The zone the dates are printed in; the page passes the zone of the server so the hydrated text matches. */
+  /**
+   * The zone of the server. The HTML and the hydration print the dates in it, so they match; right after, the browser
+   * prints them again in the zone of the reader, the one the owner lives in.
+   */
   timeZone: string;
 };
 
 type Answer = { status?: string; error?: string; conversations?: ConversationSummary[] };
+
+// Nothing to subscribe to: the zone of the reader does not change while the page is open.
+const still = () => () => {};
+
+/** A stored ISO date in the zone of the reader, with the text of the server as the snapshot of the hydration. */
+function When({ iso, lang, serverZone }: { iso: string; lang: Lang; serverZone: string }) {
+  const text = useSyncExternalStore(
+    still,
+    () => formatWhen(iso, lang),
+    () => formatWhen(iso, lang, serverZone),
+  );
+
+  return (
+    <time dateTime={iso} suppressHydrationWarning>
+      {text}
+    </time>
+  );
+}
 
 const cell = "border-b border-ink/10 px-4 py-3 text-left text-sm text-ink";
 const head = "border-b border-ink/20 px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
@@ -88,7 +109,7 @@ export function ConversationsPanel({ strings, conversations, lang, timeZone }: C
                     {turn.citations.length === 0 ? "—" : turn.citations.join(", ")}
                   </td>
                   <td className={`${cell} whitespace-nowrap tabular-nums`}>
-                    <time dateTime={turn.createdAt}>{formatWhen(turn.createdAt, lang, timeZone)}</time>
+                    <When iso={turn.createdAt} lang={lang} serverZone={timeZone} />
                   </td>
                 </tr>
               ))}

@@ -220,10 +220,10 @@ export function adminStrings(lang: Lang): AdminStrings {
 
 /**
  * A stored ISO date as an owner reads it (decision 19 of `openspec/changes/brand-identity-ui/design.md`): the medium date
- * and the short hour in the language of the panel. The zone is explicit so that the server and the browser print the same
- * text and the hydration of a client component matches.
+ * and the short hour in the language of the panel. Without a zone it prints in the zone of the runtime: in the browser, the
+ * zone of the reader. The server passes its own zone so the text it sends and the text of the hydration are the same.
  */
-export function formatWhen(iso: string, lang: Lang, timeZone: string): string {
+export function formatWhen(iso: string, lang: Lang, timeZone?: string): string {
   const date = new Date(iso);
 
   if (Number.isNaN(date.getTime())) {
