@@ -5,7 +5,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 0. Step 0: the branch
 
-- [ ] 0.1 Work on `feature/voice-owner-words`, created by Fable from the local merge commit of `main` that carries
+- [x] 0.1 Work on `feature/voice-owner-words`, created by Fable from the local merge commit of `main` that carries
       `provider-keys-in-panel` and `elevenlabs-voice-agent`; confirm branch and base; `npm ci` — report:
       `reports/2026-09-29-step-0-branch.md`
 
