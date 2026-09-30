@@ -226,6 +226,14 @@ What is worth a note for the delivery (none of it is a defect of this area):
 3. At 375 the `WHEN` and part of `CITATIONS` of the conversations table sit past the right edge (the reachable scrolling
    table); the fourth navigation item is off screen on Setup, Business and Documents. Both were noted in step 7.
 
+Commit `aeef0c3` (Record the re-shoot of the delivery captures at HEAD). gitleaks in the hook:
+
+```
+INF 0 commits scanned.
+INF scanned ~6285 bytes (6.28 KB) in 380ms
+INF no leaks found
+```
+
 ## Issues (second round)
 
 - BROKEN: none.
