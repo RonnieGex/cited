@@ -3,8 +3,8 @@
 1. **Source of truth for the look and the words**: `PRODUCT.md` and the approved brief
    `katalis-dev/tasks/diseno-cited/brief-experiencia.md` (restrained color, lime only for "verified" and citations,
    light theme, Stripe-like steps that open in place, Notion-like documents, no modals, no environment variable names
-   outside "For the installer", English first and Spanish complete). Read `C:\Users\Franc\.claude\skills\impeccable\reference\onboard.md`,
-   `interaction-design.md` and `ux-writing.md` before building.
+   outside "For the installer", English first and Spanish complete). Read the references `onboard.md`,
+   `interaction-design.md` and `ux-writing.md` of the `impeccable` skill before building.
 2. **Step state is derived, not stored**, except one flag: step 1 is verified when the resolver returns a chat provider
    whose last test passed (or one set by the server); step 2 when at least one document has passages; step 3 when the
    owner pressed "This answer is right" (a row in `setup_flags`); step 4 when the business has a name and the owner
