@@ -43,7 +43,8 @@ Every box of section 10 is marked with its report inside the change, and every r
 - `CI=1 npm run test:e2e` over a clean clone: 85 passed, 0 failed, 1.9 min, with the two walks timed by themselves
   (2.0 s in English, 1.1 s in Spanish).
 - `git diff --check main...HEAD` clean, `eslint` 0 problems, `tsc --noEmit` 0 errors, `npm audit --audit-level=high`
-  0 vulnerabilities, gitleaks 489 commits with no leak, `openspec validate --all --strict` 13 of 13.
+  0 vulnerabilities, gitleaks 493 commits with no leak, `openspec validate --all --strict` 13 of 13. The static checks
+  and the unit suite were repeated at the closing commit with the same result.
 
 ## Hard rules respected
 
