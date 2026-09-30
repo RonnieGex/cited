@@ -137,7 +137,7 @@ export default function Kit() {
               data-kit="input"
               id="pregunta"
               name="pregunta"
-              placeholder="¿Cuánto cuesta una afinación de bicicleta?"
+              placeholder="Escribe tu pregunta"
             />
           </div>
         </section>
