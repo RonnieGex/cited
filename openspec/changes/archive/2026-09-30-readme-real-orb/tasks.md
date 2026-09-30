@@ -25,5 +25,6 @@ report). A task is `[x]` only with evidence in `reports/2026-09-30-readme-real-o
 
 ## 4. Review and archive
 
-- [ ] 4.1 Adversarial review of the change by a session that did not write it
-- [ ] 4.2 Franc accepts; archive the change
+- [ ] 4.1 Adversarial review of the change by a session that did not write it (not done: Franc accepted and asked for
+      the merge before it)
+- [x] 4.2 Franc accepts; archive the change (Franc, 2026-09-30, on pull request 3: "acepto, fusiona")
