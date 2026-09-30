@@ -579,3 +579,328 @@ describe("the sources of the public surface obey the bans", () => {
     expect(used.length).toBeGreaterThan(0);
   });
 });
+
+// The adversarial review of step 12 (`reports/2026-09-29-step-12-review-fixes-public.md`): the keyboard keeps its place
+// when a citation closes, the answers are announced, the question stays on the page while it is answered, the page
+// follows the new entry and keeps the focus clear of the sticky box, the box stacks on a phone, the widget gives its
+// room to the thread, a passage opens after the sources on a phone and the embed without a business is ink.
+describe("the review of step 12", () => {
+  const scrolled = vi.fn();
+
+  beforeEach(() => {
+    scrolled.mockClear();
+    Element.prototype.scrollIntoView = scrolled;
+  });
+
+  function announcer(container: HTMLElement): HTMLElement {
+    return container.querySelector('[data-cited="announcer"]') as HTMLElement;
+  }
+
+  it("gives the focus back to the mark that opened a passage when Close is pressed", async () => {
+    chat(answered);
+    await ask("How much is a tune-up?");
+
+    const mark = screen.getByRole("button", { name: en.citation(1) });
+
+    mark.focus();
+    fireEvent.click(mark);
+
+    const close = within(screen.getByRole("region", { name: en.citation(1) })).getByRole("button", { name: en.close });
+
+    close.focus();
+    fireEvent.click(close);
+
+    expect(screen.queryByRole("region", { name: en.citation(1) })).toBeNull();
+    expect(document.activeElement, "the focus is back on the mark, not on the body").toBe(mark);
+  });
+
+  it("gives the focus back to the source that opened a passage when Close is pressed", async () => {
+    chat(answered);
+    await ask("How much is a tune-up?");
+
+    const source = screen.getByRole("button", { name: `[2] ${second.document}` });
+
+    source.focus();
+    fireEvent.click(source);
+
+    const close = within(screen.getByRole("region", { name: en.citation(2) })).getByRole("button", { name: en.close });
+
+    close.focus();
+    fireEvent.click(close);
+
+    expect(document.activeElement).toBe(source);
+  });
+
+  it("closes an open passage with Escape and gives the focus back to its mark", async () => {
+    chat(answered);
+    await ask("How much is a tune-up?");
+
+    const mark = screen.getByRole("button", { name: en.citation(2) });
+
+    mark.focus();
+    fireEvent.click(mark);
+    expect(mark).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.keyDown(within(screen.getByRole("region", { name: en.citation(2) })).getByRole("button", { name: en.close }), {
+      key: "Escape",
+    });
+
+    expect(screen.queryByRole("region", { name: en.citation(2) })).toBeNull();
+    expect(mark).toHaveAttribute("aria-expanded", "false");
+    expect(document.activeElement).toBe(mark);
+  });
+
+  it("in the widget, the first Escape closes the passage and only the next one closes the widget", async () => {
+    const posted: unknown[] = [];
+    const parent = Object.getOwnPropertyDescriptor(window, "parent");
+
+    Object.defineProperty(window, "parent", {
+      configurable: true,
+      get: () => ({ postMessage: (data: unknown) => posted.push(data) }),
+    });
+
+    try {
+      render(
+        <Chat lang="en" welcome="Ask us anything." variant="embed" ask={async () => answered} storage={new MemoryStorage()} />,
+      );
+      await ask("How much is a tune-up?");
+
+      const mark = screen.getByRole("button", { name: en.citation(1) });
+
+      mark.focus();
+      fireEvent.click(mark);
+      fireEvent.keyDown(mark, { key: "Escape" });
+
+      expect(screen.queryByRole("region", { name: en.citation(1) })).toBeNull();
+      expect(posted, "the widget stays open").toEqual([]);
+
+      fireEvent.keyDown(mark, { key: "Escape" });
+
+      expect(posted).toEqual([{ source: "cited-embed", type: "close" }]);
+    } finally {
+      if (parent === undefined) {
+        Reflect.deleteProperty(window, "parent");
+      } else {
+        Object.defineProperty(window, "parent", parent);
+      }
+    }
+  });
+
+  it("keeps one polite live region from the first render and announces the wait and the answer in it", async () => {
+    const pending = deferred<AskResult>();
+    const { container } = render(
+      <Chat lang="en" welcome="Ask us anything." ask={() => pending.promise} storage={new MemoryStorage()} />,
+    );
+    const region = announcer(container);
+
+    expect(region, "the live region exists before any question").not.toBeNull();
+    expect(region).toHaveAttribute("role", "status");
+    expect(region).toHaveAttribute("aria-live", "polite");
+    expect(region.className).toContain("sr-only");
+    expect(region.textContent).toBe("");
+
+    await ask("How much is a tune-up?");
+
+    expect(announcer(container), "the same element, not a new one").toBe(region);
+    expect(region.textContent).toBe("Question sent. Looking it up in the documents.");
+
+    await act(async () => {
+      pending.resolve(answered);
+    });
+
+    expect(announcer(container)).toBe(region);
+    expect(region.textContent).toBe("Answer with 2 sources");
+  });
+
+  it("announces a refusal, a failure and a one-source answer, in Spanish too", async () => {
+    const refusal = chat({ status: "refused", answer: "I can't find that in this business's documents." });
+
+    await ask("Do you sell submarines?");
+    expect(announcer(refusal.container).textContent).toBe(
+      "Not in the documents: I can't find that in this business's documents.",
+    );
+    refusal.unmount();
+
+    const failure = chat({ status: "failed", message: null });
+
+    await ask("How much is a tune-up?");
+    expect(announcer(failure.container).textContent).toBe(`No answer. ${en.error}`);
+    failure.unmount();
+
+    const spanish = chat(answered, "es");
+
+    await ask("¿Cuánto cuesta?", "es");
+    expect(announcer(spanish.container).textContent).toBe("Respuesta con 2 fuentes");
+    spanish.unmount();
+
+    const one = chat({ status: "answered", answer: "380 pesos [1].", citations: [first] }, "es");
+
+    await ask("¿Cuánto cuesta?", "es");
+    expect(announcer(one.container).textContent).toBe("Respuesta con 1 fuente");
+  });
+
+  it("shows the question with the waiting bar inside its own entry while it is answered", async () => {
+    const pending = deferred<AskResult>();
+    const { container } = render(
+      <Chat lang="en" welcome="Ask us anything." ask={() => pending.promise} storage={new MemoryStorage()} />,
+    );
+
+    await ask("How much is a tune-up?");
+
+    const entry = container.querySelector('[data-cited="pending"]') as HTMLElement;
+
+    expect(entry, "the pending entry").not.toBeNull();
+    expect(entry.tagName).toBe("LI");
+    expect(entry.closest("ol"), "inside the ledger").not.toBeNull();
+    expect(within(entry).getByText(en.asked)).toBeInTheDocument();
+    expect(within(entry).getByText("How much is a tune-up?")).toBeInTheDocument();
+    expect(entry.querySelector('[data-cited="waiting-bar"]'), "the bar is in the entry").not.toBeNull();
+    expect(within(entry).getByText(en.loading).closest('[role="status"]')).not.toBeNull();
+
+    await act(async () => {
+      pending.resolve(answered);
+    });
+
+    expect(container.querySelector('[data-cited="pending"]')).toBeNull();
+    expect(container.querySelectorAll('[data-cited="turn"]')).toHaveLength(1);
+  });
+
+  it("keeps the question of a failed turn and asks it again from a Try again button, in both languages", async () => {
+    const calls: string[] = [];
+    const results: AskResult[] = [{ status: "failed", message: null }, answered];
+    const { container, unmount } = render(
+      <Chat
+        lang="en"
+        welcome="Ask us anything."
+        ask={async ({ question }) => {
+          calls.push(question);
+
+          return results.shift() as AskResult;
+        }}
+        storage={new MemoryStorage()}
+      />,
+    );
+
+    await ask("How much is a tune-up?");
+
+    const retry = screen.getByRole("button", { name: "Try again" });
+
+    expect(retry.className, "the secondary, small button").toContain("border-border");
+    expect(retry.className).toContain("px-4 py-2");
+
+    await act(async () => {
+      fireEvent.click(retry);
+      await Promise.resolve();
+    });
+
+    expect(calls).toEqual(["How much is a tune-up?", "How much is a tune-up?"]);
+    expect(container.querySelectorAll('[data-cited="turn"]'), "the failed entry became the answer").toHaveLength(1);
+    expect(container.querySelector('[data-cited="answer"]')).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+
+    unmount();
+    chat({ status: "failed", message: null }, "es");
+    await ask("¿Cuánto cuesta?", "es");
+
+    expect(screen.getByRole("button", { name: "Intentar de nuevo" })).toBeInTheDocument();
+  });
+
+  it("brings the new entry into view, and reserves the height of the sticky box for scrolling while it sticks", async () => {
+    const pending = deferred<AskResult>();
+    const { container, unmount } = render(
+      <Chat lang="en" welcome="Ask us anything." ask={() => pending.promise} storage={new MemoryStorage()} />,
+    );
+
+    expect(document.documentElement.style.scrollPaddingBottom, "nothing reserved before the box sticks").toBe("");
+
+    await ask("How much is a tune-up?");
+
+    expect(scrolled).toHaveBeenCalledWith({ block: "nearest" });
+    expect(scrolled.mock.contexts.at(-1)).toBe(container.querySelector('[data-cited="pending"]'));
+    expect(document.documentElement.style.scrollPaddingBottom, "the box is reserved").not.toBe("");
+
+    await act(async () => {
+      pending.resolve(answered);
+    });
+
+    expect(scrolled.mock.contexts.at(-1)).toBe(container.querySelector('[data-cited="turn"]'));
+
+    unmount();
+
+    expect(document.documentElement.style.scrollPaddingBottom, "released with the chat").toBe("");
+  });
+
+  it("stacks the field and the ask button on a phone so the field keeps the whole column", () => {
+    chat(answered);
+
+    const field = screen.getByLabelText(en.question.label);
+    const button = screen.getByRole("button", { name: en.question.submit });
+    const row = field.parentElement as HTMLElement;
+
+    expect(row.contains(button)).toBe(true);
+    expect(row.className).toMatch(/(^|\s)flex-col(\s|$)/);
+    expect(row.className).toContain("sm:flex-row");
+    expect(button.className).toContain("w-full");
+    expect(button.className).toContain("sm:w-auto");
+    expect(button.className).not.toContain("max-sm:px-5");
+  });
+
+  it("gives the room of the widget to the thread: no welcome and a visually hidden label once it exists", async () => {
+    const { container } = render(
+      <Chat lang="en" welcome="Ask us anything." variant="embed" ask={async () => answered} storage={new MemoryStorage()} />,
+    );
+
+    expect(container.querySelector('[data-cited="welcome"]'), "the welcome greets an empty widget").not.toBeNull();
+
+    await ask("How much is a tune-up?");
+
+    expect(container.querySelector('[data-cited="welcome"]')).toBeNull();
+
+    const label = container.querySelector(`label[for="${screen.getByLabelText(en.question.label).id}"]`) as HTMLElement;
+
+    expect(label.textContent).toBe(en.question.label);
+    expect(label.className).toContain("sr-only");
+  });
+
+  it("keeps the welcome of the public page and its visible label once the thread exists", async () => {
+    const { container } = chat(answered);
+
+    await ask("How much is a tune-up?");
+
+    expect(container.querySelector('[data-cited="welcome"]')).not.toBeNull();
+    expect(screen.getByText(en.question.label).className).not.toContain("sr-only");
+  });
+
+  it("opens the passage after the sources in the order of the page, under the answer from 1024px, and brings it into view", async () => {
+    const { container } = chat(answered);
+
+    await ask("How much is a tune-up?");
+    fireEvent.click(screen.getByRole("button", { name: `[1] ${first.document}` }));
+
+    const panel = container.querySelector('[data-cited="citation"]') as HTMLElement;
+    const aside = container.querySelector('[data-cited="sources"]') as HTMLElement;
+    const turn = container.querySelector('[data-cited="turn"]') as HTMLElement;
+
+    expect(panel.closest('[data-cited="answer"]'), "no longer inside the answer column").toBeNull();
+    expect(turn.contains(panel)).toBe(true);
+    expect(aside.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING, "after the sources").toBeTruthy();
+
+    const cell = panel.parentElement as HTMLElement;
+
+    expect(cell.className).toContain("lg:col-start-1");
+    expect(cell.className).toContain("lg:row-start-3");
+    expect(scrolled.mock.contexts.at(-1)).toBe(panel);
+    expect(scrolled).toHaveBeenLastCalledWith({ block: "nearest" });
+  });
+
+  it("paints the embed strip ink with the ink switch when there is no business yet", async () => {
+    const { container } = render(await Embed());
+    const band = container.querySelector('[data-public="band"]') as HTMLElement;
+
+    expect(band.className).toContain("bg-ink");
+    expect(band.className).toContain("text-paper");
+    expect(band.className).not.toContain("bg-[var(--primary)]");
+    expect(band.className).toContain("py-4");
+    expect(within(band).getByRole("button", { name: "English" }).className).toContain("text-lime");
+  });
+});
