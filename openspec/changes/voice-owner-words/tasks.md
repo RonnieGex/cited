@@ -40,7 +40,7 @@ commit. No network call to a real provider. No personal path in a tracked file.
 
 ## 6. Manual verification with curl
 
-- [ ] 6.1 `npm run build && npm run start` on a free port with the panel configured and no voice: `curl.exe -i` of
+- [x] 6.1 `npm run build && npm run start` on a free port with the panel configured and no voice: `curl.exe -i` of
       `POST /api/admin/voice` (signed in) and `GET /api/voice/signed-url`, showing the codes and no variable name, and
       the server log showing the names once — report: `reports/2026-09-29-step-6-curl.md`
 
