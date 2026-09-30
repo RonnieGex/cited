@@ -13,7 +13,7 @@ The review of Codex reproduced it, and it reproduced again on this machine over 
 `npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/voice-minute-cap.test.ts`:
 
 ```
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community-ins
+ RUN  v5.0.2 <the worktree>
 
  ❯ tests/voice-minute-cap.test.ts (9 tests) 2432ms
 
@@ -24,7 +24,7 @@ The review of Codex reproduced it, and it reproduced again on this machine over 
 
 ⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
  FAIL  tests/voice-minute-cap.test.ts [ tests/voice-minute-cap.test.ts ]
-Error: EPERM, Permission denied: \\?\C:\Users\Franc\AppData\Local\Temp\katalis-voice-cap-mrffau
+Error: EPERM, Permission denied: \\?\<the folder of the test>\katalis-voice-cap-mrffau
  ❯ tests/voice-minute-cap.test.ts:120:5
     118|   for (const root of roots) {
     119|     await new Promise((wake) => setTimeout(wake, 100));
@@ -51,7 +51,7 @@ $ npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/voice-store-st
    Duration  11.30s
 ⎯⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
  FAIL  tests/voice-store-state.test.ts [ tests/voice-store-state.test.ts ]
-Error: EPERM, Permission denied: \\?\C:\Users\Franc\AppData\Local\Temp\katalis-voice-state-before-VmFbLd
+Error: EPERM, Permission denied: \\?\<the folder of the test>\katalis-voice-state-before-VmFbLd
  ❯ tests/voice-store-state.test.ts:53:5
 exit=1
 ```
