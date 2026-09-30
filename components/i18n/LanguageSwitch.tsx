@@ -3,7 +3,7 @@
 import type { Lang } from "@/lib/settings/business";
 import { langCookie } from "@/lib/i18n/language";
 import { PUBLIC_STRINGS } from "@/lib/i18n/public";
-import { focusRing } from "@/components/ui";
+import { focusRing, focusRingOnBrand, focusRingOnInk } from "@/components/ui";
 
 // Design decision 8 of `openspec/changes/public-page-and-widget/design.md`: the switch is owned by this lane and it is
 // the same one the administration panel uses. It renders `English | Español` in that order as two buttons with
@@ -18,10 +18,27 @@ const OPTIONS: ReadonlyArray<{ lang: Lang; label: string }> = [
   { lang: "es", label: "Español" },
 ];
 
+// `focus` is the ring of the ground the switch sits on (decision 33): ink outline on paper, lime on ink, the color of the
+// text over the band of the business.
 const TONES = {
-  paper: { separator: "text-ink/60", other: "text-ink/60 hover:text-ink", chosen: "text-ink underline" },
-  ink: { separator: "text-paper/60", other: "text-paper/80 hover:text-paper", chosen: "text-lime underline" },
-  brand: { separator: "text-current", other: "text-current hover:underline", chosen: "text-current underline" },
+  paper: {
+    separator: "text-ink/60",
+    other: "text-ink/60 hover:text-ink",
+    chosen: "text-ink underline",
+    focus: focusRing,
+  },
+  ink: {
+    separator: "text-paper/60",
+    other: "text-paper/80 hover:text-paper",
+    chosen: "text-lime underline",
+    focus: focusRingOnInk,
+  },
+  brand: {
+    separator: "text-current",
+    other: "text-current hover:underline",
+    chosen: "text-current underline",
+    focus: focusRingOnBrand,
+  },
 } as const;
 
 export type LanguageSwitchTone = keyof typeof TONES;
@@ -63,9 +80,9 @@ export function LanguageSwitch({ current, reload, className = "", tone = "paper"
                 chooseLanguage(option.lang, reload ?? (() => window.location.reload()));
               }
             }}
-            className={`inline-flex items-center rounded-none px-1 transition-colors duration-[400ms] ease-out-expo max-lg:min-h-11 ${
+            className={`inline-flex min-h-6 items-center rounded-none px-1 transition-colors duration-[400ms] ease-out-expo max-lg:min-h-11 ${
               option.lang === current ? colors.chosen : colors.other
-            } ${focusRing}`}
+            } ${colors.focus}`}
           >
             {option.label}
           </button>

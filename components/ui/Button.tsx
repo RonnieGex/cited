@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
-import { focusRing } from "./focus";
+import { focusRing, focusRingOnInk } from "./focus";
 
 const base =
   "inline-flex items-center justify-center gap-2 rounded-none text-sm font-bold uppercase tracking-[0.05em] transition-colors duration-[400ms] ease-out-expo disabled:opacity-40";
@@ -40,7 +40,7 @@ export function Button({
     <button
       {...rest}
       type={type}
-      className={`${base} ${sizes[size]} ${variants[variant]} ${focusRing} ${className}`}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${variant === "ghost" ? focusRingOnInk : focusRing} ${className}`}
     />
   );
 }

@@ -760,8 +760,10 @@ describe("the documents table on a phone", () => {
 
     const region = screen.getByRole("region", { name: english.documentsTitle });
 
-    expect(region.getAttribute("tabindex")).toBe("0");
+    // Decision 33 (round 14c): a tab stop only while the box scrolls sideways, measured in the browser
+    // (`tests/brand-round-14c-panel.test.tsx` stubs the widths); jsdom has no layout, so it is out of the tab order here.
+    expect(region.getAttribute("tabindex")).not.toBe("0");
     expect(region.className).toContain("overflow-x-auto");
-    expect(region.className).toContain("focus-visible:outline-lime");
+    expect(region.className).toContain("focus-visible:outline-ink");
   });
 });

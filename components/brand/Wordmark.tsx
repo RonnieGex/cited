@@ -1,4 +1,4 @@
-import { focusRing } from "@/components/ui/focus";
+import { focusRing, focusRingOnInk } from "@/components/ui/focus";
 import { CitationMark } from "./CitationMark";
 
 // Decision 2 of `openspec/changes/brand-identity-ui/design.md`: the word `Cited` in Outfit 800 followed by a lime
@@ -45,7 +45,7 @@ export function Wordmark({ size = "md", tone = "paper", href, className = "" }: 
   }
 
   return (
-    <a data-brand="wordmark" href={href} className={`${classes} ${focusRing}`}>
+    <a data-brand="wordmark" href={href} className={`${classes} ${tone === "ink" ? focusRingOnInk : focusRing}`}>
       {content}
     </a>
   );

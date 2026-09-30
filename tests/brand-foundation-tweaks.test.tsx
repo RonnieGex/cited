@@ -93,7 +93,9 @@ describe("Input of type file", () => {
     expect(className).toContain("file:rounded-none");
     expect(className).toContain("file:border-0");
     expect(className).toContain("min-h-11");
-    expect(className).toContain("focus-visible:outline-lime");
+    // Decision 33 (round 14c): the focus of a control on paper is an ink outline with a lime ring inside it.
+    expect(className).toContain("focus-visible:outline-ink");
+    expect(className).toContain("focus-visible:ring-lime");
   });
 
   it("leaves the text inputs exactly as they were", () => {

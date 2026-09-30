@@ -207,7 +207,9 @@ describe("CitationMark and citationMarkClass (decision 3)", () => {
 
     expect(rest).toContain("hover:bg-[var(--primary)]");
     expect(rest).toContain("hover:text-[var(--on-primary)]");
-    expect(rest).toContain("focus-visible:outline-lime");
+    // Decision 33 (round 14c): a mark on paper takes the focus of the kit on paper, an ink outline and a lime ring.
+    expect(rest).toContain("focus-visible:outline-ink");
+    expect(rest).toContain("focus-visible:ring-lime");
   });
 
   it("styles a real button exactly like the static span", () => {
@@ -323,10 +325,14 @@ describe("Button: ghost and sm (decision 6)", () => {
       </>,
     );
 
-    for (const name of ["Ghost", "Brand"]) {
+    // Decision 33 (round 14c): a control on ink keeps the lime outline (the ghost button of the column), a control on paper
+    // takes the ink outline with a lime ring inside it.
+    const rings = { Ghost: "focus-visible:outline-lime", Brand: "focus-visible:outline-ink" };
+
+    for (const [name, ring] of Object.entries(rings)) {
       const button = screen.getByRole("button", { name });
 
-      expect(button.className, name).toContain("focus-visible:outline-lime");
+      expect(button.className, name).toContain(ring);
       expect(button).toHaveAttribute("type", "button");
     }
   });

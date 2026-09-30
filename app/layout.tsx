@@ -18,6 +18,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
   return (
     <html lang={brand.lang} className="font-sans">
+      <head>
+        {/* The face the first frame is painted in: without the preload the page paints in the fallback and reflows when
+            Outfit arrives (the sign-in form moved 37 px on a phone). It is the app's own file, never a font host. */}
+        <link rel="preload" href="/fonts/outfit/outfit-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body>{children}</body>
     </html>
   );
