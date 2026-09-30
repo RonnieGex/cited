@@ -13,7 +13,7 @@ number of the source) and the highlighter (lime painted behind the words that ma
 ## Decisions
 
 1. **Tokens, additive.** `app/tokens.css` keeps every token of Construye untouched and adds, in the same `:root` and
-   `@theme inline`, the product tokens: `--ink-2: #57534E` (secondary text, 7.0:1 on paper), `--rule: color-mix(in
+   `@theme inline`, the product tokens: `--ink-2: #57534E` (secondary text, 7.63:1 on paper), `--rule: color-mix(in
    srgb, var(--ink) 12%, var(--paper))` (dividers, never a control border), `--dur-fast: 180ms`,
    `--dur-base: 320ms`, `--dur-slow: 640ms`. The kit's `--border` and the focus ring do not change.
 2. **`components/brand/Wordmark.tsx`** (server component): the word `Cited` in Outfit 800, `letter-spacing: -0.04em`,
@@ -50,7 +50,7 @@ number of the source) and the highlighter (lime painted behind the words that ma
    that page exists) and its name; the current page (from `usePathname` in `AdminNav`, which is already a client
    component) carries `aria-current="page"`, paper text and its mark ink-on-lime inverted (ink background, lime
    number); the others `text-paper/80` with a
-   `text-paper/60` mark (6.8:1 over ink: the numeral is text); hover `text-paper`, `var(--dur-fast)`. At the
+   `text-paper/60` mark (7.02:1 over ink: the numeral is text); hover `text-paper`, `var(--dur-fast)`. At the
    foot of the column: `LanguageSwitch tone="ink"`, the sign-out as `variant="ghost" size="sm"`, and the silver flame
    (`/brand/katalis-flame-64.png`, the original, made for dark grounds) beside "Built by Katalis" in `text-paper/70`.
    Below 1024 px: an ink top bar with the wordmark and, under it in the same band, the same list scrolling

@@ -46,6 +46,10 @@ flame.
 - [x] 3.4 The public page: the band, the headline, the ledger, the waiting bar, the sticky ask, the embed strip
       (decisions 9 to 12) — report: `reports/2026-09-29-step-3-implementation.md`
 
+- [x] 3.5 Decisions 18 (the flame beside every signature, `Hecho por Katalis`) and 19 (readable dates), added to the
+      contract by Fable in `a091ec4` after the round; box added by Fable in the amendment of 14c over evidence that
+      already existed — report: `reports/2026-09-29-step-12-review-fixes-panel.md`
+
 ## 4. Review and update of the existing tests
 
 - [x] 4.1 The whole suite; say which test changed and why (only assertions on markup that the design moved, never a
@@ -71,10 +75,16 @@ flame.
       embed, kit, the four pages of the panel), with no secret and no money figure — report:
       `reports/2026-09-29-step-7-e2e.md`
 
+- [x] 7.2 The E2E of decisions 18 and 19 (`2b9f283`), widened to every page by decision 32 — reports:
+      `reports/2026-09-29-step-12-review-fixes-e2e.md` and `reports/2026-09-29-step-10-5-e2e.md`
+
 ## 8. The state of the base after
 
 - [x] 8.1 Repeat 1.1, the state of the store included, and say which tables and counts changed and why (none should)
       — report: `reports/2026-09-29-step-8-base-after.md`
+
+- [x] 8.2 Decision 16 (what does not change): the tokens of Construye and their test, the flame files, Outfit, the routes,
+      the schemas and the providers untouched on the merged tree — report: `reports/2026-09-29-step-10-6-base-after.md`
 
 ## 9. Documentation
 

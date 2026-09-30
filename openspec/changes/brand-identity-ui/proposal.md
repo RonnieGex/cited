@@ -14,8 +14,8 @@ adversarial review of Codex kept as the standard asks.
   of the source) and the highlighter (lime painted behind the words that matter: a phrase of a headline, the passage an
   answer came from).
 - **The panel becomes a workspace**: an ink side navigation with the wordmark, the sections numbered like citations, the
-  active one highlighted in lime, the language switch, sign out and "Built by Katalis" at the foot; on a phone a top bar
-  with a menu button. The sign-in becomes a split screen with the tagline.
+  active one highlighted in lime, the language switch, sign out and "Built by Katalis" at the foot; on a phone an ink top bar
+  whose sections scroll sideways. The sign-in becomes a split screen with the tagline.
 - **The public page wears the business first**: a band in the business color (ink and the wordmark when there is no
   business yet), the welcome message as the headline, the answers as a ledger of question and answer with the sources in
   the margin of the answer they support, and a question box that stays in reach.
@@ -33,5 +33,11 @@ adversarial review of Codex kept as the standard asks.
   `app/admin/layout.tsx`, `components/admin/LoginForm.tsx`, `app/page.tsx`, `app/embed/page.tsx`, `components/chat/*`,
   `components/i18n/LanguageSwitch.tsx` (a `tone` prop, the interface stays), `app/kit/page.tsx`,
   `docs/design-system.md`, the README captures.
+- Changed by the amendments (decisions 18 to 33, after the verification): the pages of the panel (`app/admin/page.tsx`,
+  `business`, `documents`, `conversations`, `ai`), `components/admin/` (`AuthShell`, `BuiltByKatalis`, `BusinessForm`,
+  `ConfirmedDelete`, `ConversationsPanel`, `DocumentsPanel`, `SignOutButton`, `TestButton`, `VoiceAgent`,
+  `useOverflowing`), `components/ui/` (`Button`, `Input`, `Panel`, `SectionTitle`, `focus`), `components/voice/VoicePanel.tsx`,
+  `lib/admin/setup.ts` and `titles.ts`, `lib/chat/client.ts`, `lib/public/brand.ts`, `lib/i18n/` (`admin`, `public`,
+  `setup-groups`), `scripts/render-readme-captures.mjs`, and the merges of `main` (`ca6b1d8`, `0dd89fd`).
 - Untouched on purpose: the tokens of Construye, the flame files, Outfit, every route, every schema, every provider.
 - Specs: `design-system`, `public-chat` and `admin-panel` (ADDED requirements).
