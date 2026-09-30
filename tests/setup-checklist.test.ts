@@ -162,12 +162,13 @@ describe("the derived state of the four steps", () => {
     expect(stateOf(checklist.steps, "ai")).toBe("attention");
   });
 
-  it("puts a panel provider whose key cannot be read in progress while it has no test of its own", async () => {
+  it("asks for attention for a panel provider whose key cannot be read, even with no test of its own", async () => {
     const store = await tempStore();
 
     await withChatProvider(store, null, otherEncryptionKey);
 
-    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("progress");
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).not.toBe("verified");
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("attention");
   });
 
   it("verifies the first step when the server sets the provider", async () => {
