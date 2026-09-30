@@ -7,6 +7,7 @@ import { openStore, type Store } from "@/lib/store/index";
 import { storeTables } from "@/lib/store/tables";
 import { setupChecklist, type SetupStep } from "@/lib/admin/setup-checklist";
 import { readSetupFlags, writeSetupFlag, SETUP_FLAGS } from "@/lib/admin/setup-flags";
+import { sealSecret } from "@/lib/secrets";
 import { embeddingsSignature } from "@/lib/settings/providers";
 import { readablePrimary } from "@/lib/theme/primary";
 
@@ -62,12 +63,31 @@ async function withPassages(store: Store): Promise<void> {
   );
 }
 
-async function withChatProvider(store: Store, testedAt: string | null): Promise<void> {
+// The key of the encryption of the cases: the provider of the panel is stored sealed with it, and a case that resolves
+// the store with another one holds a key that can no longer be read (decision 20).
+const encryptionKey = { ENCRYPTION_KEY: Buffer.alloc(32, 21).toString("base64") };
+const otherEncryptionKey = { ENCRYPTION_KEY: Buffer.alloc(32, 22).toString("base64") };
+
+function sealedKey(environment: Record<string, string>): string {
+  const sealed = sealSecret("sk-de-la-suite-0000000000001234", environment);
+
+  if (sealed.ok === false) {
+    throw new Error("the key of the case did not seal the key of the provider");
+  }
+
+  return sealed.value;
+}
+
+async function withChatProvider(
+  store: Store,
+  testedAt: string | null,
+  environment: Record<string, string> = encryptionKey,
+): Promise<void> {
   await store.saveProviderSetting({
     kind: "chat",
     provider: "deepseek",
     model: "deepseek-chat",
-    keyCiphertext: "cifrado",
+    keyCiphertext: sealedKey(environment),
     keyLast4: "1234",
     baseUrl: null,
     mode: null,
@@ -121,11 +141,33 @@ describe("the derived state of the four steps", () => {
 
     await withChatProvider(store, null);
 
-    expect(stateOf((await setupChecklist(store)).steps, "ai")).toBe("progress");
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("progress");
 
     await withChatProvider(store, "2026-09-30T12:00:00.000Z");
 
-    expect(stateOf((await setupChecklist(store)).steps, "ai")).toBe("verified");
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("verified");
+  });
+
+  // Decision 20 of the second amendment: one rule for step 1, whatever the source. The key of a provider saved in the
+  // panel is opened on every read; when it can no longer be read the application cannot use the provider, so the step
+  // is not green even though its test passed (the Major M-7 of `revision-community-13b.md`).
+  it("does not verify a panel provider whose saved key can no longer be read", async () => {
+    const store = await tempStore();
+
+    await withChatProvider(store, "2026-09-30T12:00:00.000Z", otherEncryptionKey);
+
+    const checklist = await setupChecklist(store, encryptionKey);
+
+    expect(stateOf(checklist.steps, "ai")).not.toBe("verified");
+    expect(stateOf(checklist.steps, "ai")).toBe("attention");
+  });
+
+  it("puts a panel provider whose key cannot be read in progress while it has no test of its own", async () => {
+    const store = await tempStore();
+
+    await withChatProvider(store, null, otherEncryptionKey);
+
+    expect(stateOf((await setupChecklist(store, encryptionKey)).steps, "ai")).toBe("progress");
   });
 
   it("verifies the first step when the server sets the provider", async () => {
@@ -295,7 +337,7 @@ describe("the derived state of the four steps", () => {
     });
     await publish(store);
 
-    const checklist = await setupChecklist(store);
+    const checklist = await setupChecklist(store, encryptionKey);
 
     expect(checklist.steps.every((step) => step.state === "verified")).toBe(true);
     expect(checklist.done).toBe(true);

@@ -7,7 +7,7 @@ import { createFakeEmbeddings } from "@/lib/embeddings/fake";
 import { resolveEmbeddingsProvider } from "@/lib/embeddings/providers";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestPaths, parseFile } from "@/lib/ingest";
 import { openStore, type Store } from "@/lib/store";
-import { buildDocx, buildPdf } from "./fixtures/documents";
+import { buildDocx, buildPdf, buildZip } from "./fixtures/documents";
 
 const root = mkdtempSync(join(tmpdir(), "katalis-ingest-"));
 const stores: Store[] = [];
@@ -138,6 +138,37 @@ describe("type detection", () => {
     expect(pdf.text).toContain("Aviso del taller");
     expect(docx.type).toBe("docx");
     expect(docx.text).toContain("Aceptamos efectivo y tarjeta.");
+  });
+
+  // Decision 21 of the second amendment: a ZIP is not a DOCX. The head `PK\x03\x04` says "an archive", not "the
+  // document of Word": a ZIP is read only when its archive holds `word/document.xml`, and any other one is refused as
+  // a type, with the list of the accepted types, like every other rejected file (the Minor m-4 of
+  // `revision-community-13b.md`).
+  it("refuses a ZIP renamed `.docx` that holds no document of Word", async () => {
+    const path = document(
+      "paquete.docx",
+      buildZip([{ name: "notas.txt", content: "Abrimos de martes a domingo." }]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+    await expect(parseFile(path)).rejects.toThrowError(/PDF, DOCX, Markdown or plain text/);
+  });
+
+  it("refuses a ZIP whose entry only ends like the document of a DOCX", async () => {
+    const path = document(
+      "casi.docx",
+      buildZip([{ name: "copia/word/document.xml", content: "<w:document/>" }]),
+    );
+
+    await expect(parseFile(path)).rejects.toThrowError(/not an accepted type/i);
+  });
+
+  it("keeps reading a real DOCX by the entry it holds", async () => {
+    const path = document("acta.docx", buildDocx([{ text: "El lunes permanecemos cerrados." }]));
+    const parsed = await parseFile(path);
+
+    expect(parsed.type).toBe("docx");
+    expect(parsed.text).toContain("El lunes permanecemos cerrados.");
   });
 });
 

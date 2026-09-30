@@ -16,7 +16,16 @@ function crc32(input: Uint8Array): number {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-type ZipEntry = { name: string; content: string };
+export type ZipEntry = { name: string; content: string };
+
+/**
+ * A real ZIP archive, with its local headers, its central directory and its end record. `buildDocx()` writes a DOCX
+ * with it, and the cases of decision 21 use it to write an archive that is a ZIP and not a DOCX: the bytes start with
+ * `PK\x03\x04` and the entries are whatever the case asks for.
+ */
+export function buildZip(entries: ZipEntry[]): Buffer {
+  return zip(entries);
+}
 
 function zip(entries: ZipEntry[]): Buffer {
   const local: Buffer[] = [];

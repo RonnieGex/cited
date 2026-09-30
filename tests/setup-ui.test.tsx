@@ -169,6 +169,24 @@ describe("the lane of the guided setup", () => {
       unmount();
     }
   });
+
+  // Decision 20 of the second amendment: a key saved in the panel that can no longer be read needs attention in the
+  // words of the owner, and the notice carries the button that reopens step 1, which is where the key is connected
+  // again. It never sends the owner to the page of the installer: the provider is theirs.
+  it("tells the owner of an unreadable key to connect the AI again, in both languages", () => {
+    for (const strings of [english, spanish]) {
+      const { unmount } = render(<AttentionNotice source="panel" strings={strings} />);
+
+      expect(screen.getByText(strings.stepKeyBody)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: strings.stepKeyAction })).toHaveAttribute(
+        "href",
+        "/admin?step=ai",
+      );
+      expect(screen.queryByRole("link", { name: strings.panelInstaller })).not.toBeInTheDocument();
+
+      unmount();
+    }
+  });
 });
 
 describe("the information lane", () => {

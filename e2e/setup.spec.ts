@@ -5,7 +5,7 @@ import type { Server } from "node:http";
 import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
 import { PUBLIC_STRINGS } from "../lib/i18n/public";
-import { buildDocx, buildPdf } from "../tests/fixtures/documents";
+import { buildDocx, buildPdf, buildZip } from "../tests/fixtures/documents";
 import { E2E_ADDRESS, E2E_ADMIN_PASSWORD } from "./admin-fixtures";
 import {
   PROVIDER_DOUBLE_KEY,
@@ -330,6 +330,25 @@ test("a picture renamed to a text extension is refused as a type", async ({ page
   await expect(page.locator('[data-upload-state="failed"]')).toHaveCount(2, { timeout: 60_000 });
   await expect(page.getByText(english.uploadTypeTitle)).toHaveCount(2);
   await expect(page.getByRole("link", { name: "dibujo.txt" })).toHaveCount(0);
+});
+
+// Decision 21 of the second amendment: a ZIP is not a DOCX. This archive shares the head `PK\x03\x04` with the
+// document of Word and holds no `word/document.xml`, so the owner reads "type not supported" with the list of the
+// accepted types and not the generic failure (the Minor m-4 of `katalis-dev/tasks/revision-community-13b.md`).
+test("a ZIP renamed to a Word name is refused as a type", async ({ page }) => {
+  await signIn(page, "/admin/information");
+
+  await page.getByLabel(english.uploadDocument).setInputFiles([
+    {
+      name: "paquete.docx",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      buffer: buildZip([{ name: "notas.txt", content: "Abrimos de martes a domingo." }]),
+    },
+  ]);
+
+  await expect(page.getByText(english.uploadTypeTitle)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(english.uploadTypeAdvice)).toBeVisible();
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(0);
 });
 
 test("a file above the size limit is refused with the limit in words", async ({ page }) => {
