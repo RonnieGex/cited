@@ -31,3 +31,27 @@ every date the panel shows SHALL be formatted in the language of the panel.
 - **WHEN** `/admin` is opened signed out in Spanish
 - **THEN** the tagline `Cada respuesta enseña de dónde salió.` is visible with its last words highlighted, the form
   keeps its label, its button and its messages, and the page passes axe at level AA
+
+#### Scenario: Every page has its own title
+
+- **WHEN** the sign-in and each page of the panel are opened in English and in Spanish
+- **THEN** each has its own document title in the language of the panel, such as `Documents · Cited` /
+  `Documentos · Cited`
+
+#### Scenario: The panel speaks Spanish whole
+
+- **WHEN** `/admin` is opened in Spanish and the owner tests a provider
+- **THEN** every group title, every detail and the result of the test are in Spanish, and no token of the server (such
+  as `NO_ANSWER`) and no text of a provider is printed
+
+#### Scenario: A delete asks first
+
+- **WHEN** the owner presses Delete on a document, or Delete all on the conversations
+- **THEN** an inline group asks with a sentence, a Delete button and a Keep button, the focus moves to Keep, nothing is
+  deleted until the second press, and no modal opens
+
+#### Scenario: The sections that came from main
+
+- **WHEN** the panel is opened after `main` is merged into this change
+- **THEN** "AI and keys" / "IA y llaves" is a numbered section of the ink navigation, and the screen of the voice agent
+  wears the workspace like the other pages

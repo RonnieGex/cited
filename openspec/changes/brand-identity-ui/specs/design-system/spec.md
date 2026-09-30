@@ -27,8 +27,9 @@ its closing line, with the silver flame on ink grounds and the ink flame on ligh
 #### Scenario: Every signature carries the flame
 
 - **WHEN** `/`, `/embed`, `/kit`, `/admin` signed out and every page of the panel are rendered in English and in Spanish
-- **THEN** every element whose text contains `Katalis` has a flame image (`/brand/katalis-flame*.png`) as a sibling or
-  child, and the Spanish pages read `Hecho por Katalis`
+- **THEN** every signature (`Built by Katalis`, `Hecho por Katalis`, `by Katalis`) has a flame image
+  (`/brand/katalis-flame*.png`) as a sibling or child, and the Spanish pages read `Hecho por Katalis`; a sentence that
+  only mentions Katalis inside the text of the kit is not a signature
 
 ### Requirement: Motion serves the state and respects the reader
 

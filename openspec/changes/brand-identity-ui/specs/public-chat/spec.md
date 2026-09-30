@@ -27,6 +27,31 @@ inline and its sources beside it; and SHALL keep the question box in reach at th
 #### Scenario: The marks of an answer
 
 - **WHEN** an answer with two sources arrives
-- **THEN** each `[n]` of the text is a lime citation mark button named `Citation n`, the sources list carries the two
-  marks with their document names, and opening one shows the passage in the highlighter with the document and the
-  heading
+- **THEN** each `[n]` of the text is a lime citation mark button named `Citation n` that sits against its word with no
+  space before it and never starts a line alone, the sources list carries the two marks with the heading of each
+  passage and, on a second smaller line, its document name, and opening one shows the passage in the highlighter with
+  the document and the heading
+
+#### Scenario: A failure in the words of the visitor
+
+- **WHEN** `/api/ask` answers `429` or `503`, or the network fails, on the page in English and in Spanish
+- **THEN** the entry shows the sentence of that kind of failure in the language of the page, the announcer says it
+  once, and no text written by the server (no name of `.env.example`, no English on the Spanish page) reaches the page
+
+#### Scenario: Storage that cannot be read
+
+- **WHEN** reading or writing `sessionStorage` throws and the visitor asks
+- **THEN** the question still ends in an answer or in a failure entry, and no entry stays waiting
+
+#### Scenario: A short or zoomed screen
+
+- **WHEN** the thread holds four answers on a viewport of 512x384 or 320x256 px (200% and 400% zoom)
+- **THEN** the text of the last answer is visible above the question box, which is not sticky below 560 px of height;
+  on a phone the threaded box shows its field and its button on one row with a label for screen readers only
+
+#### Scenario: The page names the business and Cited
+
+- **WHEN** `/` is opened with a business named in the settings
+- **THEN** the title of the document is the name of the business, the placeholder of the box reads `Type your question`
+  / `Escribe tu pregunta`, and the footer carries the small wordmark, `Answers by Cited` / `Respuestas de Cited` and the
+  flame with `Built by Katalis` / `Hecho por Katalis`

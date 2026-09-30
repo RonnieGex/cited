@@ -124,3 +124,53 @@ number of the source) and the highlighter (lime painted behind the words that ma
     renders `Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" })` in the language of the panel
     inside a `<time dateTime="<the ISO value>">`, so the machine value stays in the markup and the owner reads
     "29 sept 2026, 15:49".
+
+## Amendment after the verification of three rounds (Fable, 2026-09-29; findings in
+`katalis-dev/tasks/verificacion-brand-identity-ui-r3.json`, 16 major and 54 minor)
+
+20. **The base first.** `main` (d71220d: the keys in the panel and the voice agent) is merged into this branch before
+    any other fix: main's behaviour wins inside the new look (`VoiceLauncher` on `/` and `/embed`, the not-ready state
+    of the public page, `export const dynamic = "force-dynamic"`, the page `/admin/ai`). "AI and keys" / "IA y llaves"
+    becomes a numbered section of the ink navigation, and the voice screen wears the workspace. Everything below is
+    verified on the merged tree.
+21. **A failure speaks the visitor's language.** `Chat` never renders `turn.message` nor a raw `error`. `askCited`
+    returns a kind (`rate_limited` for 429, `unavailable` for any other answer that is not 200, `network` when the
+    request fails) and `Chat` prints `PublicStrings.errors[kind]` in the language of the page ("Too many questions from
+    here. Try again in a while." / "Demasiadas preguntas desde aquí. Inténtalo más tarde."; "The answer could not be
+    produced right now." / "Ahora mismo no se pudo responder."; "No connection. Check your internet and try again." /
+    "Sin conexión. Revisa tu internet e inténtalo de nuevo."). The announcer says that same sentence once; the visible
+    pending and failure blocks lose their own `role="status"`.
+22. **The session id survives blocked storage.** Reading and writing `sessionStorage` go in `try/catch`, with an id kept
+    in a `useRef` when storage fails; `send` wraps everything after the pending entry so a thrown error lands a failure
+    entry.
+23. **The box in reach, not in the way.** The ask form is `sticky` only from 560 px of viewport height
+    (`[@media(min-height:560px)]:sticky`, with the scroll padding under the same condition). Once threaded, the label
+    is `sr-only` on the page too, and field and button share one row at every width with the safe-area padding.
+24. **Every page has a title.** `generateMetadata` on `/` and `/embed` returns the name of the business (`Cited` when
+    there is none); each page of the panel and the sign-in get a static title from `lib/i18n/admin.ts` in the language
+    of the panel ("Documents · Cited" / "Documentos · Cited").
+25. **A citation mark sits against its word.** The inline renderer trims the space before a mark, the mark keeps only
+    `ms-[0.15em]`, and the last word with its mark (and a punctuation that follows) is wrapped in
+    `whitespace-nowrap`.
+26. **Sources name the passage.** Each row of the sources shows `source.heading ?? source.document` as its first line
+    and the document on a second `text-xs text-ink-2` line (hidden when it repeats the first); its accessible name is
+    `[n] heading, document`.
+27. **The footer names Cited.** Small wordmark, `Answers by Cited` / `Respuestas de Cited`, a middot, and the flame with
+    `Built by Katalis` / `Hecho por Katalis`, on one `text-sm` row. The placeholder is neutral: `Type your question` /
+    `Escribe tu pregunta` (the bicycle question of the sample café leaves the product).
+28. **A delete asks first, inline.** Delete (a document) and Delete all (the conversations) swap their button for a
+    `role="group"` with a sentence ("Delete README.txt?" / "¿Borrar README.txt?"), a primary `Delete` / `Borrar` and a
+    secondary `Keep` / `Conservar`; the focus moves to Keep; Escape keeps. No modal.
+29. **The Spanish panel is whole.** The groups of Setup take their title and detail from a localized table keyed by the
+    group id of the template; a provider test shows `testOk` / `testFailed` with the provider's name in the language of
+    the panel, never the server's `detail` nor a token such as `NO_ANSWER`.
+30. **Setup as an owner's page is the guided setup (queue ff-13), not this change.** This change keeps Setup in the
+    workspace look and makes it whole in Spanish (decision 29); the rewrite of its content for a non-technical owner is
+    ff-13, next in the queue. The delivery lists it under `## Issues` as NOT DONE with that pointer.
+31. **Evidence pointers.** `reports/2026-09-29-step-3-implementation.md` is added as an index that links the three split
+    reports of step 3 and their commits, so the marks of 3.1 to 3.4 point to a file that exists.
+32. **The flame is proven everywhere.** One E2E loops over `/`, `/embed`, `/kit`, `/admin` signed out and every page of
+    the panel (with `/admin/ai`) in both languages, and checks a flame beside every signature (the scenario, amended).
+33. **The 54 minors** go to the delivery as a list with a decision for each: fixed in this round when it is one line in
+    a file this round already touches (the landmarks, the double live region, the 24 px language buttons, the ink
+    focus ring on paper), otherwise queued as `brand-identity-polish` with its evidence.

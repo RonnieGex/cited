@@ -83,3 +83,25 @@ flame.
       `scripts/render-readme-captures.mjs` and its twin — report: `reports/2026-09-29-step-9-docs.md`
 - [x] 9.2 The delivery `katalis-dev/tasks/entrega-community-14.md` in Spanish with the captures and `## Issues` —
       report: `reports/2026-09-29-step-9-docs.md`
+
+## 10. Amendment after the verification of three rounds (design decisions 20 to 33)
+
+- [ ] 10.0 Merge `main` (d71220d) into `feature/brand-identity-ui` in one merge commit; list each conflict and how it
+      was resolved (decision 20); `npm ci`, `npm test`, `npm run typecheck` on the merged tree — report:
+      `reports/2026-09-29-step-10-0-merge-main.md`
+- [ ] 10.1 Red first: unit and component tests for decisions 21 to 29 (failure kinds in both languages with no server
+      text, blocked storage, titles, the mark against its word, the sources lines, the footer and placeholder, the
+      inline delete, the Spanish Setup and test results) — report: `reports/2026-09-29-step-10-1-tests-first.md`
+- [ ] 10.2 The fixes of decisions 21 to 29 and 31, and the minors that decision 33 fixes in this round — report:
+      `reports/2026-09-29-step-10-2-implementation.md`
+- [ ] 10.3 The checks of 5.1 on the merged tree (Windows twice and a `node:24` Linux container) — report:
+      `reports/2026-09-29-step-10-3-checks.md`
+- [ ] 10.4 The curl of 6.1 on the merged tree, plus `/admin/ai` and a failure of `/api/ask` answered in Spanish with no
+      server text — report: `reports/2026-09-29-step-10-4-curl.md`
+- [ ] 10.5 `CI=1 npm run test:e2e` whole and green, with the flame loop of decision 32 and the viewports 512x384 and
+      320x256 of decision 23; the captures of 7.1 shot again at 1440 and 375 px — report:
+      `reports/2026-09-29-step-10-5-e2e.md`
+- [ ] 10.6 Repeat 8.1 on the merged tree — report: `reports/2026-09-29-step-10-6-base-after.md`
+- [ ] 10.7 `DESIGN.md`, `docs/design-system.md` and the delivery `katalis-dev/tasks/entrega-community-14.md` with a
+      section "Ronda 14c": what was fixed, the decision for each of the 54 minors, and `## Issues` (Setup as ff-13) —
+      report: `reports/2026-09-29-step-10-7-docs.md`
