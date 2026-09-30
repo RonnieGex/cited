@@ -7,13 +7,15 @@ import { nonceOf, policyFor } from "./lib/headers/csp.ts";
 // policy of `/embed` is the one that decides which sites may frame the chat.
 //
 // The guard of the panel lives here too, and it answers before anything else: `/admin` and every page under it is a
-// `503` that names the variable it needs when the configuration of the first run is incomplete.
+// `503` when the configuration of the first run is incomplete. Only the page of whoever installs, `/admin` itself,
+// names the variable it needs; every other page reads the words of the owner, because the name is a diagnostic of the
+// installer and it is also written once in the log of the server (`lib/admin/guard.ts`).
 
 export function proxy(request: NextRequest): NextResponse {
   const pathname = request.nextUrl.pathname;
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    const problem = adminProblem(process.env);
+    const problem = adminProblem(process.env, { installerPage: pathname === "/admin" });
 
     if (problem !== null) {
       return new NextResponse(`${problem}\n`, {

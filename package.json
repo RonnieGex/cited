@@ -25,6 +25,7 @@
     "ingest": "node --env-file-if-exists=.env scripts/ingest.ts",
     "search": "node --env-file-if-exists=.env scripts/search.ts",
     "ask": "node --env-file-if-exists=.env scripts/ask.ts",
+    "store:state": "node --env-file-if-exists=.env scripts/store-state.ts",
     "audit:high": "npm audit --audit-level=high",
     "secrets:scan": "gitleaks git --redact --no-banner",
     "hooks:install": "node scripts/install-hooks.mjs",

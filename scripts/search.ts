@@ -1,5 +1,6 @@
-import { resolveEmbeddingsProvider } from "../lib/embeddings/providers.ts";
+import { embeddingsFrom } from "../lib/embeddings/providers.ts";
 import { hybridSearch } from "../lib/search/index.ts";
+import { resolveEmbeddings } from "../lib/settings/providers.ts";
 import { openStore } from "../lib/store/index.ts";
 import { prepareStorePath, storeLocation } from "../lib/store/path.ts";
 
@@ -13,7 +14,7 @@ async function main(): Promise<void> {
 
   const storePath = storeLocation(process.env);
   const store = await openStore(prepareStorePath(storePath));
-  const embeddings = resolveEmbeddingsProvider(process.env);
+  const embeddings = embeddingsFrom(await resolveEmbeddings({ environment: process.env, store }));
   const started = Date.now();
   const hits = await hybridSearch(question, { store, embeddings });
 

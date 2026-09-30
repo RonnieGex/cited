@@ -66,6 +66,7 @@ describe("the state of the store around the voice agent", () => {
     expect(before.tables).toEqual([
       "business",
       "conversations",
+      "document_index",
       "documents",
       "login_attempts",
       "model_calls",
@@ -76,6 +77,8 @@ describe("the state of the store around the voice agent", () => {
       "passages_fts_data",
       "passages_fts_docsize",
       "passages_fts_idx",
+      "provider_settings",
+      "provider_tests",
       "rate_limits",
       "voice_agent",
       "voice_minutes",

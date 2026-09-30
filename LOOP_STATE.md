@@ -1,188 +1,76 @@
 # LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: elevenlabs-voice-agent (OpenSpec)
-ROUND: the section 11 of `openspec/changes/elevenlabs-voice-agent/tasks.md`, amended by Fable after the adversarial
-review `tasks/revision-community-09b.md` (two Major)
-BRANCH: feature/elevenlabs-voice-agent
-BASE OF THE ROUND: e760f9d ("Check the cap before the configuration, and keep the notice of what is copied"), the
-contract amendment; the sections 0 to 10 are untouched
-HEAD AT THE START OF THE ROUND: e760f9d
-HEAD AT THE END OF THE ROUND: 7876988, plus the closing commit that carries this file, the report of the section and the
-marks of section 11
+CHANGE: provider-keys-in-panel (OpenSpec)
+ROUND: section 12 of the contract, tasks 12.1 to 12.4 — what the third review of Codex reproduced
+BRANCH: feature/provider-keys-in-panel
+BASE: c07640b (main when the change started, "Write the product context of Cited: the owner, the visitor, and what the
+design must honour"); the change starts at 71f08f0 ("Specify the keys in the panel: connect your AI without touching
+the server"). `main` has moved since (now `03101b6`, "Merge elevenlabs-voice-agent"); the base of this change stays
+`c07640b`
+HEAD AT THE START OF THE ROUND: 287539e ("Amend the keys contract after the third review: an unfinished installation
+names no variable, and the state reader fails on a missing store")
+HEAD AT THE END OF THE ROUND: the closing commit that carries this file, the report of section 12 and the four marks
 AGENT: deepseek-harness
 DATE: 2026-09-29
 
-## What the round delivered
+## Objective
 
-- **11.1**: the defect of the review is closed. `lib/voice/minutes.ts` exposes `capRefusal(limit)`, the rule of the cap
-  that needs no store, and `app/api/voice/signed-url/route.ts` evaluates it **before** it reads `ELEVENLABS_API_KEY`, so
-  a cap below the five minutes of one session answers `429` with `reason: "below-session"` whether or not the key and
-  the agent are configured. The battery of the review (`DAILY_VOICE_MINUTE_LIMIT=1..4` with the key empty), the case
-  of the missing agent and the `503` that must stay when the cap admits a session are tests in
-  `tests/voice-minute-cap.test.ts`; the new tests hand the route a virgin store path and assert that the store file was
-  never created. The "spent" half of the cap stays in the atomic reservation after the configuration, on purpose: an
-  unconfigured installation must not consume five minutes of the day on every `503`.
-- **11.2**: `public/voice/worklets/LICENSE-libsamplerate-js.md` is the `LICENSE.md` of
-  `@alexanderolsen/libsamplerate-js` 2.1.2 byte for byte (MIT plus the 2-clause BSD of the libsamplerate it bundles,
-  both in the single file the package publishes), and `LICENSE-elevenlabs-client.md` is the MIT `LICENSE` of
-  `@elevenlabs/client` 1.26.0, which covers the two processors copied next to it. `THIRD_PARTY_NOTICES.md` lists every
-  verbatim copy of a package the repository serves — the three worklets, their two license texts and the Outfit font
-  with its OFL — with its name, version, license, origin and the official sources, and `npm run worklets:voice` now
-  copies the five files. `tests/third-party-notices.test.ts` reads the installed packages and compares byte by byte.
-- **11.3**: 50 files and 448 tests green on Windows, 50 files with 446 green and 2 skipped in a `node:24` container
-  after `npm ci`, `typecheck`, `lint`, 29 browser tests green, gitleaks over 349 commits with no leak, OpenSpec 11 of 11
-  and `git diff --check main...HEAD` clean; the round 11 was appended to `tasks/entrega-community-09.md` with its
-  `## Issues`.
+Close the findings of `katalis-dev/tasks/revision-community-12c.md` (the third adversarial review of Codex, FAIL):
 
-## Evidence
+- **M-1 (Major):** the shared constructor of administrative errors (`lib/admin/respond.ts`) answered `503` with the
+  names of the missing variables in its JSON, and `app/admin/layout.tsx` printed `guarded.missing`, so `/admin/ai`,
+  `/admin/business`, `/admin/conversations` and `/admin/documents` could name a variable of the environment. The new
+  scenario "An installation that is not finished" of the requirement "The owner never reads a variable name in an
+  answer of the panel" forbids it: the route answers `503` with the code `panel_not_configured` or
+  `admin_password_too_short` and the words of the owner, the names go once to the server log (`console.error`) and stay
+  on "For the installer".
+- **M-2 (Major):** `npm run store:state -- <path>` treated a file that does not exist as a success (exit code 0). It
+  must exit with code 2 and write `store not found: <path>` to stderr, creating nothing, and an existing file must keep
+  its SHA-256.
+- **Minor:** every `[x]` of section 12 is marked in the same commit as the evidence it cites, the Linux container run
+  included, and the gitleaks table of the report lists every commit of the round up to the final HEAD.
 
-- The report of the round: `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-11-review-fixes.md`, one
-  section per task with the exact commands, the red before each fix, the commits and the output.
-- Every `[x]` of the section 11 carries its report inside the change; the red and the fix travel in separate small
-  commits (`c7250e4` and `e67a4e2` for the cap, `18b7dea` and `7876988` for the notices).
-- The delivery in Spanish: `tasks/entrega-community-09.md`, round 11.
-
-## The issues that stay open
-
-- **7.2 is still `[BLOCKED]`**: one real session against a real agent is Fable's task, and nothing of this round called
-  ElevenLabs or a model provider.
-- The "spent" half of the cap is still evaluated after the configuration, which is deliberate and recorded in the
-  report and in the delivery: making the whole cap first would need a read of the day before the key check.
-- On Windows the file of a just-closed store stays locked a moment and `fs.rmSync` does not retry that `EPERM`; the new
-  tests avoid opening a store at all, and the ones that do keep the tolerant cleanup they already had.
-- The vendored resampler weighs 2 MB, the price of not asking a CDN for it; it now travels with its two licenses.
-- The name and the path of the license file of each package are a resolve of `npm run worklets:voice`; a future version
-  that renames it fails the script loudly.
-- The minute cap is still a reservation of five minutes per session and not a measurement of the call.
-
----
-
-# Round 10 (closed)
-
-STATUS: DONE
-CHANGE: elevenlabs-voice-agent (OpenSpec)
-ROUND: the section 10 of `openspec/changes/elevenlabs-voice-agent/tasks.md`, amended by Fable after the adversarial
-review `tasks/revision-community-09.md` (three Major and one Minor)
-BRANCH: feature/elevenlabs-voice-agent
-BASE OF THE ROUND: 1119236 ("Serve the voice from our own origin, keep the cap whole, and record the store before and
-after"), the contract amendment; the sections 0 to 9 are untouched
-HEAD AT THE END OF THE ROUND: 0ca911c, plus the closing commit that carries this file
-AGENT: deepseek-harness
-DATE: 2026-09-29
-
-## What the round delivered
-
-- **10.1**: `scripts/store-state.ts` prints every table of a store and the row count of each one, and can read the
-  schema of another revision; the round ran it over the base `21ad3b9` (13 tables, neither `voice_minutes` nor
-  `voice_agent`) and over this branch (15 tables, the two of the voice empty before the flows and one row each after
-  them), and `tests/voice-store-state.test.ts` asserts both pictures.
-- **10.2**: the two processors of `@elevenlabs/client` 1.26.0 and the resampler of `@alexanderolsen/libsamplerate-js`
-  2.1.2 (MIT, exact `devDependency`) are served from `public/voice/worklets/`, refreshed by `npm run worklets:voice`,
-  and `components/voice/voice-session.ts` hands `startSession` their paths (`workletPaths`, `libsampleratePath`), which
-  is the route the README of the installed SDK documents for a strict policy. The jsDelivr fallback the review
-  reproduced is gone, and both a unit test and a browser test fail if it comes back.
-- **10.3**: the reservation of a session is one statement with the cap in the first insert too
-  (`SELECT … WHERE ? <= ?`), so a limit below five minutes allows no session and stores no minute; the route answers
-  `429` with `reason`, and the panel says so in English and in Spanish.
-- **10.4**: the policy keeps `connect-src 'self' wss://api.elevenlabs.io`, `worker-src 'self'` and no `media-src`, with
-  the reason of each directive written in `lib/headers/csp.ts` and the test demanding no third-party host at all.
-- **10.5**: 49 files and 438 tests green on Windows, 49 files with 436 green and 2 skipped in a `node:24` container
-  after `npm ci`, `typecheck`, `lint`, 29 browser tests green, gitleaks with no leak, OpenSpec 11 of 11 and
-  `git diff --check main...HEAD` clean; the round 10 was appended to `tasks/entrega-community-09.md` with its
-  `## Issues`.
-
-## Evidence
-
-- The report of the round: `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-10-review-fixes.md`, one
-  section per task with the exact commands, the red before each fix and the output.
-- Every `[x]` of the section 10 carries its report in the same commit as its mark.
-- The delivery in Spanish: `tasks/entrega-community-09.md`, round 10.
-
-## The issues that stay open
-
-- **7.2 is still `[BLOCKED]`**: one real session against a real agent is Fable's task, and nothing of this round called
-  ElevenLabs or a model provider.
-- One browser test of the suite (`e2e/widget.spec.ts:44`) failed once on its 5 s timeout during the first whole run of
-  the round and passed alone and in the next whole run with the same build: recorded as a flake under load, not as a
-  defect of this round.
-- The vendored resampler weighs 2 MB, the price of not asking a CDN for it; the alternative (generating it at build
-  time) is written in the report and in the delivery.
-- The lock file had to be regenerated inside `node:24` again, the trap the round 9 already recorded.
-- The minute cap is still a reservation of five minutes per session and not a measurement of the call.
-
----
-
-# Round 9 (closed)
-
-STATUS: DONE
-ROUND: the whole contract, tasks 0.1 to 9.2, with 7.2 left `[BLOCKED]` because it is Fable's
-BASE: 21ad3b9 (main, "Merge admin-panel-and-onboarding"), which already carries the panel and the public page
-HEAD AT THE START OF THE ROUND: d7a276e ("Specify the ElevenLabs voice agent, English first")
-HEAD AT THE END OF THE ROUND: 31f0db7, plus the closing commit that carries this file, the report of step 9.2 and the
-marks of section 9
+Tests first and red before each fix, reproducing what the review reproduced.
 
 ## What was delivered
 
-- **0.1 to 1.1**: the branch and its base confirmed (`21ad3b9`, contract `d7a276e`), `npm ci` with 626 packages and no
-  advisory, and the green battery of the base: 38 files, 348 tests.
-- **2.1 and 2.2**: every scenario of the spec as a red test, with the double of the ElevenLabs API
-  (`tests/fakes/elevenlabs-api.ts`) and the deterministic test SDK (`tests/fakes/elevenlabs-react.tsx`). Eight test
-  files red, and the seven browser tests red.
-- **3.1**: `lib/voice/` (config, the constant-time secret, the minutes, the one transport, the tool and the text the
-  agent speaks), `POST /api/voice/tool` and `GET /api/voice/signed-url`, plus two additive tables of the store
-  (`voice_minutes` and `voice_agent`) and their five methods.
-- **3.2**: `lib/voice/agent.ts` creates or updates the workspace secret, the webhook tool, the client tool
-  `mostrar_fuentes` and the agent, and stores the four ids; the second press sends `PATCH` and creates nothing. The
-  languages are the ones of the current documentation of ElevenLabs: the language of the business first, the other of
-  English and Spanish in `language_presets`, and the `language_detection` system tool. `components/admin/VoiceAgent.tsx`
-  is the one button, on the business screen, and the panel navigation was not touched.
-- **3.3**: the panel, the Orb and the source validator of Construye ported to `components/voice/` and
-  `components/ui/orb.tsx` with their MIT headers and their origin, the texture reproduced byte for byte by
-  `npm run texture:orb`, the microphone on `/` and `/embed`, and the guard of the test SDK with its two build orders.
-- **4.1**: the whole suite green, one existing test file amended (`tests/csp.test.ts`, the three directives of the
-  policy) and every adjustment of the new tests named with its reason.
-- **5.1**: 46 files and 429 tests green on Windows, the same suite green in a `node:24` container from a clean clone
-  (427 green and 2 skipped), `typecheck`, `lint`, `audit:high` with no advisory, gitleaks over 290 commits, OpenSpec
-  with 11 items, `git diff --check` clean, and the guard of the test SDK in both build orders. The lock file was
-  incomplete for Linux after the Windows install and was fixed and verified on both platforms.
-- **6.1**: eight verifications with `curl.exe` over `npm run start`: `401` without the Bearer and with a wrong one,
-  `200` with the answer of the fake model and its sources, the two turns of one conversation in the store, a refusal
-  with `sources: none`, `503` of the signed URL without the key, and no minute spent by an installation that cannot
-  open a session.
-- **7.1**: the whole browser suite green, 28 tests, with the texture of the Orb arriving on demand and axe at 0
-  violations, and the captures of the panel at 1440 and 375 px.
-- **9.1 and 9.2**: `docs/voice-agent.md`, the two READMEs with the voice row available and a real capture, the
-  graphics of the README moved with the row, five documents that claimed the voice was planned, and the delivery
-  `tasks/entrega-community-09.md`.
+- **12.1, the Major of the shared answer**: `lib/admin/guard.ts` writes the names of the missing variables to the log
+  of the server once per state (`console.error`, `writeOnce()`), keeps them for the two states in `OWNER_WORDS` and
+  hands them to `adminProblem()` only when the caller says `installerPage: true`, which `proxy.ts` does only for
+  `/admin`. `lib/admin/respond.ts` answers `503` with `panel_not_configured` or `admin_password_too_short` and the
+  words of the owner; `app/admin/layout.tsx` stops printing `guarded.missing` and also stops the panel in the
+  `short-password` state, which used to fall through to the pages, and links "For the installer". `cb5a558`,
+  `0effde0` (red), `2709134` (fix).
+- **12.2, the Major of the reader of the state**: `scripts/store-state.ts` writes `store not found: <path>` to stderr
+  and exits with code 2 when the file is not there, creating neither the file nor its folder; the reader of a store
+  that exists is unchanged (`node:sqlite`, `readOnly: true`). `33c443c` (red), `a978752` (fix).
+- **12.3 and 12.4**: every `[x]` of the section is marked in the commit that carries its evidence, gitleaks is
+  registered for every commit of the round, and the battery ran on Windows and inside a `node:24` Linux container over
+  a copy of the exact tree of the closing commit. The delivery and the state of the loop close with it.
 
 ## Evidence
 
-- One report per task inside the change:
-  `openspec/changes/elevenlabs-voice-agent/reports/2026-09-29-step-{0,1,2,3,4,5,6,7,8,9}-*.md`, each one with the
-  exact command, the commit it was verified against and the real output.
-- `npm test`: 46 files and 429 tests green on Windows (13.56 s); 46 files, 427 green and 2 skipped in a `node:24` Linux
-  container from a clean clone (v24.21.0).
-- `npm run test:e2e`: 28 tests green in one run with the two servers, the voice panel at 0 violations of axe, and the
-  build guard of the test SDK passed before the suite started.
-- `curl.exe`: the eight verifications of task 6.1, in `tasks/_community-09-step6-curl.log`.
-- The captures: `tasks/capturas-community-09/` and `docs/images/voice/panel.png`.
+- Report: `openspec/changes/provider-keys-in-panel/reports/2026-09-29-step-12-review-fixes.md`, with the exact command,
+  the commit and the output of every task, the red run of each Major in its own commit and the transcription of the
+  Windows battery and of the container.
+- The two reproductions of the review, now the other way around: every route of `/api/admin/*` answers the code and no
+  variable name in an installation that is not finished, every page of `/admin` other than "For the installer" says it
+  in the words of the owner, the names reach the log once, and `npm run store:state` over a path that does not exist
+  answers `store not found: <path>` with code 2 and creates nothing.
+- `npm test`: 56 files and 489 tests green on Windows; 56 files, 487 green and 2 skipped in the `node:24` Linux
+  container (v24.21.0) over the exact tree of the closing commit. The two skipped are the ones of
+  `tests/design-system.test.ts` that were already skipped on Linux.
+- `npm run typecheck`, `npm run lint`, `npm run test:e2e` (30 green), `npm audit --audit-level=high`,
+  `openspec validate --all --strict` (11 items), `git diff --check main...HEAD` and gitleaks per commit: green.
 
-## The issues that stayed open at the end of round 9
+## Hard rules respected
 
-- **7.2 is `[BLOCKED]`**: one real session against a real agent is Fable's task. No test, capture or script of that
-  round called ElevenLabs or a model provider.
-- The worklet of audio of the SDK loads from a `blob:`, which was why the policy gained `worker-src 'self' blob:` and
-  `media-src 'self' blob:`; whether it loads under that policy is what a real session proves. The review of Codex
-  reproduced that the resampler falls back to a CDN the policy blocks, and section 10 fixed it.
-- The cap of voice minutes is a reservation of five minutes per session and not a measurement of the call.
-- Turbopack keeps its scratch space in `.next/cache`, and a production build after an end-to-end one leaves the marker
-  of the test SDK there. The guard reads the emitted output and not the compiler cache, on purpose and in writing.
-- The board of the roadmap graphic is a little denser and 720 px high, the ceiling of decision 11, because the
-  available column grew from seven rows to eight.
-- The lock file needed a regeneration inside `node:24` because the Windows install pruned three optional packages of
-  other platforms; `npm ci` now works on both.
-- The parallel lane (`community-ins`, `feature/answer-feedback-and-insights`) also touches the chat, the panel
-  navigation and the README, so the merge of the two branches will need a hand on the README and the graphics.
-- `EMBEDDING_MODEL` and `EMBEDDING_API_KEY` stay in the template with no reader; the README now says so.
-- The change is not archived (that needs the explicit OK of Franc), nothing was pushed and nothing was deployed.
+- No `.env` file with secrets is opened (the repository has none: `Test-Path .env` is `False`); only the public
+  template `.env.example` may be edited, and this round does not need to touch it.
+- No push, no remote, no commit in `main`, no archive in this worktree, no deploy.
+- The worktrees `community`, `community-ui` and `community-preview` are not touched.
+- No test calls a real provider and none opens a real private network: every provider is a local HTTP double.
+- `MEMORY.md` is in no commit. No personal path in a versioned file. UTF-8 with LF in every file written.
+- The text of no task, of `design.md` or of the specs is edited: the only change in `tasks.md` is the box of each task
+  of section 12.

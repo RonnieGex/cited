@@ -20,17 +20,47 @@ export type AdminGuard =
 
 const mutations = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
+// The words of the owner for every answer and every page that is not "For the installer": the name of a variable of the
+// environment is a diagnostic of whoever installs, so it is written once in the log of the server and it stays on that
+// page. Everything else reads the sentence.
+export const OWNER_WORDS = {
+  unconfigured: "the panel cannot answer yet: whoever installs Cited has to finish the installation on the server",
+  shortPassword:
+    "the panel cannot answer yet: the password of the panel is too short, and whoever installs Cited has to set a longer one on the server",
+} as const;
+
+// One line per state, not one per request: the guard runs on every call of the panel and the log of a server that is
+// not configured yet does not need the same sentence a thousand times.
+const written = new Set<string>();
+
+function writeOnce(line: string): void {
+  if (written.has(line)) {
+    return;
+  }
+
+  written.add(line);
+  console.error(line);
+}
+
 export function missingAdminVariables(environment: AdminEnvironment): string[] {
   return adminConfig(environment).missing;
 }
 
 function blockOf(config: AdminConfig): AdminBlock | null {
   if (config.missing.length > 0) {
-    return { status: "unconfigured", missing: config.missing };
+    const block: AdminBlock = { status: "unconfigured", missing: config.missing };
+
+    writeOnce(`the panel is not configured: the environment of the server is missing ${block.missing.join(", ")}`);
+
+    return block;
   }
 
   if (config.shortPassword) {
-    return { status: "short-password", minimum: ADMIN_PASSWORD_MIN_LENGTH };
+    const block: AdminBlock = { status: "short-password", minimum: ADMIN_PASSWORD_MIN_LENGTH };
+
+    writeOnce(`the panel is not configured: ADMIN_PASSWORD has fewer than ${block.minimum} characters`);
+
+    return block;
   }
 
   return null;
@@ -40,18 +70,32 @@ export function adminBlock(environment: AdminEnvironment): AdminBlock | null {
   return blockOf(adminConfig(environment));
 }
 
-export function adminProblem(environment: AdminEnvironment): string | null {
+export type AdminProblemOptions = {
+  // Only the page "For the installer" (`/admin`) may name the variables it has to receive.
+  installerPage?: boolean;
+};
+
+export function adminProblem(
+  environment: AdminEnvironment,
+  options: AdminProblemOptions = {},
+): string | null {
   const block = adminBlock(environment);
 
   if (block === null) {
     return null;
   }
 
+  const installer = options.installerPage === true;
+
   if (block.status === "unconfigured") {
-    return `the panel needs ${block.missing.join(" and ")}: fill the variable in the environment of the server and start it again`;
+    return installer
+      ? `the panel needs ${block.missing.join(" and ")}: fill the variable in the environment of the server and start it again`
+      : OWNER_WORDS.unconfigured;
   }
 
-  return `ADMIN_PASSWORD has fewer than ${block.minimum} characters: choose a longer password in the environment of the server and start it again`;
+  return installer
+    ? `ADMIN_PASSWORD has fewer than ${block.minimum} characters: choose a longer password in the environment of the server and start it again`
+    : OWNER_WORDS.shortPassword;
 }
 
 function ownOrigins(request: Request): string[] {

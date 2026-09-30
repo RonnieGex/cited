@@ -1,3 +1,4 @@
+import { embeddingsProblem, type EmbeddingsResolution } from "../settings/providers.ts";
 import { createFakeEmbeddings } from "./fake.ts";
 import type { EmbeddingEnvironment, EmbeddingProvider, EmbeddingProviderName } from "./types.ts";
 import { DEFAULT_EMBEDDING_DIMENSIONS, EMBEDDING_PROVIDER_NAMES } from "./types.ts";
@@ -28,8 +29,13 @@ function dimensionsFrom(environment: EmbeddingEnvironment, fallback: number): nu
 
 type EmbeddingResponse = { data?: Array<{ embedding?: number[]; index?: number }> };
 
-async function post(url: string, body: unknown, headers: Record<string, string>): Promise<number[][]> {
-  const answer = await fetch(url, {
+async function post(
+  url: string,
+  body: unknown,
+  headers: Record<string, string>,
+  send: typeof fetch,
+): Promise<number[][]> {
+  const answer = await send(url, {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify(body),
@@ -50,23 +56,34 @@ async function post(url: string, body: unknown, headers: Record<string, string>)
   return vectors.map((entry) => entry.embedding ?? []);
 }
 
-function openAiCompatible(environment: EmbeddingEnvironment): EmbeddingProvider {
-  const baseUrl = required(environment, "EMBEDDINGS_BASE_URL", "openai").replace(/\/+$/, "");
-  const model = required(environment, "EMBEDDINGS_MODEL", "openai");
-  const apiKey = required(environment, "EMBEDDINGS_API_KEY", "openai");
-  const dimensions = dimensionsFrom(environment, DEFAULT_EMBEDDING_DIMENSIONS.openai);
-  const url = `${baseUrl}/embeddings`;
+export type EmbeddingsCredentials = {
+  baseUrl: string;
+  model: string;
+  key: string;
+  dimensions: number;
+  /** The transport of an address the owner wrote in the panel: it validates and pins every connection (task 11.2). */
+  fetch?: typeof fetch;
+};
+
+function openAiCompatible(input: EmbeddingsCredentials): EmbeddingProvider {
+  const url = `${input.baseUrl.replace(/\/+$/, "")}/embeddings`;
+  const send = input.fetch ?? fetch;
 
   const embed = async (texts: string[]): Promise<number[][]> => {
     if (texts.length === 0) {
       return [];
     }
 
-    return post(url, { model, input: texts }, { authorization: `Bearer ${apiKey}` });
+    return post(
+      url,
+      { model: input.model, input: texts },
+      input.key.length === 0 ? {} : { authorization: `Bearer ${input.key}` },
+      send,
+    );
   };
 
   return {
-    dimensions,
+    dimensions: input.dimensions,
     embed,
     async embedQuery(text: string): Promise<number[]> {
       const [vector] = await embed([text]);
@@ -78,24 +95,19 @@ function openAiCompatible(environment: EmbeddingEnvironment): EmbeddingProvider 
 
 type OllamaResponse = { embeddings?: number[][] };
 
-function ollama(environment: EmbeddingEnvironment): EmbeddingProvider {
-  const baseUrl = (environment["OLLAMA_BASE_URL"]?.trim() || "http://localhost:11434").replace(
-    /\/+$/,
-    "",
-  );
-  const model = required(environment, "EMBEDDINGS_MODEL", "ollama");
-  const dimensions = dimensionsFrom(environment, DEFAULT_EMBEDDING_DIMENSIONS.ollama);
-  const url = `${baseUrl}/api/embed`;
+function ollama(input: Omit<EmbeddingsCredentials, "key">): EmbeddingProvider {
+  const url = `${input.baseUrl.replace(/\/+$/, "")}/api/embed`;
+  const send = input.fetch ?? fetch;
 
   const embed = async (texts: string[]): Promise<number[][]> => {
     if (texts.length === 0) {
       return [];
     }
 
-    const answer = await fetch(url, {
+    const answer = await send(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ model, input: texts }),
+      body: JSON.stringify({ model: input.model, input: texts }),
       signal: AbortSignal.timeout(requestTimeoutMs),
     });
 
@@ -109,7 +121,7 @@ function ollama(environment: EmbeddingEnvironment): EmbeddingProvider {
   };
 
   return {
-    dimensions,
+    dimensions: input.dimensions,
     embed,
     async embedQuery(text: string): Promise<number[]> {
       const [vector] = await embed([text]);
@@ -119,6 +131,46 @@ function ollama(environment: EmbeddingEnvironment): EmbeddingProvider {
   };
 }
 
+// The one place that builds the embeddings of a resolved provider: the server environment or the panel, through
+// `resolveEmbeddings()`. `null` is keyword mode, which ranks with FTS5 alone and stores no vector; a configuration
+// that is missing or unreadable stops the caller with a message that names what is missing and never a value. When the
+// address came from the panel, `resolution.fetch` is the pinned transport of `lib/providers/pinned.ts`: every call
+// connects to the address the guard classified and never to a second resolution of the name.
+export function embeddingsFrom(resolution: EmbeddingsResolution): EmbeddingProvider | null {
+  if (resolution.mode === "keyword") {
+    return null;
+  }
+
+  const problem = embeddingsProblem(resolution);
+
+  if (resolution.mode === "none" || problem !== null) {
+    throw new Error(problem ?? "the embeddings provider is not configured");
+  }
+
+  if (resolution.provider === "fake") {
+    return createFakeEmbeddings();
+  }
+
+  if (resolution.provider === "ollama") {
+    return ollama({
+      baseUrl: resolution.baseUrl,
+      model: resolution.model,
+      dimensions: resolution.dimensions,
+      ...(resolution.fetch === undefined ? {} : { fetch: resolution.fetch }),
+    });
+  }
+
+  return openAiCompatible({
+    baseUrl: resolution.baseUrl,
+    model: resolution.model,
+    key: resolution.key,
+    dimensions: resolution.dimensions,
+    ...(resolution.fetch === undefined ? {} : { fetch: resolution.fetch }),
+  });
+}
+
+// The embeddings the installer configured in the environment of the server, for the read-only check of the page "For
+// the installer". The pipeline of the answers and of the ingestion reads `resolveEmbeddings()`.
 export function resolveEmbeddingsProvider(environment: EmbeddingEnvironment): EmbeddingProvider {
   const selected = environment["EMBEDDINGS_PROVIDER"]?.trim().toLowerCase() ?? "";
 
@@ -134,5 +186,18 @@ export function resolveEmbeddingsProvider(environment: EmbeddingEnvironment): Em
     return createFakeEmbeddings();
   }
 
-  return provider === "ollama" ? ollama(environment) : openAiCompatible(environment);
+  if (provider === "ollama") {
+    return ollama({
+      baseUrl: (environment["OLLAMA_BASE_URL"]?.trim() || "http://localhost:11434").replace(/\/+$/, ""),
+      model: required(environment, "EMBEDDINGS_MODEL", "ollama"),
+      dimensions: dimensionsFrom(environment, DEFAULT_EMBEDDING_DIMENSIONS.ollama),
+    });
+  }
+
+  return openAiCompatible({
+    baseUrl: required(environment, "EMBEDDINGS_BASE_URL", "openai"),
+    model: required(environment, "EMBEDDINGS_MODEL", "openai"),
+    key: required(environment, "EMBEDDINGS_API_KEY", "openai"),
+    dimensions: dimensionsFrom(environment, DEFAULT_EMBEDDING_DIMENSIONS.openai),
+  });
 }
