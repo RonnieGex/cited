@@ -516,21 +516,9 @@ const styles = `
   height: 260px;
 }
 .orb {
+  display: block;
   width: 100%;
   height: 100%;
-}
-.orb-ring {
-  stroke: var(--card-border);
-  stroke-width: 2;
-}
-.orb-wave {
-  fill: none;
-  stroke: ${tokens.ink};
-  stroke-width: 7;
-  stroke-linecap: round;
-}
-.orb-core {
-  fill: ${tokens.ink};
 }
 .voice-row {
   flex: 1;
@@ -1145,6 +1133,8 @@ const contents = new Map(
       PLANNED_ROWS: rowsOf("Planned"),
       TAGLINE: escapeHtml(banner.tagline),
       FLAME: dataUri(flame.dark),
+      // The real Orb of the panel, captured by `scripts/render-readme-orb.mjs`, not a drawing of one.
+      ORB: dataUri("docs/images/voice/orb.png"),
     }),
   ]),
 );

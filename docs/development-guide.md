@@ -66,6 +66,11 @@ EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm start -- --port 3200
 node scripts/render-voice-captures.mjs <the directory of the captures> [http://127.0.0.1:3200]
 ```
 
+The same build and server give the Orb of the voice teaser of the README: `node scripts/render-readme-orb.mjs`
+freezes the real Orb of the panel, recovers its alpha from a shot over black and one over white, and writes
+`docs/images/voice/orb.png` with its record; `node scripts/render-readme-graphics.mjs voice-teaser` then draws the
+teaser with it.
+
 ## 4. Ports
 
 | Port | Used by |

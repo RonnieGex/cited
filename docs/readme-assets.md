@@ -71,7 +71,7 @@ five dark variants once came out painted white.
 | `how-it-works-{dark,light}.png` | 1280 × 480 | the flow of an answer, written and out loud |
 | `demo-{dark,light}.png` | 1280 × 560 | the real run of the quick start, with the first result in lime |
 | `roadmap-{dark,light}.png` | 1280 × 720 | the status table as a board, `Next` on the planned column |
-| `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice: one click in the panel and ElevenLabs carries the voice |
+| `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice: the real Orb of the panel (`docs/images/voice/orb.png`, captured by `scripts/render-readme-orb.mjs`), one click in the panel and ElevenLabs carries the voice |
 
 The roadmap is the only graphic whose layout is a little denser than the page of the others (`.roadmap` of the render
 script): the change `elevenlabs-voice-agent` moved the voice row from the planned column to the available one, and

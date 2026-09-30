@@ -1,0 +1,17 @@
+{
+  "image": "docs/images/voice/orb.png",
+  "component": "components/ui/orb.tsx",
+  "origin": "Orb of ElevenLabs UI (MIT), as ported in this repository",
+  "colors": [
+    "#171717",
+    "#DDF469"
+  ],
+  "seed": 7,
+  "state": "talking",
+  "frames": 8,
+  "kept": 8,
+  "whiteShare": 0.1,
+  "capturedBy": "scripts/render-readme-orb.mjs",
+  "method": "each frame frozen by prefers-reduced-motion and shot over black and over white; alpha = 1 - (white - black)",
+  "size": 468
+}
