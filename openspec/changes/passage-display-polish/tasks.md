@@ -131,7 +131,7 @@ Context of `design.md`; the decisions there are closed.
 
 ## 12. Amendment 3 (decisions 18 to 21 of `design.md`)
 
-- [ ] 12.1 The golden fixture of decision 19, written from `86b250f` with the command named in the report, and its unit
+- [x] 12.1 The golden fixture of decision 19, written from `86b250f` with the command named in the report, and its unit
       test, red on `c2f5d2a` (it shows the passages of the documents without lists that changed)
 - [ ] 12.2 The chunker of decision 18 (golden test green, the list tests of the change still green)
 - [ ] 12.3 The lead fixture of decision 20, its passages printed with their `lead` in the report, the browser cases
