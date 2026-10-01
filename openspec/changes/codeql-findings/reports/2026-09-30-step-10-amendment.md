@@ -164,10 +164,12 @@ report of another change, it is not one of the reports of steps 1 to 9 that task
 ## The checks of the round (10.5)
 
 `node -v` is v24.11.0 on this machine, below the `>=24.15.0` that `package.json` declares and the reason of the
-`EBADENGINE` warning the review already recorded. Every command below ran with the Node 24 that `npx -y -p node@24`
-provides, v24.21.0, inside the declared range. The build and the browser suite ran in a clean disposable clone under
-`katalis-dev/community-codeql-amend-e2e`, which carries no `.env` at all and no commit of its own, never in the
-`<worktree>`, whose ignored `.env.local` was never opened.
+`EBADENGINE` warning the review already recorded. The suite, the build and the browser suite ran with the Node 24 that
+`npx -y -p node@24` provides, v24.21.0, inside the declared range. `npm run typecheck`, `npm run lint`,
+`npm run secrets:scan`, `npm run openspec:validate` and `npm run audit:high` ran with the npm of the machine under Node
+24.11.0, which is that warning and not a failure: all five answered what the table says. The build and the browser suite
+ran in a clean disposable clone under `katalis-dev/community-codeql-amend-e2e`, which carries no `.env` at all and no
+commit of its own, never in the `<worktree>`, whose ignored `.env.local` was never opened.
 
 | Command | Where | Result |
 |---|---|---|
