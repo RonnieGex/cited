@@ -1,57 +1,62 @@
 # LOOP_STATE · Cited
 
 STATUS: DONE
-CHANGE: guided-setup-and-knowledge (OpenSpec), section 13 only
-BRANCH: feature/guided-setup-and-knowledge
-BASE: 5929b64 (main when the change started)
-HEAD AT THE START OF THE ROUND: 4607048 ("Amend the contract of guided-setup-and-knowledge a fourth time: step 1 is
-whole, the AI and how to search")
-AGENT: DeepSeek (implementer), contract amended by Fable (decision 24)
+CHANGE: codeql-findings (OpenSpec)
+BRANCH: feature/codeql-findings
+BASE: 86b250f (origin/main when the change started)
+HEAD AT THE START OF THE ROUND: a12c835 ("Amend the contract of codeql-findings after the review: a bounded read")
+AGENT: DeepSeek (implementer), contract amended by Fable after the review of Codex
 DATE: 2026-09-30
 
 ## Objective
 
-Execute section 13 of `openspec/changes/guided-setup-and-knowledge/tasks.md` and nothing else: the fourth amendment
-after the real run with DeepSeek of `katalis-dev/tasks/entrega-community-13.md` and the review
-`katalis-dev/tasks/revision-community-13d.md`, with the design decision 24. Sections 0 to 12 were already marked and
-were not touched. Tests first, red before each fix, one real report per `[x]` inside the change, small commits, gitleaks
-on every commit, no push, no remote, no archive, no commit on `main`, no edit of the text of the tasks, of `design.md`
-or of the specs.
+Execute section 10 (tasks 10.1 to 10.5) of `openspec/changes/codeql-findings/tasks.md` and nothing else: the bounded
+read of `parseFile` (decision 5), the removal of markup cut before its `>` (decision 6) and the reports that name the
+commit of the code each one verified (decision 7). Tests first, red on `748c2d1` before each fix, one real report per
+`[x]` inside the change, small commits, gitleaks on every commit, no push, no remote, no archive, no commit on `main`,
+no edit of the text of the tasks, of `design.md` or of the specs. Sections 0 to 9 stay as they are, except the text of
+the reports that task 10.4 asks to correct. Task 10.6 is not part of this round.
 
 ## Progress
 
-- **13.1**: the red cases in `b6b6a5f` (unit suite: 7 failed | 56 passed of 63) and `0297080` (the browser case, with
-  the port of decision 17 in `playwright.config.ts` and `docs/testing.md`); the fix in `1954ed3` (step 1 is whole), the
-  byte of the contract in `c3199f1` and the owner guide in `237f066`; report
-  `reports/2026-09-30-step-13-1-step-one-whole.md`.
-- **13.2**: the checks of 10.3 and the E2E of 10.4 at the code of `1954ed3`; report
-  `reports/2026-09-30-step-13-2-checks.md`. The delivery `katalis-dev/tasks/entrega-community-13.md` carries the section
-  "Ronda 13e" with the only current table of results and its `## Issues` (this closing commit).
-
-Every box of section 13 is marked with its report inside the change, and every report names the commit it validates.
+- Reading of the contract done: `design.md` (Amendment 1, decisions 5 to 7), the two new scenarios of the delta of
+  `knowledge-search`, the section 10 of `tasks.md` and `katalis-dev/tasks/revision-codeql-findings.md`.
 
 ## Evidence
 
-- Windows, twice, at the code of `1954ed3`, with Node 24.21.0: 85 files and 1018 tests passed, 75.68 s and 76.47 s.
-- The `node:24` container over a clean clone, with its own `npm ci`: Node 24.21.0, 85 files, 1016 passed and the 2 cases
-  that only measure on Windows skipped, 135.05 s, exit 0.
-- `CI=1` browser suite over a second clean clone: 87 passed, 1.8 min, with the two walks timed by themselves (2.0 s in
-  English, 1.1 s in Spanish) and the new case "the chat set by the server" green in 2.8 s; `git status --short` empty
-  afterwards and the 14 captures of the run under `test-results/captures/`, which `.gitignore` excludes.
-- `git diff --check main...HEAD` clean, `eslint` 0 problems, `tsc --noEmit` 0 errors, `npm audit --audit-level=high`
-  0 vulnerabilities, gitleaks with no leak, `openspec validate --all --strict` 13 of 13.
-- The finding of the real run is closed: step 1 is verified only with an AI that can answer and the search chosen; with
-  the chat set by the server and no search chosen it asks for attention with the sentence of the decision and the two
-  doors, and the sample button of step 2 links back to step 1 instead of failing after the press.
+- Round open in `c13bcdc` (this file, `STATUS: RUNNING`).
+- Tests first in `c0f2a1b`: the four cases of the amendment in `tests/ingest.test.ts`, red against the code of
+  `748c2d1` — 3 failed and 26 passed of 29 (the markup cut before its `>`, the file that grows after it was measured —
+  read through `handle.readFile()`, handed to the parser, which answered a passage where the refusal belongs — and the
+  read that has to stop at the limit plus one byte, which read 5,120 of them).
+- The fix in `91c4946`: `parseFile` reads at most `limits.maxBytes + 1` bytes from the open handle with `handle.read` in
+  a loop, refuses with the bytes it read when the file grew and never calls the parser; `removeTags` takes a raw `<`
+  that is left with everything after it on its line, and the comment of the removal says what the expression does.
+- Green of 10.1 to 10.3 in `a080384`: 29 of 29 in `tests/ingest.test.ts` against the code of `91c4946`, with the three
+  boxes and their evidence in the same commit. Report
+  `openspec/changes/codeql-findings/reports/2026-09-30-step-10-amendment.md`.
+- 10.4 in `e48a658`: the five hashes outside the branch and the two placeholders of the reports of steps 1 to 9 are
+  replaced by the commit of the code each report verified and by the commit that carries it; the second run of the scan
+  printed no hash outside the branch.
+- 10.5: `npm run typecheck` 0 errors, `npm run lint` 0 problems, 85 files and 1028 tests passed in 76.97 s under Node
+  24.21.0 (`node -v` of the suite), `npm run build` compiled in 6.1 s with 30 of 30 static pages in a clean disposable
+  clone, `npm run audit:high` 0 vulnerabilities, `npm run secrets:scan` 564 commits with no leak,
+  `npm run openspec:validate` 14 of 14, and `CI=1 npm run test:e2e` 87 passed in 2.4 min in the same clone, which
+  carries no `.env` (the log says `.env not found`) and answered `git status --short` empty. Every output is in the
+  report of the step.
 
 ## Hard rules respected
 
-- No `.env` file with secrets was opened; no push, no remote, no commit on `main`, no archive; the worktrees
-  `community`, `community-ui`, `community-main` and `community-preview` were not touched.
-- No test called a real provider: the deterministic providers of the unit suite and the local double the browser walks
-  serve on port 3216.
-- No personal path in a versioned file (a report writes `<worktree>` or `<clean clone>`); UTF-8 with LF; `MEMORY.md` is
-  in no commit.
-- The build, the E2E and the container ran in disposable clean clones, never in the working tree, which has an ignored
-  `.env.local` that was never opened.
-- The real run with the key of DeepSeek is Fable's (decision 18): this round never looked for a key and never used one.
+- No `.env` file with secrets is opened; no push, no remote, no commit on `main`, no archive; the worktrees
+  `community`, `community-ins`, `community-ui`, `community-main`, `community-preview` and `community-2zc` are not
+  touched, and no process of another agent was stopped.
+- No test calls a real provider: the suite and the browser walk use the deterministic `fake` providers and the local
+  doubles of the fixtures.
+- No personal path in a versioned file (a report writes `<worktree>` or `<clean clone>`); UTF-8 with LF; `MEMORY.md`
+  is in no commit.
+- The build and the browser suite ran in the disposable clone `katalis-dev/community-codeql-amend-e2e`, never in the
+  `<worktree>`, whose ignored `.env.local` was never opened. The clone carried no commit of this round and was deleted
+  after the checks.
+- The ports 3100 and 3210 to 3217 were free before the browser suite ran; no process of another worktree was started or
+  stopped.
+- gitleaks ran on every commit through `.githooks/pre-commit` and once over the whole history: no leak.
