@@ -56,6 +56,20 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 ## 9. Close
 
 - [x] 9.1 `## Issues` at the end of the last report, with the decisions taken by the implementer
-- [ ] 9.2 Fable pushes the branch and opens the pull request
-- [ ] 9.3 Adversarial review by an independent session (`katalis-dev/tasks/revision-launch-hygiene.md`)
+- [x] 9.2 Fable pushes the branch and opens the pull request: pull request 10
+- [x] 9.3 Adversarial review by an independent session (`katalis-dev/tasks/revision-launch-hygiene.md`): FAIL, one
+      Major on the notice and six Minors; see section 10
 - [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
+
+## 10. Amendment 1 (decisions 5 to 9 of `design.md`)
+
+- [ ] 10.1 Tests first, red on `518a117`: the row-by-row guard of decision 8 (and a case that changes one version of
+      the lock in a temporary copy and expects the row named); the agent list read from the source and a case that adds
+      a fourth agent in a temporary tree, syncs and stays green; the sync refusing a junction whose real path is outside
+      the root, built in a temporary tree
+- [ ] 10.2 The section of decisions 5 to 7, with both addresses checked with `curl.exe` (status pasted)
+- [ ] 10.3 The sync of decision 9
+- [ ] 10.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+      `npm run openspec:validate`, in `reports/<date>-step-10-amendment.md` naming the commit verified, with the
+      `## Issues` of the round there and in the section "Ronda 2" of the delivery
+- [ ] 10.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-launch-hygiene-b.md`); Franc accepts

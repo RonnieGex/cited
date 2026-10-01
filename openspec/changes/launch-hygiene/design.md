@@ -49,3 +49,34 @@
   because PowerShell does not parse the `<` redirection of the shell the task writes for.
 - Vitest on Windows runs as `npx -y -p node@24 node node_modules/vitest/vitest.mjs run`, the form this round was given;
   both Node versions (the one of the PATH and the one of the run) are in every report.
+
+## Amendment 1 (Fable, after `katalis-dev/tasks/revision-launch-hygiene.md`: FAIL, one Major and six Minors)
+
+The independent review reproduced that the notice sends the reader to `node_modules/@img/sharp-libvips-<platform>/LICENSE`,
+a file none of the ten packages ships (checked with `npm pack --dry-run` and a real `npm ci`), and to the `LICENSE` of the
+binding, which is the Apache-2.0 text. The error was in Fable's delta ("inside each installed package"); the delta is
+rewritten and these decisions replace decision 4.
+
+5. **Rows from the lock.** The section lists, one row per package, every `@img/sharp-*` package of `package-lock.json`
+   whose `license` field names the LGPL (today the ten `@img/sharp-libvips-*` at 1.3.4, `LGPL-3.0-or-later`; the three
+   `@img/sharp-win32-*` at 0.35.5, `Apache-2.0 AND LGPL-3.0-or-later`; `@img/sharp-wasm32` at 0.35.5,
+   `Apache-2.0 AND LGPL-3.0-or-later AND MIT`), with the version and the license exactly as the lock records them. The
+   Apache-2.0-only bindings are not listed.
+6. **Where the texts are.** The section says those packages carry the name of their license (the `license` field and
+   the "Licensing" table of the README of sharp) and no license text, and links the LGPL-3.0
+   (`https://www.gnu.org/licenses/lgpl-3.0.html`) and the sharp-libvips project
+   (`https://github.com/lovell/sharp-libvips`), whose README lists the libraries each build bundles. The implementer
+   checks both addresses answer 200 with `curl.exe` and pastes the status in the report.
+7. **Facts of use, no legal conclusion.** The section says that three scripts of this repository import sharp to render
+   images of the README (`scripts/render-flame-variants.mjs`, `scripts/render-readme-graphics.mjs`,
+   `scripts/render-readme-orb.mjs`) and that `next` lists sharp as an optional dependency; it drops "no code links
+   against them".
+8. **A guard row by row.** `tests/third-party-notices.test.ts` reads the `@img/sharp-*` entries of `package-lock.json`,
+   selects those whose license names the LGPL, and requires one row per package whose version and license cells equal
+   the lock; it fails naming the package when a row is missing, extra or different. A row that is right elsewhere in
+   the prose does not count.
+9. **The copies of the agents follow the source, and the sync stays inside the root.** `tests/agent-copies.test.ts`
+   takes the list of agents from `ai-specs/agents/` itself, so adding an agent and running the sync keeps it green (the
+   three agents of `repository-bootstrap` stay required by that spec's own test). `scripts/sync-agents.mjs` resolves the
+   real path of every folder it deletes or writes and refuses one whose real path falls outside the root, so a junction
+   that points outside is never followed.
