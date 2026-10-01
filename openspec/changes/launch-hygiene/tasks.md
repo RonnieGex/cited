@@ -50,7 +50,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 8. Documentation
 
-- [ ] 8.1 `docs/development-guide.md` and `CONTRIBUTING.md`: agents are edited in `ai-specs/agents/` and copied with
+- [x] 8.1 `docs/development-guide.md` and `CONTRIBUTING.md`: agents are edited in `ai-specs/agents/` and copied with
       `npm run agents:sync`; the paragraph on the links rewritten
 
 ## 9. Close
