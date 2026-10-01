@@ -18,23 +18,23 @@ Context of `design.md`; the decisions there are closed.
 
 ## 2. Tests first (each one red on `86b250f` before its fix)
 
-- [ ] 2.1 Chunker (`tests/search.test.ts` or a new `tests/chunk-lists.test.ts`): the two Markdown scenarios and the DOCX
+- [x] 2.1 Chunker (`tests/search.test.ts` or a new `tests/chunk-lists.test.ts`): the two Markdown scenarios and the DOCX
       scenario of "A list keeps its lines in its passage"
-- [ ] 2.2 Search: the searches of `tests/search.test.ts` return the same passages in the same order as the baseline of
+- [x] 2.2 Search: the searches of `tests/search.test.ts` return the same passages in the same order as the baseline of
       1.2 (scenario "Search does not move"); a test whose expected text holds a list is updated to the new line breaks,
       never deleted
-- [ ] 2.3 Helpers (`tests/passage-view.test.ts`): the body without its heading (decision 1); `leadLength` on the
+- [x] 2.3 Helpers (`tests/passage-view.test.ts`): the body without its heading (decision 1); `leadLength` on the
       overlap the chunker makes, on a first passage (0), on a previous passage missing (0), and the 120-character bound
       (decision 4)
-- [ ] 2.4 Answering (`tests/answer.test.ts`): each citation carries `lead`, `0` for the first passage of a section and the
+- [x] 2.4 Answering (`tests/answer.test.ts`): each citation carries `lead`, `0` for the first passage of a section and the
       length of the repeated words for a passage that continues the one before it (both scenarios of "A citation says
       where its own words start")
-- [ ] 2.5 Views (`tests/chat.test.tsx`, `tests/setup-ui.test.tsx`): the heading shown once; the `Precios` list as a list
+- [x] 2.5 Views (`tests/chat.test.tsx`, `tests/setup-ui.test.tsx`): the heading shown once; the `Precios` list as a list
       of five items; the lead outside the highlighter; in Try it, the mark beside the cited passage reads the citation's
       `n` (`1`), never the position; the document page shows no citation mark and labels its first passage 1
-- [ ] 2.6 Suggestions (`tests/setup-questions.test.ts`): the Spanish and the English scenarios of "Suggestions speak the
+- [x] 2.6 Suggestions (`tests/setup-questions.test.ts`): the Spanish and the English scenarios of "Suggestions speak the
       language of the panel", with the three sample documents loaded
-- [ ] 2.7 Copy: a test that fails while `alta guiada` or `de la alta` appears in `lib/i18n/admin.ts`, and the Spanish
+- [x] 2.7 Copy: a test that fails while `alta guiada` or `de la alta` appears in `lib/i18n/admin.ts`, and the Spanish
       string of the reopen link reads "Abrir la configuración guiada otra vez"
 
 ## 3. Implementation (decisions 1 to 8 of `design.md`, in the order the tests demand)

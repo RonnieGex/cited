@@ -479,6 +479,119 @@ describe("the try lane", () => {
     expect(screen.getByRole("button", { name: english.thisIsRight })).toBeInTheDocument();
   });
 
+  it("shows the heading of the cited passage once and its list as a list of five items", async () => {
+    const listCitation = {
+      n: 1,
+      document: "cafe-la-horquilla.md",
+      heading: "Precios",
+      position: 2,
+      excerpt:
+        "Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.",
+      lead: 0,
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            status: "answered",
+            answer: "La afinación cuesta 380 pesos [1].",
+            citations: [listCitation],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    render(
+      <TryItPanel
+        documents={[
+          {
+            name: "cafe-la-horquilla.md",
+            passages: [
+              { id: 3, name: "cafe-la-horquilla.md", position: 2, heading: "Precios", text: listCitation.excerpt },
+            ],
+          },
+        ]}
+        lang="es"
+        strings={english}
+        suggestions={["¿Cuánto cuesta Precios?"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "¿Cuánto cuesta Precios?" }));
+
+    await waitFor(() => expect(screen.getByText(/380 pesos/)).toBeInTheDocument());
+
+    // The heading of the passage is the heading of its section, and the list is a list: the text of the passage never
+    // repeats the heading and never joins the items into one paragraph (decisions 1 and 3).
+    expect(screen.getAllByText("Precios")).toHaveLength(1);
+    expect(screen.queryByText(/^Precios - Espresso/)).toBeNull();
+
+    const open = screen.getByText("Espresso: 35 pesos.").closest("li") as HTMLElement;
+    const items = within(open).getAllByRole("listitem");
+
+    expect(items).toHaveLength(5);
+    expect(items[0]?.textContent).toBe("Espresso: 35 pesos.");
+    expect(items[4]?.textContent).toBe("Cambio de cámara: 120 pesos.");
+  });
+
+  it("shows the citation's number beside the cited passage, never its position", async () => {
+    const laterCitation = {
+      n: 2,
+      document: "cafe-la-horquilla.md",
+      heading: "Políticas",
+      position: 3,
+      excerpt: "Políticas Aceptamos efectivo y tarjeta.",
+      lead: "Políticas ".length,
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({ status: "answered", answer: "Aceptamos efectivo [2].", citations: [laterCitation] }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    const { container } = render(
+      <TryItPanel
+        documents={[
+          {
+            name: "cafe-la-horquilla.md",
+            passages: [
+              {
+                id: 1,
+                name: "cafe-la-horquilla.md",
+                position: 2,
+                heading: "Precios",
+                text: "Precios - Espresso: 35 pesos.",
+              },
+              { id: 2, name: "cafe-la-horquilla.md", position: 3, heading: "Políticas", text: laterCitation.excerpt },
+            ],
+          },
+        ]}
+        lang="en"
+        strings={english}
+        suggestions={[]}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(english.question.label), { target: { value: "How do I pay?" } });
+    fireEvent.click(screen.getByRole("button", { name: english.question.submit }));
+
+    await waitFor(() => expect(container.querySelector('[data-citation-passage="open"]')).not.toBeNull());
+
+    const open = container.querySelector('[data-citation-passage="open"]') as HTMLElement;
+
+    expect(open).toHaveTextContent("Aceptamos efectivo y tarjeta.");
+    expect(open.querySelector('[data-brand="citation-mark"]')?.textContent).toBe("2");
+    expect(within(open).getByText("Passage 3", { selector: ".sr-only" })).toBeInTheDocument();
+  });
+
   it("offers the suggested questions as buttons and never calls a model to build them", () => {
     const fetched = vi.fn();
 
@@ -678,6 +791,39 @@ describe("the page of a document", () => {
   const listed = [
     { id: 1, name: "cafe-la-horquilla.md", position: 1, heading: "Horario", text: "Martes a viernes: 8:00 a 19:00." },
   ];
+
+  it("groups the passages under their headings, with the cited one in the highlighter", () => {
+    render(<DocumentPanel document={summary} highlight={1} lang="en" passages={listed} strings={english} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Horario" })).toBeInTheDocument();
+    expect(screen.getByText("Martes a viernes: 8:00 a 19:00.")).toBeInTheDocument();
+    expect(document.querySelector('[data-document-passage="open"]')).not.toBeNull();
+  });
+
+  it("shows no citation mark, labels the first passage 1 and shows the heading once", () => {
+    const list = [
+      {
+        id: 3,
+        name: "cafe-la-horquilla.md",
+        position: 2,
+        heading: "Precios",
+        text:
+          "Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.",
+      },
+    ];
+
+    render(<DocumentPanel document={summary} lang="es" passages={list} strings={english} />);
+
+    // The page shows passages without an answer: no citation mark anywhere, and the labels count passages from 1
+    // (decision 6 of `design.md`).
+    expect(document.querySelectorAll('[data-brand="citation-mark"]')).toHaveLength(0);
+    expect(screen.getByText("Passage 1", { selector: ".sr-only" })).toBeInTheDocument();
+    expect(screen.getByText("Passage 2", { selector: ".sr-only" })).toBeInTheDocument();
+    expect(screen.queryByText("Passage 0", { selector: ".sr-only" })).toBeNull();
+    // The heading of the passage is the heading of its section: the text never repeats it.
+    expect(screen.getAllByText("Precios")).toHaveLength(1);
+    expect(screen.queryByText(/^Precios - Espresso/)).toBeNull();
+  });
 
   it("groups the passages under their headings, with the cited one in the highlighter", () => {
     render(<DocumentPanel document={summary} highlight={1} lang="en" passages={listed} strings={english} />);
