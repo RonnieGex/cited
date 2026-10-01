@@ -80,13 +80,13 @@ Context of `design.md`; the decisions there are closed.
 
 ## 8. Documentation
 
-- [ ] 8.1 `docs/` and the two READMEs: the sample outputs of the search in `README.md:170-188` and
+- [x] 8.1 `docs/` and the two READMEs: the sample outputs of the search in `README.md:170-188` and
       `README.es.md:172-188` (and `docs/images/readme-graphics.json:230` if it carries them) follow the new passage text;
       the API documentation names `lead`; the owner's guide uses "configuración guiada"
 
 ## 9. Close
 
-- [ ] 9.1 `## Issues` at the end of the last report (BROKEN, RISK, NOT DONE, UNKNOWN), with the decisions taken by the
+- [x] 9.1 `## Issues` at the end of the last report (BROKEN, RISK, NOT DONE, UNKNOWN), with the decisions taken by the
       implementer and the passages of existing installations that keep their old text until their file is uploaded
       again
 - [ ] 9.2 Fable pushes the branch and opens the pull request; the checks of the pipeline are recorded in the report
