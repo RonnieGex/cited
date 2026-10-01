@@ -25,7 +25,9 @@ and the text of the tasks, of `design.md` and of the specs is not edited.
   sharp-libvips address answers 200 with `curl.exe`; `https://www.gnu.org/licenses/lgpl-3.0.html` could not be checked
   from this machine (its network cuts the TLS handshake, `curl` exit 35), written in the report as an UNKNOWN; report
   `reports/2026-09-30-step-10-2-notice.md`, box in this commit.
-- **10.3**: pending.
+- **10.3**: `scripts/sync-agents.mjs` resolves the real path of every folder it deletes or writes and refuses one that
+  falls outside the root before touching it, in `191343f`; the junction case is green and the eight cases of
+  `tests/agent-copies.test.ts` pass; report `reports/2026-09-30-step-10-3-sync.md`, box in this commit.
 - **10.4**: pending.
 
 ## Evidence

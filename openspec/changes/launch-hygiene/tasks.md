@@ -68,7 +68,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
       a fourth agent in a temporary tree, syncs and stays green; the sync refusing a junction whose real path is outside
       the root, built in a temporary tree
 - [x] 10.2 The section of decisions 5 to 7, with both addresses checked with `curl.exe` (status pasted)
-- [ ] 10.3 The sync of decision 9
+- [x] 10.3 The sync of decision 9
 - [ ] 10.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate`, in `reports/<date>-step-10-amendment.md` naming the commit verified, with the
       `## Issues` of the round there and in the section "Ronda 2" of the delivery
