@@ -7,6 +7,7 @@ import { Button, Panel, focusRing } from "@/components/ui";
 import { documentSections } from "@/lib/admin/document-sections";
 import type { DocumentSummary } from "@/lib/admin/documents";
 import type { AdminStrings } from "@/lib/i18n/admin";
+import { leadLength } from "@/lib/answer/lead";
 import type { Lang } from "@/lib/settings/business";
 import type { StoredPassage } from "@/lib/store/types";
 
@@ -18,8 +19,9 @@ import type { StoredPassage } from "@/lib/store/types";
 // so, and the request leaves when the window closes. The timer lives outside the component so that walking to another
 // page of the panel does not cancel the removal the owner asked for.
 //
-// The page is also where a citation of Try it lands when the owner wants the whole document, so the passage a citation
-// opened is the one the page highlights.
+// The page is also where a citation of Try it lands when the owner wants the whole document, so the address names the
+// passage a citation opened (`?highlight=`) and that one is the passage the page paints with the highlighter, with its
+// lead outside it (decision 11 of the amendment to `passage-display-polish`).
 
 const UNDO_MS = 6000;
 
@@ -62,6 +64,11 @@ export function DocumentPanel({ strings, lang, document, passages, highlight = n
   const [message, setMessage] = useState<string | null>(null);
   const mounted = useRef(true);
   const sections = documentSections(passages);
+  // Decision 11 of the amendment: the page computes the lead of every passage from the passage before it on the page,
+  // so the words the chunker repeated from it are read as context and the highlighter starts at the first own word.
+  const leads = new Map<number, number>(
+    passages.map((passage, index) => [passage.id, leadLength(passages[index - 1]?.text, passage.text)]),
+  );
 
   useEffect(() => {
     return () => {
@@ -124,6 +131,7 @@ export function DocumentPanel({ strings, lang, document, passages, highlight = n
                       className="text-[16px] leading-[1.6] text-ink"
                       heading={passage.heading}
                       highlighted={passage.position === highlight}
+                      lead={leads.get(passage.id) ?? 0}
                       showHeading={false}
                       text={passage.text}
                     />

@@ -9,7 +9,6 @@ import { Highlight } from "@/components/brand";
 
 const listItem = /^([-*]|\d+\.)\s+/;
 const orderedItem = /^\d+\.\s+/;
-const itemStart = /(?=\s[-*]\s+\S)|(?=\s\d+\.\s+\S)/g;
 
 /**
  * The text of a passage without its heading at the start, when the text starts with the heading followed by
@@ -38,13 +37,12 @@ type Line =
 
 /**
  * The lines of the body, without the empty ones. A passage of this change carries one line per item, so its line breaks
- * are the lines. A passage stored before it holds its list flattened into one paragraph joined with a space: there the
- * start of every item is a line of its own as well, and the view shows a list the old passages carry too.
+ * are its lines and a body with no line break is one single line, whatever it holds (decision 12): no dash and no number
+ * in prose turns into a list.
  */
 function lines(body: string): Line[] {
-  const parts = body.includes("\n") ? body.split("\n") : body.split(itemStart);
-
-  return parts
+  return body
+    .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .map((line): Line =>
@@ -120,7 +118,7 @@ export function PassageBody({
   );
 }
 
-/** The lines as paragraphs and lists: consecutive items become one list with one item per line. */
+/** The lines as paragraphs and lists: consecutive items become one list with one item per line, the first one included. */
 function LinesBody({
   drawn,
   paint,
@@ -131,9 +129,8 @@ function LinesBody({
   className: string;
 }) {
   const content: ReactNode[] = [];
-  let items: string[] = [];
+  let items: Array<{ text: string; lead: boolean }> = [];
   let ordered = false;
-  let carriesLead = true;
 
   const closeList = (): void => {
     if (items.length === 0) {
@@ -142,7 +139,7 @@ function LinesBody({
 
     const entries = items.map((item, index) => (
       <li data-passage="item" key={`item-${index}`}>
-        {paint(item, false)}
+        {paint(item.text, item.lead)}
       </li>
     ));
 
@@ -162,9 +159,9 @@ function LinesBody({
   };
 
   drawn.forEach((line, index) => {
-    const lead = carriesLead;
-
-    carriesLead = false;
+    // The lead belongs to the first line of the body, whatever it is: a paragraph paints it inside itself and an item
+    // paints it inside its own list, so a list whose first item opens the body never splits in two (decision 10).
+    const lead = index === 0;
 
     if (line.kind === "item") {
       if (items.length > 0 && ordered !== line.ordered) {
@@ -172,18 +169,7 @@ function LinesBody({
       }
 
       ordered = line.ordered;
-      items.push(line.text);
-
-      // The first line of the body opens the list with the lead of the passage in its own item, and the items that
-      // follow it are the rest of that same list.
-      if (lead) {
-        content.push(
-          <ul className={className} data-passage="list-open" key={`lead-${index}`}>
-            <li data-passage="item">{paint(line.text, true)}</li>
-          </ul>,
-        );
-        items = [];
-      }
+      items.push({ text: line.text, lead });
 
       return;
     }

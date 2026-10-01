@@ -7,9 +7,10 @@ import type { Citation } from "@/lib/answer/types";
 // `openspec/changes/brand-identity-ui/design.md`: the excerpt sits in the highlighter, which sweeps in once, and the
 // note enters beside its answer.
 //
-// Decisions 1, 3, 4 and 5 of `openspec/changes/passage-display-polish/design.md`: the passage reads as its document
-// says it — the heading once above it, its lists as lists, the words it repeats from the passage before it in the
-// muted colour outside the highlighter, and the highlight painted line by line.
+// Decisions 1, 3, 4 and 5 of `openspec/changes/passage-display-polish/design.md` and decision 9 of its Amendment 1: the
+// passage reads as its document says it — its lists as lists, the words it repeats from the passage before it in the
+// muted colour outside the highlighter, and the highlight painted line by line. The heading of the passage is shown
+// exactly once, on the section line of the panel, never above the passage nor at the start of its text.
 
 export type CitationPanelProps = {
   citation: Citation;
@@ -33,6 +34,7 @@ export function CitationPanel({ citation, panelId, labels, onClose }: CitationPa
           heading={citation.heading}
           highlighted
           lead={citation.lead}
+          showHeading={false}
           text={citation.excerpt}
         />
       </div>
@@ -46,7 +48,10 @@ export function CitationPanel({ citation, panelId, labels, onClose }: CitationPa
             <dt className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2">
               {labels.heading}
             </dt>
-            <dd className="break-words text-ink">{citation.heading}</dd>
+            {/* The section line of the panel is the one place the heading of the passage is read (decision 9). */}
+            <dd className="break-words text-ink" data-passage="heading">
+              {citation.heading}
+            </dd>
           </>
         )}
       </dl>

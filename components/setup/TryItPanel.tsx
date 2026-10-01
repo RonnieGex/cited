@@ -7,6 +7,7 @@ import { Button, Input, Panel } from "@/components/ui";
 import { askCited, type AskResult } from "@/lib/chat/client";
 import { documentSections } from "@/lib/admin/document-sections";
 import type { AdminStrings } from "@/lib/i18n/admin";
+import type { Citation } from "@/lib/answer/types";
 import type { Lang } from "@/lib/settings/business";
 import type { StoredPassage } from "@/lib/store/types";
 import { Markdown } from "@/components/chat/Markdown";
@@ -41,8 +42,9 @@ function Passage({
   lang,
 }: {
   passage: StoredPassage;
-  /** The citation of this passage in the answer, when the answer cited it: the mark reads its number. */
-  citation: number | null;
+  /** The citation of this passage in the answer, when the answer cited it: the mark reads its number and the view
+   *  paints its `lead` (decision 11 of the amendment). */
+  citation: Citation | null;
   /** The place of the passage in the document, counted from 1, for the reader of a screen. */
   label: number;
   lang: Lang;
@@ -55,12 +57,13 @@ function Passage({
       className={`border-t border-rule py-4 ${open ? "scroll-mt-6" : ""}`}
     >
       <span className="flex items-baseline gap-3">
-        {open ? <CitationMark n={citation} state="open" /> : null}
+        {open ? <CitationMark n={citation.n} state="open" /> : null}
         <span className="min-w-0 flex-1">
           <PassageBody
             className="text-[16px] leading-[1.6] text-ink"
             heading={passage.heading}
             highlighted={open}
+            lead={citation?.lead ?? 0}
             showHeading={false}
             text={passage.text}
           />
@@ -83,7 +86,8 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
   const document = opened === null ? null : (documents.find((one) => one.name === opened.document) ?? null);
   // Decision 6 of `passage-display-polish`: the mark beside the passage the answer cited reads that citation's number
   // (`n`) and never the position of the passage in its document. A passage no answer cited shows no mark at all.
-  const cited = new Map<number, number>();
+  // Decision 11 of its Amendment 1: the same citation gives the view its `lead`.
+  const cited = new Map<number, Citation>();
 
   if (result?.status === "answered" && document !== null) {
     for (const source of result.citations) {
@@ -94,7 +98,7 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
       const passage = document.passages.find((one) => one.position === source.position);
 
       if (passage !== undefined) {
-        cited.set(passage.position, source.n);
+        cited.set(passage.position, source);
       }
     }
   }
@@ -288,8 +292,7 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
                       label={document.passages.indexOf(passage) + 1}
                       lang={lang}
                       passage={passage}
-                    />
-                  ))}
+                    />                  ))}
                 </ul>
               </div>
             ))}
