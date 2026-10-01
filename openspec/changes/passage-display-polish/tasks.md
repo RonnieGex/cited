@@ -57,14 +57,14 @@ Context of `design.md`; the decisions there are closed.
 
 ## 5. Run the tests and the checks
 
-- [ ] 5.1 `npm run typecheck`, `npm run lint`, `npm test` (counts and runtime), `npm run build`, `npm run audit:high`,
+- [x] 5.1 `npm run typecheck`, `npm run lint`, `npm test` (counts and runtime), `npm run build`, `npm run audit:high`,
       `npm run secrets:scan`, `npm run openspec:validate`, each with its real output in `reports/<date>-step-5-checks.md`
-- [ ] 5.2 The passages of the sample corpus after the change, in the same form as 1.2: only the passages with a list
+- [x] 5.2 The passages of the sample corpus after the change, in the same form as 1.2: only the passages with a list
       change, and only by their line breaks
 
 ## 6. Manual verification
 
-- [ ] 6.1 From a clean disposable clone with a test `.env` and the deterministic providers (never the `.env.local` of a
+- [x] 6.1 From a clean disposable clone with a test `.env` and the deterministic providers (never the `.env.local` of a
       worktree): `curl.exe` `POST /api/ask` in Spanish with a question about the prices and with one about the café;
       paste the responses, with `lead` on each citation, in `reports/<date>-step-6-curl.md`
 
