@@ -55,7 +55,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 9. Close
 
-- [ ] 9.1 `## Issues` at the end of the last report, with the decisions taken by the implementer
+- [x] 9.1 `## Issues` at the end of the last report, with the decisions taken by the implementer
 - [ ] 9.2 Fable pushes the branch and opens the pull request
 - [ ] 9.3 Adversarial review by an independent session (`katalis-dev/tasks/revision-launch-hygiene.md`)
 - [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
