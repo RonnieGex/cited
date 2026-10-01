@@ -22,6 +22,7 @@
     "verify:test-sdk": "node scripts/verify-no-test-sdk.mjs --expect-test-sdk",
     "texture:orb": "node scripts/generate-orb-texture.mjs",
     "worklets:voice": "node scripts/copy-voice-worklets.mjs",
+    "agents:sync": "node scripts/sync-agents.mjs",
     "ingest": "node --env-file-if-exists=.env scripts/ingest.ts",
     "search": "node --env-file-if-exists=.env scripts/search.ts",
     "ask": "node --env-file-if-exists=.env scripts/ask.ts",
