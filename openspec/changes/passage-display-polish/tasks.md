@@ -109,7 +109,7 @@ Context of `design.md`; the decisions there are closed.
       document page with the highlighted passage, in Spanish and in English, at 1440 px and at 375 px, taken with
       `prefers-reduced-motion: reduce` so the highlighter is finished; the captures of the public page and the widget
       taken again the same way
-- [ ] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+- [x] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate` and `npm run test:e2e`, with their output in `reports/<date>-step-10-amendment.md`
       naming the commit of the code each one verified, and the `## Issues` of the round there and in the section
       "Ronda 2" of the delivery
