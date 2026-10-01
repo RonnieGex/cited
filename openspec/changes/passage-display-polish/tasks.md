@@ -97,11 +97,11 @@ Context of `design.md`; the decisions there are closed.
 
 ## 10. Amendment 1 (decisions 9 to 14 of `design.md`)
 
-- [ ] 10.1 Tests first, red on `f1ca9df`, in the unit suite and in `e2e/passage-display.spec.ts`: the heading text
+- [x] 10.1 Tests first, red on `f1ca9df`, in the unit suite and in `e2e/passage-display.spec.ts`: the heading text
       exactly once in the citation panel (public page and widget), in Try it and on the document page; `Precios` as one
       list with five children; in Try it and on the document page the lead node present and the highlighter starting
       after it (decision 14). `tests/chat.test.tsx:116` (`toHaveLength(2)`) is corrected to the spec
-- [ ] 10.2 Test first, red on `f1ca9df`: a body with no line break that holds " - " renders as one paragraph
+- [x] 10.2 Test first, red on `f1ca9df`: a body with no line break that holds " - " renders as one paragraph
       (decision 12)
 - [ ] 10.3 The heading only on the section line of the citation panel (decision 9), one list (decision 10), the lead
       in Try it and on the document page (decision 11), no list from a body without line breaks (decision 12)
