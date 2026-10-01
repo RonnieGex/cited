@@ -136,7 +136,7 @@ Context of `design.md`; the decisions there are closed.
 - [x] 12.2 The chunker of decision 18 (golden test green, the list tests of the change still green)
 - [x] 12.3 The lead fixture of decision 20, its passages printed with their `lead` in the report, the browser cases
       green and the mutant `lead={0}` red again
-- [ ] 12.4 The wording of decision 21 in `design.md`'s Context is Fable's; the implementer corrects `docs/answering.md`
+- [x] 12.4 The wording of decision 21 in `design.md`'s Context is Fable's; the implementer corrects `docs/answering.md`
       and the comments of the code
 - [ ] 12.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e`, in
       `reports/<date>-step-12-amendment.md` naming the commit verified, with the `## Issues` of the round there and in
