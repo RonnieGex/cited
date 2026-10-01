@@ -31,7 +31,12 @@ and 9.4 are not part of this round.
   28 passed of 32 in `tests/ingest.test.ts` and `tests/admin-session.test.ts`, and the green after the fixes is 32
   passed of 32; the whole suite is 85 files and 1024 passed in 78.79 s. Report
   `openspec/changes/codeql-findings/reports/2026-09-30-step-2-tests-first.md`.
-- Pending: steps 4 to 9.1.
+- Steps 4.1 and 5.1: no existing test weakened or deleted (the diff of the two test files removes only their import
+  lines), and the seven checks green at the code of `93dc0ca` — typecheck 0 errors, lint 0 problems, 85 files and 1024
+  tests passed in 77.94 s, build compiled in 9.0 s with 30 of 30 static pages, 0 vulnerabilities, gitleaks with no
+  leak over 546 commits, openspec 14 of 14. Reports
+  `reports/2026-09-30-step-4-existing-tests.md` and `reports/2026-09-30-step-5-checks.md`.
+- Pending: steps 6 to 9.1.
 
 ## Hard rules respected
 

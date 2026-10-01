@@ -32,12 +32,12 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 ## 4. Existing tests
 
-- [ ] 4.1 Review `tests/ingest.test.ts`, `tests/admin-session.test.ts` and the tests of `app/api/admin/login` for what
+- [x] 4.1 Review `tests/ingest.test.ts`, `tests/admin-session.test.ts` and the tests of `app/api/admin/login` for what
       the change touches; none is weakened or deleted
 
 ## 5. Run the tests and the checks
 
-- [ ] 5.1 `npm run typecheck`, `npm run lint`, `npm test` (counts and runtime), `npm run build`, `npm run audit:high`,
+- [x] 5.1 `npm run typecheck`, `npm run lint`, `npm test` (counts and runtime), `npm run build`, `npm run audit:high`,
       `npm run secrets:scan`, `npm run openspec:validate`, each with its real output in `reports/<date>-step-5-checks.md`
 
 ## 6. Manual verification
