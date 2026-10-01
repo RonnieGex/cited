@@ -130,9 +130,13 @@ const lineRules: Array<[RegExp, string]> = [
 
 const anyTag = /<[^>]+>/g;
 
-// The removal repeats until the text no longer changes: one pass takes `<<b>i>` down to `<i>` and the next one takes
-// what is left, so no tag survives (the alert `js/incomplete-multi-character-sanitization`).
+// The removal repeats until the text no longer changes: one pass takes `<<b>i>` down to `i>` and the next one finds
+// nothing left, so no tag survives (the alert `js/incomplete-multi-character-sanitization`).
 const maxTagPasses = 10;
+
+// A raw `<` only opens markup in the HTML of the converter, because the `<` an author typed arrives as `&lt;`. A raw
+// `<` that is left after the removal is markup cut before its `>`: it goes with everything after it on its line.
+const cutMarkup = /<[^>\n]*$/gm;
 
 function removeTags(html: string): string {
   let text = html;
@@ -145,13 +149,13 @@ function removeTags(html: string): string {
     const withoutTags = text.replace(anyTag, "");
 
     if (withoutTags === text) {
-      return text;
+      break;
     }
 
     text = withoutTags;
   }
 
-  return text;
+  return text.replace(cutMarkup, "");
 }
 
 // One pass decodes each entity once, through a table and one regular expression: the `<` an author typed is not the
@@ -242,7 +246,8 @@ export async function parseFile(
   },
 ): Promise<ParsedDocument> {
   // One open file for the size and for the bytes: the file that is measured is the file that is read (the alert
-  // `js/file-system-race`).
+  // `js/file-system-race`), and the read stops at the limit plus one byte, so a file that grows after it was measured
+  // cannot pass the limit (decision 5 of the amendment to `openspec/changes/codeql-findings/design.md`).
   const handle = await open(path, "r");
 
   try {
@@ -254,7 +259,27 @@ export async function parseFile(
       );
     }
 
-    return await parseBuffer(await handle.readFile(), path, limits.maxPages);
+    const buffer = Buffer.allocUnsafe(limits.maxBytes + 1);
+    let bytesRead = 0;
+
+    while (bytesRead < buffer.length) {
+      const chunk = await handle.read(buffer, bytesRead, buffer.length - bytesRead, bytesRead);
+
+      if (chunk.bytesRead === 0) {
+        break;
+      }
+
+      bytesRead += chunk.bytesRead;
+    }
+
+    // More bytes than the limit means the file grew while it was read: the parser never sees them.
+    if (bytesRead > limits.maxBytes) {
+      throw new Error(
+        `${path} crosses the size limit: ${bytesRead} bytes is above the maximum of ${limits.maxBytes}.`,
+      );
+    }
+
+    return await parseBuffer(buffer.subarray(0, bytesRead), path, limits.maxPages);
   } finally {
     await handle.close();
   }
