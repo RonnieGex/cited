@@ -28,3 +28,24 @@
 ## Decisions taken by the implementer
 
 (The implementer writes here every decision the contract left open, and copies it to the `## Issues` of the report.)
+
+- `scripts/sync-agents.mjs` takes the root as its first argument and defaults to the repository root, so the test can
+  prove the sync in a temporary tree; it refuses a root without `ai-specs/agents/`, a source with no file, and a copy
+  that would fall outside the root.
+- `tests/agent-copies.test.ts` carries the comparison itself, because the test is the check `npm test` runs, and it
+  exercises the sync through `process.execPath` and `scripts/sync-agents.mjs`, which is the command of the npm script.
+- `.gitattributes` stays untouched: `* text=auto eol=lf` already gives the copies `text: auto` and `eol: lf`, the same
+  the source files carry.
+- The notice carries a second row for `@img/sharp-<platform>`, the binding that holds the LGPL part on Windows and
+  names the extra MIT of the `wasm32` one, so the row of the version is true on every platform.
+- The guard of the notice asks for `installed through` and `next` instead of the literal `through next`, because the
+  file writes a package name in backticks; the requirement (the origin is named) is the same.
+- The link case of `tests/personal-paths.test.ts` moves to a fixture the file builds itself, with a note that the
+  repository tracks no link any more; the rest of the file is not touched.
+- Two documents beyond the Impact list are corrected because they stated the links as the state of the repository:
+  `docs/base-standards.md` and `ai-specs/README.md`. `docs/katalis-sdd-standard.md` is not edited: its line 40 is the
+  bootstrap rule of the suite, and it is reported as a RISK instead.
+- The command of Codex of step 6.1 runs through a temporary `.cmd` file whose line is exactly the command of the task,
+  because PowerShell does not parse the `<` redirection of the shell the task writes for.
+- Vitest on Windows runs as `npx -y -p node@24 node node_modules/vitest/vitest.mjs run`, the form this round was given;
+  both Node versions (the one of the PATH and the one of the run) are in every report.
