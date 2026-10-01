@@ -105,7 +105,7 @@ Context of `design.md`; the decisions there are closed.
       (decision 12)
 - [x] 10.3 The heading only on the section line of the citation panel (decision 9), one list (decision 10), the lead
       in Try it and on the document page (decision 11), no list from a body without line breaks (decision 12)
-- [ ] 10.4 The captures of 7.2 that were missing, saved in `reports/images/`: Try it with a cited passage and the
+- [x] 10.4 The captures of 7.2 that were missing, saved in `reports/images/`: Try it with a cited passage and the
       document page with the highlighted passage, in Spanish and in English, at 1440 px and at 375 px, taken with
       `prefers-reduced-motion: reduce` so the highlighter is finished; the captures of the public page and the widget
       taken again the same way
