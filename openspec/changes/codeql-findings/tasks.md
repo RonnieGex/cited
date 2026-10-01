@@ -8,7 +8,7 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 ## 1. Base before
 
-- [ ] 1.1 `npm ci`, then `npm test` and `npm run typecheck`: the counts, the runtime and `node -v` in
+- [x] 1.1 `npm ci`, then `npm test` and `npm run typecheck`: the counts, the runtime and `node -v` in
       `reports/<date>-step-1-base.md`
 
 ## 2. Tests first (each one red on `86b250f` before its fix)
