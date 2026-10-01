@@ -29,7 +29,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 4. Existing tests
 
-- [ ] 4.1 `tests/personal-paths.test.ts` keeps passing with its own link fixtures; its notes updated (decision 3)
+- [x] 4.1 `tests/personal-paths.test.ts` keeps passing with its own link fixtures; its notes updated (decision 3)
 
 ## 5. Run the tests and the checks
 
