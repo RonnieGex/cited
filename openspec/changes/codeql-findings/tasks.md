@@ -76,7 +76,7 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 - [x] 10.3 The bounded read (decision 5), the removal of markup cut before its `>` and the corrected comment (decision 6)
 - [x] 10.4 The reports of steps 1 to 9 name the commit of the code each one verified, with no `__COMMIT__` and no hash
       that is not on the branch (decision 7)
-- [ ] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+- [x] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate` and `npm run test:e2e`, with their output in `reports/<date>-step-10-amendment.md`, and
       the `## Issues` of the round there and in the section "Ronda 2" of the delivery
 - [ ] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-codeql-findings-b.md`); Franc accepts
