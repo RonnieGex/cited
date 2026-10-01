@@ -123,7 +123,7 @@ Context of `design.md`; the decisions there are closed.
       report shows the mutant failing and the branch passing
 - [x] 11.2 The reports and the delivery of round 2 corrected where they declare NOT DONE for the samples of the
       READMEs (decision 16)
-- [ ] 11.3 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e`, with their
+- [x] 11.3 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e`, with their
       output in `reports/<date>-step-11-amendment.md` naming the commit of the code verified, and the `## Issues` of the
       round there and in the section "Ronda 3" of the delivery
 - [ ] 11.4 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-passage-display-polish-c.md`); Franc accepts
