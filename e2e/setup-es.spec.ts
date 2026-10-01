@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
@@ -268,4 +268,62 @@ test("el paso de publicar en español cierra la configuración", async ({ page }
   await page.goto("/admin");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(spanish.setupDoneTitle);
   await axe(page);
+});
+
+// Decision 15 of Amendment 2: la misma caminata que la del caso inglés, en español. Los pasajes de las muestras no
+// repiten el final del anterior, así que la suite sube un documento propio (`e2e/fixtures/`) cuya única sección se
+// parte en dos pasajes y cuyo segundo pasaje empieza con las palabras que cierran el primero: Prueba y la página del
+// documento tienen que pintar esas palabras fuera del resaltador y empezar el resaltador en la primera palabra propia.
+test("la guía de un pasaje se lee fuera del resaltador en Prueba y en la página de su documento", async ({ page }) => {
+  const fixture = "devoluciones-y-garantia.md";
+  const repeated = "El taller revisa la bicicleta antes de devolverla.";
+  const own = "La calibración láser de la válvula de vacío";
+
+  await speakSpanish(page);
+  await signIn(page, "/admin/information");
+  await page.getByLabel(spanish.uploadDocument).setInputFiles([
+    {
+      name: fixture,
+      mimeType: "text/markdown",
+      buffer: readFileSync(resolve(process.cwd(), "e2e", "fixtures", fixture)),
+    },
+  ]);
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(1, { timeout: 60_000 });
+  await expect(page.getByRole("link", { name: fixture })).toBeVisible();
+
+  // Prueba: el doble responde una pregunta sobre la calibración láser y la cita que marca es el segundo pasaje del
+  // documento, que es el único que lleva esas palabras.
+  await signIn(page, "/admin/try");
+  await page.getByLabel(spanish.question.label).fill("¿La calibración láser de la válvula de vacío?");
+  await page.getByRole("button", { name: spanish.question.submit }).click();
+
+  const open = page.locator('[data-citation-passage="open"]');
+
+  await expect(open).toHaveCount(1);
+  await expect(open).toContainText(own);
+
+  const lead = open.locator('[data-passage="lead"]');
+  const highlight = open.locator(".hl");
+
+  await expect(lead, "la guía del pasaje citado en Prueba").toHaveCount(1);
+  await expect(lead).toHaveText(repeated);
+  await expect(lead).not.toContainText(own);
+  expect(
+    (await highlight.innerText()).trimStart().startsWith(own),
+    "el resaltador de Prueba empieza en la primera palabra propia",
+  ).toBe(true);
+
+  // La página del mismo documento: `?highlight=1` nombra su segundo pasaje y ahí la guía se lee igual.
+  await signIn(page, `/admin/information/${fixture}?highlight=1`);
+
+  const opened = page.locator('[data-document-passage="open"]');
+
+  await expect(opened).toHaveCount(1);
+  await expect(opened).toContainText(own);
+  await expect(opened.locator('[data-passage="lead"]'), "la guía del pasaje abierto de la página").toHaveCount(1);
+  await expect(opened.locator('[data-passage="lead"]')).toHaveText(repeated);
+  expect(
+    (await opened.locator(".hl").innerText()).trimStart().startsWith(own),
+    "el resaltador de la página empieza en la primera palabra propia",
+  ).toBe(true);
 });

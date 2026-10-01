@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
@@ -571,6 +571,64 @@ test("every page of the round passes axe in English and in Spanish", async ({ pa
     await expect(page.getByRole("heading", { level: 1 })).toContainText(one.title);
     await axe(page);
   }
+});
+
+// Decision 15 of Amendment 2: the samples of the corpus have no lead at all, because no passage of theirs repeats the
+// end of the one before it, so the browser suite uploads a fixture of its own (`e2e/fixtures/`) whose one section is
+// long enough to be cut into two passages and whose second passage starts with the words that end the first. The
+// owner's two views have to paint those words outside the highlighter and start the highlighter at the first own word,
+// and a mutant that passes `lead={0}` to `TryItPanel` or to `DocumentPanel` has to fail this case.
+test("the lead of a passage reads outside the highlighter in Try it and on the page of its document", async ({ page }) => {
+  const fixture = "returns-and-warranty.md";
+  const repeated = "The workshop checks the bicycle before returning it.";
+  const own = "The laser calibration of the vacuum valve";
+
+  await signIn(page, "/admin/information");
+  await page.getByLabel(english.uploadDocument).setInputFiles([
+    {
+      name: fixture,
+      mimeType: "text/markdown",
+      buffer: readFileSync(resolve(process.cwd(), "e2e", "fixtures", fixture)),
+    },
+  ]);
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(1, { timeout: 60_000 });
+  await expect(page.getByRole("link", { name: fixture })).toBeVisible();
+
+  // Try it: the double answers a question about the laser calibration, and the citation it marks is the second passage
+  // of the fixture, which is the only one that holds those words.
+  await signIn(page, "/admin/try");
+  await page.getByLabel(english.question.label).fill("Is the laser calibration of the vacuum valve covered?");
+  await page.getByRole("button", { name: english.question.submit }).click();
+
+  const open = page.locator('[data-citation-passage="open"]');
+
+  await expect(open).toHaveCount(1);
+  await expect(open).toContainText(own);
+
+  const lead = open.locator('[data-passage="lead"]');
+  const highlight = open.locator(".hl");
+
+  await expect(lead, "the lead of the cited passage in Try it").toHaveCount(1);
+  await expect(lead).toHaveText(repeated);
+  await expect(lead).not.toContainText(own);
+  expect(
+    (await highlight.innerText()).trimStart().startsWith(own),
+    "the highlighter of Try it starts at the first own word",
+  ).toBe(true);
+
+  // The page of the same document: `?highlight=1` names its second passage, and the lead is read there as well.
+  await signIn(page, `/admin/information/${fixture}?highlight=1`);
+
+  const opened = page.locator('[data-document-passage="open"]');
+
+  await expect(opened).toHaveCount(1);
+  await expect(opened).toContainText(own);
+  await expect(opened.locator('[data-passage="lead"]'), "the lead of the open passage of the page").toHaveCount(1);
+  await expect(opened.locator('[data-passage="lead"]')).toHaveText(repeated);
+  expect(
+    (await opened.locator(".hl").innerText()).trimStart().startsWith(own),
+    "the highlighter of the page starts at the first own word",
+  ).toBe(true);
 });
 
 // Decision 24 of the fourth amendment: the shape of the real run with DeepSeek, where the chat is set by the server and
