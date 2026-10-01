@@ -6,8 +6,9 @@ Facts read on `origin/main` at `86b250f` (paths and lines from that commit):
   first passage of a section starts with its heading; the heading is also stored in `heading` (`:71`). Embeddings
   (`lib/ingest/index.ts:109-112`) and the keyword index (`lib/store/index.ts:417-420`) use that text.
 - The lines of one block are joined with a space (`chunk.ts:26`), so `- item` lines become one paragraph.
-- Each passage after the first of a section starts with up to 120 characters of the end of the passage before it
-  (`chunk.ts:4`, `:73-76`, `:96-108`), and the overlap is reset when the heading changes.
+- The chunker keeps up to 120 characters of the end of a passage as overlap (`chunk.ts:4`, `:73-76`, `:96-108`) and
+  carries it into the next passage only when the next block overflows it; the overlap is reset when the heading
+  changes (corrected in Amendment 3: for most passages there is no overlap).
 - There is no span: a citation highlights its whole `excerpt` (`lib/answer/citations.ts:40`), in `CitationPanel.tsx:27`,
   `TryItPanel.tsx:47` and `DocumentPanel.tsx:126`. In the last two the highlighted span is a child of a
   `flex items-baseline` container, which makes it a block, so `.hl` (`app/brand.css:18-25`) paints its band across the
@@ -108,3 +109,27 @@ and a mutant that passes `lead={0}` to both views passes the whole suite.
     written: the samples of the READMEs are what `npm run search` and `npm run ask` print today.
 17. **A clean archive.** The archive of the change leaves no new blank line at the end of a spec, so
     `git diff --check origin/main...HEAD` stays clean after it.
+
+## Amendment 3 (Fable, after `katalis-dev/tasks/revision-passage-display-polish-c.md`: FAIL, one new Major)
+
+The independent review showed that the branch removed the cut of a block at a blank line from `lib/ingest/chunk.ts`:
+a section with no list that spans more than one passage is now cut differently from `main` (a passage that is only the
+heading, cuts in the middle of a sentence; 184 passages of the repository's own documents change). The samples do not
+move, so no test saw it. The same review confirmed DeepSeek's finding: the overlap of 120 characters only reaches a
+passage when the next block is too long to fit beside it, so `lead` is `0` for almost every real passage.
+
+18. **Lists keep their lines, and nothing else changes.** The chunker keeps cutting a block at every blank line, as on
+    `main`. The only change is the join: inside a block, a line that starts a list item is joined with `\n` instead of a
+    space; and when a block starts with a list item, it is joined to the text before it in the passage with `\n`
+    instead of a space. For a document with no list item, `chunkText` returns exactly what it returns on `86b250f`.
+19. **A golden check of the chunker.** A fixture holds the passages that the chunker of `86b250f` returns for every
+    Markdown and text file of `samples/` and `docs/` (written once from `86b250f`, committed with the command that wrote
+    it). A unit test chunks the same files on the branch and requires every passage to be identical once the `\n` of
+    list joins is read as a space; it names the file and the position of the first difference.
+20. **The lead fixture is honest about when overlap happens.** The fixture of decision 15 produces a `lead` greater than
+    0 with the chunker of decision 18, through a paragraph long enough to overflow the passage before it (the case in
+    which the chunker carries its overlap), and without relying on a `---` line. The report prints its passages with
+    their `lead`.
+21. **Say what the overlap does.** The Context of this design, the parenthesis "the overlap of the chunker" of the delta
+    of `answering`, `docs/answering.md` and the comments of the code say that the overlap is carried only when the
+    next block overflows the passage, so `lead` is `0` for most passages. No behaviour changes for this.

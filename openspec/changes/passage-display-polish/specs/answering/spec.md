@@ -3,7 +3,8 @@
 ### Requirement: A citation says where its own words start
 
 Every citation of `POST /api/ask` SHALL carry `lead`, the number of characters at the start of its `excerpt` that
-repeat the end of the passage before it in the same document (the overlap of the chunker), and `0` when there is none.
+repeat the end of the passage before it in the same document (the overlap the chunker carries when a block
+overflows a passage), and `0` when there is none, which is the case of most passages.
 `lead` SHALL be the length of the longest prefix of the excerpt, at most 120 characters and followed by whitespace in
 the excerpt, that is also a suffix of the text of the passage at `position - 1` of the same document. No other field
 of a citation changes.
