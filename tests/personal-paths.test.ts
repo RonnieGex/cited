@@ -147,6 +147,12 @@ function offenders(root: string, pattern: RegExp, exempt: readonly string[] = []
     .map((entry) => entry.path);
 }
 
+// The change `launch-hygiene` left the repository with no symbolic link: `.claude/agents`, `.codex/agents` and
+// `.cursor/agents` are real folders that hold byte-for-byte copies of `ai-specs/agents/`, kept in step by
+// `npm run agents:sync` and guarded by `tests/agent-copies.test.ts`. The link cases of this file are the fixtures it
+// builds itself, so the scan keeps reading a link by its target, a regular file by its content and a binary file by
+// nothing, on Linux, macOS and Windows alike, without depending on the shape of the repository.
+
 describe("tracked files", () => {
   it("are listed by git", () => {
     expect(trackedEntries(repositoryRoot).length).toBeGreaterThan(0);
@@ -160,14 +166,19 @@ describe("tracked files", () => {
     expect(offenders(repositoryRoot, homePrefix, ruleDefiningContracts)).toEqual([]);
   });
 
-  it("are read by the target of the link when git tracks them as a symbolic link", () => {
-    const link = trackedEntries(repositoryRoot).find((entry) => entry.path === ".claude/agents");
+  it(
+    "are read by the target of the link when git tracks the path as a symbolic link",
+    { timeout: fixtureTimeout },
+    () => {
+      const root = fixtureRepo(
+        { "ai-specs/agents/backend-developer.md": "An agent." },
+        [{ path: ".codex/agents", target: "../ai-specs/agents" }],
+      );
 
-    expect(link?.mode).toBe(symlinkMode);
-    expect(textOfPath(repositoryRoot, ".claude/agents")?.replaceAll("\\", "/")).toBe(
-      "../ai-specs/agents",
-    );
-  });
+      expect(trackedEntries(root).find((entry) => entry.path === ".codex/agents")?.mode).toBe(symlinkMode);
+      expect(textOfPath(root, ".codex/agents")?.replaceAll("\\", "/")).toBe("../ai-specs/agents");
+    },
+  );
 
   it("report a tracked symbolic link whose target carries a home directory", { timeout: fixtureTimeout }, () => {
     const root = fixtureRepo(

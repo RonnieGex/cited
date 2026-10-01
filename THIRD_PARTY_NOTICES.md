@@ -65,3 +65,43 @@ own file:
 
 They have no row in the tables above because they are not byte-for-byte copies of an installed package: their license
 and origin travel in the file itself, which is where a reader of that file finds them.
+
+## Installed by npm, not shipped
+
+`npm ci` installs packages that this repository neither serves nor ships and whose license is not only a permissive
+one: the prebuilt binaries of sharp, the image library of `next`. `next` lists them as optional dependencies of the
+platform and installs them through it. Every `@img/sharp-*` package of `package-lock.json` whose `license` field names
+the LGPL has one row here, with the version and the license exactly as the lock records them; the bindings whose license
+is `Apache-2.0` alone have no row.
+
+| Package | Version | License |
+| --- | --- | --- |
+| `@img/sharp-libvips-darwin-arm64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-darwin-x64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linux-arm` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linux-arm64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linux-ppc64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linux-riscv64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linux-s390x` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linux-x64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linuxmusl-arm64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-libvips-linuxmusl-x64` | 1.3.4 | LGPL-3.0-or-later |
+| `@img/sharp-wasm32` | 0.35.5 | Apache-2.0 AND LGPL-3.0-or-later AND MIT |
+| `@img/sharp-win32-arm64` | 0.35.5 | Apache-2.0 AND LGPL-3.0-or-later |
+| `@img/sharp-win32-ia32` | 0.35.5 | Apache-2.0 AND LGPL-3.0-or-later |
+| `@img/sharp-win32-x64` | 0.35.5 | Apache-2.0 AND LGPL-3.0-or-later |
+
+Those packages carry the name of their license and no license text of it: the name travels in the `license` field of
+their `package.json` and in the "Licensing" table of their `README.md`, which lists the third-party libraries each
+build bundles and names `libvips` as `LGPLv3`. None of the fourteen carries the text of the LGPL-3.0; the binding
+packages ship a `LICENSE` file, and it is the Apache-2.0 text of their other license. The text of the LGPL-3.0 is not a
+file this repository serves or ships: <https://www.gnu.org/licenses/lgpl-3.0.html> is the official text of the license,
+and <https://github.com/lovell/sharp-libvips> is the project of those prebuilt builds, whose README lists the libraries
+each one bundles.
+
+Facts of use, without a legal conclusion: this repository does not ship those binaries — it carries no `Dockerfile`
+and no `node_modules`, so `npm ci` is what puts them on a machine — and three scripts of the repository import sharp to
+render the images of the README: `scripts/render-flame-variants.mjs`, `scripts/render-readme-graphics.mjs` and
+`scripts/render-readme-orb.mjs`. `next` lists sharp as an optional dependency, which is how it arrives.
+`tests/third-party-notices.test.ts` reads the LGPL packages of `package-lock.json` and fails, naming the package, when a
+row is missing, extra or different.

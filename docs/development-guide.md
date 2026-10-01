@@ -39,6 +39,7 @@ is missing. Without it, a commit with a secret is not scanned.
 | `npm run verify:no-test-sdk` | fails when the production output carries a marker of the test SDK, or when the browser output carries the real package or the `xi-api-key` header of the provider |
 | `npm run verify:test-sdk` | the same guard with the expectation of the end-to-end build, which `build:e2e` runs on its own |
 | `npm run texture:orb` | writes `public/voice/perlin-noise.png`, the texture of the Orb, byte for byte |
+| `npm run agents:sync` | writes `.claude/agents/`, `.codex/agents/` and `.cursor/agents/` from `ai-specs/agents/`, byte for byte |
 | `npm run audit:high` | `npm audit --audit-level=high` |
 | `npm run secrets:scan` | gitleaks over the whole history |
 | `npm run hooks:install` | installs the local git hooks |
@@ -122,11 +123,13 @@ openspec/             # proposals, specs and change reports
 scripts/              # local tooling
 ```
 
-`.claude/agents`, `.codex/agents` and `.cursor/agents` are Git symbolic links to `ai-specs/agents`. A Windows
-checkout without the symlink privilege materialises them as plain text files that hold the target
-(`core.symlinks=false`), so `tests/personal-paths.test.ts` asks git for the mode of every tracked path
-(`git ls-files -s`) instead of trusting the working tree: it checks a link by its target, a regular file by its
-content and skips a binary file, and the scan behaves the same on Linux, macOS and Windows.
+`.claude/agents`, `.codex/agents` and `.cursor/agents` are real folders that hold a byte-for-byte copy of every file of
+`ai-specs/agents/`, which is the one place where an agent is edited: `npm run agents:sync` writes the three copies from
+it, and `tests/agent-copies.test.ts` fails naming the folder and the file when a copy is missing, extra or different.
+The repository tracks no symbolic link (`git ls-files -s` lists no path with mode `120000`), so a Windows clone without
+the symlink privilege needs no extra step. `tests/personal-paths.test.ts` asks git for the mode of every tracked path
+instead of trusting the working tree: it checks a link by its target with the fixtures it builds itself, a regular file
+by its content and skips a binary file, and the scan behaves the same on Linux, macOS and Windows.
 
 ## 7. Working order
 
