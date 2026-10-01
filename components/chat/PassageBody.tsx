@@ -37,14 +37,14 @@ type Line =
   | { kind: "item"; text: string; ordered: boolean };
 
 /**
- * The lines of the body, without the empty ones. A passage stored before this change holds its list flattened into one
- * paragraph joined with a space, so the start of every item is a line of its own here as well: the view shows a list
- * the old passages carry too.
+ * The lines of the body, without the empty ones. A passage of this change carries one line per item, so its line breaks
+ * are the lines. A passage stored before it holds its list flattened into one paragraph joined with a space: there the
+ * start of every item is a line of its own as well, and the view shows a list the old passages carry too.
  */
 function lines(body: string): Line[] {
-  return body
-    .split(itemStart)
-    .flatMap((part) => part.split("\n"))
+  const parts = body.includes("\n") ? body.split("\n") : body.split(itemStart);
+
+  return parts
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .map((line): Line =>

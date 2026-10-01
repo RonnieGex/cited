@@ -259,6 +259,9 @@ test("from zero to an answer, timed", async ({ page }) => {
 
   await expect(highlighted).toBeVisible();
   expect((await highlighted.innerText()).trim().length, "the passage of the citation").toBeGreaterThan(10);
+  // Decision 6 of `passage-display-polish`: the mark beside the cited passage reads the citation's number, never the
+  // position of the passage in its document.
+  await expect(highlighted.locator('[data-brand="citation-mark"]')).toHaveText("1");
   await expect(page.locator('[data-try="turn"]').getByRole("button", { name: /Citation 1/ })).toBeVisible();
   await axe(page);
   await shoot(page, "guided-try", 1440);
@@ -413,6 +416,10 @@ test("a document page lists its headings in reading order", async ({ page }) => 
   expect(headings).toContain("Precios");
   expect(headings.indexOf("Horario")).toBeLessThan(headings.indexOf("Precios"));
   await expect(page.getByText("Afinación de bicicleta: 380 pesos.")).toBeVisible();
+  // Decisions 3 and 6 of `passage-display-polish`: the passage shows its heading once (the `h2` of its section), its
+  // list as a list, and no citation mark at all, because this page shows passages without an answer.
+  await expect(page.locator('[data-document-passage] [data-passage="item"]')).toHaveCount(5);
+  await expect(page.locator('[data-document-passage] [data-brand="citation-mark"]')).toHaveCount(0);
   await axe(page);
   await shoot(page, "guided-document", 1440);
   await shoot(page, "guided-document", 375);

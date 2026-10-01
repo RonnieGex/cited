@@ -182,9 +182,15 @@ test("de cero a una respuesta, en español, cronometrado", async ({ page }) => {
   const suggestion = page.locator('[data-try="suggestions"] button').first();
 
   await expect(suggestion).toBeVisible();
+  // Decision 7 of `passage-display-polish`: the suggestions of the panel in Spanish come from the documents written in
+  // Spanish, so the first one names a heading of `cafe-la-horquilla.md` and never one of the English document.
+  await expect(suggestion).toContainText("Café La Horquilla");
+  await expect(page.locator('[data-try="suggestions"]')).not.toContainText("Bike workshop");
   await suggestion.click();
   await expect(page.locator('[data-try="turn"]')).toContainText("380 pesos");
   await expect(page.locator('[data-citation-passage="open"]')).toBeVisible();
+  // Decision 6: the mark beside the cited passage reads the citation's number.
+  await expect(page.locator('[data-citation-passage="open"] [data-brand="citation-mark"]')).toHaveText("1");
   await expect(
     page.locator('[data-try="turn"]').getByRole("button", { name: spanish.citationLabel.replace("{n}", "1") }),
   ).toBeVisible();
