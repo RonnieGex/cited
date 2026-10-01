@@ -93,7 +93,7 @@ Context of `design.md`; the decisions there are closed.
       pull request 9 (`reports/2026-09-30-step-9-pipeline.md`)
 - [x] 9.3 Adversarial review by Codex (`katalis-dev/tasks/revision-passage-display-polish.md`): FAIL, four Majors; see
       section 10
-- [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
+- [x] 9.4 Franc accepts; the change is archived and merged through the pull request
 
 ## 10. Amendment 1 (decisions 9 to 14 of `design.md`)
 
@@ -154,4 +154,4 @@ Context of `design.md`; the decisions there are closed.
 - [x] 13.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e` on the
       branch, which already carries `main` (`e52e527`), in `reports/<date>-step-13-amendment.md` naming the commit
       verified, with the `## Issues` of the round there and in the section "Ronda 5" of the delivery
-- [ ] 13.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-passage-display-polish-e.md`); Franc accepts
+- [x] 13.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-passage-display-polish-e.md`); Franc accepts
