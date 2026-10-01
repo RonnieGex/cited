@@ -46,6 +46,8 @@ missing. Without it, a commit with a secret is not scanned. The full list of com
   live in `.env`, which is ignored.
 - No commercially licensed font file and no content of the paid service.
 - Only explicit paths are staged: `git add <path>`.
+- An agent is edited in `ai-specs/agents/` and nowhere else: `npm run agents:sync` copies it byte for byte into
+  `.claude/agents/`, `.codex/agents/` and `.cursor/agents/`, and `tests/agent-copies.test.ts` fails when a copy drifts.
 
 ## License of your contribution
 
