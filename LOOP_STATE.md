@@ -55,8 +55,8 @@ the reports that task 10.4 asks to correct. Task 10.6 is not part of this round.
 - No personal path in a versioned file (a report writes `<worktree>` or `<clean clone>`); UTF-8 with LF; `MEMORY.md`
   is in no commit.
 - The build and the browser suite ran in the disposable clone `katalis-dev/community-codeql-amend-e2e`, never in the
-  `<worktree>`, whose ignored `.env.local` was never opened. The clone carries no commit of this round and can be
-  deleted.
+  `<worktree>`, whose ignored `.env.local` was never opened. The clone carried no commit of this round and was deleted
+  after the checks.
 - The ports 3100 and 3210 to 3217 were free before the browser suite ran; no process of another worktree was started or
   stopped.
 - gitleaks ran on every commit through `.githooks/pre-commit` and once over the whole history: no leak.
