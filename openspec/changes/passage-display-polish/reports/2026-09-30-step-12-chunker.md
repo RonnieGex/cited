@@ -42,7 +42,7 @@
 @@
 -  const length = (): number => current.join(" ").trim().length;
 +  const length = (): number => passageText(current).trim().length;
- 
+@@
    const emit = (): void => {
 -    const text = current.join(" ").trim();
 +    const text = passageText(current).trim();
