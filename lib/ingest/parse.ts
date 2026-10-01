@@ -1,4 +1,4 @@
-import { readFile, stat } from "node:fs/promises";
+import { open } from "node:fs/promises";
 import { extname } from "node:path";
 import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
@@ -121,18 +121,58 @@ export function detectType(data: Uint8Array, name: string): SourceType | null {
   return binaryExtensions.includes(extension) ? null : "txt";
 }
 
-function docxToMarkdown(html: string): string {
-  const markdown = html
-    .replace(/<\/(p|h[1-6]|li|tr|div)>/gi, "\n")
-    .replace(/<li[^>]*>/gi, "\n- ")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+// The rules of the lines of a Word document, before the rest of the markup goes.
+const lineRules: Array<[RegExp, string]> = [
+  [/<\/(p|h[1-6]|li|tr|div)>/gi, "\n"],
+  [/<li[^>]*>/gi, "\n- "],
+  [/<br\s*\/?>/gi, "\n"],
+];
+
+const anyTag = /<[^>]+>/g;
+
+// The removal repeats until the text no longer changes: one pass takes `<<b>i>` down to `i>` and the next one finds
+// nothing left, so no tag survives (the alert `js/incomplete-multi-character-sanitization`).
+const maxTagPasses = 10;
+
+// A raw `<` only opens markup in the HTML of the converter, because the `<` an author typed arrives as `&lt;`. A raw
+// `<` that is left after the removal is markup cut before its `>`: it goes with everything after it on its line.
+const cutMarkup = /<[^>\n]*$/gm;
+
+function removeTags(html: string): string {
+  let text = html;
+
+  for (const [pattern, replacement] of lineRules) {
+    text = text.replace(pattern, replacement);
+  }
+
+  for (let pass = 0; pass < maxTagPasses; pass += 1) {
+    const withoutTags = text.replace(anyTag, "");
+
+    if (withoutTags === text) {
+      break;
+    }
+
+    text = withoutTags;
+  }
+
+  return text.replace(cutMarkup, "");
+}
+
+// One pass decodes each entity once, through a table and one regular expression: the `<` an author typed is not the
+// start of a tag and is not decoded again (the alert `js/double-escaping`).
+const entities: Record<string, string> = {
+  "&nbsp;": " ",
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+};
+
+const entity = /&(?:nbsp|amp|lt|gt|quot|#39);/g;
+
+export function docxToMarkdown(html: string): string {
+  const markdown = removeTags(html).replace(entity, (match) => entities[match] ?? match);
 
   return markdown
     .split("\n")
@@ -205,15 +245,44 @@ export async function parseFile(
     maxPages: MAX_PAGES,
   },
 ): Promise<ParsedDocument> {
-  const information = await stat(path);
+  // One open file for the size and for the bytes: the file that is measured is the file that is read (the alert
+  // `js/file-system-race`), and the read stops at the limit plus one byte, so a file that grows after it was measured
+  // cannot pass the limit (decision 5 of the amendment to `openspec/changes/codeql-findings/design.md`).
+  const handle = await open(path, "r");
 
-  if (information.size > limits.maxBytes) {
-    throw new Error(
-      `${path} crosses the size limit: ${information.size} bytes is above the maximum of ${limits.maxBytes}.`,
-    );
+  try {
+    const information = await handle.stat();
+
+    if (information.size > limits.maxBytes) {
+      throw new Error(
+        `${path} crosses the size limit: ${information.size} bytes is above the maximum of ${limits.maxBytes}.`,
+      );
+    }
+
+    const buffer = Buffer.allocUnsafe(limits.maxBytes + 1);
+    let bytesRead = 0;
+
+    while (bytesRead < buffer.length) {
+      const chunk = await handle.read(buffer, bytesRead, buffer.length - bytesRead, bytesRead);
+
+      if (chunk.bytesRead === 0) {
+        break;
+      }
+
+      bytesRead += chunk.bytesRead;
+    }
+
+    // More bytes than the limit means the file grew while it was read: the parser never sees them.
+    if (bytesRead > limits.maxBytes) {
+      throw new Error(
+        `${path} crosses the size limit: ${bytesRead} bytes is above the maximum of ${limits.maxBytes}.`,
+      );
+    }
+
+    return await parseBuffer(buffer.subarray(0, bytesRead), path, limits.maxPages);
+  } finally {
+    await handle.close();
   }
-
-  return parseBuffer(await readFile(path), path, limits.maxPages);
 }
 
 export function acceptedExtensions(): string[] {
