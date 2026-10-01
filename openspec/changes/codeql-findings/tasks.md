@@ -42,18 +42,18 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 ## 6. Manual verification
 
-- [ ] 6.1 Start the application from a clean disposable clone with a test `.env` (never the `.env.local` of a worktree),
+- [x] 6.1 Start the application from a clean disposable clone with a test `.env` (never the `.env.local` of a worktree),
       and with `curl.exe`: the login with the right password answers with its session cookie, with a wrong one answers
       the refusal of the spec after its delay; the upload of a DOCX that holds `5 &lt; 6` and then the document page or
       the passages API show `5 &lt; 6`. Responses pasted in `reports/<date>-step-6-curl.md`
 
 ## 7. End to end
 
-- [ ] 7.1 `npm run test:e2e` (the sign-in of the panel is exercised by it): counts in `reports/<date>-step-7-e2e.md`
+- [x] 7.1 `npm run test:e2e` (the sign-in of the panel is exercised by it): counts in `reports/<date>-step-7-e2e.md`
 
 ## 8. Documentation
 
-- [ ] 8.1 `docs/security.md`: the row of the password says it is compared through scrypt in constant time, and the row
+- [x] 8.1 `docs/security.md`: the row of the password says it is compared through scrypt in constant time, and the row
       of the documents says the size is read from the open file; both name this change
 
 ## 9. Close

@@ -46,7 +46,13 @@ Anyone can ask a question, so the endpoint is treated as hostile input.
 - `ADMIN_PASSWORD` is required and has at least sixteen characters: without it, or with a shorter one, the panel does
   not start, and the app says so instead of serving an open or a weak panel. **Done** in `admin-panel-and-onboarding`.
 - The session lives in a cookie that is `httpOnly`, `sameSite=strict` and `secure` outside `localhost`, signed with
-  `ADMIN_SESSION_SECRET`, and the password is compared in constant time. **Done** in `admin-panel-and-onboarding`.
+  `ADMIN_SESSION_SECRET`, and the password is compared in constant time. **Done** in `admin-panel-and-onboarding`;
+  since `codeql-findings` the comparison is a slow derivation: `passwordMatches` derives both the given password and
+  `ADMIN_PASSWORD` with `scrypt` (N=16384, r=8, p=1) under one salt of 16 random bytes drawn when the process starts,
+  and compares the two derivations with a constant-time comparison, so no fast hash of the SHA-2 family touches a
+  password. The salt of the process is never stored, `lib/admin/session.ts` still uses `createHash` only for the
+  signature of the session cookie, and the derivation of about 100 ms stays under the one second every failed attempt
+  already waits.
 - Access attempts are limited by address: five failures from one known address within fifteen minutes lock that
   address for fifteen minutes, with `Retry-After`. The address is known only when `TRUST_PROXY` declares how many
   proxies sit in front and the forwarding chain carries the address that many places from the right; without a known
@@ -93,7 +99,10 @@ The API key belongs to the person who forks the project, so an abuse spends thei
 ## 5. Uploaded content
 
 - A document is validated by its real type, its size (20 MB maximum) and its page count before it is read.
-  **Planned** in `core-libsql-hybrid-search`.
+  **Planned** in `core-libsql-hybrid-search`. Since `codeql-findings` the size of a file of the disk is read from the
+  open file whose bytes are read: `parseFile` opens the path once, reads the size with the `stat` of that open file,
+  refuses a file above the limit before reading any byte and reads the bytes from the same open file, so a file cannot
+  be swapped between the check of the limit and the read.
 - Nothing that is uploaded is executed, and its text is never interpreted as code or as an instruction to the model.
   **Planned** in `core-libsql-hybrid-search`.
 - The RRF hybrid search reads parameters, never concatenated SQL. **Planned** in `core-libsql-hybrid-search`.

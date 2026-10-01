@@ -36,7 +36,12 @@ and 9.4 are not part of this round.
   tests passed in 77.94 s, build compiled in 9.0 s with 30 of 30 static pages, 0 vulnerabilities, gitleaks with no
   leak over 546 commits, openspec 14 of 14. Reports
   `reports/2026-09-30-step-4-existing-tests.md` and `reports/2026-09-30-step-5-checks.md`.
-- Pending: steps 6 to 9.1.
+- Steps 6.1, 7.1 and 8.1: the login, the refusal with its lockout and two DOCX uploads verified with `curl.exe` against
+  the built application of a clean disposable clone (the passages of the store read `5 &lt; 6` and `5 < 6` as the spec
+  asks); the browser suite green in a second clean clone with no `.env` (87 passed in 2.1 min, one worker); and the two
+  rows of `docs/security.md` that name this change. Reports `reports/2026-09-30-step-6-curl.md`,
+  `reports/2026-09-30-step-7-e2e.md` and `reports/2026-09-30-step-8-docs.md`.
+- Pending: step 9.1 and the delivery section of `katalis-dev/tasks/entrega-codeql-findings.md`.
 
 ## Hard rules respected
 
