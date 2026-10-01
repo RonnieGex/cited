@@ -151,7 +151,7 @@ Context of `design.md`; the decisions there are closed.
 - [x] 13.2 `cut()` of decision 22 (golden check green; the list tests of the change still green)
 - [x] 13.3 The golden test reads no live file of `docs/` or of the archive; the old fixture over live documents is
       replaced, not kept beside it
-- [ ] 13.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e` on the
+- [x] 13.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e` on the
       branch, which already carries `main` (`e52e527`), in `reports/<date>-step-13-amendment.md` naming the commit
       verified, with the `## Issues` of the round there and in the section "Ronda 5" of the delivery
 - [ ] 13.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-passage-display-polish-e.md`); Franc accepts
