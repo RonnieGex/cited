@@ -187,7 +187,7 @@ export function buildPdf(pages: string[][]): Buffer {
   return Buffer.from(document, "latin1");
 }
 
-export type DocxParagraph = { text: string; style?: string; list?: boolean };
+export type DocxParagraph = { text: string; style?: string; list?: boolean; raw?: boolean };
 
 /** The numbering of the list items of `buildDocx`: one abstract list with a bullet, and one list that uses it. */
 const docxNumbering =
@@ -201,6 +201,12 @@ const docxNumbering =
 export function buildDocx(paragraphs: DocxParagraph[]): Buffer {
   const body = paragraphs
     .map((paragraph) => {
+      // A raw paragraph carries the XML of its runs itself, which is the only way to write a `<w:br/>`, a hyperlink or
+      // an entity of the document as the converter of Word writes them.
+      if (paragraph.raw === true) {
+        return `<w:p>${paragraph.text}</w:p>`;
+      }
+
       const numbering =
         paragraph.list === true
           ? '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>'
