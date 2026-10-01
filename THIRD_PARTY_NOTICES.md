@@ -65,3 +65,20 @@ own file:
 
 They have no row in the tables above because they are not byte-for-byte copies of an installed package: their license
 and origin travel in the file itself, which is where a reader of that file finds them.
+
+## Installed by npm, not shipped
+
+`npm ci` installs packages that this repository neither serves nor ships and whose license is not a permissive one.
+Today they are the prebuilt binaries of sharp, the image library of `next`, installed through `next` as optional
+dependencies of the platform:
+
+| Package | Version | License | Where its license text travels |
+| --- | --- | --- | --- |
+| `@img/sharp-libvips-*`, one optional package per platform | 1.3.4, the version `package-lock.json` pins | LGPL-3.0-or-later | `node_modules/@img/sharp-libvips-<platform>/LICENSE`, inside each installed package |
+| `@img/sharp-<platform>`, the binding sharp loads (`win32-x64` on Windows) | 0.35.5, the version `package-lock.json` pins | Apache-2.0 AND LGPL-3.0-or-later, and the `wasm32` binding adds MIT | `node_modules/@img/sharp-<platform>/LICENSE`, inside each installed package |
+
+The repository does not ship those binaries: it carries no `Dockerfile` and no `node_modules`, so `npm ci` is what puts
+them on a machine, and no code of this repository links against them. The text of LGPL-3.0 is not copied here because it
+is not a file this repository serves: it travels inside each installed package, as the table says. `docs/answering.md`
+says the same of the two licenses in passing, and `tests/third-party-notices.test.ts` reads the version of
+`@img/sharp-libvips-*` from `package-lock.json` and fails when this section names another.

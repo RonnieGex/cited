@@ -150,7 +150,8 @@ function sharpProblems(notice: string, version: string): string[] {
     version,
     "LGPL-3.0-or-later",
     "node_modules/@img/sharp-libvips-",
-    "through next",
+    "installed through",
+    "next",
     "does not ship",
     "links against them",
   ]
@@ -176,7 +177,8 @@ describe("the notice of what npm installs and this repository does not ship", ()
       version,
       "LGPL-3.0-or-later",
       "node_modules/@img/sharp-libvips-",
-      "through next",
+      "installed through",
+      "next",
       "does not ship",
       "links against them",
     ].join(" ");
