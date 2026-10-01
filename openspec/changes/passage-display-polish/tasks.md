@@ -146,7 +146,7 @@ Context of `design.md`; the decisions there are closed.
 
 ## 13. Amendment 4 (decisions 22 to 24 of `design.md`)
 
-- [ ] 13.1 Test first, red on `54c61eb`: the frozen golden corpus of decision 23 with its synthetic cases and the two
+- [x] 13.1 Test first, red on `54c61eb`: the frozen golden corpus of decision 23 with its synthetic cases and the two
       documents of the review, written from `86b250f` with the command named in the report; the check of decision 24
 - [ ] 13.2 `cut()` of decision 22 (golden check green; the list tests of the change still green)
 - [ ] 13.3 The golden test reads no live file of `docs/` or of the archive; the old fixture over live documents is
