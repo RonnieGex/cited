@@ -22,7 +22,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 3. Implementation
 
-- [ ] 3.1 `scripts/sync-agents.mjs` and `npm run agents:sync`; the three links replaced by the folders it writes
+- [x] 3.1 `scripts/sync-agents.mjs` and `npm run agents:sync`; the three links replaced by the folders it writes
       (decision 1)
 - [ ] 3.2 `.gitattributes` gives the copies LF if the existing rules do not (decision 2)
 - [ ] 3.3 The section of `THIRD_PARTY_NOTICES.md` (decision 4)
