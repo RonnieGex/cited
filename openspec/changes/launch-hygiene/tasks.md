@@ -33,7 +33,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 5. Run the tests and the checks
 
-- [ ] 5.1 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+- [x] 5.1 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate`, in `reports/<date>-step-5-checks.md`
 
 ## 6. Manual verification
