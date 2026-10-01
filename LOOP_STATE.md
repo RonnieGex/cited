@@ -48,8 +48,9 @@ validates. Steps 9.2, 9.3 and 9.4 stay unchecked: they are Fable's, Codex's and 
 
 ## Evidence
 
-- Unit suite of the change in a clean clone of `fc8af39`: 89 files, **1052 tests passed**, 79.68 s, exit 0. The base was
-  1018 tests in 85 files: the change adds 34 cases in four files.
+- Unit suite of the change in a clean clone of `fc8af39`: 89 files, **1052 tests passed**, 79.68 s, exit 0, and one more
+  run in the worktree at the closing commit `844f72a`: the same 1052 tests in 78.92 s. The base was 1018 tests in 85
+  files: the change adds 34 cases in four files.
 - Browser suite of a clean clone of `308cb05`: **92 passed** (87 of the base plus five of
   `e2e/passage-display.spec.ts`), 2.0 min, 132 s of wall clock, exit 0; `git status --short` empty afterwards and the
   five captures under `test-results/captures/passage-display/`, which `.gitignore` excludes.
