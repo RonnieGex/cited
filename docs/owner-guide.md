@@ -34,7 +34,8 @@ passages, ready with its number of passages, or the reason it failed and what to
 type we do not read, no text, the search not connected).
 
 Every document opens as a page of its own with its passages grouped under their headings in reading order, which is
-what the system understood from the file. The removal opens a window of a few seconds in which nothing has been deleted
+what the system understood from the file. A passage reads as the document says it: its heading above it, its lists as
+lists and one item per line. The removal opens a window of a few seconds in which nothing has been deleted
 yet, with a button that keeps the document.
 
 ![A document of the panel as a page: its name, its type, when it was added and its passages under their headings](images/admin/guided-document-1440.png)
@@ -42,9 +43,12 @@ yet, with a button that keeps the document.
 ### 3. Try it
 
 Ask your own documents. The answer appears with its numbered citations on the left and, on the right, the document of
-the first citation opens with that passage in the highlighter; any other mark opens its own passage. Above the box, up
-to four suggested questions come from the headings of your documents. When the documents do not say it, the panel says
-so and suggests what to add.
+the first citation opens with that passage in the highlighter — the mark beside it carries the number of the citation —
+and any other mark opens its own passage. A passage reads as the document says it: its heading once above it, its lists
+as lists, the words it repeats from the passage before it in the muted grey and outside the highlighter, and the
+highlighter under each line from its first own word. Above the box, up
+to four suggested questions come from the headings of your documents, first from the ones written in the language of
+the panel. When the documents do not say it, the panel says so and suggests what to add.
 
 **This answer is right** verifies the third step. If an answer is not right, the step asks for attention instead of
 turning green, which is the honest way of saying that something in the documents needs a look.
@@ -104,14 +108,19 @@ dividiendo en pasajes, listo con su número de pasajes, o el motivo por el que f
 sobre el límite, un tipo que no leemos, sin texto, la búsqueda sin conectar).
 
 Cada documento se abre como una página propia con sus pasajes agrupados bajo sus apartados en orden de lectura, que es
-lo que el sistema entendió del archivo. El botón de quitar abre una ventana de unos segundos en la que todavía no se
+lo que el sistema entendió del archivo. Un pasaje se lee como lo dice el documento: su título arriba, sus listas como
+listas y un elemento por línea. El botón de quitar abre una ventana de unos segundos en la que todavía no se
 borró nada, con un botón que conserva el documento.
 
 ### 3. Pruébalo
 
 Pregunta a tus propios documentos. La respuesta aparece con sus citas numeradas a la izquierda y, a la derecha, el
-documento de la primera cita se abre con ese pasaje en el resaltador; cualquier otra marca abre su propio pasaje.
-Arriba de la caja, hasta cuatro preguntas sugeridas salen de los títulos de tus documentos. Cuando los documentos no lo
+documento de la primera cita se abre con ese pasaje en el resaltador —la marca de al lado lleva el número de la cita— y
+cualquier otra marca abre su propio pasaje. Un pasaje se lee como lo dice el documento: su título una vez arriba, sus
+listas como listas, las palabras que repite del pasaje anterior en gris tenue y fuera del resaltador, y el resaltador
+debajo de cada línea desde su primera palabra propia.
+Arriba de la caja, hasta cuatro preguntas sugeridas salen de los títulos de tus documentos, primero de los que están
+escritos en el idioma del panel. Cuando los documentos no lo
 dicen, el panel lo dice y sugiere qué agregar.
 
 **Esta respuesta es correcta** verifica el tercer paso. Si una respuesta no lo es, el paso pide atención en vez de
@@ -128,12 +137,12 @@ incrustarlo, y el agente de voz, que es la tercera manera de publicar después d
 de los documentos del negocio y pueden estar equivocadas, que no se compartan datos personales, y el enlace a
 `/privacy`, que nombra los proveedores que usa el negocio y dónde trata cada uno los datos.
 
-### Después de la alta
+### Después de la configuración
 
 El espacio de trabajo conserva las siete secciones del panel — Inicio, Información, Pruébalo, Conversaciones,
 Apariencia y publicación, IA y llaves, Ajustes — cada una numerada como una cita. Inicio dice qué falta (cada paso es
-una puerta de vuelta a la alta guiada) y las últimas preguntas. "Para quien instala" vive bajo Ajustes y es la única
-página del panel que nombra una variable del entorno.
+una puerta de vuelta a la configuración guiada) y las últimas preguntas. "Para quien instala" vive bajo Ajustes y es la
+única página del panel que nombra una variable del entorno.
 
 Una cara pública sin IA conectada no miente: dice que el asistente todavía no está listo y le ofrece al dueño la
 entrada al panel, y nunca ofrece una caja que no puede responder.

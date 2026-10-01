@@ -14,6 +14,7 @@ const answered = {
       heading: "Precios",
       position: 3,
       excerpt: "Afinación de bicicleta: 380 pesos.",
+      lead: 0,
     },
   ],
 };
@@ -49,8 +50,37 @@ describe("the client of /api/ask", () => {
     });
   });
 
-  it("carries a refusal as a refusal", async () => {
-    const fetchImpl = vi.fn(async () =>
+  it("reads a citation of a server that carries no lead as a whole excerpt", async () => {
+    const older = {
+      status: "answered",
+      answer: "The tune-up is 380 pesos [1].",
+      citations: [
+        {
+          n: 1,
+          document: "cafe-la-horquilla.md",
+          heading: "Precios",
+          position: 3,
+          excerpt: "Afinación de bicicleta: 380 pesos.",
+        },
+      ],
+    };
+    const fetchImpl = vi.fn(async () => json(older));
+
+    const result = await askCited({
+      question: "How much is a tune-up?",
+      sessionId: "tab-1",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    expect(result.status).toBe("answered");
+
+    if (result.status === "answered") {
+      expect(result.citations[0]?.lead).toBe(0);
+      expect(result.citations[0]?.excerpt).toBe("Afinación de bicicleta: 380 pesos.");
+    }
+  });
+
+  it("carries a refusal as a refusal", async () => {    const fetchImpl = vi.fn(async () =>
       json({ status: "refused", answer: "I can't find that in this business's documents." }),
     );
 

@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import type { Server } from "node:http";
 import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
@@ -147,6 +147,9 @@ async function openStep(page: Page, id: string): Promise<void> {
 
 async function shoot(page: Page, name: string, width: number): Promise<void> {
   await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+  // Task 10.4 of the amendment: the captures are taken with `prefers-reduced-motion: reduce`, so the highlighter is
+  // painted at rest and the band of the capture is the finished one.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.screenshot({ path: resolve(captures, `${name}-${width}.png`), fullPage: true });
 }
 
@@ -259,6 +262,18 @@ test("from zero to an answer, timed", async ({ page }) => {
 
   await expect(highlighted).toBeVisible();
   expect((await highlighted.innerText()).trim().length, "the passage of the citation").toBeGreaterThan(10);
+  // Decision 9 of the amendment: Try it shows the heading of the passage only as the section label above it, never
+  // above the passage nor at the start of its text, so the label of its section carries it exactly once. The label is
+  // read as the document holds it: the label of the panel is painted in capitals, and the text of the node is not.
+  const section = highlighted.locator("xpath=ancestor::div[1]");
+  const sectionLabel =
+    (await highlighted.locator("xpath=ancestor::ul[1]/preceding-sibling::p[1]").textContent()) ?? "";
+
+  await expect(highlighted.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(section.getByText(sectionLabel, { exact: true })).toHaveCount(1);
+  // Decision 6 of `passage-display-polish`: the mark beside the cited passage reads the citation's number, never the
+  // position of the passage in its document.
+  await expect(highlighted.locator('[data-brand="citation-mark"]')).toHaveText("1");
   await expect(page.locator('[data-try="turn"]').getByRole("button", { name: /Citation 1/ })).toBeVisible();
   await axe(page);
   await shoot(page, "guided-try", 1440);
@@ -413,7 +428,36 @@ test("a document page lists its headings in reading order", async ({ page }) => 
   expect(headings).toContain("Precios");
   expect(headings.indexOf("Horario")).toBeLessThan(headings.indexOf("Precios"));
   await expect(page.getByText("Afinación de bicicleta: 380 pesos.")).toBeVisible();
+  // Decisions 3, 6, 9, 10 and 14 of `passage-display-polish`: the passage shows its heading once (the `h2` of its
+  // section), the list of that passage as one list — the page carries the two lists of the document, nine items in
+  // all — and no citation mark at all, because this page shows passages without an answer.
+  const prices = page.locator('[data-document-passage]:has-text("380 pesos")');
+
+  await expect(prices.locator('[data-passage="item"]')).toHaveCount(5);
+  await expect(prices.locator("ul, ol")).toHaveCount(1);
+  await expect(prices.locator("ul > li, ol > li")).toHaveCount(5);
+  await expect(prices.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 2, name: "Precios" })).toHaveCount(1);
+  await expect(page.locator('[data-document-passage] [data-passage="item"]')).toHaveCount(9);
+  await expect(page.locator('[data-document-passage] [data-brand="citation-mark"]')).toHaveCount(0);
   await axe(page);
+});
+
+// Decision 11 of the amendment and task 10.4: the page of a document opens on the passage a citation marked, with the
+// highlighter on it, and the capture of the document page is taken there at 1440 px and at 375 px.
+test("the page of a document highlights the passage a citation opened", async ({ page }) => {
+  await signIn(page, `/admin/information/${sampleDocument}?highlight=2`);
+
+  const open = page.locator('[data-document-passage="open"]');
+
+  await expect(open).toHaveCount(1);
+  await expect(open).toContainText("380 pesos");
+  await expect(open.locator("ul, ol")).toHaveCount(1);
+  await expect(open.locator("ul > li, ol > li")).toHaveCount(5);
+  await expect(open.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(open.locator(".hl").first()).toHaveText("Espresso: 35 pesos.");
+  await axe(page);
+
   await shoot(page, "guided-document", 1440);
   await shoot(page, "guided-document", 375);
 });
@@ -527,6 +571,64 @@ test("every page of the round passes axe in English and in Spanish", async ({ pa
     await expect(page.getByRole("heading", { level: 1 })).toContainText(one.title);
     await axe(page);
   }
+});
+
+// Decision 15 of Amendment 2: the samples of the corpus have no lead at all, because no passage of theirs repeats the
+// end of the one before it, so the browser suite uploads a fixture of its own (`e2e/fixtures/`) whose one section is
+// long enough to be cut into two passages and whose second passage starts with the words that end the first. The
+// owner's two views have to paint those words outside the highlighter and start the highlighter at the first own word,
+// and a mutant that passes `lead={0}` to `TryItPanel` or to `DocumentPanel` has to fail this case.
+test("the lead of a passage reads outside the highlighter in Try it and on the page of its document", async ({ page }) => {
+  const fixture = "returns-and-warranty.md";
+  const repeated = "The workshop checks the bicycle before returning it.";
+  const own = "The laser calibration of the vacuum valve";
+
+  await signIn(page, "/admin/information");
+  await page.getByLabel(english.uploadDocument).setInputFiles([
+    {
+      name: fixture,
+      mimeType: "text/markdown",
+      buffer: readFileSync(resolve(process.cwd(), "e2e", "fixtures", fixture)),
+    },
+  ]);
+  await expect(page.locator('[data-upload-state="ready"]')).toHaveCount(1, { timeout: 60_000 });
+  await expect(page.getByRole("link", { name: fixture })).toBeVisible();
+
+  // Try it: the double answers a question about the laser calibration, and the citation it marks is the second passage
+  // of the fixture, which is the only one that holds those words.
+  await signIn(page, "/admin/try");
+  await page.getByLabel(english.question.label).fill("Is the laser calibration of the vacuum valve covered?");
+  await page.getByRole("button", { name: english.question.submit }).click();
+
+  const open = page.locator('[data-citation-passage="open"]');
+
+  await expect(open).toHaveCount(1);
+  await expect(open).toContainText(own);
+
+  const lead = open.locator('[data-passage="lead"]');
+  const highlight = open.locator(".hl");
+
+  await expect(lead, "the lead of the cited passage in Try it").toHaveCount(1);
+  await expect(lead).toHaveText(repeated);
+  await expect(lead).not.toContainText(own);
+  expect(
+    (await highlight.innerText()).trimStart().startsWith(own),
+    "the highlighter of Try it starts at the first own word",
+  ).toBe(true);
+
+  // The page of the same document: `?highlight=1` names its second passage, and the lead is read there as well.
+  await signIn(page, `/admin/information/${fixture}?highlight=1`);
+
+  const opened = page.locator('[data-document-passage="open"]');
+
+  await expect(opened).toHaveCount(1);
+  await expect(opened).toContainText(own);
+  await expect(opened.locator('[data-passage="lead"]'), "the lead of the open passage of the page").toHaveCount(1);
+  await expect(opened.locator('[data-passage="lead"]')).toHaveText(repeated);
+  expect(
+    (await opened.locator(".hl").innerText()).trimStart().startsWith(own),
+    "the highlighter of the page starts at the first own word",
+  ).toBe(true);
 });
 
 // Decision 24 of the fourth amendment: the shape of the real run with DeepSeek, where the chat is set by the server and

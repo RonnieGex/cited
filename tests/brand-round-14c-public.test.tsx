@@ -83,6 +83,7 @@ const bookings: Citation = {
   heading: "Bookings and cancellations",
   position: 1,
   excerpt: "Bookings are confirmed by message. A cancellation is free up to one day before.",
+  lead: 0,
 };
 const storage: Citation = {
   n: 2,
@@ -90,6 +91,7 @@ const storage: Citation = {
   heading: "Storage",
   position: 2,
   excerpt: "A bike can stay in the workshop for three days at no charge.",
+  lead: 0,
 };
 const loose: Citation = {
   n: 3,
@@ -97,6 +99,7 @@ const loose: Citation = {
   heading: null,
   position: 0,
   excerpt: "Read me first.",
+  lead: 0,
 };
 const answered: AskResult = {
   status: "answered",

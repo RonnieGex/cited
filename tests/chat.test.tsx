@@ -18,6 +18,7 @@ const citation: Citation = {
   heading: "Precios",
   position: 3,
   excerpt: "Afinación de bicicleta: 380 pesos.",
+  lead: 0,
 };
 
 class MemoryStorage {
@@ -110,13 +111,48 @@ describe("the chat of the public page", () => {
     // The sources list now shows the document name beside its mark (decision 10), so the panel is read on its own.
     const panel = screen.getByRole("region", { name: strings.citation(1) });
 
-    expect(within(panel).getByText(citation.excerpt)).toBeInTheDocument();
+    // The passage of `passage-display-polish`: the heading sits on the section line of the panel, once, and the text of
+    // the excerpt is inside the highlighter, never at the start of the heading (decisions 9 and 14 of the amendment).
+    expect(within(panel).getAllByText(citation.heading as string)).toHaveLength(1);
+    expect(within(panel).getByText(citation.excerpt, { selector: ".hl" })).toBeInTheDocument();
     expect(within(panel).getByText(citation.document)).toBeInTheDocument();
-    expect(within(panel).getByText(citation.heading as string)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: strings.close }));
 
     expect(screen.queryByText(citation.excerpt)).toBeNull();
+  });
+
+  it("shows the heading of the cited passage exactly once, on the section line of its panel", async () => {
+    const first: Citation = {
+      n: 1,
+      document: "cafe-la-horquilla.md",
+      heading: "Café La Horquilla",
+      position: 0,
+      excerpt: "Café La Horquilla Somos un café y taller de bicicletas en el centro de la ciudad.",
+      lead: 0,
+    };
+    const { ask } = askWith({
+      status: "answered",
+      answer: "Somos un café y taller de bicicletas. [1]",
+      citations: [first],
+    });
+
+    render(<Chat lang="en" welcome="Ask us anything." ask={ask} storage={new MemoryStorage()} />);
+
+    question("What is this place?");
+    fireEvent.click(await screen.findByRole("button", { name: strings.citation(1) }));
+
+    const panel = screen.getByRole("region", { name: strings.citation(1) });
+
+    // Decision 9: the heading of the passage sits on the section line of the panel and nowhere else; it is never
+    // painted above the passage nor at the start of its text.
+    expect(within(panel).getAllByText(first.heading as string)).toHaveLength(1);
+    expect(panel.querySelectorAll('[data-passage="heading"]')).toHaveLength(1);
+    expect(panel.querySelector('[data-passage="heading"]')?.textContent).toBe(first.heading);
+    // The highlighter starts at the first word of the passage, after the heading the text of the passage begins with.
+    expect(panel.querySelector(".hl")?.textContent).toBe(
+      "Somos un café y taller de bicicletas en el centro de la ciudad.",
+    );
   });
 
   it("shows a refusal as a refusal, with no citation chip", async () => {

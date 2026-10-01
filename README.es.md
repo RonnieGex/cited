@@ -97,7 +97,7 @@ en cuatro pasos: conecta tu IA, agrega tu información, pruébalo, publícalo. C
 antes del siguiente, y el panel guarda el negocio, su logo y sus documentos. Abre en inglés, con el selector
 `English | Español` en su encabezado, y lo sirve la misma aplicación que responde las preguntas.
 
-<img src="docs/images/admin/guided-welcome-1440.png" alt="La alta guiada del panel de Cited: la bienvenida del primer ingreso con una frase de valor, 4 pasos unos 5 minutos y el botón de empezar, y los cuatro pasos numerados debajo" width="1280">
+<img src="docs/images/admin/guided-welcome-1440.png" alt="La configuración guiada del panel de Cited: la bienvenida del primer ingreso con una frase de valor, 4 pasos unos 5 minutos y el botón de empezar, y los cuatro pasos numerados debajo" width="1280">
 
 <picture><img src="docs/images/admin/panel.png" alt="La pantalla del negocio del panel de Cited, con el nombre, el color, el tono, el idioma, los temas prohibidos, las dos bienvenidas y el logo del negocio" width="1280"></picture>
 
@@ -196,7 +196,7 @@ store: .data/katalis.sqlite
 status: answered
 answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]
 citations:
-  [1] cafe-la-horquilla.md [Precios] position 2
+  [1] cafe-la-horquilla.md [Precios] position 2 lead 0
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
 citations 1, 38 ms, rss 102 MB
 ```

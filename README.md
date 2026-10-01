@@ -194,7 +194,7 @@ store: .data/katalis.sqlite
 status: answered
 answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]
 citations:
-  [1] cafe-la-horquilla.md [Precios] position 2
+  [1] cafe-la-horquilla.md [Precios] position 2 lead 0
       Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
 citations 1, 38 ms, rss 102 MB
 ```
