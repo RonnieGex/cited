@@ -1,6 +1,6 @@
 # LOOP_STATE · Cited
 
-STATUS: RUNNING
+STATUS: DONE
 CHANGE: passage-display-polish (OpenSpec), Amendment 1, section 10 (tasks 10.1 to 10.5)
 BRANCH: feature/passage-display-polish
 BASE: 86b250f (main when the change started)
@@ -39,6 +39,14 @@ the specs. The build and the E2E run in a disposable clean clone, never opening 
 
 Every box of section 10.1 to 10.5 is marked with its report inside the change, and every report names the commit it
 validates. Box 10.6 stays unchecked: it is Fable's, Codex's and Franc's.
+
+## Close
+
+STATUS: DONE. The five boxes of section 10 are marked with their report and their commit, and the round of the
+Amendment 1 is delivered in the section "Ronda 2" of `katalis-dev/tasks/entrega-passage-display-polish.md`. The
+commits of the round, in order: `e6ce8df` (the tests, red), `2fc6e53` (the red report and the boxes 10.1 and 10.2),
+`8c99552` (the decisions 9 to 12 and the box 10.3), `28bd86f` (the captures and the box 10.4), `dbb9032` (the checks
+and the box 10.5), `5470e20` (this state in RUNNING) and the commit that carries this state, with STATUS in DONE.
 
 ## Evidence
 
