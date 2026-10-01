@@ -78,6 +78,14 @@ None. Every check of the change passes at the code of the last report: `npm run 
 
 ### NOT DONE
 
+- **Two of the captures of task 7.2.** The page of a document and `Try it` with a cited passage were not captured: the
+  five images of `reports/images/` are the public page with the `Precios` passage open (both languages, both widths) and
+  the widget with a passage open, which are written by the new cases of `e2e/passage-display.spec.ts`. The two views of
+  the panel are read by the browser suite (`e2e/setup.spec.ts` and `e2e/setup-es.spec.ts`, with the number of the mark,
+  the list of the passage and the absence of a mark on the page), but no case of this round takes their picture: the
+  captures of the guided setup belong to the walk of `setup.spec.ts`, which writes them on every run under
+  `test-results/captures/admin/` of the clone (`guided-try-1440.png`, `guided-try-375.png`, `guided-document-1440.png`
+  and `guided-document-375.png`), and this round did not copy them into the change.
 - **The reopen link is not walked in Spanish in a browser.** The contract asks for it (task 7.1). The panel of the
   browser suite opens in English, and the Spanish string "Abrir la configuración guiada otra vez" is pinned by
   `tests/guided-setup-copy.test.ts` over `lib/i18n/admin.ts`, which reads the same string the panel renders. A browser
