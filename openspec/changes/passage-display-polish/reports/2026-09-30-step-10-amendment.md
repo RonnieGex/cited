@@ -141,13 +141,6 @@ accepted the defects is corrected to the spec, `tests/chat.test.tsx:116` include
 
 ### NOT DONE
 
-- **The sample outputs of the READMEs still show the flattened text of `Precios`.** `README.md:172` and `:198`,
-  `README.es.md:174` and `:200`, `docs/answering.md:263` and `docs/images/readme-graphics.json:230`, `:234` and `:248`
-  read `Precios - Espresso: 35 pesos. - Café de olla…`, and the store the chunker writes after decision 2 holds
-  `Precios - Espresso: 35 pesos.\n- Café de olla…` (the output of `reports/2026-09-30-step-6-curl.md` and the corpus
-  of `reports/2026-09-30-step-5-checks.md` show the line break). It is the task 8.1 of the round before this one, it
-  was missed by the adversarial review and by this round's tests, and section 10 does not authorise touching it:
-  it is reported here and not fixed.
 - **The steps 10.6 (the push, the second review of Codex and the acceptance of Franc) are not of this delivery.**
 
 ### UNKNOWN
@@ -156,3 +149,13 @@ accepted the defects is corrected to the spec, `tests/chat.test.tsx:116` include
   deterministic providers, the browser suite its local double, and the walk of the panel the double of the port 3216.
 - **The appearance in a browser that is not Chromium.** Every browser case runs in the `Desktop Chrome` device of
   Playwright.
+
+### Corrected by Amendment 2
+
+- **The sample outputs of the READMEs (decision 16, 2026-09-30).** This report declared them NOT DONE, because they
+  read `Precios - Espresso: 35 pesos. - Café de olla…` while the store holds the line break of decision 2. The
+  commands print exactly that: `npm run search` and `npm run ask` flatten every run of whitespace of the excerpt with
+  `.replace(/\s+/g, " ")` before printing it (`scripts/search.ts:32`, `scripts/ask.ts:70`), so the samples of the
+  READMEs, of `docs/answering.md` and of `docs/images/readme-graphics.json` are the output of the commands and there
+  is nothing to fix in them. The declaration is withdrawn; the three real outputs are in
+  `reports/2026-09-30-step-11-samples.md`.
