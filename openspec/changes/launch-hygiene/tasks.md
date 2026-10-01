@@ -17,7 +17,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 - [x] 2.1 `tests/agent-copies.test.ts`: the three folders hold the files of `ai-specs/agents/` byte for byte, and git
       tracks no path with mode `120000`; plus a case that builds a drifted copy in a temporary folder and expects the
       check to name the folder and the file (scenarios "A Windows clone…" and "A copy that drifts")
-- [ ] 2.2 `tests/third-party-notices.test.ts`: the section of the binaries of sharp names `@img/sharp-libvips-*`,
+- [x] 2.2 `tests/third-party-notices.test.ts`: the section of the binaries of sharp names `@img/sharp-libvips-*`,
       `LGPL-3.0-or-later` and the version of `package-lock.json` (scenarios of `supply-chain-security`)
 
 ## 3. Implementation

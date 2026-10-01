@@ -98,3 +98,90 @@ describe("the notice of what is copied from a package", () => {
     }
   });
 });
+
+// The requirement "What npm installs under another license is named" of
+// `openspec/changes/launch-hygiene/specs/supply-chain-security/spec.md`: the notices carry a section on the packages
+// `npm ci` installs and this repository neither serves nor ships, whose license is not a permissive one; today the
+// prebuilt binaries of sharp, `@img/sharp-libvips-*`, `LGPL-3.0-or-later`, with the version of `package-lock.json`,
+// where their license text travels and the statement that no code of this repository links against them. The version
+// is read from the lock, so this fails when the lock moves and the section stays behind.
+
+const NPM_SECTION = "## Installed by npm, not shipped";
+
+type LockedPackage = { license?: string; version?: string };
+
+function locked(): Record<string, LockedPackage> {
+  const lock = JSON.parse(read("package-lock.json")) as { packages?: Record<string, LockedPackage> };
+
+  return lock.packages ?? {};
+}
+
+function sharpBinaries(): Array<{ name: string; version: string; license: string }> {
+  return Object.entries(locked())
+    .filter(([path]) => path.includes("@img/sharp-libvips-"))
+    .map(([path, entry]) => ({
+      name: path.replace(/^node_modules\//, ""),
+      version: entry.version ?? "",
+      license: entry.license ?? "",
+    }));
+}
+
+function section(heading: string): string {
+  const lines = read(NOTICES).split("\n");
+  const start = lines.indexOf(heading);
+
+  if (start < 0) {
+    return "";
+  }
+
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((line) => line.startsWith("## "));
+
+  return (end < 0 ? rest : rest.slice(0, end)).join("\n");
+}
+
+function sharpProblems(notice: string, version: string): string[] {
+  if (notice.length === 0) {
+    return [`the section ${NPM_SECTION} is missing`];
+  }
+
+  return [
+    "@img/sharp-libvips-*",
+    version,
+    "LGPL-3.0-or-later",
+    "node_modules/@img/sharp-libvips-",
+    "through next",
+    "does not ship",
+    "links against them",
+  ]
+    .filter((expected) => !notice.includes(expected))
+    .map((expected) => `the section does not say ${expected}`);
+}
+
+describe("the notice of what npm installs and this repository does not ship", () => {
+  it("names the pattern, the version of the lock and the license of the prebuilt binaries of sharp", () => {
+    const binaries = sharpBinaries();
+
+    expect(binaries.length).toBeGreaterThan(0);
+    expect(new Set(binaries.map((binary) => binary.version)).size).toBe(1);
+    expect(new Set(binaries.map((binary) => binary.license))).toEqual(new Set(["LGPL-3.0-or-later"]));
+
+    expect(sharpProblems(section(NPM_SECTION), binaries[0]?.version ?? "")).toEqual([]);
+  });
+
+  it("fails a section that names another version of the binaries", () => {
+    const version = sharpBinaries()[0]?.version ?? "";
+    const notice = [
+      "@img/sharp-libvips-*",
+      version,
+      "LGPL-3.0-or-later",
+      "node_modules/@img/sharp-libvips-",
+      "through next",
+      "does not ship",
+      "links against them",
+    ].join(" ");
+
+    expect(sharpProblems(notice, version)).toEqual([]);
+    expect(sharpProblems(notice, "0.0.0")).toEqual(["the section does not say 0.0.0"]);
+  });
+});
