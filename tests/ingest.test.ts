@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { createFakeEmbeddings } from "@/lib/embeddings/fake";
@@ -34,6 +35,70 @@ vi.mock("node:fs/promises", async (original: () => Promise<typeof import("node:f
 const root = mkdtempSync(join(tmpdir(), "katalis-ingest-"));
 const stores: Store[] = [];
 let counter = 0;
+
+// The scenario "A file that grows after it was measured" needs the real handle `parseFile` opens, and the mock of the
+// module above does not reach the import of the library: `node:fs/promises` is a builtin and Vitest leaves it external
+// for the modules of the application. The watch goes on the prototype of the handle that `open` returns, which is the
+// object the library calls: it counts every byte that leaves the file, whichever door reads them (`read` or
+// `readFile`), and, when `grown` carries bytes, writes them right after `stat` answered.
+type HandleDoors = {
+  stat: (...args: unknown[]) => Promise<{ size: number }>;
+  read: (...args: unknown[]) => Promise<{ bytesRead: number }>;
+  readFile: (...args: unknown[]) => Promise<Buffer>;
+};
+
+async function watchHandle(path: string, grown: Uint8Array = new Uint8Array(0)) {
+  const { open } = await import("node:fs/promises");
+  const opener = await open(path, "r");
+  const doors = Object.getPrototypeOf(opener) as HandleDoors;
+
+  await opener.close();
+
+  const realStat = doors.stat;
+  const realRead = doors.read;
+  const realReadFile = doors.readFile;
+  const counters = { readCalls: 0, readFileCalls: 0, bytesRead: 0 };
+
+  const stat = vi.spyOn(doors, "stat").mockImplementation(async function (this: unknown, ...args: unknown[]) {
+    const information = await Reflect.apply(realStat, this, args);
+
+    if (grown.length > 0) {
+      writeFileSync(path, grown);
+    }
+
+    return information;
+  });
+  const read = vi.spyOn(doors, "read").mockImplementation(async function (this: unknown, ...args: unknown[]) {
+    counters.readCalls += 1;
+
+    const result = await Reflect.apply(realRead, this, args);
+
+    counters.bytesRead += result.bytesRead;
+
+    return result;
+  });
+  const readFile = vi.spyOn(doors, "readFile").mockImplementation(async function (
+    this: unknown,
+    ...args: unknown[]
+  ) {
+    counters.readFileCalls += 1;
+
+    const data = await Reflect.apply(realReadFile, this, args);
+
+    counters.bytesRead += data.length;
+
+    return data;
+  });
+
+  return {
+    counters,
+    restore: () => {
+      stat.mockRestore();
+      read.mockRestore();
+      readFile.mockRestore();
+    },
+  };
+}
 
 function caseFolder(): string {
   counter += 1;
@@ -244,6 +309,12 @@ describe("a Word document keeps its text as written", () => {
     expect(text).not.toContain("</p>");
     expect(text).not.toContain("<br");
   });
+
+  // The second half of the scenario: in the converter's HTML a raw `<` only opens markup, so the `<` that is left is
+  // markup cut before its `>` and goes with everything after it on its line.
+  it("removes the markup that was cut before its `>`", () => {
+    expect(docxToMarkdown("<p>Horario</p><em sin-cierre")).toBe("Horario");
+  });
 });
 
 describe("the limits", () => {
@@ -335,6 +406,90 @@ describe("the limits", () => {
 
     expect(parsed.text).toContain("Abrimos de martes a domingo.");
     expect(probe.readPaths).toHaveLength(1);
+  });
+
+  // The scenario "A file that grows after it was measured": the file measures 5 bytes when it is opened and the watch
+  // writes `maxBytes + 1` bytes right after `stat` answered. The refusal names the bytes that were read, no byte
+  // leaves the handle through `readFile` and the parser never sees the grown document: the grown bytes are a whole
+  // Word document, so a parser that ran would answer with the text of its passage instead of the message of the limit.
+  it("refuses a file that grows after it was measured, with the limit and no parsing", async () => {
+    const docx = buildDocx([{ text: "Abrimos de martes a domingo." }]);
+    const maxBytes = docx.length - 1;
+    const path = document("crece.docx", docx.subarray(0, 5));
+    const watch = await watchHandle(path, docx);
+    const parser = vi.spyOn(mammoth, "convertToHtml");
+    let message = "";
+
+    try {
+      await parseFile(path, { maxBytes, maxPages: MAX_PAGES });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+
+    // Soft assertions on purpose: a failing case has to show every observation of the race at once, not only the
+    // first one, so the red names the bytes that left the handle, the door they used and the parser that ran.
+    try {
+      expect.soft(watch.counters.bytesRead).toBe(maxBytes + 1);
+      expect.soft(watch.counters.readFileCalls).toBe(0);
+      expect.soft(parser).not.toHaveBeenCalled();
+      expect
+        .soft(message)
+        .toMatch(new RegExp(`crosses the size limit: ${maxBytes + 1} bytes is above the maximum of ${maxBytes}\\.`));
+    } finally {
+      parser.mockRestore();
+      watch.restore();
+    }
+  });
+
+  // The bound of the same scenario, in the case where it bites: the file grows past the limit and one byte, so a read
+  // without the bound would leave more bytes than the limit plus one.
+  it("stops the read of a file that grows past the limit at the limit plus one byte", async () => {
+    const maxBytes = 1024;
+    const path = document("crece-mas.pdf", "%PDF-");
+    const grown = Buffer.concat([Buffer.from("%PDF-"), Buffer.alloc(maxBytes + 4096 - 5, 0x61)]);
+    const watch = await watchHandle(path, grown);
+    let message = "";
+
+    try {
+      await parseFile(path, { maxBytes, maxPages: MAX_PAGES });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+
+    try {
+      expect.soft(watch.counters.bytesRead).toBe(maxBytes + 1);
+      expect.soft(watch.counters.readFileCalls).toBe(0);
+      expect
+        .soft(message)
+        .toMatch(new RegExp(`crosses the size limit: ${maxBytes + 1} bytes is above the maximum of ${maxBytes}\\.`));
+    } finally {
+      watch.restore();
+    }
+  });
+
+  // The other half of the same scenario, which must not change: a file already above the limit when it is measured is
+  // refused with its size and with no byte read, not even one turn of the bounded loop.
+  it("reads no byte of a file that is above the limit when it is measured", async () => {
+    const path = document("enorme-abierto.md", `# Notas\n${"a".repeat(4096)}`);
+    const size = statSync(path).size;
+    const watch = await watchHandle(path);
+    let message = "";
+
+    try {
+      await parseFile(path, { maxBytes: 1024, maxPages: MAX_PAGES });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+
+    try {
+      expect(size).toBeGreaterThan(1024);
+      expect(message).toMatch(new RegExp(`crosses the size limit: ${size} bytes is above the maximum of 1024\\.`));
+      expect.soft(watch.counters.readCalls).toBe(0);
+      expect.soft(watch.counters.readFileCalls).toBe(0);
+      expect.soft(watch.counters.bytesRead).toBe(0);
+    } finally {
+      watch.restore();
+    }
   });
 });
 
