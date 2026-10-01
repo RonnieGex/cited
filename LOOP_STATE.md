@@ -16,14 +16,17 @@ and the text of the tasks, of `design.md` and of the specs is not edited.
 
 ## Progress
 
-- **10.1**: pending.
+- **10.1**: the two guards are red on `518a117` (6 of 17 cases fail: five of the row-by-row guard of the notice and the
+  refusal of the sync before a junction that leaves the root); report `reports/2026-09-30-step-10-1-red.md`, box in this
+  commit.
 - **10.2**: pending.
 - **10.3**: pending.
 - **10.4**: pending.
 
 ## Evidence
 
-Nothing yet: the round starts with this state.
+- The suite of the two files of step 10.1 on `518a117`: `Tests 6 failed | 11 passed (17)`, exit 1, with the Node v24.21.0
+  that `npx -y -p node@24` resolves for Vitest and the Node v24.11.0 of the PATH.
 
 ## Hard rules respected
 

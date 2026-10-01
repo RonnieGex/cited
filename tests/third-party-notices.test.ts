@@ -1,7 +1,8 @@
 // @vitest-environment node
-import { readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 // The requirement "What is copied from a package keeps its notice" of
 // `openspec/changes/elevenlabs-voice-agent/specs/voice-agent/spec.md`: a file of this repository that is a verbatim copy
@@ -100,34 +101,49 @@ describe("the notice of what is copied from a package", () => {
 });
 
 // The requirement "What npm installs under another license is named" of
-// `openspec/changes/launch-hygiene/specs/supply-chain-security/spec.md`: the notices carry a section on the packages
-// `npm ci` installs and this repository neither serves nor ships, whose license is not a permissive one; today the
-// prebuilt binaries of sharp, `@img/sharp-libvips-*`, `LGPL-3.0-or-later`, with the version of `package-lock.json`,
-// where their license text travels and the statement that no code of this repository links against them. The version
-// is read from the lock, so this fails when the lock moves and the section stays behind.
+// `openspec/changes/launch-hygiene/specs/supply-chain-security/spec.md`: every `@img/sharp-*` package of
+// `package-lock.json` whose `license` field names the LGPL has one row in the section, with the version and the license
+// exactly as the lock records them; the section says those packages carry the name of their license and no license
+// text, links where the texts are and says, as facts, how this repository uses sharp. The rows are compared one by one
+// and never against the section as a whole, so a version that is right somewhere in the prose does not pass the guard.
 
 const NPM_SECTION = "## Installed by npm, not shipped";
+const LOCK = "package-lock.json";
 
 type LockedPackage = { license?: string; version?: string };
+type Lock = { packages?: Record<string, LockedPackage> };
+type Entry = { name: string; version: string; license: string };
+type Fixture = { lock?: (lock: Lock) => void; notice?: (notice: string) => string };
 
-function locked(): Record<string, LockedPackage> {
-  const lock = JSON.parse(read("package-lock.json")) as { packages?: Record<string, LockedPackage> };
+const fixtureRoots: string[] = [];
 
-  return lock.packages ?? {};
+afterAll(() => {
+  for (const root of fixtureRoots) {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+function textAt(root: string, path: string): string {
+  return readFileSync(join(root, ...path.split("/")), "utf8");
 }
 
-function sharpBinaries(): Array<{ name: string; version: string; license: string }> {
-  return Object.entries(locked())
-    .filter(([path]) => path.includes("@img/sharp-libvips-"))
+function lockAt(root: string): Lock {
+  return JSON.parse(textAt(root, LOCK)) as Lock;
+}
+
+function lockEntries(lock: Lock, onlyLgpl: boolean): Entry[] {
+  return Object.entries(lock.packages ?? {})
     .map(([path, entry]) => ({
       name: path.replace(/^node_modules\//, ""),
       version: entry.version ?? "",
       license: entry.license ?? "",
-    }));
+    }))
+    .filter((entry) => entry.name.startsWith("@img/sharp-"))
+    .filter((entry) => !onlyLgpl || entry.license.includes("LGPL"));
 }
 
-function section(heading: string): string {
-  const lines = read(NOTICES).split("\n");
+function sectionOf(notice: string, heading: string): string {
+  const lines = notice.split("\n");
   const start = lines.indexOf(heading);
 
   if (start < 0) {
@@ -140,50 +156,136 @@ function section(heading: string): string {
   return (end < 0 ? rest : rest.slice(0, end)).join("\n");
 }
 
-function sharpProblems(notice: string, version: string): string[] {
-  if (notice.length === 0) {
+function rowsOf(section: string): Entry[] {
+  return section
+    .split("\n")
+    .filter((line) => line.startsWith("|"))
+    .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim().replaceAll("`", "")))
+    .filter((cells) => cells.length >= 3 && (cells[0] ?? "").startsWith("@img/sharp-"))
+    .map((cells) => ({ name: cells[0] ?? "", version: cells[1] ?? "", license: cells[2] ?? "" }));
+}
+
+function rowProblems(notice: string, locked: Entry[]): string[] {
+  const section = sectionOf(notice, NPM_SECTION);
+
+  if (section.length === 0) {
     return [`the section ${NPM_SECTION} is missing`];
   }
 
-  return [
-    "@img/sharp-libvips-*",
-    version,
-    "LGPL-3.0-or-later",
-    "node_modules/@img/sharp-libvips-",
-    "installed through",
-    "next",
-    "does not ship",
-    "links against them",
-  ]
-    .filter((expected) => !notice.includes(expected))
-    .map((expected) => `the section does not say ${expected}`);
+  const rows = rowsOf(section);
+  const expected = new Map(locked.map((entry) => [entry.name, entry]));
+  const problems = rows
+    .filter((row) => !expected.has(row.name))
+    .map((row) => `${row.name} has a row and the lock does not name the LGPL for it`);
+
+  for (const entry of locked) {
+    const row = rows.find((candidate) => candidate.name === entry.name);
+
+    if (row === undefined) {
+      problems.push(`${entry.name} has no row`);
+      continue;
+    }
+
+    if (row.version !== entry.version) {
+      problems.push(`${entry.name} says version ${row.version} and the lock says ${entry.version}`);
+    }
+
+    if (row.license !== entry.license) {
+      problems.push(`${entry.name} says license ${row.license} and the lock says ${entry.license}`);
+    }
+  }
+
+  return problems;
+}
+
+function fixture(changes: Fixture = {}): string {
+  const root = mkdtempSync(join(tmpdir(), "katalis-notices-"));
+  const lock = lockAt(process.cwd());
+  const notice = read(NOTICES);
+
+  fixtureRoots.push(root);
+  changes.lock?.(lock);
+  writeFileSync(join(root, LOCK), `${JSON.stringify(lock, null, 2)}\n`);
+  writeFileSync(join(root, NOTICES), changes.notice?.(notice) ?? notice);
+
+  return root;
+}
+
+function moveVersion(lock: Lock, name: string, version: string): void {
+  const entry = lock.packages?.[`node_modules/${name}`];
+
+  if (entry !== undefined) {
+    entry.version = version;
+  }
 }
 
 describe("the notice of what npm installs and this repository does not ship", () => {
-  it("names the pattern, the version of the lock and the license of the prebuilt binaries of sharp", () => {
-    const binaries = sharpBinaries();
+  it("gives one row per LGPL package of the lock, with the version and the license the lock records", () => {
+    const locked = lockEntries(lockAt(process.cwd()), true);
 
-    expect(binaries.length).toBeGreaterThan(0);
-    expect(new Set(binaries.map((binary) => binary.version)).size).toBe(1);
-    expect(new Set(binaries.map((binary) => binary.license))).toEqual(new Set(["LGPL-3.0-or-later"]));
-
-    expect(sharpProblems(section(NPM_SECTION), binaries[0]?.version ?? "")).toEqual([]);
+    expect(locked.length).toBeGreaterThan(0);
+    expect(locked.every((entry) => entry.license.includes("LGPL"))).toBe(true);
+    expect(rowProblems(read(NOTICES), locked)).toEqual([]);
   });
 
-  it("fails a section that names another version of the binaries", () => {
-    const version = sharpBinaries()[0]?.version ?? "";
-    const notice = [
-      "@img/sharp-libvips-*",
-      version,
-      "LGPL-3.0-or-later",
-      "node_modules/@img/sharp-libvips-",
-      "installed through",
-      "next",
-      "does not ship",
-      "links against them",
-    ].join(" ");
+  it("says the packages carry no license text, links the texts and says how this repository uses sharp", () => {
+    const section = sectionOf(read(NOTICES), NPM_SECTION);
 
-    expect(sharpProblems(notice, version)).toEqual([]);
-    expect(sharpProblems(notice, "0.0.0")).toEqual(["the section does not say 0.0.0"]);
+    for (const expected of [
+      "no license text",
+      "https://www.gnu.org/licenses/lgpl-3.0.html",
+      "https://github.com/lovell/sharp-libvips",
+      "does not ship",
+      "optional dependency",
+      "scripts/render-flame-variants.mjs",
+      "scripts/render-readme-graphics.mjs",
+      "scripts/render-readme-orb.mjs",
+    ]) {
+      expect(section).toContain(expected);
+    }
+
+    expect(section).not.toContain("links against");
+  });
+
+  it("names the row of a package whose version the lock moved, in a temporary copy", () => {
+    const root = fixture({
+      lock: (lock) => {
+        moveVersion(lock, "@img/sharp-libvips-linux-x64", "9.9.9");
+      },
+    });
+
+    expect(rowProblems(textAt(root, NOTICES), lockEntries(lockAt(root), true))).toEqual([
+      "@img/sharp-libvips-linux-x64 says version 1.3.4 and the lock says 9.9.9",
+    ]);
+  });
+
+  it("names the row of a package the lock no longer licenses under the LGPL, in a temporary copy", () => {
+    const root = fixture({
+      lock: (lock) => {
+        const entry = lock.packages?.["node_modules/@img/sharp-libvips-linux-x64"];
+
+        if (entry !== undefined) {
+          entry.license = "Apache-2.0";
+        }
+      },
+    });
+
+    expect(rowProblems(textAt(root, NOTICES), lockEntries(lockAt(root), true))).toEqual([
+      "@img/sharp-libvips-linux-x64 has a row and the lock does not name the LGPL for it",
+    ]);
+  });
+
+  it("does not take a row that lives outside the section, in a temporary copy", () => {
+    const root = fixture({
+      notice: (notice) => {
+        const row = notice.split("\n").find((line) => line.includes("@img/sharp-wasm32")) ?? "";
+
+        return notice.replace(`${row}\n`, "").replace(NPM_SECTION, `${row}\n\n${NPM_SECTION}`);
+      },
+    });
+
+    expect(rowProblems(textAt(root, NOTICES), lockEntries(lockAt(root), true))).toEqual([
+      "@img/sharp-wasm32 has no row",
+    ]);
   });
 });

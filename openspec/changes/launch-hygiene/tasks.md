@@ -63,7 +63,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 10. Amendment 1 (decisions 5 to 9 of `design.md`)
 
-- [ ] 10.1 Tests first, red on `518a117`: the row-by-row guard of decision 8 (and a case that changes one version of
+- [x] 10.1 Tests first, red on `518a117`: the row-by-row guard of decision 8 (and a case that changes one version of
       the lock in a temporary copy and expects the row named); the agent list read from the source and a case that adds
       a fourth agent in a temporary tree, syncs and stays green; the sync refusing a junction whose real path is outside
       the root, built in a temporary tree

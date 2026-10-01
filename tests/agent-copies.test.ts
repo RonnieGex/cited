@@ -9,6 +9,7 @@ import {
   readdirSync,
   rmSync,
   statSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -19,14 +20,18 @@ import { afterAll, describe, expect, it } from "vitest";
 // `openspec/changes/launch-hygiene/specs/repository-bootstrap/spec.md`: the three folders are tracked as folders of
 // regular files, each holds a byte-for-byte copy of every file of `ai-specs/agents/` and nothing else, and
 // `npm run agents:sync` writes the copies from the source. The comparison reads the working tree, so it holds on
-// Windows and on Linux alike; the two fixtures build their own trees, so a copy that drifts fails here naming the
-// folder and the file without touching the repository.
+// Windows and on Linux alike; the fixtures build their own trees, so a copy that drifts fails here naming the folder
+// and the file without touching the repository. The list of agents comes from `ai-specs/agents/` itself (decision 9 of
+// `design.md`), so a fourth agent added to the source and copied with the sync keeps the file green, and the sync
+// resolves the real path of every folder it deletes or writes.
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const sourceDirectory = "ai-specs/agents";
 const copyDirectories = [".claude/agents", ".codex/agents", ".cursor/agents"];
 const syncScript = "scripts/sync-agents.mjs";
-const agents = ["backend-developer.md", "frontend-developer.md", "product-strategy-analyst.md"];
+// The scenario "A Windows clone without the symlink privilege" of the delta names these three agents in every folder.
+const scenarioAgents = ["backend-developer.md", "frontend-developer.md", "product-strategy-analyst.md"];
+const fixtureAgents = ["fixture-backend.md", "fixture-frontend.md", "fixture-strategy.md"];
 const symlinkMode = "120000";
 const regularFileMode = "100644";
 const fixtureTimeout = 30_000;
@@ -68,6 +73,13 @@ function filesUnder(root: string, directory: string): string[] {
   }
 
   return files.sort();
+}
+
+function agentsOf(root: string): string[] {
+  return readdirSync(join(root, sourceDirectory), { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .sort();
 }
 
 function drift(root: string): string[] {
@@ -122,7 +134,7 @@ function fixture(): string {
 
   fixtureRoots.push(root);
 
-  for (const agent of agents.slice(0, 2)) {
+  for (const agent of fixtureAgents) {
     write(root, `${sourceDirectory}/${agent}`, `${agent} of the source\n`);
 
     for (const copy of copyDirectories) {
@@ -136,9 +148,9 @@ function fixture(): string {
 function driftedFixture(): string {
   const root = fixture();
 
-  writeFileSync(join(root, ".claude/agents/frontend-developer.md"), "frontend of a fork\n");
-  rmSync(join(root, ".codex/agents/frontend-developer.md"));
-  write(root, ".cursor/agents/product-strategy-analyst.md", "invented in one folder\n");
+  writeFileSync(join(root, ".claude/agents/fixture-frontend.md"), "frontend of a fork\n");
+  rmSync(join(root, ".codex/agents/fixture-frontend.md"));
+  write(root, ".cursor/agents/only-in-one-folder.md", "invented in one folder\n");
 
   return root;
 }
@@ -147,19 +159,35 @@ function sync(root: string): void {
   execFileSync(process.execPath, [syncScript, root], { cwd: repositoryRoot, encoding: "utf8" });
 }
 
+function syncFailure(root: string): string {
+  try {
+    sync(root);
+  } catch (error) {
+    const failure = error as { message?: string; stderr?: Buffer | string };
+
+    return [failure.stderr?.toString() ?? "", failure.message ?? ""].join("\n");
+  }
+
+  return "";
+}
+
 describe("the agent folders of the repository", () => {
   it("hold every file of ai-specs/agents byte for byte and nothing else", () => {
-    expect(filesUnder(repositoryRoot, sourceDirectory)).toEqual(
-      agents.map((agent) => `${sourceDirectory}/${agent}`),
-    );
+    const agents = agentsOf(repositoryRoot);
+
+    expect(agents).toEqual(expect.arrayContaining(scenarioAgents));
+    expect(filesUnder(repositoryRoot, sourceDirectory)).toEqual(agents.map((agent) => `${sourceDirectory}/${agent}`));
     expect(drift(repositoryRoot)).toEqual([]);
   });
 
   it("are folders of the working tree, not symlinks and not files", () => {
+    const agents = agentsOf(repositoryRoot);
+
     for (const copy of copyDirectories) {
       expect(lstatSync(join(repositoryRoot, copy)).isSymbolicLink(), copy).toBe(false);
       expect(statSync(join(repositoryRoot, copy)).isDirectory(), copy).toBe(true);
       expect(readdirSync(join(repositoryRoot, copy)).sort(), copy).toEqual(agents);
+      expect(readdirSync(join(repositoryRoot, copy)).sort(), copy).toEqual(expect.arrayContaining(scenarioAgents));
     }
   });
 
@@ -169,7 +197,7 @@ describe("the agent folders of the repository", () => {
     expect(entries.filter((entry) => entry.mode === symlinkMode).map((entry) => entry.path)).toEqual([]);
 
     for (const copy of copyDirectories) {
-      for (const agent of agents) {
+      for (const agent of agentsOf(repositoryRoot)) {
         expect(entries.find((entry) => entry.path === `${copy}/${agent}`)?.mode, `${copy}/${agent}`).toBe(
           regularFileMode,
         );
@@ -191,9 +219,9 @@ describe("the agent folders of the repository", () => {
     const root = driftedFixture();
 
     expect(drift(root)).toEqual([
-      ".claude/agents/frontend-developer.md: different bytes",
-      ".codex/agents/frontend-developer.md: missing",
-      ".cursor/agents/product-strategy-analyst.md: extra",
+      ".claude/agents/fixture-frontend.md: different bytes",
+      ".codex/agents/fixture-frontend.md: missing",
+      ".cursor/agents/only-in-one-folder.md: extra",
     ]);
   });
 
@@ -205,9 +233,43 @@ describe("the agent folders of the repository", () => {
     sync(root);
     expect(drift(root)).toEqual([]);
 
-    rmSync(join(root, `${sourceDirectory}/frontend-developer.md`));
+    rmSync(join(root, `${sourceDirectory}/fixture-frontend.md`));
     sync(root);
     expect(drift(root)).toEqual([]);
-    expect(existsSync(join(root, ".claude/agents/frontend-developer.md"))).toBe(false);
+    expect(existsSync(join(root, ".claude/agents/fixture-frontend.md"))).toBe(false);
+  });
+
+  it("stay green when a fourth agent arrives at the source and the sync runs", { timeout: fixtureTimeout }, () => {
+    const root = fixture();
+
+    write(root, `${sourceDirectory}/fixture-fourth.md`, "a fourth agent\n");
+
+    expect(drift(root)).toEqual([
+      ".claude/agents/fixture-fourth.md: missing",
+      ".codex/agents/fixture-fourth.md: missing",
+      ".cursor/agents/fixture-fourth.md: missing",
+    ]);
+
+    sync(root);
+
+    expect(drift(root)).toEqual([]);
+
+    for (const copy of copyDirectories) {
+      expect(readFileSync(join(root, copy, "fixture-fourth.md"), "utf8")).toBe("a fourth agent\n");
+    }
+  });
+
+  it("refuse a copy whose real path falls outside the root, and leave it untouched", { timeout: fixtureTimeout }, () => {
+    const root = fixture();
+    const outside = mkdtempSync(join(tmpdir(), "katalis-agent-outside-"));
+
+    fixtureRoots.push(outside);
+    write(outside, "agents/precious.md", "outside the root\n");
+    rmSync(join(root, ".claude"), { recursive: true, force: true });
+    symlinkSync(outside, join(root, ".claude"), process.platform === "win32" ? "junction" : "dir");
+
+    expect(syncFailure(root)).toContain(".claude falls outside");
+    expect(readFileSync(join(outside, "agents/precious.md"), "utf8")).toBe("outside the root\n");
+    expect(readdirSync(join(outside, "agents")).sort()).toEqual(["precious.md"]);
   });
 });
