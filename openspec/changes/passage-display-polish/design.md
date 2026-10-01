@@ -57,6 +57,37 @@ Facts read on `origin/main` at `86b250f` (paths and lines from that commit):
 - The heading sent twice to the model in `lib/answer/prompt.ts:66-69`.
 - Headings of DOCX files (mammoth's HTML keeps no heading level the chunker can read).
 
+## Amendment 1 (Fable, after `katalis-dev/tasks/revision-passage-display-polish.md`: FAIL, four Majors)
+
+Codex reproduced that Try it and the document page paint the lead inside the highlighter, that the public panel and
+the widget show the heading twice and split the `Precios` list into two lists of 1 and 4 items, that tests were
+written to accept those defects, and that task 7.2 was marked with two captures missing. The decisions below close
+every point and the six decisions the implementer took; nothing is left open.
+
+9. **The heading once, in one place per view.** The citation panel of the public page and the widget shows the heading
+   only on its section line (`Heading` / `Apartado`, under the passage, as it does today), never above the passage and
+   never at the start of its text. Try it shows it only as the section label above the passage, and the document page
+   only as the `h2` of the section (the implementer's decision 3, accepted). In every view the visible text of the
+   heading appears exactly once.
+10. **One list.** Consecutive item lines form one `ul` (or one `ol`) whatever line they start on, the first line of
+    the body included; a list never splits because its first item opens the body.
+11. **The lead in the owner's views.** Try it takes the `lead` of each citation it shows. The document page computes
+    `leadLength` for every passage from the passage before it on the same page, shows each lead in the muted text colour
+    outside any highlighter, and, for the highlighted passage, starts the highlighter after its lead.
+12. **No list without line breaks (decision 3 holds; the implementer's decision 4 is rejected).** A body with no line
+    break renders as one paragraph, whatever it holds: no " - " or number in prose turns into a list. A passage stored
+    before this change shows its list again once its file is uploaded again.
+13. **The other decisions of the implementer are accepted as written in the report of step 9:** 1 (the lead ends where
+    the excerpt has a whitespace after it), 2 (the lead of a citation is read from the store), 5 (`lead` is required on
+    `Citation`, `0` from the pure `extractCitations`, a missing `lead` read as `0` by the page) and 6 (the screen-reader
+    labels of Try it count passages from 1).
+14. **Tests that would have caught it.** The tests of this change assert, in the unit suite and in the browser: the
+    number of visible occurrences of the heading text in each view (exactly 1), the number of list containers and the
+    number of children of the one list (`Precios`: one list, five items), and in Try it and the document page the
+    presence of the lead node and that the text of the highlighter starts after the lead. An assertion that accepts a
+    defect of the spec (such as `getAllByText(heading).toHaveLength(2)`) is a defect of the change.
+
 ## Decisions taken by the implementer
 
-(The implementer writes here every decision the contract left open, and copies it to the `## Issues` of the report.)
+The six decisions of the first round are closed in Amendment 1 (decisions 12 and 13). The implementer writes here
+every decision a later round leaves open, and copies it to the `## Issues` of the report.

@@ -89,6 +89,28 @@ Context of `design.md`; the decisions there are closed.
 - [x] 9.1 `## Issues` at the end of the last report (BROKEN, RISK, NOT DONE, UNKNOWN), with the decisions taken by the
       implementer and the passages of existing installations that keep their old text until their file is uploaded
       again
-- [ ] 9.2 Fable pushes the branch and opens the pull request; the checks of the pipeline are recorded in the report
-- [ ] 9.3 Adversarial review by Codex (`katalis-dev/tasks/revision-passage-display-polish.md`)
+- [x] 9.2 Fable pushes the branch and opens the pull request; the checks of the pipeline are recorded in the report:
+      pull request 9 (`reports/2026-09-30-step-9-pipeline.md`)
+- [x] 9.3 Adversarial review by Codex (`katalis-dev/tasks/revision-passage-display-polish.md`): FAIL, four Majors; see
+      section 10
 - [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
+
+## 10. Amendment 1 (decisions 9 to 14 of `design.md`)
+
+- [ ] 10.1 Tests first, red on `f1ca9df`, in the unit suite and in `e2e/passage-display.spec.ts`: the heading text
+      exactly once in the citation panel (public page and widget), in Try it and on the document page; `Precios` as one
+      list with five children; in Try it and on the document page the lead node present and the highlighter starting
+      after it (decision 14). `tests/chat.test.tsx:116` (`toHaveLength(2)`) is corrected to the spec
+- [ ] 10.2 Test first, red on `f1ca9df`: a body with no line break that holds " - " renders as one paragraph
+      (decision 12)
+- [ ] 10.3 The heading only on the section line of the citation panel (decision 9), one list (decision 10), the lead
+      in Try it and on the document page (decision 11), no list from a body without line breaks (decision 12)
+- [ ] 10.4 The captures of 7.2 that were missing, saved in `reports/images/`: Try it with a cited passage and the
+      document page with the highlighted passage, in Spanish and in English, at 1440 px and at 375 px, taken with
+      `prefers-reduced-motion: reduce` so the highlighter is finished; the captures of the public page and the widget
+      taken again the same way
+- [ ] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+      `npm run openspec:validate` and `npm run test:e2e`, with their output in `reports/<date>-step-10-amendment.md`
+      naming the commit of the code each one verified, and the `## Issues` of the round there and in the section
+      "Ronda 2" of the delivery
+- [ ] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-passage-display-polish-b.md`); Franc accepts

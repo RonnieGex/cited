@@ -2,8 +2,8 @@
 
 ### Requirement: A cited passage reads as its document says it
 
-When a visitor opens a citation on the public page or in the widget, the passage SHALL show its heading once, above
-it, and never at the start of its text; SHALL show a list as a list with one item per line; SHALL show the words it
+When a visitor opens a citation on the public page or in the widget, the passage SHALL show its heading exactly once,
+on the section line of the panel, and never above the passage nor at the start of its text; SHALL show a list as a list with one item per line; SHALL show the words it
 repeats from the passage before it in the muted text colour and outside the highlighter; and SHALL paint the
 highlighter under each line of the passage from its first own word.
 
@@ -11,13 +11,13 @@ highlighter under each line of the passage from its first own word.
 
 - **WHEN** the sample corpus is ingested and an answer cites the first passage of the section `Café La Horquilla` of
   `cafe-la-horquilla.md`
-- **THEN** the opened passage shows `Café La Horquilla` as its heading, and its highlighted text starts with `Somos un
-  café`
+- **THEN** the panel shows the text `Café La Horquilla` exactly once, on its section line, and its highlighted text
+  starts with `Somos un café`
 
 #### Scenario: A list is shown as a list
 
 - **WHEN** an answer cites the passage of the section `Precios` of `cafe-la-horquilla.md`
-- **THEN** the opened passage shows a list element with five items, from `Espresso: 35 pesos.` to `Cambio de cámara:
+- **THEN** the opened passage shows one list element, and only one, with five items, from `Espresso: 35 pesos.` to `Cambio de cámara:
   120 pesos.`, each item highlighted on its own line
 
 #### Scenario: Repeated words stay outside the highlighter
