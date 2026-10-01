@@ -10,9 +10,9 @@ Context of `design.md`; the decisions there are closed.
 
 ## 1. Base before
 
-- [ ] 1.1 `npm ci`, then `npm test`, `npm run typecheck` and `npm run test:e2e`: counts, runtime and `node -v` in
+- [x] 1.1 `npm ci`, then `npm test`, `npm run typecheck` and `npm run test:e2e`: counts, runtime and `node -v` in
       `reports/<date>-step-1-base.md`
-- [ ] 1.2 The passages of the sample corpus before the change (`npm run ingest -- samples/` with the deterministic
+- [x] 1.2 The passages of the sample corpus before the change (`npm run ingest -- samples/` with the deterministic
       providers into a scratch store, then their `position`, `heading` and `text`), and the results of the searches of
       `tests/search.test.ts`, saved in the report: they are the baseline of the scenario "Search does not move"
 
