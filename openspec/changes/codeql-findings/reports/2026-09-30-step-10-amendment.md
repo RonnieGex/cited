@@ -157,9 +157,9 @@ from the history. The second run of the scan printed nothing, and the reports ca
 the branch.
 
 The same check over every versioned file of the repository (637 tokens of seven to forty hexadecimal characters, 435 of
-them commits) finds exactly one hash outside the branch: `b9cedbd`, in
-`openspec/changes/archive/2026-09-29-elevenlabs-voice-agent/reports/2026-09-29-step-0-branch.md`. It is the archived
-report of another change, it is not one of the reports of steps 1 to 9 that task 10.4 names, and it was not touched.
+them commits) finds exactly one hash outside the branch, in the archived report
+`openspec/changes/archive/2026-09-29-elevenlabs-voice-agent/reports/2026-09-29-step-0-branch.md` of another change. It
+is not one of the reports of steps 1 to 9 that task 10.4 names, and it was not touched.
 
 ## The checks of the round (10.5)
 
@@ -297,9 +297,10 @@ before its `>`, and the Minor 2 with the corrected reports of steps 1 to 9.
 - The `handle.read` loop trusts the bound and the explicit position, not the size that `stat` answered: a file that
   shrinks while it is read is parsed with the bytes that are really there, which is the same text the old
   `handle.readFile()` returned. No test pins the shrinking case.
-- The scan of the whole repository finds one hash outside the branch, `b9cedbd`, in an archived report of the
+- The scan of the whole repository finds one hash outside the branch, in an archived report of the
   `elevenlabs-voice-agent` change (`openspec/changes/archive/2026-09-29-elevenlabs-voice-agent/`). It is outside the
-  reports that task 10.4 names and outside this change, so it was left as it is; whoever owns that change decides.
+  reports that task 10.4 names and outside this change, so it was left as it is; whoever owns that change decides. The
+  hash itself is not copied here, because a report carries no hash that is not on the branch.
 
 **NOT DONE**
 
