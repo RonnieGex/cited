@@ -133,3 +133,23 @@ passage when the next block is too long to fit beside it, so `lead` is `0` for a
 21. **Say what the overlap does.** The Context of this design, the parenthesis "the overlap of the chunker" of the delta
     of `answering`, `docs/answering.md` and the comments of the code say that the overlap is carried only when the
     next block overflows the passage, so `lead` is `0` for most passages. No behaviour changes for this.
+
+## Amendment 4 (Fable, after `katalis-dev/tasks/revision-passage-display-polish-d.md`: FAIL, two Majors)
+
+The fourth review reproduced that `cut()` in `lib/ingest/chunk.ts` looks for the last space and not for the `\n` this
+change puts between list items, so a block of more than 800 characters cut at a list join is cut a few words earlier
+than on `86b250f` (two real documents of the repository, 1,629 of 18,001 fuzzed documents with lists); and that the
+golden fixture reads the live files of `docs/`, so any edit of a document breaks it (the merge of `codeql-findings`,
+which edited `docs/security.md`, did). Fable merged `main` (`e52e527`) into the branch at `54c61eb`.
+
+22. **A line break is a boundary like a space.** `cut()` takes the last space or line break before the cut
+    (`Math.max(head.lastIndexOf(" "), head.lastIndexOf("\n"))`), so a passage cut at a list join is cut where
+    `86b250f` cuts it.
+23. **A frozen golden corpus.** The golden check reads only frozen copies of its input files, committed under
+    `tests/fixtures/chunk-golden/inputs/`: the files of `samples/`, the Markdown files of `docs/` as they were on
+    `86b250f`, the two documents the review named, and synthetic cases (a paragraph of 799 characters followed by a
+    list; a list whose join falls on the cut at 800; a numbered list; a list right after a heading; a list that opens a
+    block). The expected passages are written once from the chunker of `86b250f` with the command named in the report.
+    No file of `docs/` or of the archive is read by the test, so editing documents never breaks it.
+24. **A difference is named where it is.** When the check fails it names the file and the first passage whose text
+    differs, compared position by position after reading list joins as spaces, even when the number of passages differs.
