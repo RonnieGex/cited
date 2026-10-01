@@ -79,6 +79,7 @@ const first: Citation = {
   heading: "Precios",
   position: 3,
   excerpt: "Afinación de bicicleta: 380 pesos.",
+  lead: 0,
 };
 const second: Citation = {
   n: 2,
@@ -86,6 +87,7 @@ const second: Citation = {
   heading: null,
   position: 1,
   excerpt: "Cambio de cámara: 120 pesos.",
+  lead: 0,
 };
 const answered: AskResult = {
   status: "answered",

@@ -10,7 +10,8 @@ import { panelMetadata } from "@/lib/admin/titles";
 
 // Decision 5 of `openspec/changes/guided-setup-and-knowledge/design.md`: `/admin/information/[id]` is a document as a
 // page: its file name, its type, when it was added, and its passages grouped under their headings in reading order, as
-// the store keeps them. A citation of Try it links here with the position it opened, and the page highlights it.
+// the store keeps them. The address may name the passage a citation opened (`?highlight=`): that one is painted with
+// the highlighter, with its lead outside it (decision 11 of the amendment to `passage-display-polish`).
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +19,12 @@ export async function generateMetadata() {
   return panelMetadata("document");
 }
 
-export default async function AdminDocument({ params }: PageProps<"/admin/information/[id]">) {
+export default async function AdminDocument({ params, searchParams }: PageProps<"/admin/information/[id]">) {
   const { id } = await params;
+  const query = await searchParams;
   const name = decodeURIComponent(id);
+  const asked = typeof query.highlight === "string" ? Number.parseInt(query.highlight, 10) : Number.NaN;
+  const highlight = Number.isNaN(asked) ? null : asked;
   const stored = await cookies();
   const lang = resolveLang(stored.get(LANG_COOKIE)?.value, "en");
   const strings = adminStrings(lang);
@@ -38,7 +42,13 @@ export default async function AdminDocument({ params }: PageProps<"/admin/inform
       <SectionTitle level="h1">
         {strings.documentName}
       </SectionTitle>
-      <DocumentPanel document={summary} lang={lang} passages={passages} strings={strings} />
+      <DocumentPanel
+        document={summary}
+        highlight={highlight}
+        lang={lang}
+        passages={passages}
+        strings={strings}
+      />
     </div>
   );
 }

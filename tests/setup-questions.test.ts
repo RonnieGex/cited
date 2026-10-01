@@ -2,6 +2,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { createFakeEmbeddings } from "@/lib/embeddings/fake";
+import { ingestFolder } from "@/lib/ingest";
 import { openStore, type Store } from "@/lib/store/index";
 import { suggestedQuestions } from "@/lib/admin/questions";
 
@@ -56,6 +58,58 @@ async function storeWith(sections: Array<[string | null, string]>): Promise<Stor
 
   return store;
 }
+
+// The scenario "Suggestions speak the language of the panel" of the delta `owner-setup` (decision 7 of `design.md`):
+// with the three sample documents loaded, the panel in Spanish is offered the headings of `cafe-la-horquilla.md` and
+// the panel in English the headings of `bike-workshop-policies.md`. The language of a document is `detectLanguage` of
+// the text of its first passages, computed here: nothing new is stored.
+describe("the suggestions of the sample business", () => {
+  it("offers the Spanish headings to the panel in Spanish", async () => {
+    const root = mkdtempSync(join(tmpdir(), "cited-questions-samples-"));
+    const samples = join(import.meta.dirname, "..", "samples");
+    const store = await open(join(root, "store.sqlite"));
+
+    roots.push(root);
+
+    await ingestFolder(samples, {
+      store,
+      embeddings: createFakeEmbeddings(),
+      limits: { maxBytes: 1024 * 1024, maxPages: 10 },
+    });
+
+    const questions = await suggestedQuestions(store, "es");
+
+    expect(questions).toHaveLength(4);
+    expect(questions.map((question) => /Café La Horquilla|Horario|Precios|Políticas/.test(question))).toEqual([
+      true,
+      true,
+      true,
+      true,
+    ]);
+    expect(questions.some((question) => question.includes("bike-workshop-policies"))).toBe(false);
+    expect(questions.some((question) => /Bike workshop|Bookings|Storage|Groups|Guarantee/.test(question))).toBe(false);
+  });
+
+  it("offers the English headings to the panel in English", async () => {
+    const root = mkdtempSync(join(tmpdir(), "cited-questions-samples-en-"));
+    const samples = join(import.meta.dirname, "..", "samples");
+    const store = await open(join(root, "store.sqlite"));
+
+    roots.push(root);
+
+    await ingestFolder(samples, {
+      store,
+      embeddings: createFakeEmbeddings(),
+      limits: { maxBytes: 1024 * 1024, maxPages: 10 },
+    });
+
+    const questions = await suggestedQuestions(store, "en");
+
+    expect(questions).toHaveLength(4);
+    expect(questions.some((question) => /Horario|Precios|Políticas/.test(question))).toBe(false);
+    expect(questions[0]).toContain("Bike workshop policies at Café La Horquilla");
+  });
+});
 
 describe("the suggested questions", () => {
   it("builds one question per heading, in the order of the document", async () => {

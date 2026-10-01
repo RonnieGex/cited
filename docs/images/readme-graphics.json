@@ -231,7 +231,7 @@
     },
     "ask": {
       "command": "EMBEDDINGS_PROVIDER=fake CHAT_PROVIDER=fake npm run ask -- \"¿Cuánto cuesta una afinación de bicicleta?\"",
-      "output": "question: ¿Cuánto cuesta una afinación de bicicleta?\nstore: .data/katalis.sqlite\nstatus: answered\nanswer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]\ncitations:\n  [1] cafe-la-horquilla.md [Precios] position 2\n      Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.\ncitations 1, 38 ms, rss 102 MB"
+      "output": "question: ¿Cuánto cuesta una afinación de bicicleta?\nstore: .data/katalis.sqlite\nstatus: answered\nanswer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]\ncitations:\n  [1] cafe-la-horquilla.md [Precios] position 2 lead 0\n      Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.\ncitations 1, 38 ms, rss 102 MB"
     },
     "drawn": {
       "ingest": [
@@ -250,7 +250,7 @@
       "ask": [
         "status: answered",
         "answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]",
-        "  [1] cafe-la-horquilla.md [Precios] position 2"
+        "  [1] cafe-la-horquilla.md [Precios] position 2 lead 0"
       ]
     }
   }

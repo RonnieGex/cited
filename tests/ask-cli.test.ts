@@ -86,6 +86,9 @@ describe("npm run ask", () => {
     expect(stdout).toContain("cafe-la-horquilla.md");
     expect(stdout).toContain("380 pesos");
     expect(stdout).toContain(path);
+    // The line of a citation names the lead of `passage-display-polish`: the characters of the excerpt that repeat the
+    // passage before it.
+    expect(stdout).toMatch(/position \d+ lead \d+/);
   });
 
   it("prints the refusal instead of an invented answer", { timeout: cliTimeout }, async () => {

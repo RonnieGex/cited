@@ -71,7 +71,14 @@ single paragraph is longer than a passage.
 
 - The heading of a passage is the nearest Markdown heading above it, and the heading is also the first words of the
   passage so a keyword search finds it.
+- **An item of a list keeps its own line.** A line that starts with `- `, `* ` or a number followed by `. ` is joined
+  to what comes before it with a line break; every other line is joined with a space, as before. The keyword index
+  tokenizes `\n` like a space, so a search does not move; the passage text carries the list and every view of it shows
+  one item per line (`passage-display-polish`, decision 2). A passage stored before that change keeps its flattened
+  text until its file is uploaded again, and the view reads it as one paragraph: no `- ` and no number in prose turns
+  into a list (decision 12 of the amendment of that change).
 - DOCX headings arrive as Markdown headings because `mammoth` converts the document to HTML and the styles are kept.
+  A bulleted or numbered list of a DOCX arrives as one `- ` line per item for the same reason.
 - **PDF has no reliable heading**, so a PDF passage has none and the documentation says so.
 
 ## 3. Embeddings

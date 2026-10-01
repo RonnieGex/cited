@@ -222,6 +222,7 @@ describe("POST /api/voice/tool answers the agent", () => {
           heading: null,
           position: 0,
           excerpt: "Dirección: avenida central.",
+          lead: 0,
         },
       ],
     });
