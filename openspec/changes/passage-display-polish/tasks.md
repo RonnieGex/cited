@@ -113,4 +113,17 @@ Context of `design.md`; the decisions there are closed.
       `npm run openspec:validate` and `npm run test:e2e`, with their output in `reports/<date>-step-10-amendment.md`
       naming the commit of the code each one verified, and the `## Issues` of the round there and in the section
       "Ronda 2" of the delivery
-- [ ] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-passage-display-polish-b.md`); Franc accepts
+- [x] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-passage-display-polish-b.md`): FAIL, one Major on
+      the browser tests; see section 11
+
+## 11. Amendment 2 (decisions 15 to 17 of `design.md`)
+
+- [ ] 11.1 Test first, red against the mutant `lead={0}` in `TryItPanel` and in `DocumentPanel` on `1371333`: the
+      fixture of decision 15, in English and in Spanish, with its assertions in Try it and on the document page; the
+      report shows the mutant failing and the branch passing
+- [ ] 11.2 The reports and the delivery of round 2 corrected where they declare NOT DONE for the samples of the
+      READMEs (decision 16)
+- [ ] 11.3 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e`, with their
+      output in `reports/<date>-step-11-amendment.md` naming the commit of the code verified, and the `## Issues` of the
+      round there and in the section "Ronda 3" of the delivery
+- [ ] 11.4 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-passage-display-polish-c.md`); Franc accepts

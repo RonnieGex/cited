@@ -91,3 +91,20 @@ every point and the six decisions the implementer took; nothing is left open.
 
 The six decisions of the first round are closed in Amendment 1 (decisions 12 and 13). The implementer writes here
 every decision a later round leaves open, and copies it to the `## Issues` of the report.
+
+## Amendment 2 (Fable, after `katalis-dev/tasks/revision-passage-display-polish-b.md`: FAIL, one Major on the tests)
+
+The views are right; the browser suite is not yet able to see a regression of the lead in the owner's views: no passage
+of the sample corpus repeats the end of the one before it, so Try it and the document page only ever show `lead: 0`,
+and a mutant that passes `lead={0}` to both views passes the whole suite.
+
+15. **A fixture with a lead.** The browser suite of the panel uploads one fixture document of its own (under `e2e/`),
+    in the language of the run, whose one section is long enough to be cut into two passages, and asks Try it a question
+    that the deterministic provider answers from the second passage. In Try it and on the page of that document with the
+    passage highlighted, it asserts the lead node (`data-passage="lead"`) with the repeated words and that the text of
+    the highlighter starts with the first own word. The report of the round shows the mutant of the review (`lead={0}`
+    in `TryItPanel` and in `DocumentPanel`) failing those cases, then passing again without the mutant.
+16. **Reports say what the commands print.** A report never declares NOT DONE for an output the command produces as
+    written: the samples of the READMEs are what `npm run search` and `npm run ask` print today.
+17. **A clean archive.** The archive of the change leaves no new blank line at the end of a spec, so
+    `git diff --check origin/main...HEAD` stays clean after it.
