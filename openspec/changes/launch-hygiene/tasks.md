@@ -38,7 +38,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 6. Manual verification
 
-- [ ] 6.1 A fresh clone on Windows with `git -c core.symlinks=false clone` of the branch: the three folders exist with
+- [x] 6.1 A fresh clone on Windows with `git -c core.symlinks=false clone` of the branch: the three folders exist with
       their three files, and `codex exec --skip-git-repo-check "List the files of .codex/agents" < NUL` run inside the
       clone gets past loading its configuration without `os error 267` (paste its first lines; an answer or a message
       of the account's usage limit both show the configuration loaded; no other command of Codex). A second clone in a
