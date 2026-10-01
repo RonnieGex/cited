@@ -118,7 +118,7 @@ Context of `design.md`; the decisions there are closed.
 
 ## 11. Amendment 2 (decisions 15 to 17 of `design.md`)
 
-- [ ] 11.1 Test first, red against the mutant `lead={0}` in `TryItPanel` and in `DocumentPanel` on `1371333`: the
+- [x] 11.1 Test first, red against the mutant `lead={0}` in `TryItPanel` and in `DocumentPanel` on `1371333`: the
       fixture of decision 15, in English and in Spanish, with its assertions in Try it and on the document page; the
       report shows the mutant failing and the branch passing
 - [ ] 11.2 The reports and the delivery of round 2 corrected where they declare NOT DONE for the samples of the
