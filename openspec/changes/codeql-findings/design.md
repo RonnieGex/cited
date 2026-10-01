@@ -43,3 +43,22 @@ this change closes. The alerts are listed on GitHub under Security → Code scan
    suite (`CHAT_PROVIDER=fake` made the panels answer "Test provider, no network" where the specs demand "Not connected
    yet"). With a clone that carries no `.env`, the same 87 tests pass. The suite was not touched: the task never edits
    what it verifies.
+
+## Amendment 1 (Fable, after `katalis-dev/tasks/revision-codeql-findings.md`: FAIL, Major 1 and two Minors)
+
+Codex reproduced that one open file is not enough: the file measured 5 bytes at `handle.stat()`, grew to
+20,971,521 bytes before `handle.readFile()`, and all of it was read. The decisions below replace decision 2 and complete
+decision 1.
+
+5. **A bounded read.** `parseFile` still refuses before reading any byte when `handle.stat()` is above
+   `limits.maxBytes`. Otherwise it reads from the same handle at most `limits.maxBytes + 1` bytes (with
+   `handle.read` into a buffer of that size, in a loop until the end of the file or the bound), never
+   `handle.readFile()`. When it got more than `limits.maxBytes` bytes, the file grew while it was read: it refuses with
+   the message of the limit, naming the bytes it read (`<path> crosses the size limit: <n> bytes is above the maximum
+   of <max>.`), and the parser never sees them. The parser receives exactly the bytes read.
+6. **Markup cut before its `>`.** In the converter's HTML a raw `<` only opens markup (a `<` an author typed arrives
+   as `&lt;`). After the repeated removal, a raw `<` that is left is markup cut before its `>`: it is removed with
+   everything after it on its line. The comment above the removal says what the expression does (one pass takes
+   `<<b>i>` down to `i>`).
+7. **Evidence names the code it verified.** A report names the commit of the code it verified; it never carries
+   `__COMMIT__` or a hash that is not on the branch. The commit that adds a report is read from the history.

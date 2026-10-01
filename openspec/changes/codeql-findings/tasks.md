@@ -60,7 +60,23 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 - [x] 9.1 `## Issues` at the end of the last report (BROKEN, RISK, NOT DONE, UNKNOWN), with the decisions taken by the
       implementer; the CodeQL scenario is NOT DONE locally and is checked by the pipeline only
-- [ ] 9.2 Fable pushes the branch and opens the pull request; the CodeQL check of the pull request and the list of open
-      alerts are recorded in the report (pipeline)
-- [ ] 9.3 Adversarial review by Codex (`katalis-dev/tasks/revision-codeql-findings.md`)
+- [x] 9.2 Fable pushes the branch and opens the pull request; the CodeQL check of the pull request and the list of open
+      alerts are recorded in the report (pipeline): pull request 8, 18 checks green, CodeQL pass, no open alert on
+      `refs/pull/8/merge` (`reports/2026-09-30-step-9-pipeline.md`)
+- [x] 9.3 Adversarial review by Codex (`katalis-dev/tasks/revision-codeql-findings.md`): FAIL, Major 1 (the file grows
+      after it is measured) and two Minors; see section 10
 - [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
+
+## 10. Amendment 1 (decisions 5 to 7 of `design.md`)
+
+- [ ] 10.1 Test first, red on `748c2d1`: with a `FileHandle` whose file grows from 5 bytes to `maxBytes + 1` after
+      `stat`, `parseFile` reads at most `maxBytes + 1` bytes, refuses with the limit and never calls the parser
+      (scenario "A file that grows after it was measured"); the case of a file above the limit at `stat` keeps zero reads
+- [ ] 10.2 Test first, red on `748c2d1`: `docxToMarkdown("<p>Horario</p><em sin-cierre")` gives `Horario`
+- [ ] 10.3 The bounded read (decision 5), the removal of markup cut before its `>` and the corrected comment (decision 6)
+- [ ] 10.4 The reports of steps 1 to 9 name the commit of the code each one verified, with no `__COMMIT__` and no hash
+      that is not on the branch (decision 7)
+- [ ] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+      `npm run openspec:validate` and `npm run test:e2e`, with their output in `reports/<date>-step-10-amendment.md`, and
+      the `## Issues` of the round there and in the section "Ronda 2" of the delivery
+- [ ] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-codeql-findings-b.md`); Franc accepts

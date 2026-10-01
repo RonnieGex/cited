@@ -16,13 +16,20 @@ passage reads what the author typed.
 
 - **WHEN** the converter's HTML is `<p><a href="#x">Horario</a><br/>Lunes</p><p>Escribe &lt;b&gt; para negritas</p>`
 - **THEN** the text reads `Horario`, `Lunes` and `Escribe <b> para negritas` on three lines, and no other tag is left
+- **AND** HTML cut before its `>`, such as `<p>Horario</p><em sin-cierre`, gives the text `Horario`
 
 ### Requirement: The size limit is read from the file that is read
 
 The ingestion of a file from disk SHALL open the file once, SHALL read its size from that open file and SHALL read its
-bytes from that same open file, so a file cannot be swapped between the check of the 20 MB limit and the read.
+bytes from that same open file, at most the limit plus one byte, so a file can be neither swapped nor grown between the
+check of the 20 MB limit and the read.
 
 #### Scenario: A file above the limit on disk
 
 - **WHEN** a file of more than 20 MB is ingested from disk
 - **THEN** it is refused with the limit it crossed, its size comes from the open file, and none of its bytes is read
+
+#### Scenario: A file that grows after it was measured
+
+- **WHEN** a file measures 5 bytes when it is opened and grows to more than 20 MB before its bytes are read
+- **THEN** at most 20 MB and one byte are read, it is refused with the limit it crossed, and nothing of it is parsed
