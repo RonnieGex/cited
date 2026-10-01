@@ -3,7 +3,7 @@ import { Highlight } from "@/components/brand";
 
 // Decisions 1, 3, 4 and 5 of `openspec/changes/passage-display-polish/design.md`: one view of a passage, used by the
 // public page, the widget, Try it and the document page. The heading is shown once, above the passage and never at the
-// start of its text; a list is a list, one item per line; the words the chunker repeated from the passage before it are
+// start of its text; a list is a list, one item per line; the words a passage repeats from the passage before it are
 // shown in the muted colour, outside the highlighter; and the highlighter is an inline span inside its paragraph or its
 // item, so it paints under each line.
 
@@ -53,9 +53,9 @@ function lines(body: string): Line[] {
 }
 
 /**
- * The lead of a body with line breaks is the lead of its first line: the chunker cuts the overlap at the start of the
- * text, so the repeated words never run into the second line. A lead that would cross a line break is not drawn as
- * context at all, because the words of the line it would enter are its own.
+ * The lead of a body with line breaks is the lead of its first line: the muted words are painted inside the first
+ * paragraph or the first item, so a lead longer than that line is not drawn as context at all and the highlighter
+ * starts at the first word.
  */
 function leadOfBody(body: string, lead: number): number {
   const [first = ""] = body.split("\n");

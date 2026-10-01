@@ -97,8 +97,8 @@ describe("leadOf", () => {
     expect(passages.length).toBeGreaterThanOrEqual(3);
     expect(head?.text).toBe("Precios");
     expect(second?.text.startsWith(repeated)).toBe(true);
-    // The chunker joins the carry to what comes before it, so the body may repeat the carry without its last space:
-    // the lead is the length of the repeated words, and the first own word starts after them.
+    // The paragraph repeats one phrase, so the passage after the cut opens with words the one before it ends with: the
+    // lead is the length of those words, and the first own word starts after them.
     expect(await leadOf(store, "precios.md", 2, second?.text ?? "")).toBe(leadLength(first?.text, second?.text ?? ""));
     expect(repeated.length).toBeGreaterThan(100);
   });

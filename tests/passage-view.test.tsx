@@ -1,8 +1,9 @@
 // Decisions 1 and 4 of `openspec/changes/passage-display-polish/design.md`: one module holds the pure helpers every
 // view of a passage uses. `passageBody` is the text of a passage without its heading at the start; `leadLength` is how
-// many characters at the start of a passage repeat the end of the passage before it (the overlap of the chunker), at
-// most 120 and ending before a whitespace. `PassageBody` is the one view of a passage: heading once, lists as lists,
-// the repeated words in the muted colour outside the highlighter, and the highlight from the first own word.
+// many characters at the start of a passage repeat the end of the passage before it, at most 120 and ending before a
+// whitespace, which is what a document that repeats its own words at a boundary gives a citation. `PassageBody` is the
+// one view of a passage: heading once, lists as lists, the repeated words in the muted colour outside the highlighter,
+// and the highlight from the first own word.
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
@@ -32,7 +33,7 @@ describe("passageBody", () => {
 });
 
 describe("leadLength", () => {
-  it("measures the overlap the chunker makes", () => {
+  it("measures the words a passage repeats from the one before it", () => {
     const long = "frase de prueba ".repeat(80).trim();
     const passages = chunkText(long);
     const first = passages[0]?.text ?? "";
@@ -40,8 +41,8 @@ describe("leadLength", () => {
     const lead = leadLength(first, second);
 
     expect(passages.length).toBe(2);
-    // The chunker repeats the end of the passage before it at the start of this one: the lead is the length of those
-    // repeated words, and the passage carries no more of them than the bound of 120.
+    // The paragraph repeats one phrase, so the cut leaves a passage that opens with words the one before it ends with:
+    // the lead is the length of those words, and it carries no more of them than the bound of 120.
     expect(lead).toBeGreaterThan(100);
     expect(lead).toBeLessThanOrEqual(120);
     expect(first.endsWith(second.slice(0, lead))).toBe(true);

@@ -139,11 +139,11 @@
         },
         {
           "heading": "1. The route",
-          "text": "A citation carries the document, the heading and the position of the passage. The position inside the document is what locates a passage; there is no page, because a PDF has pages and a Markdown file does not. `lead` is the length of the words at the start of `excerpt` that repeat the end of the passage before it in the same document (the overlap the chunker writes, at most 120 characters), and `0` when the passage is the first of its section: every view of a cited passage shows those characters as muted context and paints the highlighter from the first own word. The field is added by `passage-display-polish`; `extractCitations()` stays pure and writes `0`, and the step after it (`lib/answer/lead.ts`) reads the passage at `position - 1` of the document from the store and writes the real"
+          "text": "A citation carries the document, the heading and the position of the passage. The position inside the document is what locates a passage; there is no page, because a PDF has pages and a Markdown file does not. `lead` is the length of the words at the start of `excerpt` that repeat the end of the passage before it in the same document, at most 120 characters, and `0` when the passage is the first of its section or when the two passages share no such words: every view of a cited passage shows those characters as muted context and paints the highlighter from the first own word. The chunker keeps the last 120 characters of the end of a passage as an overlap, but it never writes them into the passage that follows: the branch that would is only reached by a passage that ends exactly at a block"
         },
         {
           "heading": "1. The route",
-          "text": "length. An older field of a citation keeps its name and its meaning."
+          "text": "boundary, and the cut of a block never leaves one, so `lead` is `0` for the passages of a real document unless the document repeats its own words at the boundary (the fixture of the browser suite repeats one sentence to carry a `lead`). The field is added by `passage-display-polish`; `extractCitations()` stays pure and writes `0`, and the step after it (`lib/answer/lead.ts`) reads the passage at `position - 1` of the document from the store and writes the real length. An older field of a citation keeps its name and its meaning."
         },
         {
           "heading": "1. The route",

@@ -2,9 +2,11 @@ import type { Store } from "../store/index.ts";
 import type { Citation } from "./types.ts";
 
 // Decision 4 of `openspec/changes/passage-display-polish/design.md`: a citation says where its own words start. The
-// chunker repeats up to 120 characters of the passage before it at the start of the next one, and every view shows
-// those words as context, outside the highlighter. `extractCitations` stays pure; this is the separate step that reads
-// the passage at `position - 1` of the same document and gives every citation its `lead`.
+// chunker keeps up to 120 characters of the end of a passage as an overlap, but it never writes them at the start of the
+// next one: the branch that would is only reached by a passage that ends exactly at a block boundary, and the cut of a
+// block never leaves one. The words a view shows as context are the ones the document itself repeats at the boundary,
+// and they are read outside the highlighter. `extractCitations` stays pure; this is the separate step that reads the
+// passage at `position - 1` of the same document and gives every citation its `lead`.
 
 export const LEAD_LIMIT = 120;
 

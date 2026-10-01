@@ -65,7 +65,7 @@ export function DocumentPanel({ strings, lang, document, passages, highlight = n
   const mounted = useRef(true);
   const sections = documentSections(passages);
   // Decision 11 of the amendment: the page computes the lead of every passage from the passage before it on the page,
-  // so the words the chunker repeated from it are read as context and the highlighter starts at the first own word.
+  // so the words the document repeats from it are read as context and the highlighter starts at the first own word.
   const leads = new Map<number, number>(
     passages.map((passage, index) => [passage.id, leadLength(passages[index - 1]?.text, passage.text)]),
   );
