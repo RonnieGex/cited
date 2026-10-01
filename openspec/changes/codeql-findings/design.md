@@ -25,3 +25,21 @@ this change closes. The alerts are listed on GitHub under Security → Code scan
 ## Decisions taken by the implementer
 
 (The implementer writes here every decision the contract left open, and copies it to the `## Issues` of the report.)
+
+1. The report of step 1 quoted the local path of the worktree in the line `RUN v5.0.2 ...` of the suite; it landed
+   rewritten as `<worktree>` in `79b0bdb`, because the rule "no personal path in a versioned file" wins over a literal
+   paste, and every later report carries the substitution from the start.
+2. `docxToMarkdown` is exported although only the test uses it. Task 2.2 asks for it ("export the function for the test
+   if it is not exported"), and the scenario "Markup is removed whole" is written over the HTML of the converter, which
+   no other door of the module exposes.
+3. The two scenarios of `knowledge-search` are one case and one case, at the level the tasks name: 2.1 asserts the two
+   passages of the scenario "An entity is decoded once" and 2.2 the three lines of the scenario "Markup is removed
+   whole" plus the absence of the tags of its HTML.
+4. The red of 2.3 runs against `86b250f` with the counter of reads of a path at 0 where the case demands 1. The
+   file-system race itself is not a behaviour a test can observe from the outside, so the case pins the shape the fix
+   has to have: no read of a path, and the size of the refusal taken from the file that was measured.
+5. The browser suite of step 7 ran twice: the first run, in a clean clone that carried a test `.env`, answered 4 failed
+   and 22 did not run, because that file wins over the environment `playwright.config.ts` passes to every server of the
+   suite (`CHAT_PROVIDER=fake` made the panels answer "Test provider, no network" where the specs demand "Not connected
+   yet"). With a clone that carries no `.env`, the same 87 tests pass. The suite was not touched: the task never edits
+   what it verifies.

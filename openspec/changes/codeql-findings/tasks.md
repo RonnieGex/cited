@@ -58,7 +58,7 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 ## 9. Close
 
-- [ ] 9.1 `## Issues` at the end of the last report (BROKEN, RISK, NOT DONE, UNKNOWN), with the decisions taken by the
+- [x] 9.1 `## Issues` at the end of the last report (BROKEN, RISK, NOT DONE, UNKNOWN), with the decisions taken by the
       implementer; the CodeQL scenario is NOT DONE locally and is checked by the pipeline only
 - [ ] 9.2 Fable pushes the branch and opens the pull request; the CodeQL check of the pull request and the list of open
       alerts are recorded in the report (pipeline)
