@@ -416,9 +416,11 @@ test("a document page lists its headings in reading order", async ({ page }) => 
   expect(headings).toContain("Precios");
   expect(headings.indexOf("Horario")).toBeLessThan(headings.indexOf("Precios"));
   await expect(page.getByText("Afinación de bicicleta: 380 pesos.")).toBeVisible();
-  // Decisions 3 and 6 of `passage-display-polish`: the passage shows its heading once (the `h2` of its section), its
-  // list as a list, and no citation mark at all, because this page shows passages without an answer.
-  await expect(page.locator('[data-document-passage] [data-passage="item"]')).toHaveCount(5);
+  // Decisions 3 and 6 of `passage-display-polish`: the passage shows its heading once (the `h2` of its section), the
+  // list of that passage as a list — the page carries the two lists of the document, nine items in all — and no
+  // citation mark at all, because this page shows passages without an answer.
+  await expect(page.locator('[data-document-passage]:has-text("380 pesos") [data-passage="item"]')).toHaveCount(5);
+  await expect(page.locator('[data-document-passage] [data-passage="item"]')).toHaveCount(9);
   await expect(page.locator('[data-document-passage] [data-brand="citation-mark"]')).toHaveCount(0);
   await axe(page);
   await shoot(page, "guided-document", 1440);
