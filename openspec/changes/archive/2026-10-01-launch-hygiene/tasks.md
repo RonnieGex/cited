@@ -59,7 +59,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 - [x] 9.2 Fable pushes the branch and opens the pull request: pull request 10
 - [x] 9.3 Adversarial review by an independent session (`katalis-dev/tasks/revision-launch-hygiene.md`): FAIL, one
       Major on the notice and six Minors; see section 10
-- [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
+- [x] 9.4 Franc accepts; the change is archived and merged through the pull request
 
 ## 10. Amendment 1 (decisions 5 to 9 of `design.md`)
 
@@ -72,4 +72,4 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 - [x] 10.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate`, in `reports/<date>-step-10-amendment.md` naming the commit verified, with the
       `## Issues` of the round there and in the section "Ronda 2" of the delivery
-- [ ] 10.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-launch-hygiene-b.md`); Franc accepts
+- [x] 10.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-launch-hygiene-b.md`); Franc accepts
