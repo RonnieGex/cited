@@ -268,7 +268,7 @@ describe("the agent folders of the repository", () => {
     rmSync(join(root, ".claude"), { recursive: true, force: true });
     symlinkSync(outside, join(root, ".claude"), process.platform === "win32" ? "junction" : "dir");
 
-    expect(syncFailure(root)).toContain(".claude falls outside");
+    expect(syncFailure(root)).toContain(".claude/agents falls outside");
     expect(readFileSync(join(outside, "agents/precious.md"), "utf8")).toBe("outside the root\n");
     expect(readdirSync(join(outside, "agents")).sort()).toEqual(["precious.md"]);
   });

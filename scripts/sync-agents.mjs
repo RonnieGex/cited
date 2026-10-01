@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 
 const sourceDirectory = "ai-specs/agents";
 const copyDirectories = [".claude/agents", ".codex/agents", ".cursor/agents"];
@@ -20,8 +20,28 @@ function filesUnder(directory) {
   return files.sort();
 }
 
+// The real path of the deepest folder of `target` that exists, with the names that do not exist yet appended, so a
+// junction or a symbolic link anywhere in the way is resolved instead of followed.
+function realPath(target) {
+  const missing = [];
+  let current = resolve(target);
+
+  while (!existsSync(current)) {
+    const parent = dirname(current);
+
+    if (parent === current) {
+      break;
+    }
+
+    missing.unshift(basename(current));
+    current = parent;
+  }
+
+  return join(realpathSync(current), ...missing);
+}
+
 function insideRoot(root, target) {
-  const path = relative(root, target);
+  const path = relative(realpathSync(root), realPath(target));
 
   return path.length > 0 && !path.startsWith("..") && !isAbsolute(path);
 }
