@@ -187,11 +187,17 @@ export function buildPdf(pages: string[][]): Buffer {
   return Buffer.from(document, "latin1");
 }
 
-export type DocxParagraph = { text: string; style?: string };
+export type DocxParagraph = { text: string; style?: string; raw?: boolean };
 
 export function buildDocx(paragraphs: DocxParagraph[]): Buffer {
   const body = paragraphs
     .map((paragraph) => {
+      // A raw paragraph carries the XML of its runs itself, which is the only way to write a `<w:br/>`, a hyperlink or
+      // an entity of the document as the converter of Word writes them.
+      if (paragraph.raw === true) {
+        return `<w:p>${paragraph.text}</w:p>`;
+      }
+
       const properties =
         paragraph.style === undefined ? "" : `<w:pPr><w:pStyle w:val="${paragraph.style}"/></w:pPr>`;
 

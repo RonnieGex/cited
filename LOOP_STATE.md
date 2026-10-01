@@ -27,7 +27,11 @@ and 9.4 are not part of this round.
 - Base of step 1 in `69aa289`: `npm ci` with 0 vulnerabilities, 85 files and 1018 tests passed in 81.37 s under Node 24
   (`node -v` v24.11.0), `npm run typecheck` with 0 errors. Report
   `openspec/changes/codeql-findings/reports/2026-09-30-step-1-base.md`.
-- Pending: the red tests of step 2 and the fixes of step 3.
+- Steps 2.1 to 2.4 and 3.1 to 3.3: the four alerts closed with their tests first. The red at `86b250f` is 4 failed and
+  28 passed of 32 in `tests/ingest.test.ts` and `tests/admin-session.test.ts`, and the green after the fixes is 32
+  passed of 32; the whole suite is 85 files and 1024 passed in 78.79 s. Report
+  `openspec/changes/codeql-findings/reports/2026-09-30-step-2-tests-first.md`.
+- Pending: steps 4 to 9.1.
 
 ## Hard rules respected
 

@@ -13,22 +13,22 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 ## 2. Tests first (each one red on `86b250f` before its fix)
 
-- [ ] 2.1 `tests/ingest.test.ts`: a DOCX whose paragraph reads `5 &lt; 6` gives a passage that reads `5 &lt; 6`, and
+- [x] 2.1 `tests/ingest.test.ts`: a DOCX whose paragraph reads `5 &lt; 6` gives a passage that reads `5 &lt; 6`, and
       one that reads `5 < 6` gives `5 < 6` (scenario "An entity is decoded once"); build the DOCX in the test, as the
       existing DOCX tests do
-- [ ] 2.2 `tests/ingest.test.ts`: `docxToMarkdown` of the HTML of the scenario "Markup is removed whole and text that
+- [x] 2.2 `tests/ingest.test.ts`: `docxToMarkdown` of the HTML of the scenario "Markup is removed whole and text that
       looks like markup stays" gives its three lines (export the function for the test if it is not exported)
-- [ ] 2.3 `tests/ingest.test.ts`: a file above the byte limit is refused, and a spy on `fs/promises` shows that its
+- [x] 2.3 `tests/ingest.test.ts`: a file above the byte limit is refused, and a spy on `fs/promises` shows that its
       size came from `FileHandle.stat` and that no `readFile` of the path ran (scenario "A file above the limit on disk")
-- [ ] 2.4 `tests/admin-session.test.ts`: with `node:crypto` spied, `passwordMatches` calls `scryptSync` for both
+- [x] 2.4 `tests/admin-session.test.ts`: with `node:crypto` spied, `passwordMatches` calls `scryptSync` for both
       values and `timingSafeEqual` once, and never `createHash`; the four cases of the scenario "The right and the wrong
       password" answer as written
 
 ## 3. Implementation (decisions 1 to 3 of `design.md`)
 
-- [ ] 3.1 `docxToMarkdown`: tag removal until stable, then one-pass decoding (tests 2.1 and 2.2 green)
-- [ ] 3.2 `parseFile`: one open file for the size and the bytes (test 2.3 green)
-- [ ] 3.3 `passwordMatches`: scrypt under the salt of the process, constant-time comparison (test 2.4 green)
+- [x] 3.1 `docxToMarkdown`: tag removal until stable, then one-pass decoding (tests 2.1 and 2.2 green)
+- [x] 3.2 `parseFile`: one open file for the size and the bytes (test 2.3 green)
+- [x] 3.3 `passwordMatches`: scrypt under the salt of the process, constant-time comparison (test 2.4 green)
 
 ## 4. Existing tests
 

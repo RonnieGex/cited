@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PDFParse } from "pdf-parse";
@@ -6,8 +6,30 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { createFakeEmbeddings } from "@/lib/embeddings/fake";
 import { resolveEmbeddingsProvider } from "@/lib/embeddings/providers";
 import { MAX_FILE_BYTES, MAX_PAGES, ingestPaths, parseFile } from "@/lib/ingest";
+import { docxToMarkdown } from "@/lib/ingest/parse";
 import { openStore, type Store } from "@/lib/store";
 import { asZip64, buildDocx, buildPdf, buildZip } from "./fixtures/documents";
+
+// The size limit has to come from the open file, so every read of a path is watched: a pass of the ingestion that
+// reads no path is the shape the scenario asks for, and the one the alert `js/file-system-race` points at.
+const probe = vi.hoisted(() => {
+  const readPaths: string[] = [];
+
+  return { readPaths };
+});
+
+vi.mock("node:fs/promises", async (original: () => Promise<typeof import("node:fs/promises")>) => {
+  const actual = await original();
+
+  return {
+    ...actual,
+    readFile: async (path: Parameters<typeof actual.readFile>[0], options?: unknown) => {
+      probe.readPaths.push(String(path));
+
+      return Reflect.apply(actual.readFile, actual, [path, options]);
+    },
+  } satisfies typeof import("node:fs/promises");
+});
 
 const root = mkdtempSync(join(tmpdir(), "katalis-ingest-"));
 const stores: Store[] = [];
@@ -192,6 +214,38 @@ describe("type detection", () => {
   });
 });
 
+// The scenario "An entity is decoded once" and the scenario "Markup is removed whole and text that looks like markup
+// stays" of `openspec/changes/codeql-findings/specs/knowledge-search/spec.md`.
+describe("a Word document keeps its text as written", () => {
+  it("decodes an entity once, whatever the author typed", async () => {
+    const run = (text: string): string => `<w:r><w:t xml:space="preserve">${text}</w:t></w:r>`;
+    // The paragraph reads `5 &lt; 6` as its author typed it, so the converter's HTML holds `5 &amp;lt; 6`.
+    const typedEntity = document("entidad.docx", buildDocx([{ text: run("5 &amp;lt; 6"), raw: true }]));
+    // A paragraph that reads `5 < 6`, held as `5 &lt; 6` in the HTML.
+    const typedMarkup = document("signo.docx", buildDocx([{ text: run("5 &lt; 6"), raw: true }]));
+
+    const kept = await parseFile(typedEntity);
+    const decoded = await parseFile(typedMarkup);
+
+    expect(kept.type).toBe("docx");
+    expect(kept.text).toBe("5 &lt; 6");
+    expect(decoded.type).toBe("docx");
+    expect(decoded.text).toBe("5 < 6");
+  });
+
+  it("removes the markup whole and keeps the text that looks like markup", () => {
+    const html = '<p><a href="#x">Horario</a><br/>Lunes</p><p>Escribe &lt;b&gt; para negritas</p>';
+    const text = docxToMarkdown(html);
+
+    expect(text.split("\n")).toEqual(["Horario", "Lunes", "Escribe <b> para negritas"]);
+    expect(text).not.toContain("<a ");
+    expect(text).not.toContain("</a>");
+    expect(text).not.toContain("<p>");
+    expect(text).not.toContain("</p>");
+    expect(text).not.toContain("<br");
+  });
+});
+
 describe("the limits", () => {
   it("refuses a file above the byte limit before parsing it", async () => {
     const path = document("grande.md", `# Notas\n${"a".repeat(4000)}`);
@@ -232,6 +286,55 @@ describe("the limits", () => {
     } finally {
       extract.mockRestore();
     }
+  });
+
+  // The scenario "A file above the limit on disk" of `openspec/changes/codeql-findings/specs/knowledge-search/spec.md`:
+  // the size of the file comes from the open file whose bytes are read, and an oversized one has none of its bytes
+  // read.
+  it("refuses a file above the byte limit with the size of the open file", async () => {
+    const path = document("enorme.md", `# Notas\n${"a".repeat(4096)}`);
+    const size = statSync(path).size;
+
+    probe.readPaths.length = 0;
+
+    await expect(parseFile(path, { maxBytes: 1024, maxPages: MAX_PAGES })).rejects.toThrowError(
+      new RegExp(`crosses the size limit: ${size} bytes is above the maximum of 1024\\.`),
+    );
+
+    expect(probe.readPaths).toEqual([]);
+    expect(size).toBeGreaterThan(1024);
+  });
+
+  it("keeps reading a file inside the limit", async () => {
+    const path = document("breve.md", "# Notas\nAbrimos de martes a domingo.");
+    const acta = document("acta-limite.docx", buildDocx([{ text: "El lunes permanecemos cerrados." }]));
+
+    probe.readPaths.length = 0;
+
+    const parsed = await parseFile(path, { maxBytes: MAX_FILE_BYTES, maxPages: MAX_PAGES });
+    const parsedDocx = await parseFile(acta, { maxBytes: MAX_FILE_BYTES, maxPages: MAX_PAGES });
+
+    expect(parsed.text).toContain("Abrimos de martes a domingo.");
+    expect(parsedDocx.type).toBe("docx");
+    expect(parsedDocx.text).toContain("El lunes permanecemos cerrados.");
+    expect(probe.readPaths).toEqual([]);
+  });
+
+  // The mechanism of the scenario, seen from the test: one direct read of the path proves that the wrapper records, and
+  // `parseFile` of the same path adds nothing — its bytes came from the open file. That shape is what the alert
+  // `js/file-system-race` points at.
+  it("reads no path: the bytes come from the open file", async () => {
+    const path = document("abierto.md", "# Notas\nAbrimos de martes a domingo.");
+    const { readFile } = await import("node:fs/promises");
+
+    probe.readPaths.length = 0;
+
+    await readFile(path, "utf8");
+
+    const parsed = await parseFile(path, { maxBytes: MAX_FILE_BYTES, maxPages: MAX_PAGES });
+
+    expect(parsed.text).toContain("Abrimos de martes a domingo.");
+    expect(probe.readPaths).toHaveLength(1);
   });
 });
 

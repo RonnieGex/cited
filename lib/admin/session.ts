@@ -1,4 +1,4 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE = "cited_admin";
 export const SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
@@ -35,12 +35,23 @@ function digest(value: string): Buffer {
   return createHash("sha256").update(value, "utf8").digest();
 }
 
+// One salt of 16 bytes for the process, drawn when the module loads: both derivations of one comparison use it, and no
+// salt is ever stored.
+const passwordSalt = randomBytes(16);
+const passwordKeyLength = 32;
+
+function derive(password: string): Buffer {
+  return scryptSync(password, passwordSalt, passwordKeyLength);
+}
+
 export function passwordMatches(expected: string, given: string): boolean {
   if (expected.length === 0) {
     return false;
   }
 
-  return timingSafeEqual(digest(given), digest(expected));
+  // A slow derivation for both values, compared in constant time: no fast hash touches a password (the alert
+  // `js/insufficient-password-hash`).
+  return timingSafeEqual(derive(given), derive(expected));
 }
 
 function signature(secret: string, expiry: string): string {
