@@ -46,7 +46,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 7. End to end
 
-- [ ] 7.1 Not applicable: the change has no frontend; the report says so
+- [x] 7.1 Not applicable: the change has no frontend; the report says so
 
 ## 8. Documentation
 
