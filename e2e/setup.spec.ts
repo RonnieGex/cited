@@ -147,6 +147,9 @@ async function openStep(page: Page, id: string): Promise<void> {
 
 async function shoot(page: Page, name: string, width: number): Promise<void> {
   await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+  // Task 10.4 of the amendment: the captures are taken with `prefers-reduced-motion: reduce`, so the highlighter is
+  // painted at rest and the band of the capture is the finished one.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.screenshot({ path: resolve(captures, `${name}-${width}.png`), fullPage: true });
 }
 
@@ -259,6 +262,15 @@ test("from zero to an answer, timed", async ({ page }) => {
 
   await expect(highlighted).toBeVisible();
   expect((await highlighted.innerText()).trim().length, "the passage of the citation").toBeGreaterThan(10);
+  // Decision 9 of the amendment: Try it shows the heading of the passage only as the section label above it, never
+  // above the passage nor at the start of its text, so the label of its section carries it exactly once. The label is
+  // read as the document holds it: the label of the panel is painted in capitals, and the text of the node is not.
+  const section = highlighted.locator("xpath=ancestor::div[1]");
+  const sectionLabel =
+    (await highlighted.locator("xpath=ancestor::ul[1]/preceding-sibling::p[1]").textContent()) ?? "";
+
+  await expect(highlighted.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(section.getByText(sectionLabel, { exact: true })).toHaveCount(1);
   // Decision 6 of `passage-display-polish`: the mark beside the cited passage reads the citation's number, never the
   // position of the passage in its document.
   await expect(highlighted.locator('[data-brand="citation-mark"]')).toHaveText("1");
@@ -416,13 +428,36 @@ test("a document page lists its headings in reading order", async ({ page }) => 
   expect(headings).toContain("Precios");
   expect(headings.indexOf("Horario")).toBeLessThan(headings.indexOf("Precios"));
   await expect(page.getByText("Afinación de bicicleta: 380 pesos.")).toBeVisible();
-  // Decisions 3 and 6 of `passage-display-polish`: the passage shows its heading once (the `h2` of its section), the
-  // list of that passage as a list — the page carries the two lists of the document, nine items in all — and no
-  // citation mark at all, because this page shows passages without an answer.
-  await expect(page.locator('[data-document-passage]:has-text("380 pesos") [data-passage="item"]')).toHaveCount(5);
+  // Decisions 3, 6, 9, 10 and 14 of `passage-display-polish`: the passage shows its heading once (the `h2` of its
+  // section), the list of that passage as one list — the page carries the two lists of the document, nine items in
+  // all — and no citation mark at all, because this page shows passages without an answer.
+  const prices = page.locator('[data-document-passage]:has-text("380 pesos")');
+
+  await expect(prices.locator('[data-passage="item"]')).toHaveCount(5);
+  await expect(prices.locator("ul, ol")).toHaveCount(1);
+  await expect(prices.locator("ul > li, ol > li")).toHaveCount(5);
+  await expect(prices.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 2, name: "Precios" })).toHaveCount(1);
   await expect(page.locator('[data-document-passage] [data-passage="item"]')).toHaveCount(9);
   await expect(page.locator('[data-document-passage] [data-brand="citation-mark"]')).toHaveCount(0);
   await axe(page);
+});
+
+// Decision 11 of the amendment and task 10.4: the page of a document opens on the passage a citation marked, with the
+// highlighter on it, and the capture of the document page is taken there at 1440 px and at 375 px.
+test("the page of a document highlights the passage a citation opened", async ({ page }) => {
+  await signIn(page, `/admin/information/${sampleDocument}?highlight=2`);
+
+  const open = page.locator('[data-document-passage="open"]');
+
+  await expect(open).toHaveCount(1);
+  await expect(open).toContainText("380 pesos");
+  await expect(open.locator("ul, ol")).toHaveCount(1);
+  await expect(open.locator("ul > li, ol > li")).toHaveCount(5);
+  await expect(open.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(open.locator(".hl").first()).toHaveText("Espresso: 35 pesos.");
+  await axe(page);
+
   await shoot(page, "guided-document", 1440);
   await shoot(page, "guided-document", 375);
 });

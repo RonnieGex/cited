@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { mkdirSync } from "node:fs";
 import type { Server } from "node:http";
+import { resolve } from "node:path";
 import { adminStrings } from "../lib/i18n/admin";
 import { PUBLIC_STRINGS } from "../lib/i18n/public";
 import { E2E_ADDRESS, E2E_ADMIN_PASSWORD } from "./admin-fixtures";
@@ -22,7 +24,11 @@ import {
 const spanish = adminStrings("es");
 const spanishPublic = PUBLIC_STRINGS.es;
 const password = E2E_ADMIN_PASSWORD;
+const sampleDocument = "cafe-la-horquilla.md";
 const secondsLimit = 300;
+// Task 10.4 of the amendment: the captures of this walk land where `.gitignore` excludes them and are copied into the
+// change by its report; they are taken with `prefers-reduced-motion: reduce`, so the highlighter is at rest.
+const captures = resolve(process.cwd(), "test-results", "captures", "admin");
 
 let double: Server;
 
@@ -39,6 +45,13 @@ test.afterAll(async () => {
 // Serial, and with no retry: a retry would re-enter a store another case of the group already walked.
 test.describe.configure({ mode: "serial", retries: 0 });
 test.use({ extraHTTPHeaders: { "x-forwarded-for": E2E_ADDRESS } });
+
+async function shoot(page: Page, name: string, width: number): Promise<void> {
+  mkdirSync(captures, { recursive: true });
+  await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.screenshot({ path: resolve(captures, `${name}-${width}.png`), fullPage: true });
+}
 
 async function axe(page: Page): Promise<void> {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -194,6 +207,16 @@ test("de cero a una respuesta, en español, cronometrado", async ({ page }) => {
   await expect(
     page.locator('[data-try="turn"]').getByRole("button", { name: spanish.citationLabel.replace("{n}", "1") }),
   ).toBeVisible();
+  // Decision 9 of the amendment: the heading of the passage is the section label of its section, once, and never above
+  // the passage nor at the start of its text. The label is read as the document holds it: the label of the panel is
+  // painted in capitals, and the text of the node is not.
+  const open = page.locator('[data-citation-passage="open"]');
+  const sectionLabel = (await open.locator("xpath=ancestor::ul[1]/preceding-sibling::p[1]").textContent()) ?? "";
+
+  await expect(open.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(open.locator("xpath=ancestor::div[1]").getByText(sectionLabel, { exact: true })).toHaveCount(1);
+  await shoot(page, "guided-try-es", 1440);
+  await shoot(page, "guided-try-es", 375);
 
   await page.getByRole("button", { name: spanish.thisIsRight }).click();
   await expect(page.getByText(spanish.answerRightSaved)).toBeVisible();
@@ -211,6 +234,26 @@ test("de cero a una respuesta, en español, cronometrado", async ({ page }) => {
   );
 
   expect(seconds, `de cero a una respuesta tomó ${seconds} ms`).toBeLessThan(secondsLimit * 1000);
+});
+
+// Decision 11 of the amendment and task 10.4: la página del documento abre en el pasaje que marcó una cita, con el
+// resaltador encima, y ahí se toma la captura en español, a 1440 px y a 375 px.
+test("la página del documento resalta el pasaje que abrió una cita", async ({ page }) => {
+  await speakSpanish(page);
+  await signIn(page, `/admin/information/${sampleDocument}?highlight=2`);
+
+  const open = page.locator('[data-document-passage="open"]');
+
+  await expect(open).toHaveCount(1);
+  await expect(open).toContainText("380 pesos");
+  await expect(open.locator("ul, ol")).toHaveCount(1);
+  await expect(open.locator("ul > li, ol > li")).toHaveCount(5);
+  await expect(open.locator('[data-passage="heading"]')).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 2, name: "Precios" })).toHaveCount(1);
+  await axe(page);
+
+  await shoot(page, "guided-document-es", 1440);
+  await shoot(page, "guided-document-es", 375);
 });
 
 // Step 4 in Spanish: the flag of Publish over the name the sample set, and the page of a finished owner.

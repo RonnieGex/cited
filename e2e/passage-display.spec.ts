@@ -1,15 +1,19 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 // Requirement "A cited passage reads as its document says it" of the delta `public-chat` (decisions 1 to 5 of
-// `openspec/changes/passage-display-polish/design.md`), in a real browser: the heading of a passage once above it, its
-// list as a list with one item per line, the words it repeats from the passage before it in the muted colour outside
-// the highlighter, and the highlighter from its first own word, at 1440 px and at 375 px, in Spanish and in English.
+// `openspec/changes/passage-display-polish/design.md` and decisions 9, 10 and 14 of its Amendment 1), in a real
+// browser: the visible text of the heading exactly once, on the section line of the panel; the list as one list with
+// five items; the words the passage repeats from the passage before it in the muted colour outside the highlighter;
+// and the highlighter from its first own word, at 1440 px and at 375 px, in Spanish and in English.
 //
 // The cases run in the `public` project against the server of port 3100 (the sample corpus, the deterministic
 // providers) and in the `panel` project for the widget of `/embed`; no case calls a real provider. The captures for
-// the review of step 7.2 land in `test-results/captures/`, which `.gitignore` excludes.
+// the review of steps 7.2 and 10.4 land in `test-results/captures/`, which `.gitignore` excludes, and every case runs
+// with `prefers-reduced-motion: reduce` so the highlighter of a capture is finished.
 const captures = "test-results/captures/passage-display";
 const answer = '[data-cited="answer"]';
+
+test.use({ reducedMotion: "reduce" });
 
 async function shoot(page: Page, name: string): Promise<void> {
   await page.screenshot({ path: `${captures}/${name}.png`, fullPage: true });
@@ -18,6 +22,17 @@ async function shoot(page: Page, name: string): Promise<void> {
 async function ask(page: Page, text: string): Promise<void> {
   await page.getByLabel("Your question").fill(text);
   await page.getByRole("button", { name: "Ask" }).click();
+}
+
+// The heading of a cited passage appears once in the panel, on its section line, and its list is one list of five items
+// with five children, never a list of one item and a list of four (decisions 9, 10 and 14).
+async function expectHeadingOnceAndOneList(panel: Locator): Promise<void> {
+  await expect(panel.getByText("Precios", { exact: true })).toHaveCount(1);
+  await expect(panel.locator('[data-passage="heading"]')).toHaveText("Precios");
+  await expect(panel.locator('[data-passage="heading"]')).toHaveCount(1);
+  await expect(panel).not.toContainText("Precios - Espresso");
+  await expect(panel.locator("ul, ol")).toHaveCount(1);
+  await expect(panel.locator("ul > li, ol > li")).toHaveCount(5);
 }
 
 test("the heading of the cited passage is shown once and its list is a list of five items", async ({ page }) => {
@@ -29,9 +44,8 @@ test("the heading of the cited passage is shown once and its list is a list of f
 
   const panel = page.locator('[data-cited="citation"]');
 
-  // The heading of the passage is shown once, above it, and never at the start of its text.
-  await expect(panel.locator('[data-passage="heading"]')).toHaveText("Precios");
-  await expect(panel).not.toContainText("Precios - Espresso");
+  // The heading of the passage is shown once, on the section line of the panel, and never at the start of its text.
+  await expectHeadingOnceAndOneList(panel);
 
   const items = panel.locator('[data-passage="item"]');
 
@@ -59,9 +73,8 @@ test("the passage of the public page speaks Spanish too", async ({ page }) => {
 
   const panel = page.locator('[data-cited="citation"]');
 
-  await expect(panel.locator('[data-passage="heading"]')).toHaveText("Precios");
+  await expectHeadingOnceAndOneList(panel);
   await expect(panel.locator('[data-passage="item"]')).toHaveCount(5);
-  await expect(panel).not.toContainText("Precios - Espresso");
 
   await shoot(page, "public-precios-1440-es");
 
@@ -69,7 +82,9 @@ test("the passage of the public page speaks Spanish too", async ({ page }) => {
   await shoot(page, "public-precios-375-es");
 });
 
-test("the words a passage repeats are muted and outside the highlighter", async ({ page }) => {
+test("the words a passage repeats are muted and outside the highlighter, on the page and in the widget", async ({
+  page,
+}) => {
   const lead = "Afinación de bicicleta: ".length;
 
   await page.route("**/api/ask", async (route) => {
@@ -93,18 +108,21 @@ test("the words a passage repeats are muted and outside the highlighter", async 
     });
   });
 
-  await page.goto("/");
-  await ask(page, "¿Cuánto cuesta la afinación de una bicicleta?");
-  await page.getByRole("button", { name: "Citation 1" }).click();
+  for (const path of ["/", "/embed"]) {
+    await page.goto(path);
+    await ask(page, "¿Cuánto cuesta la afinación de una bicicleta?");
+    await page.getByRole("button", { name: "Citation 1" }).click();
 
-  const panel = page.locator('[data-cited="citation"]');
-  const muted = panel.locator('[data-passage="lead"]');
+    const panel = page.locator('[data-cited="citation"]');
+    const muted = panel.locator('[data-passage="lead"]');
 
-  await expect(muted).toHaveText("Afinación de bicicleta: ");
-  await expect(panel.locator(".hl")).toHaveText("380 pesos.");
-  // The muted words are outside the highlighter, which is the element that carries the lime band.
-  await expect(muted.locator(".hl")).toHaveCount(0);
-  await expect(panel.locator(".hl")).not.toContainText("Afinación");
+    await expect(muted, `the lead on ${path}`).toHaveText("Afinación de bicicleta: ");
+    await expect(panel.locator(".hl"), `the highlighter on ${path}`).toHaveText("380 pesos.");
+    // The muted words are outside the highlighter, which is the element that carries the lime band.
+    await expect(muted.locator(".hl")).toHaveCount(0);
+    await expect(panel.locator(".hl")).not.toContainText("Afinación");
+    await expect(panel.getByText("Precios", { exact: true })).toHaveCount(1);
+  }
 });
 
 test("the highlighter is inline and starts on the first line of its item, at 1440 px and at 375 px", async ({
@@ -156,9 +174,8 @@ test("the widget opens the same passage", async ({ page }) => {
 
   const panel = page.locator('[data-cited="citation"]');
 
-  await expect(panel.locator('[data-passage="heading"]')).toHaveText("Precios");
+  await expectHeadingOnceAndOneList(panel);
   await expect(panel.locator('[data-passage="item"]')).toHaveCount(5);
-  await expect(panel).not.toContainText("Precios - Espresso");
 
   await shoot(page, "widget-precios-375-en");
 });

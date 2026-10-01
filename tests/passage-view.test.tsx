@@ -92,16 +92,23 @@ describe("the one view of a passage", () => {
     expect(screen.getByText("Somos un café y taller de bicicletas en el centro de la ciudad.")).toBeInTheDocument();
   });
 
-  it("shows a list as a list with one item per line, each one highlighted", () => {
-    render(
+  it("shows the list of a passage as one list with one item per line, each one highlighted", () => {
+    const { container } = render(
       <PassageBody
         heading="Precios"
         highlighted
         text={
-          "Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos."
+          "Precios - Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos."
         }
       />,
     );
+
+    // Decision 10 of the amendment: the item that opens the body does not open a list of its own, so the five items
+    // are the children of one single list.
+    const lists = container.querySelectorAll("ul, ol");
+
+    expect(lists).toHaveLength(1);
+    expect(lists[0]?.children).toHaveLength(5);
 
     const items = screen.getAllByRole("listitem");
 
@@ -109,6 +116,20 @@ describe("the one view of a passage", () => {
     expect(items[0]?.textContent).toBe("Espresso: 35 pesos.");
     expect(items[4]?.textContent).toBe("Cambio de cámara: 120 pesos.");
     expect(items[0]?.querySelector(".hl")?.textContent).toBe("Espresso: 35 pesos.");
+  });
+
+  it("renders a body with no line break as one paragraph, whatever it holds", () => {
+    // Decision 12: a passage stored before this change holds its list flattened with " - ", and it is still one
+    // paragraph: no dash and no number in prose turns into a list.
+    const flattened =
+      "Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.";
+    const { container } = render(<PassageBody highlighted text={flattened} />);
+
+    expect(container.querySelectorAll("ul, ol")).toHaveLength(0);
+    expect(container.querySelectorAll("li")).toHaveLength(0);
+    expect(container.querySelectorAll(".hl")).toHaveLength(1);
+    expect(container.querySelector(".hl")?.textContent).toBe(flattened);
+    expect(screen.getByText(flattened)).toBeInTheDocument();
   });
 
   it("renders a text with no line break as one paragraph", () => {

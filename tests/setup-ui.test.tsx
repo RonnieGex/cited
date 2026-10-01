@@ -486,7 +486,7 @@ describe("the try lane", () => {
       heading: "Precios",
       position: 2,
       excerpt:
-        "Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.",
+        "Precios - Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos.",
       lead: 0,
     };
 
@@ -535,6 +535,12 @@ describe("the try lane", () => {
     expect(items).toHaveLength(5);
     expect(items[0]?.textContent).toBe("Espresso: 35 pesos.");
     expect(items[4]?.textContent).toBe("Cambio de cámara: 120 pesos.");
+
+    // Decision 10 of the amendment: the item that opens the body does not open a list of its own.
+    const lists = open.querySelectorAll("ul, ol");
+
+    expect(lists).toHaveLength(1);
+    expect(lists[0]?.children).toHaveLength(5);
   });
 
   it("shows the citation's number beside the cited passage, never its position", async () => {
@@ -543,8 +549,8 @@ describe("the try lane", () => {
       document: "cafe-la-horquilla.md",
       heading: "Políticas",
       position: 3,
-      excerpt: "Políticas Aceptamos efectivo y tarjeta.",
-      lead: "Políticas ".length,
+      excerpt: "Aceptamos efectivo y tarjeta. El taller recibe bicicletas hasta una hora antes del cierre.",
+      lead: "Aceptamos efectivo y tarjeta. ".length,
     };
 
     vi.stubGlobal(
@@ -590,6 +596,17 @@ describe("the try lane", () => {
     expect(open).toHaveTextContent("Aceptamos efectivo y tarjeta.");
     expect(open.querySelector('[data-brand="citation-mark"]')?.textContent).toBe("2");
     expect(within(open).getByText("Passage 2").className).toBe("sr-only");
+
+    // Decision 11 of the amendment: Try it takes the lead of the citation it shows, paints it in the muted colour
+    // outside the highlighter, and the highlighter starts after it.
+    const muted = open.querySelector('[data-passage="lead"]');
+    const highlight = open.querySelector(".hl");
+
+    expect(muted?.textContent).toBe("Aceptamos efectivo y tarjeta. ");
+    expect(muted?.className).toContain("text-ink-2");
+    expect(muted?.querySelector(".hl")).toBeNull();
+    expect(highlight?.textContent).toBe("El taller recibe bicicletas hasta una hora antes del cierre.");
+    expect(highlight?.textContent).not.toContain("Aceptamos");
   });
 
   it("offers the suggested questions as buttons and never calls a model to build them", () => {
@@ -808,7 +825,7 @@ describe("the page of a document", () => {
         position: 2,
         heading: "Precios",
         text:
-          "Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.",
+          "Precios - Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos.",
       },
     ];
 
@@ -822,6 +839,63 @@ describe("the page of a document", () => {
     // The heading of the passage is the heading of its section: the text never repeats it.
     expect(screen.getAllByText("Precios")).toHaveLength(1);
     expect(screen.queryByText(/^Precios - Espresso/)).toBeNull();
+
+    // Decision 10 of the amendment: one list of five items and never a list of one item followed by a list of four.
+    const passage = document.querySelector("[data-document-passage]") as HTMLElement;
+    const lists = passage.querySelectorAll("ul, ol");
+
+    expect(lists).toHaveLength(1);
+    expect(lists[0]?.children).toHaveLength(5);
+    expect(within(passage).getAllByRole("listitem")).toHaveLength(5);
+  });
+
+  it("shows the lead of every passage and starts the highlighter of the open one after it", () => {
+    const continued = [
+      {
+        id: 1,
+        name: "cafe-la-horquilla.md",
+        position: 0,
+        heading: "Políticas",
+        text: "Políticas Aceptamos efectivo y tarjeta.",
+      },
+      {
+        id: 2,
+        name: "cafe-la-horquilla.md",
+        position: 1,
+        heading: "Políticas",
+        text: "Aceptamos efectivo y tarjeta. El taller recibe bicicletas.",
+      },
+      {
+        id: 3,
+        name: "cafe-la-horquilla.md",
+        position: 2,
+        heading: "Políticas",
+        text: "El taller recibe bicicletas. Trae tu ticket.",
+      },
+    ];
+
+    const { container } = render(
+      <DocumentPanel document={summary} highlight={1} lang="en" passages={continued} strings={english} />,
+    );
+
+    // Decision 11 of the amendment: the page computes `leadLength` for every passage from the passage before it on the
+    // page and shows each lead in the muted colour, outside any highlighter.
+    const leads = container.querySelectorAll('[data-passage="lead"]');
+
+    expect(leads).toHaveLength(2);
+    expect(leads[0]?.textContent).toBe("Aceptamos efectivo y tarjeta.");
+    expect(leads[0]?.className).toContain("text-ink-2");
+    expect(leads[1]?.textContent).toBe("El taller recibe bicicletas.");
+
+    // The passage a citation opened starts its highlighter after its lead; a passage no citation opened carries none.
+    const open = container.querySelector('[data-document-passage="open"]') as HTMLElement;
+    const rest = container.querySelectorAll('[data-document-passage="rest"]');
+
+    expect(open.querySelector('[data-passage="lead"]')?.textContent).toBe("Aceptamos efectivo y tarjeta.");
+    expect(open.querySelector(".hl")?.textContent?.trim()).toBe("El taller recibe bicicletas.");
+    expect(open.querySelector(".hl")?.textContent).not.toContain("Aceptamos");
+    expect(rest).toHaveLength(2);
+    expect(rest[1]?.querySelectorAll(".hl")).toHaveLength(0);
   });
 
   it("groups the passages under their headings, with the cited one in the highlighter", () => {
