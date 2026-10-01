@@ -82,3 +82,38 @@ returns, the object the library really calls:
   ran is impossible to mistake for a refusal: `vi.spyOn(mammoth, "convertToHtml")` names it.
 - The case of the file that is already above the limit at `stat` keeps its own test with zero reads of the handle, and
   the three cases report every observation at once (`expect.soft`) instead of only the first failure.
+
+## The green, with the fixes of `91c4946`
+
+Task 10.3 landed in `91c4946` ("Read the bytes of the ingestion with a bound and drop markup cut before its `>`"), and
+the same command answers green against the code of that commit:
+
+```
+$ npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/ingest.test.ts --no-cache --reporter=verbose
+
+ RUN  v5.0.2 <worktree>
+
+ Test Files  1 passed (1)
+      Tests  29 passed (29)
+   Duration  16.09s (tests 89%, environment 5%, import 3%, transform 2%, setup 1%)
+
+exit=0
+```
+
+What the fix does, decision by decision:
+
+- **Decision 5, one bounded read.** `parseFile` keeps refusing before any byte when `handle.stat()` is above
+  `limits.maxBytes`. Otherwise it allocates `limits.maxBytes + 1` bytes and reads into them from the same handle with
+  `handle.read`, in a loop, with an explicit position and until the file ends or the buffer is full. It never calls
+  `handle.readFile()`. When more than `limits.maxBytes` bytes came back, the file grew while it was read: it refuses
+  with the message of the limit, naming the bytes it read, and `parseBuffer` never runs. The parser receives exactly
+  `buffer.subarray(0, bytesRead)`.
+- **Decision 6, markup cut before its `>`.** `removeTags` repeats the removal until the text no longer changes and then
+  takes every raw `<` that is left together with everything after it on its line. The comment above the removal now
+  says what the expression does: one pass takes `<<b>i>` down to `i>`.
+- **Decision 7, the evidence.** The reports of steps 1 to 9 are corrected in the section below.
+
+The message of the refusal of the size limit does not change its shape: `<path> crosses the size limit: <n> bytes is
+above the maximum of <max>.`, where `<n>` is the size of the open file when it was measured and the bytes that were
+read when the file grew. No route, status, cookie, lock or limit of the ingestion changed, and the type detection, the
+page limit and the rest of the conversion stay as they were.

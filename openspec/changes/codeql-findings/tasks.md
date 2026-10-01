@@ -69,11 +69,11 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 
 ## 10. Amendment 1 (decisions 5 to 7 of `design.md`)
 
-- [ ] 10.1 Test first, red on `748c2d1`: with a `FileHandle` whose file grows from 5 bytes to `maxBytes + 1` after
+- [x] 10.1 Test first, red on `748c2d1`: with a `FileHandle` whose file grows from 5 bytes to `maxBytes + 1` after
       `stat`, `parseFile` reads at most `maxBytes + 1` bytes, refuses with the limit and never calls the parser
       (scenario "A file that grows after it was measured"); the case of a file above the limit at `stat` keeps zero reads
-- [ ] 10.2 Test first, red on `748c2d1`: `docxToMarkdown("<p>Horario</p><em sin-cierre")` gives `Horario`
-- [ ] 10.3 The bounded read (decision 5), the removal of markup cut before its `>` and the corrected comment (decision 6)
+- [x] 10.2 Test first, red on `748c2d1`: `docxToMarkdown("<p>Horario</p><em sin-cierre")` gives `Horario`
+- [x] 10.3 The bounded read (decision 5), the removal of markup cut before its `>` and the corrected comment (decision 6)
 - [ ] 10.4 The reports of steps 1 to 9 name the commit of the code each one verified, with no `__COMMIT__` and no hash
       that is not on the branch (decision 7)
 - [ ] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
