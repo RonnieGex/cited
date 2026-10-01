@@ -70,13 +70,13 @@ Context of `design.md`; the decisions there are closed.
 
 ## 7. End to end
 
-- [ ] 7.1 Playwright, in `e2e/` (public project and panel project), at 1440 px and at 375 px, in Spanish and in
+- [x] 7.1 Playwright, in `e2e/` (public project and panel project), at 1440 px and at 375 px, in Spanish and in
       English: the four scenarios of "A cited passage reads as its document says it", measured in the browser (for the
       highlighter: the top of the first band against the top of the first line of the body, and one band per line),
       the number beside the cited passage in Try it, the suggestions of the Spanish panel and the reopen link
-- [ ] 7.2 Screenshots for the review, both languages, both widths: the public page with the `Precios` passage open,
+- [x] 7.2 Screenshots for the review, both languages, both widths: the public page with the `Precios` passage open,
       the widget with a passage open, Try it with a cited passage, saved in `reports/` and named in the report
-- [ ] 7.3 `npm run test:e2e` whole: counts in `reports/<date>-step-7-e2e.md`
+- [x] 7.3 `npm run test:e2e` whole: counts in `reports/<date>-step-7-e2e.md`
 
 ## 8. Documentation
 
