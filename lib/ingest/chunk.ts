@@ -114,7 +114,7 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
 
   const cut = (text: string, at: number): { head: string; tail: string } => {
     const head = text.slice(0, at);
-    const boundary = head.lastIndexOf(" ");
+    const boundary = Math.max(head.lastIndexOf(" "), head.lastIndexOf("\n"));
 
     if (boundary > at / 2) {
       return { head: head.slice(0, boundary), tail: text.slice(boundary) };
