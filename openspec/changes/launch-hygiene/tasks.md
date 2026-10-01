@@ -9,7 +9,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
 
 ## 1. Base before
 
-- [ ] 1.1 `npm ci`, `npm test`, `npm run typecheck`: counts, runtime and `node -v`; `git ls-files -s` of the three
+- [x] 1.1 `npm ci`, `npm test`, `npm run typecheck`: counts, runtime and `node -v`; `git ls-files -s` of the three
       agent paths (mode `120000`), in `reports/<date>-step-1-base.md`
 
 ## 2. Tests first (each one red on `86b250f`)
