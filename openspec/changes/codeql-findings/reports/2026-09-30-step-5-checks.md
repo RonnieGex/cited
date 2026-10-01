@@ -1,7 +1,8 @@
 # Step 5 · the tests and the checks
 
 Contract: `tasks.md`, task 5.1. Agent: deepseek-harness. Date: 2026-09-30.
-Change: `codeql-findings`, branch `feature/codeql-findings`, verified against the code of `93dc0ca` in the `<worktree>`.
+Change: `codeql-findings`, branch `feature/codeql-findings`, verified against the code of `15f1fe3` in the
+`<worktree>`.
 `node -v` is v24.11.0, and the suite runs under the Node 24 of the task (`npx -y -p node@24 node
 node_modules/vitest/vitest.mjs run`).
 
@@ -138,5 +139,5 @@ repository.
 
 ## Commit of this task
 
-Every command above ran against the code of `93dc0ca`. The mark of 5.1 and this report landed in `0e586d1`
-("Run the checks of the ingestion and the session change").
+Every command above ran against the code of `15f1fe3`. The mark of 5.1 and this report landed in `a19f0c3`
+("Review the existing tests and run the checks of the change").

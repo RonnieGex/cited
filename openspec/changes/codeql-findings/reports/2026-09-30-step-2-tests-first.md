@@ -1,7 +1,8 @@
 # Step 2 · tests first, and the three fixes
 
 Contract: `tasks.md`, tasks 2.1 to 2.4 and 3.1 to 3.3. Agent: deepseek-harness. Date: 2026-09-30.
-Change: `codeql-findings`, branch `feature/codeql-findings`, verified in the `<worktree>`.
+Change: `codeql-findings`, branch `feature/codeql-findings`, verified against the code of `15f1fe3` in the
+`<worktree>`.
 Every command of this report ran with `--no-cache`: an earlier run reused a stale transform of `tests/ingest.test.ts`
 and reported a false green, and the flag is what makes the run below reproducible.
 
@@ -46,14 +47,14 @@ exit=1
 - 2.2: `docxToMarkdown` was private, which is the "export the function for the test if it is not exported" of the task.
 - 2.3: the counter of the recorded reads of a path is 0 where the case demands 1. The case reads the path once itself
   and then passes the same path to `parseFile`: with the code of `86b250f` (`readFile(path)` after `stat(path)`) the
-  counter reaches 2, and with the code of this commit it stays at 1. The sibling case of the refusal collects the size
+  counter reaches 2, and with the code of `15f1fe3` it stays at 1. The sibling case of the refusal collects the size
   of `statSync` and demands it inside the message, which is the "size comes from the open file" of the scenario. This
   is the strongest red available for an alert about a race: the race itself is not a behaviour a test can observe from
   the outside, so the case pins the shape the fix has to have.
 - 2.4: the five comparisons of the old table pass (`passwordMatches` over SHA-256), and the counter of `scryptSync`
   proves that neither derivation of the spec ran, while `createHash` was the one that answered.
 
-## The green, with the fixes of this commit
+## The green, with the fixes of `15f1fe3`
 
 ```
 $ npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/ingest.test.ts tests/admin-session.test.ts --no-cache --reporter=verbose
@@ -109,5 +110,5 @@ ingestion changed.
 ## Commit of this task
 
 The red above was taken at `69aa289` with the three implementation files of `86b250f` in place, and the green at the
-same tests with the fixes of this commit: `93dc0ca` ("Close the four CodeQL alerts of the product with their tests
-first").
+same tests with the fixes of the commit it landed in: `15f1fe3` ("Close the four CodeQL alerts of the product with
+their tests first").

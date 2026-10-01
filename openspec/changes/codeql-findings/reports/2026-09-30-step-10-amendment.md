@@ -10,7 +10,8 @@ The review of Codex (`katalis-dev/tasks/revision-codeql-findings.md`) reproduced
   before `handle.readFile()`, and all of it was read.
 - **Minor 1**: HTML cut before its `>` leaves a fragment that looks like a tag (`<p>Horario</p><em sin-cierre` gives
   `Horario\n<em sin-cierre`), and the comment above the removal describes an expression that the code does not run.
-- **Minor 2**: the reports name predecessor hashes that are not on the branch or carry `__COMMIT__`.
+- **Minor 2**: the reports name predecessor hashes that are not on the branch, or leave a placeholder where the commit
+  that adds the report should be named.
 
 ## The red of 10.1 and 10.2, with the code of `748c2d1` in place
 
@@ -117,3 +118,39 @@ The message of the refusal of the size limit does not change its shape: `<path> 
 above the maximum of <max>.`, where `<n>` is the size of the open file when it was measured and the bytes that were
 read when the file grew. No route, status, cookie, lock or limit of the ingestion changed, and the type detection, the
 page limit and the rest of the conversion stay as they were.
+
+## The reports of steps 1 to 9 (10.4, decision 7)
+
+Every hash of every report of the change was checked against the branch: a token of seven to forty hexadecimal
+characters that `git cat-file -t` answers as a commit has to be reachable from `HEAD`.
+
+```powershell
+foreach ($report in Get-ChildItem openspec/changes/codeql-findings/reports/*.md) {
+  foreach ($match in [regex]::Matches((Get-Content $report.FullName -Raw), '\b[0-9a-f]{7,40}\b')) {
+    if ((git cat-file -t $match.Value 2>$null) -eq "commit") {
+      git merge-base --is-ancestor $match.Value HEAD
+      if ($LASTEXITCODE -ne 0) { "outside the branch: $($report.Name) $($match.Value)" }
+    }
+  }
+}
+```
+
+The scan found five hashes outside the branch and two placeholders, all of them in the reports of steps 1 to 9, and
+left them corrected:
+
+| Report | It said | It says now | What the name is |
+|---|---|---|---|
+| step 1 | `at this commit` | `69aa289` | the tree the base ran against |
+| step 2 | `verified in the <worktree>`, `93dc0ca`, `the code of this commit` | `15f1fe3` | the fixes whose green the report took |
+| step 4 | `93dc0ca`, a placeholder for the commit that adds the report | `15f1fe3`, `a19f0c3` | the code the review ran against, and the commit that carries the report |
+| step 5 | `93dc0ca`, `0e586d1` | `15f1fe3`, `a19f0c3` | the code the checks ran against, and the commit that carries the report |
+| step 6 | `fa14df1` | `8516e8c` | the commit that carries the report |
+| step 7 | a placeholder for the commit that adds the report | `8516e8c` | the commit that carries the report |
+| step 8 | (unchanged) | `a19f0c3` and `8516e8c` | already on the branch |
+| step 9.2 | (unchanged) | `748c2d1` | the head the pipeline verified |
+
+The names of the table were read from the history of the branch (`git log --oneline`): `79b0bdb` carries 1.1,
+`15f1fe3` carries 2.1 to 3.3, `a19f0c3` carries 4.1 and 5.1, `8516e8c` carries 6.1, 7.1 and 8.1, and `748c2d1` carries
+9.1. A report names the commit of the code it verified and never the commit that adds the report itself, which is read
+from the history. The second run of the scan printed nothing, and the reports carry no placeholder and no hash outside
+the branch.

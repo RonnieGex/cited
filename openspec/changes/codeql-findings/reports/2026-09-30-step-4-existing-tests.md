@@ -1,7 +1,8 @@
 # Step 4 · the existing tests the change touches
 
 Contract: `tasks.md`, task 4.1. Agent: deepseek-harness. Date: 2026-09-30.
-Change: `codeql-findings`, branch `feature/codeql-findings`, verified against the code of `93dc0ca` in the `<worktree>`.
+Change: `codeql-findings`, branch `feature/codeql-findings`, verified against the code of `15f1fe3` in the
+`<worktree>`.
 
 ## 4.1 none of the existing tests is weakened or deleted
 
@@ -66,5 +67,5 @@ exit=0
 
 ## Commit of this task
 
-Every command above ran against the code of `93dc0ca`. The mark of 4.1 and this report landed in `__COMMIT__`
-("Review the existing tests of the ingestion, the session and the login").
+Every command above ran against the code of `15f1fe3`. The mark of 4.1 and this report landed in `a19f0c3`
+("Review the existing tests and run the checks of the change").
