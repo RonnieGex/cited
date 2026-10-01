@@ -69,7 +69,7 @@ Franc accepts. A task is `[x]` only with its exact command and result in a repor
       the root, built in a temporary tree
 - [x] 10.2 The section of decisions 5 to 7, with both addresses checked with `curl.exe` (status pasted)
 - [x] 10.3 The sync of decision 9
-- [ ] 10.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
+- [x] 10.4 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate`, in `reports/<date>-step-10-amendment.md` naming the commit verified, with the
       `## Issues` of the round there and in the section "Ronda 2" of the delivery
 - [ ] 10.5 Fable pushes; an independent review (`katalis-dev/tasks/revision-launch-hygiene-b.md`); Franc accepts
