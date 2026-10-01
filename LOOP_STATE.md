@@ -1,78 +1,67 @@
 # LOOP_STATE · Cited
 
-STATUS: DONE
-CHANGE: passage-display-polish (OpenSpec), steps 1 to 9.1
+STATUS: RUNNING
+CHANGE: passage-display-polish (OpenSpec), Amendment 1, section 10 (tasks 10.1 to 10.5)
 BRANCH: feature/passage-display-polish
 BASE: 86b250f (main when the change started)
-HEAD AT THE START OF THE ROUND: dbc324f ("Contract of passage-display-polish: a cited passage reads as its document
-says it")
-AGENT: DeepSeek (implementer), contract by Fable
+HEAD AT THE START OF THE ROUND: db57d2d ("Amend the contract of passage-display-polish after the review")
+AGENT: DeepSeek (implementer), contract by Fable, review by Codex
 DATE: 2026-09-30
 
 ## Objective
 
-Execute tasks 1 to 9.1 of `openspec/changes/passage-display-polish/tasks.md` and nothing else. Steps 0, 9.2, 9.3 and
-9.4 are not mine. Tests first, red before each fix, one real report per `[x]` inside the change, small commits,
-gitleaks on every commit, no push, no remote, no archive, no commit on `main`, no edit of the text of the tasks, of
-`design.md` or of the specs. The build, `curl.exe` and the E2E run in a disposable clean clone, never opening a
-`.env.local`. The E2E uses the ports 3100 and 3210 to 3217, and waits while another agent holds them.
+Execute tasks 10.1 to 10.5 of `openspec/changes/passage-display-polish/tasks.md` and nothing else: the four Majors of
+`katalis-dev/tasks/revision-passage-display-polish.md` and the decisions 9 to 14 that Fable closed in `db57d2d`.
+Steps 0 to 9 are marked and stay untouched; 10.6 (the push, the second review and the acceptance) is not mine. Tests
+first, red on `f1ca9df` before each fix, one real report per `[x]` inside the change, small commits, gitleaks on every
+commit, no push, no remote, no archive, no commit on `main`, no edit of the text of the tasks, of `design.md` or of
+the specs. The build and the E2E run in a disposable clean clone, never opening a `.env.local`. The E2E uses the ports
+3100 and 3210 to 3217, and waits while another agent holds them.
 
 ## Progress
 
-- **1.1 and 1.2**: the base measured in a clean clone and the passages of the sample corpus before the change;
-  reports `2026-09-30-step-1-base.md` and `2026-09-30-step-1-corpus.md`. Green: 85 files, 1018 tests, 83.39 s, 87
-  browser cases in 2.0 min, Node 24.11.0.
-- **2.1 to 2.7**: six files and ten red cases of the new behaviour, 39 green of the behaviour the same files already
-  pinned; report `2026-09-30-step-2-red.md`.
-- **3.1 to 3.7**: the eight decisions of `design.md` implemented — the chunker keeps the lines of a list,
-  `lib/answer/lead.ts` and `components/chat/PassageBody.tsx` hold the pure helpers and the one view, every citation
-  carries `lead`, `Try it` shows the citation's number, the document page shows no mark, the suggestions come first
-  from the documents of the panel's language and the Spanish name is "configuración guiada"; report
-  `2026-09-30-step-3-implementation.md`. Whole suite: 89 files, 1051 tests.
-- **4.1**: the existing tests reviewed and the expectations that the new behaviour invalidates updated, each one with
-  its reason; report `2026-09-30-step-4-existing-tests.md`.
-- **5.1 and 5.2**: typecheck, lint, 1052 unit tests, build, audit, secrets scan and `openspec:validate` (14 of 14) in a
-  clean clone; the corpus after the change differs from the baseline in the three passages with a list and in nothing
-  else, and the four searches return the same passages in the same order; report `2026-09-30-step-5-checks.md`.
-- **6.1**: two `curl.exe` requests of `POST /api/ask` against a real server of a clean clone, with `lead` on their
-  citations; report `2026-09-30-step-6-curl.md`.
-- **7.1 to 7.3**: the four scenarios of the delta measured in a browser at 1440 px and at 375 px, in Spanish and in
-  English, on the public page and in the widget, the citation's number in `Try it`, the list and the absence of a mark
-  on the page of a document, and the suggestions of the Spanish panel; five captures for the review; the whole suite
-  passes with 92 cases in 2.0 min; report `2026-09-30-step-7-e2e.md`.
-- **8.1 and 9.1**: the documentation follows the change and the `## Issues` of the change is written with the six
-  decisions taken by the implementer; report `2026-09-30-step-9-issues.md`.
+- **10.1 and 10.2**: the tests of the amendment first, red at the code of `f1ca9df`: the heading text exactly once on
+  the section line of the panel, in Try it and on the page of a document; `Precios` as one list with five children;
+  the lead node and the highlighter starting after it in Try it and on the page of a document; a body with no line
+  break in one paragraph. The assertion of `tests/chat.test.tsx:116` that accepted two headings is corrected to one.
+  Report `2026-09-30-step-10-red.md`.
+- **10.3**: the four decisions implemented — the citation panel shows the heading only on its section line, the item
+  that opens a body no longer opens a list of its own, Try it takes the `lead` of its citation, the page of a
+  document computes `leadLength` for every passage and reads `?highlight=`, and a body with no line break stays one
+  paragraph. Report `2026-09-30-step-10-implementation.md`.
+- **10.4**: the two captures that 7.2 declared NOT DONE (Try it with a cited passage and the page of a document with
+  the highlighted passage), in Spanish and in English, at 1440 px and at 375 px, and the five of the public page and
+  the widget taken again with `prefers-reduced-motion: reduce`; thirteen images in `reports/images/`. Report
+  `2026-09-30-step-10-captures.md`.
+- **10.5**: the checks in a clean clone — types, linter, 1055 unit tests, build, audit, 569 commits of gitleaks, 14 of
+  14 specifications and 94 browser cases — with the `## Issues` of the round. Report
+  `2026-09-30-step-10-amendment.md`.
 
-Every box of steps 1 to 9.1 is marked with its report inside the change, and every report names the commit it
-validates. Steps 9.2, 9.3 and 9.4 stay unchecked: they are Fable's, Codex's and Franc's.
+Every box of section 10.1 to 10.5 is marked with its report inside the change, and every report names the commit it
+validates. Box 10.6 stays unchecked: it is Fable's, Codex's and Franc's.
 
 ## Evidence
 
-- Unit suite of the change in a clean clone of `fc8af39`: 89 files, **1052 tests passed**, 79.68 s, exit 0, and one more
-  run in the worktree at the closing commit `844f72a`: the same 1052 tests in 78.92 s. The base was 1018 tests in 85
-  files: the change adds 34 cases in four files.
-- Browser suite of a clean clone of `308cb05`: **92 passed** (87 of the base plus five of
-  `e2e/passage-display.spec.ts`), 2.0 min, 132 s of wall clock, exit 0; `git status --short` empty afterwards and the
-  five captures under `test-results/captures/passage-display/`, which `.gitignore` excludes.
-- `npm run typecheck` and `npm run lint`: 0 problems. `npm run build`: compiles in 24 s with Next.js 16.3.6.
-  `npm run audit:high`: 0 vulnerabilities. `npm run secrets:scan`: 547 commits, no leak.
-  `npm run openspec:validate`: 14 passed, 0 failed.
-- The corpus before and after: 4 documents and 11 passages, the same order, the same positions and the same headings;
-  only the three passages with a list changed, and only by their line breaks. The four searches of
-  `tests/search.test.ts` return the same passages in the same order with the same scores.
-- Two questions of `POST /api/ask` answered by a real server of the clean clone with the deterministic providers, each
-  citation with `lead`.
+- Unit suite of the amendment in the worktree: 89 files, **1055 tests passed**, 76.50 s, exit 0, at the code of the
+  implementation; the same suite at the code of `f1ca9df` is **8 failed and 1047 passed** in three files. The suite
+  before the change was 1052 cases: this round adds three.
+- Browser suite of a clean clone of `8c99552`: **94 passed** (92 of the round before this one plus the two cases of
+  the page of a document with the highlighted passage), 2.0 min, exit 0; the red runs of the same cases at the tests
+  commit are 5 failed in the public project, 1 in the project `setup` and 1 in `setup-es`.
+- The checks of a clean clone of `28bd86f` (the code of `8c99552`): `npm run typecheck` 0 errors, `npm run lint`
+  0 problems, `npm run build` compiles in 22 s with Next.js 16.3.6, `npm run audit:high` 0 vulnerabilities,
+  `npm run secrets:scan` 569 commits with no leak, `npm run openspec:validate` 14 passed and 0 failed.
+- gitleaks on every commit of the round (`--log-opts="HEAD~1..HEAD"`): no leak.
 
 ## Hard rules respected
 
 - No `.env` file with secrets was opened; no push, no remote, no commit on `main`, no archive; the worktrees
   `community`, `community-ins`, `community-ui`, `community-main`, `community-preview` and `community-2zi` were not
-  touched, and no process of another agent was stopped: the E2E waited while the servers of the worktree `community-e2e`
-  held the ports 3100, 3211, 3213, 3214, 3215 and 3217.
-- No test called a real provider: the deterministic providers of the unit suite, the local double of the browser suite
-  and `CHAT_PROVIDER=fake` for the manual questions.
+  touched, and no process of another agent was stopped: the E2E ran with the ports 3100 and 3210 to 3217 free.
+- No test called a real provider: the deterministic providers of the unit suite and the local double of the browser
+  suite.
 - No personal path in a versioned file (a report writes `<worktree>`, `<clean clone>` or `<scratch>`); UTF-8 with LF;
   `MEMORY.md` is in no commit.
-- The build, the `curl.exe` and the E2E ran in disposable clean clones, never in the working tree, which has an ignored
+- The build, the captures and the E2E ran in a disposable clean clone, never in the working tree, which has an ignored
   `.env.local` that was never opened.
 - The text of the tasks, of `design.md` and of the specs was not edited; only the boxes of the tasks are marked.
