@@ -19,7 +19,12 @@ and the text of the tasks, of `design.md` and of the specs is not edited.
 - **10.1**: the two guards are red on `518a117` (6 of 17 cases fail: five of the row-by-row guard of the notice and the
   refusal of the sync before a junction that leaves the root); report `reports/2026-09-30-step-10-1-red.md`, box in this
   commit.
-- **10.2**: pending.
+- **10.2**: the section of decisions 5 to 7 has one row per LGPL package of the lock (fourteen), says the packages carry
+  the name of their license and no license text of it, links the official LGPL-3.0 text and the sharp-libvips project,
+  and states the use of sharp as a fact, in `01f9894`; `tests/third-party-notices.test.ts` is green with 9 of 9. The
+  sharp-libvips address answers 200 with `curl.exe`; `https://www.gnu.org/licenses/lgpl-3.0.html` could not be checked
+  from this machine (its network cuts the TLS handshake, `curl` exit 35), written in the report as an UNKNOWN; report
+  `reports/2026-09-30-step-10-2-notice.md`, box in this commit.
 - **10.3**: pending.
 - **10.4**: pending.
 
