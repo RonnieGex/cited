@@ -115,27 +115,29 @@ describe("leadOf", () => {
 
 describe("the citations of an answer carry the lead of their passage", () => {
   it("carries the length of the repeated words for a passage that continues the one before it", async () => {
-    // A section whose first block is longer than the window of the chunker: the block is cut, and the passage that
-    // follows repeats the tail of the one before it.
-    const first = "palabra ".repeat(24).trim();
-    const second = `${"consulta ".repeat(80).trim()} pesos cambio de cámara: 120 pesos.`;
+    // Decision 18 cuts a block at every empty line again, so a passage only starts with the words of the one before it
+    // when the text of the document repeats them: the first paragraph of the section fills its passage and the second
+    // one opens a passage of its own with the sentence that closes the first, as in the fixture of decision 20.
+    const leaded = "El taller revisa la bicicleta antes de devolverla.";
+    const first = `${"palabra ".repeat(90).trim()} ${leaded}`;
+    const second = `${leaded} La calibración láser de la válvula de vacío queda cubierta por la garantía extendida.`;
     const store = await storeWith(
       "largos.md",
       `# Precios\n\n${"palabra ".repeat(100).trim()}\n\n# Cambio\n\n${first}\n\n${second}`,
     );
     const passages = await store.getPassages({ name: "largos.md" });
-    const continues = passages[4];
-    const carried = leadLength(passages[3]?.text, continues?.text ?? "");
+    const continues = passages[3];
+    const carried = leadLength(passages[2]?.text, continues?.text ?? "");
     const ranked: Store = {
       ...store,
       keywordSearch: async () => [{ passageId: continues?.id ?? 0, rank: 0, score: 1 }],
       vectorSearch: async () => [],
     };
-    const outcome = await ask(ranked, "consulta cambio de cámara", "El cambio cuesta 120 pesos [1].");
+    const outcome = await ask(ranked, "¿La calibración láser está cubierta?", "El cambio cuesta 120 pesos [1].");
 
-    expect(passages.length).toBe(5);
-    expect(carried).toBeGreaterThan(0);
-    expect((continues?.text ?? "").slice(carried)).toContain("pesos cambio de cámara");
+    expect(passages.length).toBe(4);
+    expect(carried).toBe(leaded.length);
+    expect((continues?.text ?? "").slice(carried)).toContain("La calibración láser de la válvula de vacío");
 
     if (outcome.status !== "answered") {
       throw new Error(`the answer was ${outcome.status}`);
@@ -146,7 +148,7 @@ describe("the citations of an answer carry the lead of their passage", () => {
     expect(cited?.position).toBe(continues?.position);
     expect(cited?.excerpt).toBe(continues?.text);
     expect(cited?.lead).toBe(carried);
-    expect(cited?.excerpt.slice(cited.lead)).toContain("pesos cambio de cámara");
+    expect(cited?.excerpt.slice(cited.lead)).toContain("La calibración láser de la válvula de vacío");
   }, 30_000);
 
   it("carries zero for the first passage of a section, and names no other field", async () => {

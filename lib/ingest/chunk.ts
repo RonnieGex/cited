@@ -5,8 +5,9 @@ export const DEFAULT_CHUNK_OVERLAP = 120;
 
 const markdownHeading = /^(#{1,6})\s+(.*\S)\s*$/;
 const setextUnderline = /^(=+|-{2,})\s*$/;
-// Decision 2 of `openspec/changes/passage-display-polish/design.md`: an item of a list keeps its own line of the
-// passage, so a list survives into the text the views render and the search keeps reading the same words.
+// Decisions 2 and 18 of `openspec/changes/passage-display-polish/design.md`: an item of a list keeps its own line of
+// the passage, so a list survives into the text the views render and the search keeps reading the same words. A block
+// still ends at every empty line, as on `86b250f`, and every other join stays a space.
 const listItem = /^([-*]|\d+\.)\s+\S/;
 
 function isHeading(line: string): boolean {
@@ -18,26 +19,32 @@ function headingTitle(line: string): string {
 }
 
 /**
- * The text of one block: the items of a list keep their own line, joined to what comes before them with a line break,
- * and every other line is joined with a space, as before.
+ * The text of the parts of one passage: joined with a space, and with a line break instead when the part that follows
+ * opens with a list item (decision 18). The two separators are one character each, so the size of a passage does not
+ * depend on which one is used.
  */
-function blockText(lines: string[]): string {
+function passageText(parts: string[]): string {
   let text = "";
 
-  for (const line of lines) {
-    if (line.length === 0) {
-      continue;
-    }
-
+  for (const part of parts) {
     if (text.length === 0) {
-      text = line;
+      text = part;
       continue;
     }
 
-    text = listItem.test(line) ? `${text}\n${line}` : `${text} ${line}`;
+    text = listItem.test(part) ? `${text}\n${part}` : `${text} ${part}`;
   }
 
-  return text.trim();
+  return text;
+}
+
+/**
+ * The text of one block, the lines the chunker collected between two empty lines (or a heading): the items of a list
+ * keep their own line, joined to what comes before them with a line break, and every other line is joined with a space,
+ * as before.
+ */
+function blockText(lines: string[]): string {
+  return passageText(lines.filter((line) => line.length > 0));
 }
 
 export function chunkText(source: string, options: Partial<ChunkOptions> = {}): ChunkedPassage[] {
@@ -61,6 +68,11 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
   for (const rawLine of source.replace(/\r\n?/g, "\n").split("\n")) {
     const line = rawLine.trim();
 
+    if (line.length === 0) {
+      flush();
+      continue;
+    }
+
     if (isHeading(line)) {
       flush();
 
@@ -74,8 +86,6 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
       continue;
     }
 
-    // An empty line is a boundary of the block and nothing else: the lines on both sides are joined by `blockText`, so
-    // a paragraph followed by its list keeps the two together and the list starts on its own line.
     buffer.push(line);
   }
 
@@ -85,10 +95,10 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
   let currentHeading: string | null = null;
   let carry = "";
 
-  const length = (): number => current.join(" ").trim().length;
+  const length = (): number => passageText(current).trim().length;
 
   const emit = (): void => {
-    const text = current.join(" ").trim();
+    const text = passageText(current).trim();
 
     if (text.length > 0) {
       passages.push({ position: passages.length, heading: currentHeading, text });
@@ -125,7 +135,7 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
       } else if (rest.length >= room) {
         const { head, tail } = cut(rest, room);
 
-        current.push(`${carry} ${head}`.trim());
+        current.push(passageText([carry, head]).trim());
         emit();
         rest = tail.replace(/^\s+/, "");
       }
