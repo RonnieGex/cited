@@ -8,8 +8,6 @@ Si la pieza llegó con un golpe del transporte, guárdala como está y escríben
 empaque corre por nuestra cuenta y el reemplazo sale del almacén sin costo. El taller revisa la bicicleta antes
 de devolverla.
 
----
-
 El taller revisa la bicicleta antes de devolverla. La calibración láser de la válvula de vacío queda cubierta
 por la garantía extendida durante dos años, y el sello del marco se revisa en cada servicio. El comprobante del
 servicio viaja por correo con la fecha y el nombre del mecánico que firmó el trabajo, así que puedes pedir una
