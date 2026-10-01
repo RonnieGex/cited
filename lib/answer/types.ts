@@ -4,6 +4,8 @@ export type Citation = {
   heading: string | null;
   position: number;
   excerpt: string;
+  /** The characters at the start of `excerpt` that repeat the passage before it (decision 4). */
+  lead: number;
 };
 
 export type AskOutcome =

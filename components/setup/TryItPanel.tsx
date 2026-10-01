@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CitationMark, Highlight } from "@/components/brand";
+import { PassageBody } from "@/components/chat/PassageBody";
+import { CitationMark } from "@/components/brand";
 import { Button, Input, Panel } from "@/components/ui";
 import { askCited, type AskResult } from "@/lib/chat/client";
 import { documentSections } from "@/lib/admin/document-sections";
@@ -33,23 +34,39 @@ export type TryItPanelProps = {
 
 const label = "text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2";
 
-function Passage({ passage, highlighted, lang }: { passage: StoredPassage; highlighted: boolean; lang: Lang }) {
-  const body = <span className="text-[16px] leading-[1.6] text-ink">{passage.text}</span>;
+function Passage({
+  passage,
+  citation,
+  label: numbered,
+  lang,
+}: {
+  passage: StoredPassage;
+  /** The citation of this passage in the answer, when the answer cited it: the mark reads its number. */
+  citation: number | null;
+  /** The place of the passage in the document, counted from 1, for the reader of a screen. */
+  label: number;
+  lang: Lang;
+}) {
+  const open = citation !== null;
 
   return (
     <li
-      data-citation-passage={highlighted ? "open" : "rest"}
-      className={`border-t border-rule py-4 ${highlighted ? "scroll-mt-6" : ""}`}
+      data-citation-passage={open ? "open" : "rest"}
+      className={`border-t border-rule py-4 ${open ? "scroll-mt-6" : ""}`}
     >
-      {highlighted ? (
-        <span className="flex items-baseline gap-3">
-          <CitationMark n={passage.position} state="open" />
-          <Highlight sweep>{passage.text}</Highlight>
+      <span className="flex items-baseline gap-3">
+        {open ? <CitationMark n={citation} state="open" /> : null}
+        <span className="min-w-0 flex-1">
+          <PassageBody
+            className="text-[16px] leading-[1.6] text-ink"
+            heading={passage.heading}
+            highlighted={open}
+            showHeading={false}
+            text={passage.text}
+          />
         </span>
-      ) : (
-        body
-      )}
-      <span className="sr-only">{lang === "es" ? `Pasaje ${passage.position}` : `Passage ${passage.position}`}</span>
+      </span>
+      <span className="sr-only">{lang === "es" ? `Pasaje ${numbered}` : `Passage ${numbered}`}</span>
     </li>
   );
 }
@@ -62,8 +79,25 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
   const [marked, setMarked] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const sends = ask ?? ((input: { question: string; sessionId: string }) => askCited(input));
-  const citation = result?.status === "answered" ? (result.citations.find((one) => one.n === open) ?? null) : null;
-  const document = citation === null ? null : (documents.find((one) => one.name === citation.document) ?? null);
+  const opened = result?.status === "answered" ? (result.citations.find((one) => one.n === open) ?? null) : null;
+  const document = opened === null ? null : (documents.find((one) => one.name === opened.document) ?? null);
+  // Decision 6 of `passage-display-polish`: the mark beside the passage the answer cited reads that citation's number
+  // (`n`) and never the position of the passage in its document. A passage no answer cited shows no mark at all.
+  const cited = new Map<number, number>();
+
+  if (result?.status === "answered" && document !== null) {
+    for (const source of result.citations) {
+      if (source.document !== document.name) {
+        continue;
+      }
+
+      const passage = document.passages.find((one) => one.position === source.position);
+
+      if (passage !== undefined) {
+        cited.set(passage.position, source.n);
+      }
+    }
+  }
   // The lane invites step 2 only when the business has no document at all: a document of the store always carries its
   // passages, so the empty state is "there is nothing to ask yet" and not "this document looks empty".
   const hasDocuments = documents.length > 0;
@@ -238,7 +272,7 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
 
       <div className="flex min-w-0 flex-col gap-3">
         <p className={label}>{strings.tryPassageTitle}</p>
-        {citation === null || document === null ? (
+        {opened === null || document === null ? (
           <p className="max-w-[65ch] text-sm text-ink-2">{strings.tryNoCitation}</p>
         ) : (
           <Panel className="flex flex-col gap-4 overflow-x-auto">
@@ -249,8 +283,9 @@ export function TryItPanel({ strings, lang, documents, suggestions, sessionId = 
                 <ul className="flex flex-col">
                   {section.passages.map((passage) => (
                     <Passage
-                      highlighted={passage.position === citation.position}
+                      citation={cited.get(passage.position) ?? null}
                       key={passage.id}
+                      label={document.passages.indexOf(passage) + 1}
                       lang={lang}
                       passage={passage}
                     />

@@ -4,7 +4,8 @@
 // is what the chunker is handed.
 
 import { describe, expect, it } from "vitest";
-import { chunkText, parseBuffer } from "@/lib/ingest";
+import { chunkText } from "@/lib/ingest";
+import { parseBuffer } from "@/lib/ingest/parse";
 import { buildDocx } from "./fixtures/documents";
 
 describe("a list keeps its lines in its passage", () => {
@@ -40,12 +41,16 @@ describe("a list keeps its lines in its passage", () => {
 
   it("reads a list of a Word document as a list", async () => {
     const parsed = await parseBuffer(
-      buildDocx([{ text: "<ul><li>Aceptamos efectivo.</li><li>Aceptamos tarjeta.</li></ul>" }]),
+      buildDocx([
+        { text: "Aceptamos efectivo." },
+        { text: "Aceptamos tarjeta.", list: true },
+        { text: "Aceptamos transferencia.", list: true },
+      ]),
       "pagos.docx",
     );
     const passage = chunkText(parsed.text)[0];
 
-    expect(parsed.text).toContain("- Aceptamos efectivo.");
-    expect(passage?.text).toContain("- Aceptamos efectivo.\n- Aceptamos tarjeta.");
+    expect(parsed.text).toContain("- Aceptamos tarjeta.");
+    expect(passage?.text).toContain("Aceptamos efectivo.\n- Aceptamos tarjeta.\n- Aceptamos transferencia.");
   });
 });

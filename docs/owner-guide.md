@@ -128,12 +128,12 @@ incrustarlo, y el agente de voz, que es la tercera manera de publicar después d
 de los documentos del negocio y pueden estar equivocadas, que no se compartan datos personales, y el enlace a
 `/privacy`, que nombra los proveedores que usa el negocio y dónde trata cada uno los datos.
 
-### Después de la alta
+### Después de la configuración
 
 El espacio de trabajo conserva las siete secciones del panel — Inicio, Información, Pruébalo, Conversaciones,
 Apariencia y publicación, IA y llaves, Ajustes — cada una numerada como una cita. Inicio dice qué falta (cada paso es
-una puerta de vuelta a la alta guiada) y las últimas preguntas. "Para quien instala" vive bajo Ajustes y es la única
-página del panel que nombra una variable del entorno.
+una puerta de vuelta a la configuración guiada) y las últimas preguntas. "Para quien instala" vive bajo Ajustes y es la
+única página del panel que nombra una variable del entorno.
 
 Una cara pública sin IA conectada no miente: dice que el asistente todavía no está listo y le ofrece al dueño la
 entrada al panel, y nunca ofrece una caja que no puede responder.

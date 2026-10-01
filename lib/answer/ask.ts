@@ -9,6 +9,7 @@ import { hybridSearch } from "../search/index.ts";
 import type { Store } from "../store/index.ts";
 import { readBusiness } from "../settings/business.ts";
 import { extractCitations } from "./citations.ts";
+import { citationsWithLeadFromStore } from "./lead.ts";
 import { NO_ANSWER, buildMessages, refusalMessage } from "./prompt.ts";
 import type { Turn } from "./prompt.ts";
 import type { AskOutcome } from "./types.ts";
@@ -119,9 +120,11 @@ export async function askQuestion(input: AskInput): Promise<AskOutcome> {
     return refused(question);
   }
 
+  const citations = await citationsWithLeadFromStore(input.store, parsed.citations);
+
   if (sessionId.length > 0) {
     await input.store.appendTurn({ sessionId, question, answer: parsed.answer });
   }
 
-  return { status: "answered", answer: parsed.answer, citations: parsed.citations };
+  return { status: "answered", answer: parsed.answer, citations };
 }

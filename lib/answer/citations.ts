@@ -38,6 +38,9 @@ export function extractCitations(rawAnswer: string, hits: SearchHit[]): ParsedAn
         heading: hit.heading,
         position: hit.position,
         excerpt: hit.text,
+        // Decision 4 of `openspec/changes/passage-display-polish/design.md`: this function stays pure and writes the
+        // field with the neutral value; the step that reads the passage before the excerpt gives it its real length.
+        lead: 0,
       },
     ];
   });

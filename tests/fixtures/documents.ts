@@ -187,17 +187,33 @@ export function buildPdf(pages: string[][]): Buffer {
   return Buffer.from(document, "latin1");
 }
 
-export type DocxParagraph = { text: string; style?: string };
+export type DocxParagraph = { text: string; style?: string; list?: boolean };
+
+/** The numbering of the list items of `buildDocx`: one abstract list with a bullet, and one list that uses it. */
+const docxNumbering =
+  '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+  '<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+  '<w:abstractNum w:abstractNumId="0"><w:lvl w:ilvl="0"><w:start w:val="1"/>' +
+  '<w:numFmt w:val="bullet"/><w:lvlText w:val="•"/></w:lvl></w:abstractNum>' +
+  '<w:num w:numId="1"><w:abstractNumId w:val="0"/></w:num>' +
+  "</w:numbering>";
 
 export function buildDocx(paragraphs: DocxParagraph[]): Buffer {
   const body = paragraphs
     .map((paragraph) => {
+      const numbering =
+        paragraph.list === true
+          ? '<w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>'
+          : "";
+      const style =
+        paragraph.style === undefined ? "" : `<w:pStyle w:val="${paragraph.style}"/>`;
       const properties =
-        paragraph.style === undefined ? "" : `<w:pPr><w:pStyle w:val="${paragraph.style}"/></w:pPr>`;
+        numbering === "" && style === "" ? "" : `<w:pPr>${style}${numbering}</w:pPr>`;
 
       return `<w:p>${properties}<w:r><w:t xml:space="preserve">${paragraph.text}</w:t></w:r></w:p>`;
     })
     .join("");
+  const list = paragraphs.some((paragraph) => paragraph.list === true);
 
   return zip([
     {
@@ -208,6 +224,9 @@ export function buildDocx(paragraphs: DocxParagraph[]): Buffer {
         '<Default Extension="xml" ContentType="application/xml"/>' +
         '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
         '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+        (list
+          ? '<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+          : "") +
         "</Types>",
     },
     {
@@ -218,6 +237,19 @@ export function buildDocx(paragraphs: DocxParagraph[]): Buffer {
         '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
         "</Relationships>",
     },
+    ...(list
+      ? [
+          {
+            name: "word/_rels/document.xml.rels",
+            content:
+              '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+              '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+              '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>' +
+              "</Relationships>",
+          },
+          { name: "word/numbering.xml", content: docxNumbering },
+        ]
+      : []),
     {
       name: "word/document.xml",
       content:

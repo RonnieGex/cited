@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { CitationMark, Highlight } from "@/components/brand";
+import { PassageBody } from "@/components/chat/PassageBody";
 import { Button, Panel, focusRing } from "@/components/ui";
 import { documentSections } from "@/lib/admin/document-sections";
 import type { DocumentSummary } from "@/lib/admin/documents";
@@ -114,22 +114,23 @@ export function DocumentPanel({ strings, lang, document, passages, highlight = n
                 {section.heading ?? strings.noHeading}
               </h2>
               <ul className="flex flex-col">
-                {section.passages.map((passage) => (
+                {section.passages.map((passage, at) => (
                   <li
                     className="border-t border-rule py-4"
                     data-document-passage={passage.position === highlight ? "open" : "rest"}
                     key={passage.id}
                   >
-                    {passage.position === highlight ? (
-                      <span className="flex items-baseline gap-3">
-                        <CitationMark n={passage.position} state="open" />
-                        <Highlight sweep>{passage.text}</Highlight>
-                      </span>
-                    ) : (
-                      <p className="max-w-[65ch] text-[16px] leading-[1.6] text-ink">{passage.text}</p>
-                    )}
+                    <PassageBody
+                      className="text-[16px] leading-[1.6] text-ink"
+                      heading={passage.heading}
+                      highlighted={passage.position === highlight}
+                      showHeading={false}
+                      text={passage.text}
+                    />
+                    {/* Decision 6 of `passage-display-polish`: the document page shows passages without an answer, so
+                        it paints no citation mark, and its label for a screen reader counts the passages from 1. */}
                     <span className="sr-only">
-                      {lang === "es" ? `Pasaje ${passage.position}` : `Passage ${passage.position}`}
+                      {lang === "es" ? `Pasaje ${at + 1}` : `Passage ${at + 1}`}
                     </span>
                   </li>
                 ))}

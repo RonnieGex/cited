@@ -18,6 +18,7 @@ const citation: Citation = {
   heading: "Precios",
   position: 3,
   excerpt: "Afinación de bicicleta: 380 pesos.",
+  lead: 0,
 };
 
 class MemoryStorage {
@@ -110,9 +111,11 @@ describe("the chat of the public page", () => {
     // The sources list now shows the document name beside its mark (decision 10), so the panel is read on its own.
     const panel = screen.getByRole("region", { name: strings.citation(1) });
 
-    expect(within(panel).getByText(citation.excerpt)).toBeInTheDocument();
+    // The passage of `passage-display-polish`: the heading sits above the text once, and the text of the excerpt is
+    // inside the highlighter, never at the start of the heading.
+    expect(within(panel).getAllByText(citation.heading as string)).toHaveLength(2);
+    expect(within(panel).getByText(citation.excerpt, { selector: ".hl" })).toBeInTheDocument();
     expect(within(panel).getByText(citation.document)).toBeInTheDocument();
-    expect(within(panel).getByText(citation.heading as string)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: strings.close }));
 

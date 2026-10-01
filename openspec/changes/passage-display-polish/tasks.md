@@ -39,13 +39,13 @@ Context of `design.md`; the decisions there are closed.
 
 ## 3. Implementation (decisions 1 to 8 of `design.md`, in the order the tests demand)
 
-- [ ] 3.1 The chunker keeps list lines (decision 2)
-- [ ] 3.2 The helpers of the body and of the lead, in one module (decisions 1 and 4)
-- [ ] 3.3 `lead` on every citation of `POST /api/ask`, `extractCitations` kept pure (decision 4)
-- [ ] 3.4 One shared view of a passage (decisions 3, 4 and 5) used by `CitationPanel`, `TryItPanel` and `DocumentPanel`
-- [ ] 3.5 The citation's number in Try it, no citation mark on the document page (decision 6)
-- [ ] 3.6 Suggestions ordered by the language of each document (decision 7)
-- [ ] 3.7 "configuración guiada" in `lib/i18n/admin.ts`, `README.es.md` and `docs/owner-guide.md` (decision 8)
+- [x] 3.1 The chunker keeps list lines (decision 2)
+- [x] 3.2 The helpers of the body and of the lead, in one module (decisions 1 and 4)
+- [x] 3.3 `lead` on every citation of `POST /api/ask`, `extractCitations` kept pure (decision 4)
+- [x] 3.4 One shared view of a passage (decisions 3, 4 and 5) used by `CitationPanel`, `TryItPanel` and `DocumentPanel`
+- [x] 3.5 The citation's number in Try it, no citation mark on the document page (decision 6)
+- [x] 3.6 Suggestions ordered by the language of each document (decision 7)
+- [x] 3.7 "configuración guiada" in `lib/i18n/admin.ts`, `README.es.md` and `docs/owner-guide.md` (decision 8)
 
 ## 4. Existing tests
 

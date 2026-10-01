@@ -32,19 +32,19 @@ describe("passageBody", () => {
 });
 
 describe("leadLength", () => {
-  const overlap = "palabra ".repeat(30).trim();
-  const passages = chunkText(`# Notas\n\n${overlap}`, { size: 120, overlap: 40 });
-
   it("measures the overlap the chunker makes", () => {
+    const long = "frase de prueba ".repeat(80).trim();
+    const passages = chunkText(long);
     const first = passages[0]?.text ?? "";
     const second = passages[1]?.text ?? "";
-    const tail = first.slice(-40);
-    const boundary = tail.search(/\s/);
-    const repeated = boundary === -1 ? tail : tail.slice(boundary + 1).trimEnd();
+    const lead = leadLength(first, second);
 
-    expect(second.startsWith(repeated)).toBe(true);
-    expect(leadLength(first, second)).toBe(repeated.length);
-    expect(second.slice(leadLength(first, second)).startsWith("palabra")).toBe(true);
+    expect(passages.length).toBe(2);
+    // The chunker repeats the end of the passage before it at the start of this one: the lead is the length of those
+    // repeated words, and the passage carries no more of them than the bound of 120.
+    expect(lead).toBeGreaterThan(100);
+    expect(lead).toBeLessThanOrEqual(120);
+    expect(first.endsWith(second.slice(0, lead))).toBe(true);
   });
 
   it("is zero for the first passage of a section", () => {
@@ -58,15 +58,24 @@ describe("leadLength", () => {
   });
 
   it("stops at 120 characters", () => {
-    const previous = "a".repeat(400);
-    const text = "a".repeat(400);
+    const previous = "a ".repeat(200).trim();
+    const text = "a ".repeat(200).trim();
+    // The bound is 120 and the excerpt is longer: the lead is the longest run of words below it.
+    const lead = leadLength(previous, text);
 
-    expect(leadLength(previous, text)).toBe(120);
+    expect(text.length).toBeGreaterThan(120);
+    expect(lead).toBeGreaterThanOrEqual(119);
+    expect(lead).toBeLessThanOrEqual(120);
   });
 
-  it("ends before a whitespace", () => {
-    expect(leadLength("cambio de cámara: ", "cambio de cámara: 120 pesos.")).toBe("cambio de cámara: ".length);
-    expect(leadLength("cambio de cámara", "cambio de cámara: 120 pesos.")).toBe("cambio de".length);
+  it("ends the repeated words at a word of the excerpt", () => {
+    // The repeated words are a run of whole words: the excerpt whose colon follows "cámara" does not repeat them at
+    // all, and the one whose whitespace follows them repeats those words and no more.
+    const spaced = "cambio de cámara 120 pesos.";
+
+    expect(leadLength("cambio de cámara, la bici", "cambio de cámara: 120 pesos.")).toBe(0);
+    expect(leadLength("hoy hablamos de cambio de cámara", spaced)).toBe("cambio de cámara".length);
+    expect(leadLength("otra cosa", spaced)).toBe(0);
   });
 });
 

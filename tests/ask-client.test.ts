@@ -14,6 +14,7 @@ const answered = {
       heading: "Precios",
       position: 3,
       excerpt: "Afinación de bicicleta: 380 pesos.",
+      lead: 0,
     },
   ],
 };

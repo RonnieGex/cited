@@ -5,6 +5,9 @@ export const DEFAULT_CHUNK_OVERLAP = 120;
 
 const markdownHeading = /^(#{1,6})\s+(.*\S)\s*$/;
 const setextUnderline = /^(=+|-{2,})\s*$/;
+// Decision 2 of `openspec/changes/passage-display-polish/design.md`: an item of a list keeps its own line of the
+// passage, so a list survives into the text the views render and the search keeps reading the same words.
+const listItem = /^([-*]|\d+\.)\s+\S/;
 
 function isHeading(line: string): boolean {
   return markdownHeading.test(line) || setextUnderline.test(line);
@@ -12,6 +15,29 @@ function isHeading(line: string): boolean {
 
 function headingTitle(line: string): string {
   return markdownHeading.exec(line)?.[2]?.trim() ?? "";
+}
+
+/**
+ * The text of one block: the items of a list keep their own line, joined to what comes before them with a line break,
+ * and every other line is joined with a space, as before.
+ */
+function blockText(lines: string[]): string {
+  let text = "";
+
+  for (const line of lines) {
+    if (line.length === 0) {
+      continue;
+    }
+
+    if (text.length === 0) {
+      text = line;
+      continue;
+    }
+
+    text = listItem.test(line) ? `${text}\n${line}` : `${text} ${line}`;
+  }
+
+  return text.trim();
 }
 
 export function chunkText(source: string, options: Partial<ChunkOptions> = {}): ChunkedPassage[] {
@@ -23,7 +49,7 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
   let buffer: string[] = [];
 
   const flush = (): void => {
-    const text = buffer.join(" ").trim();
+    const text = blockText(buffer);
 
     if (text.length > 0) {
       blocks.push({ text, heading });
@@ -34,11 +60,6 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
 
   for (const rawLine of source.replace(/\r\n?/g, "\n").split("\n")) {
     const line = rawLine.trim();
-
-    if (line.length === 0) {
-      flush();
-      continue;
-    }
 
     if (isHeading(line)) {
       flush();
@@ -53,6 +74,8 @@ export function chunkText(source: string, options: Partial<ChunkOptions> = {}): 
       continue;
     }
 
+    // An empty line is a boundary of the block and nothing else: the lines on both sides are joined by `blockText`, so
+    // a paragraph followed by its list keeps the two together and the list starts on its own line.
     buffer.push(line);
   }
 

@@ -529,7 +529,7 @@ describe("the try lane", () => {
     expect(screen.getAllByText("Precios")).toHaveLength(1);
     expect(screen.queryByText(/^Precios - Espresso/)).toBeNull();
 
-    const open = screen.getByText("Espresso: 35 pesos.").closest("li") as HTMLElement;
+    const open = screen.getByText("Espresso: 35 pesos.").closest("li[data-citation-passage]") as HTMLElement;
     const items = within(open).getAllByRole("listitem");
 
     expect(items).toHaveLength(5);
@@ -589,7 +589,7 @@ describe("the try lane", () => {
 
     expect(open).toHaveTextContent("Aceptamos efectivo y tarjeta.");
     expect(open.querySelector('[data-brand="citation-mark"]')?.textContent).toBe("2");
-    expect(within(open).getByText("Passage 3", { selector: ".sr-only" })).toBeInTheDocument();
+    expect(within(open).getByText("Passage 2").className).toBe("sr-only");
   });
 
   it("offers the suggested questions as buttons and never calls a model to build them", () => {
@@ -817,9 +817,8 @@ describe("the page of a document", () => {
     // The page shows passages without an answer: no citation mark anywhere, and the labels count passages from 1
     // (decision 6 of `design.md`).
     expect(document.querySelectorAll('[data-brand="citation-mark"]')).toHaveLength(0);
-    expect(screen.getByText("Passage 1", { selector: ".sr-only" })).toBeInTheDocument();
-    expect(screen.getByText("Passage 2", { selector: ".sr-only" })).toBeInTheDocument();
-    expect(screen.queryByText("Passage 0", { selector: ".sr-only" })).toBeNull();
+    expect(screen.getByText("Pasaje 1").className).toBe("sr-only");
+    expect(screen.queryByText("Pasaje 0")).toBeNull();
     // The heading of the passage is the heading of its section: the text never repeats it.
     expect(screen.getAllByText("Precios")).toHaveLength(1);
     expect(screen.queryByText(/^Precios - Espresso/)).toBeNull();
