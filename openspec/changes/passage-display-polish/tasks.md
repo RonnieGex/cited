@@ -138,7 +138,7 @@ Context of `design.md`; the decisions there are closed.
       green and the mutant `lead={0}` red again
 - [x] 12.4 The wording of decision 21 in `design.md`'s Context is Fable's; the implementer corrects `docs/answering.md`
       and the comments of the code
-- [ ] 12.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e`, in
+- [x] 12.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run openspec:validate` and `npm run test:e2e`, in
       `reports/<date>-step-12-amendment.md` naming the commit verified, with the `## Issues` of the round there and in
       the section "Ronda 4" of the delivery
 - [ ] 12.6 Fable pushes; an independent review (`katalis-dev/tasks/revision-passage-display-polish-d.md`); Franc accepts
