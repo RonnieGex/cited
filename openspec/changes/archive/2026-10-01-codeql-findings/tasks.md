@@ -65,7 +65,8 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
       `refs/pull/8/merge` (`reports/2026-09-30-step-9-pipeline.md`)
 - [x] 9.3 Adversarial review by Codex (`katalis-dev/tasks/revision-codeql-findings.md`): FAIL, Major 1 (the file grows
       after it is measured) and two Minors; see section 10
-- [ ] 9.4 Franc accepts; the change is archived and merged through the pull request
+- [x] 9.4 Franc accepts; the change is archived and merged through the pull request: "acepto 2zi, fusiona"
+      (2026-09-30), after the second review of Codex (`katalis-dev/tasks/revision-codeql-findings-b.md`: PASS WITH GAPS)
 
 ## 10. Amendment 1 (decisions 5 to 7 of `design.md`)
 
@@ -79,4 +80,5 @@ report under `reports/YYYY-MM-DD-step-N-<name>.md`, and with the commit it was v
 - [x] 10.5 `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run secrets:scan`,
       `npm run openspec:validate` and `npm run test:e2e`, with their output in `reports/<date>-step-10-amendment.md`, and
       the `## Issues` of the round there and in the section "Ronda 2" of the delivery
-- [ ] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-codeql-findings-b.md`); Franc accepts
+- [x] 10.6 Fable pushes; Codex reviews again (`katalis-dev/tasks/revision-codeql-findings-b.md`): PASS WITH GAPS, no
+      Blocker or Major; Franc accepts ("acepto 2zi, fusiona", 2026-09-30)
