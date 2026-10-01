@@ -23,14 +23,21 @@ Content-Type: application/json
       "document": "cafe-la-horquilla.md",
       "heading": "Precios",
       "position": 2,
-      "excerpt": "Precios - Espresso: 35 pesos. ... - Afinación de bicicleta: 380 pesos. ..."
+      "excerpt": "Precios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos.",
+      "lead": 0
     }
   ]
 }
 ```
 
 A citation carries the document, the heading and the position of the passage. The position inside the document is what
-locates a passage; there is no page, because a PDF has pages and a Markdown file does not.
+locates a passage; there is no page, because a PDF has pages and a Markdown file does not. `lead` is the length of the
+words at the start of `excerpt` that repeat the end of the passage before it in the same document (the overlap the
+chunker writes, at most 120 characters), and `0` when the passage is the first of its section: every view of a cited
+passage shows those characters as muted context and paints the highlighter from the first own word. The field is added
+by `passage-display-polish`; `extractCitations()` stays pure and writes `0`, and the step after it
+(`lib/answer/lead.ts`) reads the passage at `position - 1` of the document from the store and writes the real length.
+An older field of a citation keeps its name and its meaning.
 
 | Answer | When |
 |---|---|
@@ -78,7 +85,12 @@ Rules:
 
 ```
 <passage n="1" document="cafe-la-horquilla.md" heading="Precios">
-Precios - Espresso: 35 pesos. ... - Afinación de bicicleta: 380 pesos. ...
+Precios
+- Espresso: 35 pesos.
+- Café de olla: 45 pesos.
+- Pan dulce del día: 30 pesos.
+- Afinación de bicicleta: 380 pesos.
+- Cambio de cámara: 120 pesos.
 </passage>
 
 <passage n="2" document="bike-workshop-policies.md" heading="Guarantee">
@@ -110,7 +122,8 @@ The parser of `lib/answer/citations.ts` reads the answer of the model and:
 - removes the markers outside `1..N`, where `N` is the number of passages the model received, so a marker the model
   invented never reaches the reader;
 - renumbers the survivors in order of first appearance, so the answer reads `[1]`, `[2]`;
-- returns one citation per cited passage, with its document, heading, position and excerpt.
+- returns one citation per cited passage, with its document, heading, position, excerpt and `lead` (written as `0`, the
+  step after it in `lib/answer/lead.ts` reads the passage before it and writes the real length).
 
 `extractCitations("Uno [2] y dos [1] y tres [99].", passages)` answers `Uno [1] y dos [2] y tres.` with the citation
 `1` pointing at the passage the model called `2`. An answer with no valid marker is refused: the text of the model is
@@ -246,8 +259,8 @@ store: .data/katalis.sqlite
 status: answered
 answer: Respuesta del proveedor de prueba: - Afinación de bicicleta: 380 pesos. [1]
 citations:
-  [1] cafe-la-horquilla.md [Precios] position 2
-      Precios - Espresso: 35 pesos. ... - Afinación de bicicleta: 380 pesos. ...
+  [1] cafe-la-horquilla.md [Precios] position 2 lead 0
+      Precios - Espresso: 35 pesos. - Café de olla: 45 pesos. - Pan dulce del día: 30 pesos. - Afinación de bicicleta: 380 pesos. - Cambio de cámara: 120 pesos.
 citations 1, 12 ms, rss 78 MB
 ```
 

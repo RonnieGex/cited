@@ -49,7 +49,7 @@ Context of `design.md`; the decisions there are closed.
 
 ## 4. Existing tests
 
-- [ ] 4.1 Review and update the tests the change touches, among them `tests/search.test.ts`, `tests/chat.test.tsx:113`
+- [x] 4.1 Review and update the tests the change touches, among them `tests/search.test.ts`, `tests/chat.test.tsx:113`
       (an exact `getByText` of the excerpt), `tests/brand-public.test.tsx`, `tests/brand-round-14c-public.test.tsx`,
       `e2e/public-chat.spec.ts`, `e2e/brand.spec.ts` (`.hl` holds "Afinación de bicicleta: 380 pesos.") and both setup
       E2E files (they click the first suggestion and expect "380 pesos"). An expectation changes only to the new

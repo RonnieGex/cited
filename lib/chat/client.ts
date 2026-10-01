@@ -34,7 +34,12 @@ function citationsOf(value: unknown): Citation[] | null {
     return null;
   }
 
-  return value as Citation[];
+  // The lead of a citation is the field of `passage-display-polish`: it arrives as a number, and an answer of an
+  // installation whose server is older than this page carries none, which reads as 0 (the whole excerpt is its own).
+  return (value as Citation[]).map((citation) => ({
+    ...citation,
+    lead: typeof citation.lead === "number" && Number.isFinite(citation.lead) ? citation.lead : 0,
+  }));
 }
 
 const unavailable: AskResult = { status: "failed", kind: "unavailable" };

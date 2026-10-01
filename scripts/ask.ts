@@ -65,7 +65,7 @@ async function main(): Promise<void> {
 
     for (const citation of outcome.citations) {
       console.log(
-        `  [${citation.n}] ${citation.document} [${citation.heading ?? "no heading"}] position ${citation.position}`,
+        `  [${citation.n}] ${citation.document} [${citation.heading ?? "no heading"}] position ${citation.position} lead ${citation.lead}`,
       );
       console.log(`      ${citation.excerpt.slice(0, 240).replace(/\s+/g, " ")}`);
     }
