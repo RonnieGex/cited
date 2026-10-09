@@ -51,7 +51,7 @@ The agent executes every validation itself. It never asks the user to run a test
 - Lint: `npm run lint`.
 - Unit tests: `npm test`.
 - Build: `npm run build`.
-- Dependency audit: `npm run audit:high`.
+- Dependency audit: `npm run audit:high`, the guard of `scripts/audit-high.mjs`.
 - Secret scan: `npm run secrets:scan` (or `gitleaks dir . --redact` before the first commit).
 - Spec validation: `npm run openspec:validate`.
 - Browser flows: `npm run test:e2e`.
