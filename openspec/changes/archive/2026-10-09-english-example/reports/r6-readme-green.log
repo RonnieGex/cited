@@ -1,0 +1,9 @@
+
+ RUN  v5.0.2 <workspace>/Documents/katalis-dev/community-english-example
+
+
+ Test Files  1 passed (1)
+      Tests  47 passed (47)
+   Start at  16:06:37
+   Duration  5.18s (environment 48%, tests 24%, import 15%, setup 8%, transform 4%, worker 1%)
+

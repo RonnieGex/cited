@@ -1,0 +1,101 @@
+{
+  "command": "node <CITED_REPO>/scripts/mcp-seed.ts <temporary DSH_HOME>/store.sqlite samples/",
+  "output": "ingested README.txt (txt, 1 passages)\ningested bike-workshop-policies.md (md, 5 passages)\ningested cafe-la-horquilla.md (md, 4 passages)\ningested notas-del-negocio.txt (txt, 1 passages)\ndocuments 4, store <temporary DSH_HOME>\\store.sqlite\n",
+  "database": [
+    {
+      "table": "business",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "conversations",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "document_index",
+      "rows": 4,
+      "sha256": "2c049838fac8c4ff2e75da17e61b613de699560ec272a0335ed99662308b6609"
+    },
+    {
+      "table": "documents",
+      "rows": 4,
+      "sha256": "97c44bcebc4f6b143f110150bd1a0e355354d6d65504b221f0301f616200e587"
+    },
+    {
+      "table": "login_attempts",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "model_calls",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "passages",
+      "rows": 11,
+      "sha256": "7de4a907ffd2982ea58a4be9bf164ba85169d1c47b76abe605ea5f64e29b3fc8"
+    },
+    {
+      "table": "passages_fts",
+      "rows": 11,
+      "sha256": "18f8f5e4793b37adf65b81b28705fd29a7a8183c9aa8dfaa344a3f05221973d4"
+    },
+    {
+      "table": "passages_fts_config",
+      "rows": 1,
+      "sha256": "4945fb8d99df85eeac6c4d75ea07951e558a62b92841c65d155ee9bd8c4bda92"
+    },
+    {
+      "table": "passages_fts_content",
+      "rows": 11,
+      "sha256": "5fd3ef6fe26e7b7aeedd93c78fffa00b8a70be0be7c6f357e08e18192ae20c81"
+    },
+    {
+      "table": "passages_fts_data",
+      "rows": 6,
+      "sha256": "a69f400c6a1fbf77653c2c801364ab5149343bb399412657121ac3e89638eae8"
+    },
+    {
+      "table": "passages_fts_docsize",
+      "rows": 11,
+      "sha256": "9a7d02395d4422ec00ac2d991073fa2f285bc9df096fec6ee5f5a0c2a70cc8b4"
+    },
+    {
+      "table": "passages_fts_idx",
+      "rows": 4,
+      "sha256": "5893d4d0fcfbe74ee18b9c073a341088cea4a827c5cded54d115b27463969504"
+    },
+    {
+      "table": "provider_settings",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "provider_tests",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "rate_limits",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "setup_flags",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "voice_agent",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "voice_minutes",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

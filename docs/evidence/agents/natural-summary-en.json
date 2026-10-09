@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-10-09T21:57:14.123Z",
+  "total": 3,
+  "answeredWithCitation": 3,
+  "canonical": "natural-en-2026-10-09T21-56-48-866Z/attempt-1.json",
+  "attempts": [
+    {
+      "artifact": "natural-en-2026-10-09T21-56-48-866Z/attempt-1.json",
+      "language": "en",
+      "prompt": "Is there a guarantee on repairs at the bike workshop?",
+      "tools": [
+        "cited_ask"
+      ],
+      "answeredWithCitation": true
+    },
+    {
+      "artifact": "natural-en-2026-10-09T21-56-48-866Z/attempt-2.json",
+      "language": "en",
+      "prompt": "How long is the guarantee on repair work at the bike workshop?",
+      "tools": [
+        "cited_ask"
+      ],
+      "answeredWithCitation": true
+    },
+    {
+      "artifact": "natural-en-2026-10-09T21-56-48-866Z/attempt-3.json",
+      "language": "en",
+      "prompt": "What does the bike workshop guarantee cover, and do I need my ticket?",
+      "tools": [
+        "cited_ask"
+      ],
+      "answeredWithCitation": true
+    }
+  ]
+}

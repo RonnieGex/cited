@@ -210,3 +210,12 @@ The roadmap SVG distinguishes called-and-answered from outlined connected/tools-
 ## Agent excerpt, round five
 
 Run `node scripts/render-readme-graphics.mjs agents` under Node 24.21.0. The tool-result excerpt now shows only its source line with chip 1 and the returned tune-up price at 20px, without the raw list period, Sources label, standalone heading or other prices. It is derived from the canonical result; the full transcript remains unchanged. Each proof eyebrow has a 22px top margin, proof padding is 22px, the extra tool-result hairline is removed, and every right row has 24px vertical padding. Browser assertions require two unwrapped lines, column content ends within 70px and 36px below the legend in both themes. Only the two agents PNGs change.
+## Locale-specific agent evidence, round six
+
+`node scripts/render-readme-graphics.mjs agents` under Node 24.21.0 renders four 1280x680 assets offline: `agents-{light,dark}.png` uses English evidence for README.md, and `agents-es-{light,dark}.png` uses the unchanged Spanish evidence for README.es.md. Other graphics stay unchanged. `docs/evidence/agents/headless-answer-en.{json,txt}`, `natural-summary-en.json` and all referenced attempts are exact public-plugin copies; unsuffixed historical files remain intact.
+
+The English batch scored 3/3 and its own cited_ask result contains the Guarantee passage. The earlier Spanish-example batch remains 2/3, including an English question that missed the Spanish price passage. Keyword search without embeddings does not establish cross-language retrieval. Both README variants retain that limit and link the matching transcript.
+
+The validator requires a supported guarantee statement, rejects refusals/unrelated durations and selects the matching callId. Both renderings keep the exact first final-answer paragraph and source excerpt. English uses 22px answer text and distributes the client rows through the column; Spanish keeps its previous 27px answer and layout. Source text remains 20px, proof margins 22px, row padding 24px, at least 36px below the legend and at most 70px between column ends. Browser checks validate the complete answer, question, source, font, clipping and local requests. Original quoted model punctuation is preserved; authored text has no em dashes.
+
+The English-example plugin PR must merge before this consumer PR so new main evidence URLs resolve. This change has no application/runtime, API or data-model effect. Earlier sections above describe historical art/capture rounds.

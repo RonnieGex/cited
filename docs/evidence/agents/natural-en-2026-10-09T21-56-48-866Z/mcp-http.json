@@ -1,0 +1,18 @@
+{
+  "command": "curl --config - (credentials over stdin)",
+  "results": [
+    {
+      "authorized": true,
+      "status": 200,
+      "tools": [
+        "cited_ask",
+        "cited_search"
+      ]
+    },
+    {
+      "authorized": false,
+      "status": 401,
+      "tools": []
+    }
+  ]
+}

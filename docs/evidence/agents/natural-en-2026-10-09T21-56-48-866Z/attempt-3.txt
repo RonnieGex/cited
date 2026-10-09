@@ -1,0 +1,20 @@
+Question
+What does the bike workshop guarantee cover, and do I need my ticket?
+
+Tool call
+cited_ask {"question":"What does the bike workshop guarantee cover, and do I need my ticket?"}
+
+Tool result
+The guarantee covers the work on every repair for 90 days, while parts carry the guarantee of their maker [1]. You do not strictly need the ticket: you are asked to bring it, but without it the repair can still be looked up by the frame number [1].
+
+Sources:
+1. bike-workshop-policies.md · Guarantee (position 4)
+Guarantee Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number.
+
+Answer
+**The guarantee:** Every repair carries a **90-day guarantee on the work**. Parts are covered by **the guarantee of their maker** (i.e., the manufacturer's warranty, not the workshop's own) [1].
+
+**The ticket:** You're asked to bring it, but it isn't strictly required — without it, the workshop can still look up your repair **by the frame number** [1].
+
+Source:
+1. bike-workshop-policies.md · Guarantee

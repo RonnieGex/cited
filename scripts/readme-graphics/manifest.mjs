@@ -9,11 +9,12 @@ export const graphics = [
     height: 680,
     dark: "docs/images/agents-dark.png",
     light: "docs/images/agents-light.png",
+    spanish: { dark: "docs/images/agents-es-dark.png", light: "docs/images/agents-es-light.png" },
     headline: "Four clients, checked on 2026-10-09",
     copy: "Called and answered; connected and listed; documented only.",
     shows: "Available",
     label: null,
-    alt: "Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
+    alt: "Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered with a 90-day repair guarantee [1], citing bike-workshop-policies.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
   },
   {
     name: "reason-sources",

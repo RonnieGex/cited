@@ -1,0 +1,6 @@
+{
+  "command": "npm ci",
+  "node": "v24.21.0",
+  "exitCode": 0,
+  "output": "npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.\n\nadded 693 packages, and audited 698 packages in 50s\n\n216 packages are looking for funding\n  run `npm fund` for details\n\n8 vulnerabilities (3 moderate, 5 high)\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\n"
+}

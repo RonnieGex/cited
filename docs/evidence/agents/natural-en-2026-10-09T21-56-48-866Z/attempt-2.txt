@@ -1,0 +1,18 @@
+Question
+How long is the guarantee on repair work at the bike workshop?
+
+Tool call
+cited_ask {"question":"How long is the guarantee on repair work at the bike workshop?"}
+
+Tool result
+The guarantee on repair work is 90 days [1].
+
+Sources:
+1. bike-workshop-policies.md · Guarantee (position 4)
+Guarantee Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number.
+
+Answer
+The guarantee on repair work at the bike workshop is **90 days**, covering the work itself. Parts carry their manufacturer's guarantee instead. You'll want to bring your ticket, though the shop can also look up the repair by frame number if you don't have it [1].
+
+Source:
+1. bike-workshop-policies.md · Guarantee (position 4): "Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number."

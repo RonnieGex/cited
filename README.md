@@ -141,7 +141,7 @@ business and answer from them, with the same honest refusal when they do not hol
 CITED_MCP_TOKEN=<a long random token> npm start
 ```
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered with a 90-day repair guarantee [1], citing bike-workshop-policies.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested" width="1280"></picture>
 
 Two read-only tools are exposed. `cited_search` returns the passages with their document, their section, their position
 and their text, and it never calls a model, so a search spends nothing. `cited_ask` walks the same pipeline as the
@@ -150,7 +150,7 @@ public chat and answers with numbered citations, or with the refusal.
 | Agent | Verified on 2026-10-09 against a local Cited |
 |---|---|
 | DeepSeek Harness (MCP configuration) | Called `cited_search` and answered with a citation; [configuration](docs/mcp.md), [step-10-4 evidence](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). |
-| DeepSeek Harness (native plugin) | Selected `cited_ask` for a natural Spanish question and answered with its own cited passage; [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt), [compatibility evidence](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md). |
+| DeepSeek Harness (native plugin) | Selected `cited_ask` for a natural English question and answered with its own cited passage; [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer-en.txt), [compatibility evidence](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md). |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | it connected and listed the tools |
 | [Codex](https://github.com/openai/codex) | it connected and listed the tools |
 | Cursor and any other client of Streamable HTTP | configuration documented, not tested yet |
@@ -160,7 +160,7 @@ Install the [native plugin](https://github.com/RonnieGex/dsh-cited) with `dsh pl
 `docs/mcp.md` carries the exact configuration for each one and for `curl`. The token travels in the
 `Authorization: Bearer` header, and the server is off until you declare it.
 
-The graphic quotes the exact first Spanish answer paragraph and its own `cited_ask` source. The graphic renders the Markdown; the transcript keeps it raw. The [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) keeps the raw Markdown, every call and the complete answer. **2 of 3 natural questions received a supported price citation**, using keyword search without embeddings. The English question missed the Spanish passage; Cited refused and the agent wrongly claimed the price was absent. [All outcomes](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json) and [verification details](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md) document the models and limits.
+The graphic quotes the exact first English answer paragraph and its own `cited_ask` guarantee passage. Markdown is rendered; the [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer-en.txt) keeps every call and the complete raw answer. **3 of 3 English questions received a supported guarantee citation** from an English document. The earlier batch behind the Spanish example scored **2 of 3**, including one English question that missed the Spanish price passage; Cited refused, and the agent wrongly claimed the price was absent. Keyword search without embeddings can miss a Spanish passage when asked in English. [English outcomes](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary-en.json), [Spanish-example outcomes](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json) and [verification details](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md) document the evidence and limits.
 
 ## Quick start
 

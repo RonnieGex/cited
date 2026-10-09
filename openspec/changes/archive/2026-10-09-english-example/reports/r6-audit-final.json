@@ -1,0 +1,6 @@
+{
+  "command": "npm run audit:high",
+  "node": "v24.21.0",
+  "exitCode": 0,
+  "output": "\n> cited@0.1.0 audit:high\n> node scripts/audit-high.mjs\n\nPASS  production audit: no finding of the high level or above in the production tree\nPASS  full audit: 1 advisories of the high level or above, 1 entries, 1 in force\nAUDIT: PASS (1 entries in force, the nearest expiry 2026-11-08)\n"
+}
