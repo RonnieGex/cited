@@ -1,0 +1,11 @@
+{
+  "exceptions": [
+    {
+      "id": "GHSA-hp3w-g68c-fv3c",
+      "package": "postcss",
+      "reason": "A finding of the production tree, which the guard never accepts as an exception.",
+      "noFixEvidence": "None: this fixture proves that the production tree is refused before the evidence is read.",
+      "expires": "2026-11-08"
+    }
+  ]
+}

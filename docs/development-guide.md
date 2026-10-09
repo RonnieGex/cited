@@ -40,7 +40,7 @@ is missing. Without it, a commit with a secret is not scanned.
 | `npm run verify:test-sdk` | the same guard with the expectation of the end-to-end build, which `build:e2e` runs on its own |
 | `npm run texture:orb` | writes `public/voice/perlin-noise.png`, the texture of the Orb, byte for byte |
 | `npm run agents:sync` | writes `.claude/agents/`, `.codex/agents/` and `.cursor/agents/` from `ai-specs/agents/`, byte for byte |
-| `npm run audit:high` | `npm audit --audit-level=high` |
+| `npm run audit:high` | `node scripts/audit-high.mjs`: the production tree with no exception and the whole tree except the advisories of `security/audit-exceptions.json`, each one with its evidence and its expiry of 30 days at most |
 | `npm run secrets:scan` | gitleaks over the whole history |
 | `npm run hooks:install` | installs the local git hooks |
 | `npm run openspec:validate` | `openspec validate --all --strict` |

@@ -1,0 +1,11 @@
+{
+  "exceptions": [
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "reason": "Stack exhaustion through a deeply nested brace pattern, reachable only through the development chain of eslint-config-next.",
+      "noFixEvidence": "",
+      "expires": "2026-11-08"
+    }
+  ]
+}

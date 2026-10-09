@@ -16,7 +16,7 @@ the API balance of the owner.
 | No key has a value in the repository | Done | `.env.example` with empty values |
 | A key the owner pastes in the panel is encrypted and never returns to the browser | Done | `lib/secrets/` (AES-256-GCM under `ENCRYPTION_KEY`), the table `provider_settings` and the routes of `/api/admin/providers` |
 | The MCP endpoint is off without its token and answers only behind a constant-time bearer | Done | `app/api/mcp/route.ts`, `lib/mcp/auth.ts` (`CITED_MCP_TOKEN`, `WWW-Authenticate: Bearer`, `403` for an `Origin` that is not the host of the request) |
-| Dependency vulnerabilities above the high level stop the pipeline | Done | `.github/workflows/ci.yml`, `npm run audit:high` |
+| Dependency vulnerabilities above the high level stop the pipeline | Done | `.github/workflows/ci.yml` calls `npm run audit:high`, the guard of `scripts/audit-high.mjs`: the production tree audits clean and accepts no exception, and the whole tree audits clean except the advisories of `security/audit-exceptions.json`, whose entries carry their evidence and expire within 30 days |
 | Static analysis of the code in the pipeline | Done | `.github/workflows/codeql.yml` (JavaScript and TypeScript) runs on every push to `main`, on every pull request and on a weekly schedule while the repository is public; while it is private the analysis job is skipped, not failed, because GitHub accepts code scanning uploads from a private repository only with a paid plan |
 | Dependency updates reviewed | Done | `.github/dependabot.yml` |
 | No commercially licensed font file | Done | the repository carries no `.woff`, `.woff2`, `.ttf` or `.otf` |
@@ -130,8 +130,14 @@ The API key belongs to the person who forks the project, so an abuse spends thei
 
 ## 8. Supply chain
 
-- Continuous integration with types, lint, unit tests, build, `npm audit --audit-level=high`, gitleaks over the whole
+- Continuous integration with types, lint, unit tests, build, `npm run audit:high`, gitleaks over the whole
   history and the strict OpenSpec validation, all of them blocking. **Done** in this change.
+- A high advisory with no published fix is recorded in `security/audit-exceptions.json` with its reason and the
+  evidence that no fixed version exists, and it expires 30 days later at most: an expired entry stops the pipeline. The
+  list carries one entry today, `GHSA-vfj7-8cjw-p6xm` of `braces`, which reaches the tree only through the development
+  chain of `eslint-config-next` and expires on 2026-11-08. A package of the production tree is never excepted: the
+  production audit has no exception at all. **Done** in this change; `SECURITY.md` says how an entry is added or
+  renewed.
 - CodeQL for JavaScript and TypeScript, on push, on pull request and on a weekly schedule. **Done** in this change.
 - Dependabot for npm and for GitHub Actions. **Done** in this change.
 - A published Docker image built from the pipeline, pinned by digest and never by `latest`. **Planned** in
