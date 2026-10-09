@@ -180,7 +180,8 @@ need no migration of the store for marking the channel of the agent.
 #### Scenario: A session keeps its thread
 
 - **WHEN** two `cited_ask` calls carry the same `sessionId`
-- **THEN** the store holds two turns of that session and the second prompt carries the first question and answer
+- **THEN** the store holds two turns of that session, `turnsOf(sessionId, 6)` returns the first before the second, and
+  that list is the history `askQuestion()` builds the prompt of the second call from
 
 #### Scenario: The retention still applies
 

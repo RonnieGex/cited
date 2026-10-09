@@ -115,8 +115,9 @@ protocol and the tools with plain objects and the integration test cover the rea
 10. **`outputSchema` is declared and `structuredContent` is sent with it.** The spec says a tool that returns
     structured content "SHOULD also return the serialized JSON in a TextContent block", so both tools answer with the
     JSON object and with a numbered text a client model can read and cite.
-11. **The excerpt of a search passage is its text, trimmed, capped at 1200 characters.** The citation of
-    `cited_ask` keeps the `excerpt` and `lead` of `/api/ask` untouched, because it is the same outcome.
+11. **The excerpt of a search passage is the text of the passage**, exactly as the citation of an answer carries it
+    (the field `text` of the `SearchHit` of `hybridSearch()`). A second notion of excerpt would be one more thing to
+    keep in step with `/api/ask`.
 12. **The limits of the text are the public ones.** A `query` or a `question` longer than `MAX_QUESTION_CHARS` is a
     tool error; `limit` outside 1..8 and a missing `query` are `-32602`, because the schema says so.
 13. **Every sentence that leaves the route passes through `publicMessage()`**, as `/api/ask` does. An error text that

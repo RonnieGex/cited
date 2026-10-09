@@ -17,19 +17,19 @@ commit of the code it verified.
 
 ## 2. Tests first (each one red before the code)
 
-- [ ] 2.1 `tests/mcp-protocol.test.ts`: the negotiation of the version, the four JSON-RPC error codes, the answer to a
+- [x] 2.1 `tests/mcp-protocol.test.ts`: the negotiation of the version, the four JSON-RPC error codes, the answer to a
       notification and the answer to a method the server does not implement (scenarios of "The endpoint speaks the
       stateless Streamable HTTP transport" and of "Every failure is a JSON-RPC error or a tool error")
-- [ ] 2.2 `tests/mcp-tools.test.ts`: the two definitions with their schemas and annotations, the search over a seeded
+- [x] 2.2 `tests/mcp-tools.test.ts`: the two definitions with their schemas and annotations, the search over a seeded
       store with no chat provider, the answer and the refusal of `cited_ask`, the arguments outside the schema, the
       query longer than `MAX_QUESTION_CHARS`, the hourly limit per token and the daily cap of the model (scenarios of
       "The server exposes two read-only tools" and of "The limits of the token bound the calls")
-- [ ] 2.3 `tests/mcp-route.test.ts`: the real `POST` of `app/api/mcp/route.ts` with `Request` objects, a seeded store
+- [x] 2.3 `tests/mcp-route.test.ts`: the real `POST` of `app/api/mcp/route.ts` with `Request` objects, a seeded store
       and the deterministic doubles, with no network: the `404` without a token, the `401` with `WWW-Authenticate`, the
       `403` of a foreign origin, the `202` of a notification, the `400` of the version header, the `405` of `GET` and
       `DELETE`, the token absent from every body, and the conversation stored as `/api/ask` stores it (scenarios of the
       four remaining requirements)
-- [ ] 2.4 The red run of the three files, with its counts and its failures, in `reports/<date>-step-2-red.md`
+- [x] 2.4 The red run of the three files, with its counts and its failures, in `reports/<date>-step-2-red.md`
 
 ## 3. Implementation
 
