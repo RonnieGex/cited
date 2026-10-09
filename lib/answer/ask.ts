@@ -28,6 +28,12 @@ export type AskInput = {
   model: LanguageModel;
   environment?: ChatEnvironment;
   ip: string;
+  /**
+   * Which hourly quota guards this call: `ip` (the default) counts the address and enforces
+   * `RATE_LIMIT_PER_IP_PER_HOUR`, and `external` means the caller already counted it, which is what the MCP endpoint
+   * does per token. The daily cap of model calls and the retention always apply.
+   */
+  quota?: "ip" | "external";
   now?: Date;
 };
 
@@ -64,15 +70,17 @@ export async function askQuestion(input: AskInput): Promise<AskOutcome> {
     lastPurgeAt = purge.lastPurgeAt;
   }
 
-  const ipHash = hashIp(input.ip, environment["ADMIN_SESSION_SECRET"]);
-  const asked = await input.store.recordQuestion(ipHash, hourWindowStart(now));
+  if ((input.quota ?? "ip") === "ip") {
+    const ipHash = hashIp(input.ip, environment["ADMIN_SESSION_SECRET"]);
+    const asked = await input.store.recordQuestion(ipHash, hourWindowStart(now));
 
-  if (asked > limits.rateLimitPerIpPerHour) {
-    return {
-      status: "rate_limited",
-      retryAfterSeconds: retryAfterSeconds(now),
-      message: `more than RATE_LIMIT_PER_IP_PER_HOUR (${limits.rateLimitPerIpPerHour}) questions from this address in an hour`,
-    };
+    if (asked > limits.rateLimitPerIpPerHour) {
+      return {
+        status: "rate_limited",
+        retryAfterSeconds: retryAfterSeconds(now),
+        message: `more than RATE_LIMIT_PER_IP_PER_HOUR (${limits.rateLimitPerIpPerHour}) questions from this address in an hour`,
+      };
+    }
   }
 
   const hits = await hybridSearch(question, { store: input.store, embeddings: input.embeddings });

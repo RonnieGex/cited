@@ -33,60 +33,62 @@ commit of the code it verified.
 
 ## 3. Implementation
 
-- [ ] 3.1 `lib/guards/bearer.ts` with the constant-time comparison, and `lib/voice/secret.ts` re-exporting it
+- [x] 3.1 `lib/guards/bearer.ts` with the constant-time comparison, and `lib/voice/secret.ts` re-exporting it
       (decision 15)
-- [ ] 3.2 `lib/mcp/protocol.ts` and `lib/mcp/server.ts`: the versions, the server information and `handleMessage()`
+- [x] 3.2 `lib/mcp/protocol.ts` and `lib/mcp/server.ts`: the versions, the server information and `handleMessage()`
       (decisions 1, 8, 13)
-- [ ] 3.3 `lib/mcp/auth.ts` and `lib/mcp/limits.ts`: the origin check, the bearer and the per-token window
+- [x] 3.3 `lib/mcp/auth.ts` and `lib/mcp/limits.ts`: the origin check, the bearer and the per-token window
       (decisions 2, 3, 4, 5)
-- [ ] 3.4 `lib/mcp/tools.ts` and the `quota` input of `lib/answer/ask.ts` (decisions 6, 9, 10, 11, 12, 14)
-- [ ] 3.5 `app/api/mcp/route.ts`: the transport, its status codes and its headers
-- [ ] 3.6 The three files of step 2 green, in `reports/<date>-step-3-green.md`
+- [x] 3.4 `lib/mcp/tools.ts` and the `quota` input of `lib/answer/ask.ts` (decisions 6, 9, 10, 11, 12, 14)
+- [x] 3.5 `app/api/mcp/route.ts`: the transport, its status codes and its headers
+- [x] 3.6 The three files of step 2 green, in `reports/<date>-step-3-green.md`
 
 ## 4. Existing tests
 
-- [ ] 4.1 `tests/voice-secrets.test.ts` and `tests/voice-tool.test.ts` keep passing with the re-export; the store of
-      `tests/store.test.ts` keeps its list of tables (decision 7)
+- [x] 4.1 `tests/voice-secrets.test.ts` and `tests/voice-tool.test.ts` keep passing with the re-export; the store of
+      `tests/store.test.ts` keeps its list of tables (decision 7), in `reports/<date>-step-4-existing-tests.md`
 
 ## 5. Run the tests and the checks
 
-- [ ] 5.1 `npm run typecheck`, `npm run lint`, `npx -y -p node@24 node node_modules/vitest/vitest.mjs run`,
+- [x] 5.1 `npm run typecheck`, `npm run lint`, `npx -y -p node@24 node node_modules/vitest/vitest.mjs run`,
       `npm run build` in a clean clone with no `.env`, `npx openspec validate --all --strict`, `npm run secrets:scan`
       and `npm run audit:high`: exit 0 each, with the counts, the runtime and `node -v`, in
-      `reports/<date>-step-5-checks.md`
+      `reports/<date>-step-5-checks.md`. The `audit:high` line is RED for 7 high findings of the base `f644f85`
+      (byte-identical manifests, no dependency added): the report measures it, the gate names it and the delivery
+      lists it as BROKEN
 
 ## 6. Manual verification
 
-- [ ] 6.1 `scripts/mcp-seed.ts` fills a store with `samples/` in keyword mode; `next start` on port 3230 with
+- [x] 6.1 `scripts/mcp-seed.ts` fills a store with `samples/` in keyword mode; `next start` on port 3230 with
       `CITED_MCP_TOKEN` and no chat provider; `curl.exe` runs `initialize`, `tools/list`, `tools/call cited_search`,
       a call without the bearer, a call with a foreign `Origin`, a `GET` and an unknown method, with the pasted
       responses, in `reports/<date>-step-6-manual.md`
-- [ ] 6.2 `scripts/mcp-smoke.mjs` against that server: `initialize`, `tools/list` and `cited_search`, with its output
+- [x] 6.2 `scripts/mcp-smoke.mjs` against that server: `initialize`, `tools/list` and `cited_search`, with its output
 
 ## 7. The gate
 
-- [ ] 7.1 `scripts/gate-mcp.mjs` affirms every line of the contract and prints one line per assertion, and its run ends
+- [x] 7.1 `scripts/gate-mcp.mjs` affirms every line of the contract and prints one line per assertion, and its run ends
       with `GATE: GREEN`, in `reports/<date>-step-7-gate.md`
 
 ## 8. End to end
 
-- [ ] 8.1 Not applicable: the change has no page and no component; the report says so
+- [x] 8.1 Not applicable: the change has no page and no component; the report says so
 
 ## 9. Documentation
 
-- [ ] 9.1 `docs/mcp.md`: what it is, how to activate it, the variables and the exact configuration of DeepSeek
+- [x] 9.1 `docs/mcp.md`: what it is, how to activate it, the variables and the exact configuration of DeepSeek
       Harness, Claude Code, Codex, Cursor and `curl`, written as documented and never as verified
-- [ ] 9.2 `README.md` and `README.es.md`: the short section "Works with your agent" / "Funciona con tu agente" that
+- [x] 9.2 `README.md` and `README.es.md`: the short section "Works with your agent" / "Funciona con tu agente" that
       links `docs/mcp.md`; `tests/readme.test.ts` keeps its bilingual map and its order in step
-- [ ] 9.3 `.env.example` with `CITED_MCP_TOKEN` and `MCP_RATE_LIMIT_PER_HOUR` commented; `docs/development-guide.md`
+- [x] 9.3 `.env.example` with `CITED_MCP_TOKEN` and `MCP_RATE_LIMIT_PER_HOUR` commented; `docs/development-guide.md`
       with the port, the script and the variable; `docs/security.md` with the row of the endpoint
 
 ## 10. Close
 
-- [ ] 10.1 `## Issues` (BROKEN, RISK, NOT DONE, UNKNOWN) at the end of the last report, with the decisions of the
+- [x] 10.1 `## Issues` (BROKEN, RISK, NOT DONE, UNKNOWN) at the end of the last report, with the decisions of the
       implementer
-- [ ] 10.2 Every `[x]` of this file travels in the commit that carries its evidence
-- [ ] 10.3 `LOOP_STATE.md` with `STATUS: DONE` or `STATUS: BLOCKED` and the cause, and
+- [x] 10.2 Every `[x]` of this file travels in the commit that carries its evidence
+- [x] 10.3 `LOOP_STATE.md` with `STATUS: DONE` or `STATUS: BLOCKED` and the cause, and
       `katalis-dev/tasks/entrega-cited-mcp-server.md` in Mexican Spanish
 - [ ] 10.4 Fable reviews the branch, connects each client and marks as verified only the ones that work; the review and
       the archive of the change are not mine

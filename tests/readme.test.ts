@@ -28,6 +28,7 @@ const twinSections: Record<string, string> = {
   "See it work": "Míralo funcionar",
   Roadmap: "Hoja de ruta",
   Voice: "Voz",
+  "Works with your agent": "Funciona con tu agente",
   "Quick start": "Arranque rápido",
   Configuration: "Configuración",
   Security: "Seguridad",

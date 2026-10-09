@@ -133,6 +133,25 @@ compilación del SDK de pruebas, que es la que maneja la suite de navegador:
 
 <img src="docs/images/voice/panel.png" alt="El panel de voz de Cited: el Orb, el estado Respondiendo, la transcripción con una pregunta y su respuesta, y dos fichas de fuentes" width="860">
 
+## Funciona con tu agente
+
+**Tu agente lee tus documentos, con las citas.**
+
+Cited también es un servidor del Model Context Protocol, así que el agente que ya usas puede buscar en los documentos
+del negocio y responder con ellos, con la misma negativa honesta cuando no tienen la respuesta.
+
+```
+CITED_MCP_TOKEN=<un token largo y aleatorio> npm start
+```
+
+Expone dos herramientas de solo lectura. `cited_search` devuelve los pasajes con su documento, su sección, su posición
+y su texto, y nunca llama a un modelo, así que una búsqueda no cuesta nada. `cited_ask` recorre el mismo camino que el
+chat público y responde con citas numeradas, o con la negativa.
+
+`docs/mcp.md` trae la configuración exacta para DeepSeek Harness, Claude Code, Codex, Cursor y `curl`, escrita como
+está documentada. El token viaja en la cabecera `Authorization: Bearer`, y el servidor está apagado hasta que lo
+declares.
+
 ## Arranque rápido
 
 Dos comandos preparan el corpus y uno pide una respuesta. No hace falta ninguna llave: los proveedores deterministas

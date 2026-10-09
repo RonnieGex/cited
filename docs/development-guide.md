@@ -47,6 +47,14 @@ is missing. Without it, a commit with a secret is not scanned.
 
 Every one of these commands is blocking in the pipeline, except `dev`, `test:watch` and `hooks:install`.
 
+Three more commands belong to the MCP server (`docs/mcp.md`):
+
+| Command | What it does |
+|---|---|
+| `node scripts/mcp-seed.ts <store-path> samples/` | fills a store with the sample corpus in keyword mode, for the manual verification |
+| `node scripts/mcp-smoke.mjs --url <url> --token <token>` | runs `initialize`, `tools/list`, `cited_search` and `cited_ask` against a live server |
+| `node scripts/gate-mcp.mjs` | the gate of the change `mcp-server`: types, lint, the suite, the build, the strict validation, the secret scan, the audit and every assertion against a production server |
+
 Three more commands are only needed when the README or its corpus changes:
 
 | Command | What it does |
@@ -86,6 +94,7 @@ teaser with it.
 | 3215 | the panel with the affiliate switch on |
 | 3216 | the deterministic provider double of the browser suite, served by one spec at a time |
 | 3217 | the guided setup walked in English |
+| 3230, 3231 | the MCP server of the manual verification and of `scripts/gate-mcp.mjs` |
 
 The set of the browser suite is 3100 and 3210 to 3217, and `docs/testing.md` lists it with the suites that use it.
 
