@@ -1,5 +1,5 @@
 node.exe : - Validating...
-En C:\Users\Franc\AppData\Roaming\npm\openspec.ps1: 24 Carácter: 5
+En <user-home>\AppData\Roaming\npm\openspec.ps1: 24 Carácter: 5
 +     & "node$exe"  "$basedir/node_modules/@fission-ai/openspec/bin/ope ...
 +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : NotSpecified: (- Validating...:String) [], RemoteException

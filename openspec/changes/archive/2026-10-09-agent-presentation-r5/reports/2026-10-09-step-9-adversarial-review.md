@@ -10,7 +10,7 @@ Leí completos el encargo R5, críticas de arte y UX R4, estándar SDD y proposa
 
 El extracto se deriva del resultado del cited_ask canónico: toma la fuente y la línea de precio, retirando sólo la viñeta y la numeración de presentación. No inventa ni modifica evidencia. Mantiene exactamente dos líneas, chip sin punto, fuente y pasaje resaltado. Inspeccioné `docs/images/agents-light.png` y `agents-dark.png`: legibles, sin recorte, separación cómoda y columnas equilibradas. La puntuación de la respuesta se conserva porque el defecto sólo corresponde al chip de fuente.
 
-Comprobaciones propias ejecutadas desde el repositorio con `C:/Users/Franc/AppData/Local/npm-cache/_npx/387698761821791d/node_modules/node/bin/node.exe`:
+Comprobaciones propias ejecutadas desde el repositorio con `<user-home>/AppData/Local/npm-cache/_npx/387698761821791d/node_modules/node/bin/node.exe`:
 
 - `node node_modules/vitest/vitest.mjs run tests/readme.test.ts`: 46/46, un archivo, exit 0.
 - `openspec validate --all --strict`, anteponiendo ese directorio a PATH: 17/17, exit 0.

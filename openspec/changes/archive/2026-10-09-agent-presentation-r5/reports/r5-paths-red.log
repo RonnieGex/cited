@@ -1,0 +1,74 @@
+
+ RUN  v5.0.2 <workspace>/community-readme
+
+ ❯ tests/personal-paths.test.ts (7 tests | 2 failed) 1193ms
+   ❯ tracked files (7)
+     × carry no home directory of a development machine 400ms
+     × carry no home directory prefix outside the change contract that states the rule 141ms
+node.exe :
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/personal-paths.test.ts > tracked files > carry no home directory of a development machine
+AssertionError: expected [ …(6) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/2026-10-09-step-9-adversarial-review.md",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-e2e.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-red.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-render.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-spec.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-tests.log",
++ ]
+
+ ❯ tests/personal-paths.test.ts:162:49
+    160|
+    161|   it("carry no home directory of a development machine", () => {
+    162|     expect(offenders(repositoryRoot, homePath)).toEqual([]);
+       |                                                 ^
+    163|   });
+    164|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/personal-paths.test.ts > tracked files > carry no home directory prefix outside the change contract that
+states the rule
+AssertionError: expected [ …(6) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/2026-10-09-step-9-adversarial-review.md",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-e2e.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-red.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-render.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-spec.log",
++   "openspec/changes/archive/2026-10-09-agent-presentation-r5/reports/r5-tests.log",
++ ]
+
+ ❯ tests/personal-paths.test.ts:166:74
+    164|
+    165|   it("carry no home directory prefix outside the change contract that …
+    166|     expect(offenders(repositoryRoot, homePrefix, ruleDefiningContracts…
+       |                                                                          ^
+    167|   });
+    168|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 51 passed (53)
+   Start at  15:09:12
+   Duration  3.06s (environment 51%, tests 29%, setup 8%, import 8%, transform 4%, worker 1%)

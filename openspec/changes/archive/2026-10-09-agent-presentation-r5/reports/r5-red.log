@@ -1,5 +1,5 @@
 
- RUN  v5.0.2 C:/Users/Franc/Documents/katalis-dev/community-readme
+ RUN  v5.0.2 <workspace>/community-readme
 
  ❯ tests/readme.test.ts (46 tests | 1 failed) 794ms
    ❯ README, its graphics (12)

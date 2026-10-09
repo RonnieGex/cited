@@ -13,3 +13,8 @@ Add failing regressions before edits. Update the old full-source-list equality c
 
 ## Supersession
 R5 replaces R4's Sources: prefix and complete returned price-list rendering inside the agents graphic with the explicitly labeled two-line excerpt. The archived R4 contract remains historical; active agent-presentation-r4 requirements are updated through this change's delta. All unrelated R4 requirements remain in force.
+
+## Step 11 evidence hygiene clarification
+The first pushed R5 commit, 2f8021d, failed tests/personal-paths.test.ts because six R5 reports/logs contained personal absolute paths. Before completing step 11, normalize the local workspace prefix to `<workspace>` and the remaining local user-home prefix to `<user-home>` in the affected evidence files, including slash and backslash representations. Replace the more specific workspace prefix first. Preserve command arguments after those prefixes, complete observed results, exit statuses and the original CI failure record. The placeholders document a privacy normalization, not a new execution or modified result.
+
+Stage the sanitized evidence with `git add` before running `npx vitest run tests/personal-paths.test.ts tests/readme.test.ts`, because the existing personal-path check uses `git ls-files` and does not inspect untracked files. Keep both existing test implementations unchanged. Record the commands and outcomes, independently review the correction, run gitleaks before the follow-up commit, and require final-SHA PR #18 CI to pass. This is documentation hygiene within unfinished closure step 11 of this archived change; it neither reopens product implementation nor creates another OpenSpec change.

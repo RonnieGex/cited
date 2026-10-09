@@ -22,7 +22,7 @@ contrast of the light theme:
   7.24:1  the output on the terminal
   5.53:1  the title bar on the terminal
   6.76:1  the ink of a lime shape
-node : file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/render-readme-graphics.mjs:1035
+node : file:///<workspace>/community-readme/scripts/render-readme-graphics.mjs:1035
 En línea: 3 Carácter: 1
 + node scripts/render-readme-graphics.mjs agents *> openspec/changes/ag ...
 + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +46,7 @@ Error: Agent proof layout or source changed: {"footerClearance":36,"result":"1 �
 px","22px","22px"],"proofPadding":"22px","resultBorder":"0px","rowPadding":[["24px","24px"],["24px","24px"],["24px","24
 px"]],"columnDifference":20.59375}
     at render
-(file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/render-readme-graphics.mjs:1035:486)
-    at async file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/render-readme-graphics.mjs:1217:24
+(file:///<workspace>/community-readme/scripts/render-readme-graphics.mjs:1035:486)
+    at async file:///<workspace>/community-readme/scripts/render-readme-graphics.mjs:1217:24
 
 Node.js v24.21.0

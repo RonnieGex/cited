@@ -84,11 +84,11 @@ En línea: 1 Carácter: 1
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] .env not found. Continuing without it.
 [WebServer] (node:43012) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of
-file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/ingest.ts is not specified and it doesn't parse
+file:///<workspace>/community-readme/scripts/ingest.ts is not specified and it doesn't parse
 as CommonJS.
 [WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
 [WebServer] To eliminate this warning, add "type": "module" to
-\\?\C:\Users\Franc\Documents\katalis-dev\community-readme\package.json.
+\\?\<workspace>\community-readme\package.json.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 [WebServer] (node:43012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (node:50288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
