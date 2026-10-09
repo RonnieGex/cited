@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-10-09T17:01:16.299Z",
+  "capturedAt": "2026-10-09T16:18:37.933Z",
   "platform": "win32",
   "node": "v24.21.0",
   "harnessVersion": "0.1.6-alpha.2",
@@ -10,65 +10,32 @@
   "exitCode": 0,
   "promptKind": "natural",
   "validationError": null,
-  "command": "npx -y -p node@24 node scripts/capture-round-three.mjs",
-  "citedAnswerModel": {
-    "provider": "deepseek",
-    "model": "deepseek-v4-flash",
-    "source": "capture server startup configuration"
-  },
-  "serverConfiguration": {
-    "endpoint": "http://127.0.0.1:3243",
-    "citedAnswerModel": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-flash",
-      "source": "capture server startup configuration"
-    },
-    "embeddingsProvider": "",
-    "data": "Public Cited samples only"
-  },
-  "pluginSha256": "87d9f86651f530c033bef84816349a8d343935b67b7178f8969fdf29dcc08c3a",
-  "installedSha256": "87d9f86651f530c033bef84816349a8d343935b67b7178f8969fdf29dcc08c3a",
-  "installationSource": "local built checkout; not the unmerged GitHub main",
-  "installCommand": "dsh plugin --profile headless add <local built checkout>",
-  "installOutput": "\ndependencies:\n+ dsh-cited link:<local built checkout>\n\nAlready up to date\nDone in 376ms using pnpm v10.18.3\n",
+  "command": "npx -y -p node@24 node scripts/capture-readme-evidence.mjs",
+  "installCommand": "dsh plugin --profile headless add github:RonnieGex/dsh-cited",
+  "installOutput": "Progress: resolved 0, reused 1, downloaded 0, added 0\n WARN  Issues with peer dependencies found\n.\n└─┬ dsh-cited 0.1.0\n  ├── ✕ missing peer @deepseek-ai/cordis@^4.0.2\n  ├── ✕ missing peer @deepseek-ai/dsh-tools@\">=0.1.6-alpha.2 <0.3.0-0 || >=0.2.0-rc.0 <0.3.0-0\"\n  └── ✕ missing peer @deepseek-ai/schemastery@^3.18.2\nPeer dependencies that should be installed:\n  @deepseek-ai/cordis@^4.0.2\n  @deepseek-ai/dsh-tools@\">=0.1.6-alpha.2 <0.3.0-0 || >=0.2.0-rc.0 <0.3.0-0\"\n  @deepseek-ai/schemastery@^3.18.2\n\ndependencies:\n+ dsh-cited github:RonnieGex/dsh-cited\n\nPackages: +1\n+\nProgress: resolved 1, reused 1, downloaded 0, added 1, done\nDone in 2s using pnpm v10.18.3\n",
   "data": "Public Cited samples, keyword search; no embedding provider",
-  "prompt": "¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?",
+  "prompt": "¿Qué precio tiene afinar una bicicleta en Café La Horquilla?",
   "events": [
     {
       "type": "tool_call",
-      "callId": "call_00_KMBOb71gWf7Z6WWnbV8w2379",
+      "callId": "call_00_6qgdt85xfJto2hpkxVR62881",
       "tool": "cited_ask",
       "input": {
-        "question": "¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?"
+        "question": "¿Qué precio tiene afinar una bicicleta en Café La Horquilla?"
       }
     },
     {
       "type": "tool_result",
-      "callId": "call_00_KMBOb71gWf7Z6WWnbV8w2379",
+      "callId": "call_00_6qgdt85xfJto2hpkxVR62881",
       "status": "completed",
-      "result": "La afinación de bicicleta cuesta 380 pesos [1].\n\nSources:\n1. cafe-la-horquilla.md · Precios (position 2)\nPrecios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos."
-    },
-    {
-      "type": "tool_call",
-      "callId": "call_01_5GJuIin8IDkt3DUwR4541004",
-      "tool": "cited_search",
-      "input": {
-        "query": "afinación bicicleta precio"
-      }
-    },
-    {
-      "type": "tool_result",
-      "callId": "call_01_5GJuIin8IDkt3DUwR4541004",
-      "status": "completed",
-      "result": "Cited found 2 passage(s) for \"afinación bicicleta precio\". Cite each one by its number, like [1].\n\n1. cafe-la-horquilla.md · Precios\nPrecios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos.\n2. notas-del-negocio.txt\nCafé La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferencias para consumos menores a 200 pesos. Facturación: pedimos el RFC el mismo día de la compra. Las facturas del taller se emiten al terminar la reparación. Mascotas: bienvenidas en la terraza. Dentro del local solo si van en transportadora. Accesibilidad: la entrada tiene rampa y el baño es amplio. El taller está en planta baja. Contacto: mostrador, teléfono del local y correo del negocio. No damos precios por mensaje para trabajos que requieren revisar la bicicleta."
+      "result": "La afinación de bicicleta cuesta 380 pesos [1].\n\nSources:\n1. cafe-la-horquilla.md · Precios (position 2)"
     },
     {
       "type": "final",
-      "text": "La afinación de bicicleta en Café La Horquilla cuesta **380 pesos** [1].\n\nEstá en la lista de precios del documento `cafe-la-horquilla.md` (sección Precios), junto con:\n\n- Espresso: 35 pesos\n- Café de olla: 45 pesos\n- Pan dulce del día: 30 pesos\n- **Afinación de bicicleta: 380 pesos**\n- Cambio de cámara: 120 pesos\n\nUna nota relacionada, por si te sirve: el negocio aclara que no da precios por mensaje para trabajos que requieren revisar la bicicleta, así que ese precio aplica como tarifa publicada del servicio de afinación."
+      "text": "Según los documentos, **afinar una bicicleta en Café La Horquilla cuesta 380 pesos** [1].\n\nFuente: `cafe-la-horquilla.md`, sección *Precios* [1]."
     }
   ],
-  "transcript": "Question\n¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?\n\nTool call\ncited_ask {\"question\":\"¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?\"}\n\nTool result\nLa afinación de bicicleta cuesta 380 pesos [1].\n\nSources:\n1. cafe-la-horquilla.md · Precios (position 2)\nPrecios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos.\n\nTool call\ncited_search {\"query\":\"afinación bicicleta precio\"}\n\nPassages\nCited found 2 passage(s) for \"afinación bicicleta precio\". Cite each one by its number, like [1].\n\n1. cafe-la-horquilla.md · Precios\nPrecios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos.\n2. notas-del-negocio.txt\nCafé La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferencias para consumos menores a 200 pesos. Facturación: pedimos el RFC el mismo día de la compra. Las facturas del taller se emiten al terminar la reparación. Mascotas: bienvenidas en la terraza. Dentro del local solo si van en transportadora. Accesibilidad: la entrada tiene rampa y el baño es amplio. El taller está en planta baja. Contacto: mostrador, teléfono del local y correo del negocio. No damos precios por mensaje para trabajos que requieren revisar la bicicleta.\n\nAnswer\nLa afinación de bicicleta en Café La Horquilla cuesta **380 pesos** [1].\n\nEstá en la lista de precios del documento `cafe-la-horquilla.md` (sección Precios), junto con:\n\n- Espresso: 35 pesos\n- Café de olla: 45 pesos\n- Pan dulce del día: 30 pesos\n- **Afinación de bicicleta: 380 pesos**\n- Cambio de cámara: 120 pesos\n\nUna nota relacionada, por si te sirve: el negocio aclara que no da precios por mensaje para trabajos que requieren revisar la bicicleta, así que ese precio aplica como tarifa publicada del servicio de afinación.",
-  "language": "es",
+  "transcript": "Question\n¿Qué precio tiene afinar una bicicleta en Café La Horquilla?\n\nTool call\ncited_ask {\"question\":\"¿Qué precio tiene afinar una bicicleta en Café La Horquilla?\"}\n\nTool result\nLa afinación de bicicleta cuesta 380 pesos [1].\n\nSources:\n1. cafe-la-horquilla.md · Precios (position 2)\n\nAnswer\nSegún los documentos, **afinar una bicicleta en Café La Horquilla cuesta 380 pesos** [1].\n\nFuente: `cafe-la-horquilla.md`, sección *Precios* [1].",
   "database": {
     "before": [
       {
@@ -84,12 +51,12 @@
       {
         "table": "document_index",
         "rows": 4,
-        "sha256": "87956d167e62bb6fb74da2421c137bd332ff170fa40744e1ac7d0246e36c4f17"
+        "sha256": "1b821f8adee807c0f8d3d103c758162ec57a0e1aee9bf1fd105ed6429edab37c"
       },
       {
         "table": "documents",
         "rows": 4,
-        "sha256": "18dc2c50906d06372c7426585f752aa2851d56fc6db484c48c65bc9631a48094"
+        "sha256": "8d35cc350667bb5581cabcc0bce7c8d6ca5c6e9fd4f9c18c4327508f66e21e97"
       },
       {
         "table": "login_attempts",
@@ -181,12 +148,12 @@
       {
         "table": "document_index",
         "rows": 4,
-        "sha256": "87956d167e62bb6fb74da2421c137bd332ff170fa40744e1ac7d0246e36c4f17"
+        "sha256": "1b821f8adee807c0f8d3d103c758162ec57a0e1aee9bf1fd105ed6429edab37c"
       },
       {
         "table": "documents",
         "rows": 4,
-        "sha256": "18dc2c50906d06372c7426585f752aa2851d56fc6db484c48c65bc9631a48094"
+        "sha256": "8d35cc350667bb5581cabcc0bce7c8d6ca5c6e9fd4f9c18c4327508f66e21e97"
       },
       {
         "table": "login_attempts",
@@ -266,6 +233,6 @@
     ],
     "unchanged": false
   },
-  "artifact": "natural-2026-10-09T17-01-01-501Z/attempt-2.json",
-  "summary": "natural-summary.json"
+  "supportingEvidence": "natural-2026-10-09T16-18-26-546Z/attempt-2.json",
+  "language": "es"
 }

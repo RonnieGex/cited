@@ -136,9 +136,9 @@ build of the test SDK, which is the build the browser suite drives:
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested" width="1280"></picture>
 
-The graphic quotes the [natural plugin run](https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence) in its original Spanish; its highlighted passage comes from the separate recorded search.
+The graphic quotes the exact first paragraph of the answer from the [natural plugin run](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) in its original Spanish, with the passage returned by its own `cited_ask` call, and summarizes the [recorded client verification](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). The same run also called `cited_search`; the transcript keeps every call and the complete final answer. Markdown rendered; the transcript link has the raw output.
 
-The graphic summarizes the [recorded client verification](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md).
+**2 of 3 natural questions received a supported price citation** with keyword search and no embeddings; English questions over Spanish documents can miss the passage, as the English question did in this round. After the English refusal, the agent falsely claimed that the price was absent. [All three outcomes](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json). The Harness agent used `deepseek-official / deepseek-v4-flash`; Cited answered with `deepseek / deepseek-v4-flash`, verified from the capture server's startup configuration.
 
 Cited is also a server of the Model Context Protocol, so the agent you already use can search the documents of the
 business and answer from them, with the same honest refusal when they do not hold the answer.
@@ -153,10 +153,13 @@ public chat and answers with numbered citations, or with the refusal.
 
 | Agent | Verified on 2026-10-09 against a local Cited |
 |---|---|
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | called `cited_search` and answered with a citation through the [MCP configuration](docs/mcp.md), verified in [step-10-4](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). The [native plugin](https://github.com/RonnieGex/dsh-cited) independently selected `cited_ask` for a natural question and answered with a citation; [plugin evidence](https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence). Install with `dsh plugin add github:RonnieGex/dsh-cited`. |
+| DeepSeek Harness (MCP configuration) | Called `cited_search` and answered with a citation; [configuration](docs/mcp.md), [step-10-4 evidence](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). |
+| DeepSeek Harness (native plugin) | Selected `cited_ask` for a natural Spanish question and answered with its own cited passage; [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt), [compatibility evidence](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md). |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | it connected and listed the tools |
 | [Codex](https://github.com/openai/codex) | it connected and listed the tools |
 | Cursor and any other client of Streamable HTTP | configuration documented, not tested yet |
+
+Install the [native plugin](https://github.com/RonnieGex/dsh-cited) with `dsh plugin add github:RonnieGex/dsh-cited`.
 
 `docs/mcp.md` carries the exact configuration for each one and for `curl`. The token travels in the
 `Authorization: Bearer` header, and the server is off until you declare it.

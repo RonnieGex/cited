@@ -138,9 +138,9 @@ compilación del SDK de pruebas, que es la que maneja la suite de navegador:
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="DeepSeek Harness eligió cited_ask y respondió 380 pesos [1], citando cafe-la-horquilla.md; Claude Code y Codex se conectaron y listaron ambas herramientas; Cursor está documentado, sin probar" width="1280"></picture>
 
-El gráfico cita la [corrida natural del plugin](https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence) en su español original; el pasaje resaltado viene de la búsqueda separada grabada.
+El gráfico cita el primer párrafo exacto de la respuesta de la [corrida natural del plugin](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) en su español original, con el pasaje devuelto por su propia llamada a `cited_ask`, y resume la [verificación registrada de los clientes](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). La misma corrida también llamó a `cited_search`; la transcripción conserva todas las llamadas y la respuesta final completa. Markdown renderizado; el enlace a la transcripción conserva la salida cruda.
 
-El gráfico resume la [verificación registrada de los clientes](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md).
+**2 de 3 preguntas naturales recibieron el precio con una cita sustentada**, con búsqueda por palabras clave sin embeddings; una pregunta en inglés sobre documentos en español puede no encontrar el pasaje, como ocurrió en esta ronda. Tras la negativa inglesa, el agente afirmó falsamente que no existía el precio. [Los tres resultados](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json). El agente de Harness usó `deepseek-official / deepseek-v4-flash`; Cited respondió con `deepseek / deepseek-v4-flash`, verificado desde la configuración de arranque del servidor de captura.
 
 Cited también es un servidor del Model Context Protocol, así que el agente que ya usas puede buscar en los documentos
 del negocio y responder con ellos, con la misma negativa honesta cuando no tienen la respuesta.
@@ -155,10 +155,13 @@ chat público y responde con citas numeradas, o con la negativa.
 
 | Agente | Verificado el 2026-10-09 contra un Cited local |
 |---|---|
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | llamó a `cited_search` y respondió con una cita mediante la [configuración MCP](docs/mcp.md), verificada en [step-10-4](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). El [plugin nativo](https://github.com/RonnieGex/dsh-cited) eligió `cited_ask` ante una pregunta natural y respondió con cita; [evidencia del plugin](https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence). Instala con `dsh plugin add github:RonnieGex/dsh-cited`. |
+| DeepSeek Harness (configuración MCP) | Llamó a `cited_search` y respondió con cita; [configuración](docs/mcp.md), [evidencia step-10-4](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). |
+| DeepSeek Harness (plugin nativo) | Eligió `cited_ask` ante una pregunta natural en español y respondió con su propio pasaje citado; [transcripción](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt), [evidencia de compatibilidad](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md). |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | se conectó y listó las herramientas |
 | [Codex](https://github.com/openai/codex) | se conectó y listó las herramientas |
 | Cursor y cualquier otro cliente de Streamable HTTP | configuración documentada, todavía sin probar |
+
+Instala el [plugin nativo](https://github.com/RonnieGex/dsh-cited) con `dsh plugin add github:RonnieGex/dsh-cited`.
 
 `docs/mcp.md` trae la configuración exacta de cada uno y de `curl`. El token viaja en la cabecera
 `Authorization: Bearer`, y el servidor está apagado hasta que lo declaras.

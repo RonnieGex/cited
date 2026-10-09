@@ -1,8 +1,8 @@
 Question
-¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?
+¿Qué precio tiene afinar una bicicleta en Café La Horquilla?
 
 Tool call
-cited_ask {"question":"¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?"}
+cited_ask {"question":"¿Qué precio tiene afinar una bicicleta en Café La Horquilla?"}
 
 Tool result
 La afinación de bicicleta cuesta 380 pesos [1].
@@ -17,10 +17,10 @@ Precios
 - Cambio de cámara: 120 pesos.
 
 Tool call
-cited_search {"query":"afinación bicicleta precio"}
+cited_search {"query":"afinar bicicleta precio"}
 
 Passages
-Cited found 2 passage(s) for "afinación bicicleta precio". Cite each one by its number, like [1].
+Cited found 2 passage(s) for "afinar bicicleta precio". Cite each one by its number, like [1].
 
 1. cafe-la-horquilla.md · Precios
 Precios
@@ -33,9 +33,9 @@ Precios
 Café La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferencias para consumos menores a 200 pesos. Facturación: pedimos el RFC el mismo día de la compra. Las facturas del taller se emiten al terminar la reparación. Mascotas: bienvenidas en la terraza. Dentro del local solo si van en transportadora. Accesibilidad: la entrada tiene rampa y el baño es amplio. El taller está en planta baja. Contacto: mostrador, teléfono del local y correo del negocio. No damos precios por mensaje para trabajos que requieren revisar la bicicleta.
 
 Answer
-La afinación de bicicleta en Café La Horquilla cuesta **380 pesos** [1].
+**380 pesos** por la afinación de bicicleta [1].
 
-Está en la lista de precios del documento `cafe-la-horquilla.md` (sección Precios), junto con:
+En la lista de precios de Café La Horquilla aparece así:
 
 - Espresso: 35 pesos
 - Café de olla: 45 pesos
@@ -43,4 +43,8 @@ Está en la lista de precios del documento `cafe-la-horquilla.md` (sección Prec
 - **Afinación de bicicleta: 380 pesos**
 - Cambio de cámara: 120 pesos
 
-Una nota relacionada, por si te sirve: el negocio aclara que no da precios por mensaje para trabajos que requieren revisar la bicicleta, así que ese precio aplica como tarifa publicada del servicio de afinación.
+[1] cafe-la-horquilla.md · Precios
+
+Un detalle útil: las notas del negocio aclaran que **no dan precios por mensaje para trabajos que requieren revisar la bicicleta**, así que la afinación estándar son 380 pesos, pero cualquier cosa que necesite diagnóstico previo se cotiza en el local [2].
+
+[2] notas-del-negocio.txt · Notas del negocio

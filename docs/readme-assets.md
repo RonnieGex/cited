@@ -186,8 +186,8 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 | | |
 |---|---|
 | Files directly in `docs/images/` | 20 PNG and 2 JSON |
-| Weight of those 20 PNGs | 814728 bytes |
-| Unique local PNGs referenced by `README.md` | 24 files, 989631 bytes |
+| Weight of those 20 PNGs | 830816 bytes |
+| Unique local PNGs referenced by `README.md` | 24 files, 1005719 bytes |
 | Budget | 3 MB |
 
 These counts were measured on 2026-10-09 after adding the agents graphic. When a graphic is added, keep it under the budget and prefer
@@ -197,8 +197,12 @@ for the social preview, 0.80 or more for every light variant except `demo-light.
 inside its own area), and the roadmap is 1280 px wide and 720 px high at most, which the render enforces, so a graphic
 that forgets to paint its theme or a roadmap that grows past the limit fails the test even if it is small.
 
-## Agent evidence, round two
+## Agent evidence, round three
 
-`node scripts/render-readme-graphics.mjs agents roadmap` renders only the agent proof and the status roadmap. The agent answer is derived from the complete natural plugin run in `docs/evidence/agents/headless-answer.json`; its supportingEvidence file contains the separate natural search that returned the highlighted price. These are unchanged copies of the public dsh-cited sample records. The small transcript validator was ported from that public plugin and reviewed here; there is no runtime dependency on another checkout. Both records are checked against their events before rendering.
+`npx -y -p node@24 node scripts/render-readme-graphics.mjs agents` renders only the two agents PNGs at 1280×640. Legacy graphics and roadmap stay intact. The canonical JSON/TXT and all three attempts are copied byte-for-byte from dsh-cited into `docs/evidence/agents/`; the outcome summary is 2/3. English was refused and the agent falsely claimed the price was absent. Do not count an irrelevant cited refusal as a supported price answer.
 
-The glyphs distinguish a called tool and cited answer from connection/tool discovery and documented-only setup. The MCP configuration report remains a separate provenance path. Fable must merge dsh-cited PR #1 before Cited PR #18 so the main-branch evidence links resolve. Legacy rounded/glowing graphics remain outside this correction. All display wording is evidence-derived; only Markdown formatting and citation chips are typeset.
+The graphic quotes only the first paragraph of the complete Spanish final answer, explicitly labeled as an answer excerpt. The question is complete. Passage 1 is returned by cited_ask in that same run, with document, section and position. The run also called cited_search; downloads preserve all calls and the complete final answer. Markdown is escaped before rendering emphasis/code and citation chips. The shared evidence validator rejects duplicate, orphaned, truncated and out-of-order events.
+
+Harness used deepseek-official/deepseek-v4-flash; Cited used deepseek/deepseek-v4-flash from the actual isolated server startup configuration. The plugin was installed from its local built checkout, with matching installed/source SHA-256. Historical GitHub installation is separately documented by the plugin. This repository changes no Cited runtime.
+
+The roadmap SVG distinguishes called-and-answered from outlined connected/tools-listed; a hollow circle means documented only. Both tables split native plugin and MCP configuration. Fable must merge dsh-cited PR #1 before Cited PR #18 so headless-answer.txt, natural-summary.json and compatibility.md links on main resolve.

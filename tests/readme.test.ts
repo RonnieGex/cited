@@ -1157,6 +1157,19 @@ describe("README, its links and its images", () => {
 });
 
 describe("README, its graphics", () => {
+  it("uses the same own-source canonical run and counts supported answers", () => {
+    const record = JSON.parse(readText("docs/evidence/agents/headless-answer.json"));
+    const summary = JSON.parse(readText("docs/evidence/agents/natural-summary.json"));
+    const attempts = summary.attempts.map((attempt: { artifact: string }) => JSON.parse(readText(`docs/evidence/agents/${attempt.artifact}`)));
+    expect(attempts).toHaveLength(3);
+    expect(summary.answeredWithCitation).toBe(2);
+    expect(summary.attempts.map((attempt: { answeredWithCitation: boolean }) => attempt.answeredWithCitation)).toEqual([false, true, true]);
+    expect(record.events).toEqual(attempts[1].events);
+    expect(record.artifact).toBe(summary.canonical);
+    expect(record.supportingEvidence).toBeUndefined();
+    expect(record.events.find((event: { type: string; result?: string }) => event.type === "tool_result").result).toContain("1. cafe-la-horquilla.md · Precios (position 2)\n");
+    expect(record.events.find((event: { type: string; result?: string }) => event.type === "tool_result").result).toContain("Afinación de bicicleta: 380 pesos.");
+  });
   it("preserves the scope and provenance of the verified agent results", () => {
     const template = readText("scripts/readme-graphics/agents.html");
     const evidence = "openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md";
@@ -1176,7 +1189,9 @@ describe("README, its graphics", () => {
       expect(section).toContain(evidence);
       expect(section).toContain(graphics.agents.dark);
       expect(section).toContain(graphics.agents.light);
-      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence");
+      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md");
+      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt");
+      expect(section).toContain("Markdown");
     }
   });
 
