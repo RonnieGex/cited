@@ -1,0 +1,112 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112112,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "cwe": ["CWE-400"],
+          "cvss": { "score": 7.5, "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H" },
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": ["micromatch"],
+      "range": "<=3.0.3",
+      "nodes": ["node_modules/braces"],
+      "fixAvailable": false
+    },
+    "micromatch": {
+      "name": "micromatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["braces"],
+      "effects": ["fast-glob"],
+      "range": "<=4.0.8",
+      "nodes": ["node_modules/micromatch"],
+      "fixAvailable": false
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["micromatch"],
+      "effects": ["@next/eslint-plugin-next"],
+      "range": "<=3.3.1",
+      "nodes": ["node_modules/fast-glob"],
+      "fixAvailable": false
+    },
+    "@next/eslint-plugin-next": {
+      "name": "@next/eslint-plugin-next",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["fast-glob"],
+      "effects": ["eslint-config-next"],
+      "range": "16.0.0 - 16.4.0",
+      "nodes": ["node_modules/@next/eslint-plugin-next"],
+      "fixAvailable": false
+    },
+    "eslint-config-next": {
+      "name": "eslint-config-next",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["@next/eslint-plugin-next"],
+      "effects": [],
+      "range": "16.0.0 - 16.4.0",
+      "nodes": ["node_modules/eslint-config-next"],
+      "fixAvailable": false
+    },
+    "sprintf-js": {
+      "name": "sprintf-js",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1111901,
+          "name": "sprintf-js",
+          "dependency": "sprintf-js",
+          "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+          "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+          "severity": "moderate",
+          "cwe": ["CWE-400"],
+          "range": "<1.1.1"
+        }
+      ],
+      "effects": ["argparse"],
+      "range": "<1.1.1",
+      "nodes": ["node_modules/sprintf-js"],
+      "fixAvailable": false
+    },
+    "argparse": {
+      "name": "argparse",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["sprintf-js"],
+      "effects": ["mammoth"],
+      "range": "1.0.0 - 1.0.10",
+      "nodes": ["node_modules/mammoth/node_modules/argparse"],
+      "fixAvailable": false
+    },
+    "mammoth": {
+      "name": "mammoth",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": ["argparse"],
+      "effects": [],
+      "range": "1.4.0 - 1.13.0",
+      "nodes": ["node_modules/mammoth"],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": { "info": 0, "low": 0, "moderate": 3, "high": 5, "critical": 0, "total": 8 },
+    "dependencies": { "prod": 323, "dev": 389, "optional": 68, "peer": 12, "peerOptional": 0, "total": 790 }
+  }
+}

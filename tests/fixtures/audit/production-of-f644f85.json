@@ -1,0 +1,69 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "source-map-js": {
+      "name": "source-map-js",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112456,
+          "name": "source-map-js",
+          "dependency": "source-map-js",
+          "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+          "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+          "severity": "high",
+          "range": "<1.2.2"
+        }
+      ],
+      "effects": ["postcss"],
+      "range": "<1.2.2",
+      "nodes": ["node_modules/source-map-js"],
+      "fixAvailable": true
+    },
+    "postcss": {
+      "name": "postcss",
+      "severity": "high",
+      "isDirect": false,
+      "via": ["source-map-js"],
+      "effects": ["next"],
+      "range": "8.5.0 - 8.5.28",
+      "nodes": ["node_modules/next/node_modules/postcss"],
+      "fixAvailable": true
+    },
+    "next": {
+      "name": "next",
+      "severity": "high",
+      "isDirect": true,
+      "via": ["postcss"],
+      "effects": [],
+      "range": "16.0.0 - 16.4.0",
+      "nodes": ["node_modules/next"],
+      "fixAvailable": true
+    },
+    "sprintf-js": {
+      "name": "sprintf-js",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1111901,
+          "name": "sprintf-js",
+          "dependency": "sprintf-js",
+          "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+          "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+          "severity": "moderate",
+          "range": "<1.1.1"
+        }
+      ],
+      "effects": ["argparse"],
+      "range": "<1.1.1",
+      "nodes": ["node_modules/sprintf-js"],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": { "info": 0, "low": 0, "moderate": 3, "high": 3, "critical": 0, "total": 6 },
+    "dependencies": { "prod": 322, "dev": 0, "optional": 62, "peer": 12, "peerOptional": 0, "total": 396 }
+  }
+}

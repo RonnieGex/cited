@@ -1,0 +1,49 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "braces": {
+      "name": "braces",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1112112,
+          "name": "braces",
+          "dependency": "braces",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "severity": "high",
+          "range": "<=3.0.3"
+        }
+      ],
+      "effects": ["micromatch"],
+      "range": "<=3.0.3",
+      "nodes": ["node_modules/braces"],
+      "fixAvailable": false
+    },
+    "left-pad": {
+      "name": "left-pad",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1112999,
+          "name": "left-pad",
+          "dependency": "left-pad",
+          "title": "left-pad reaches unbounded work with a crafted repetition count",
+          "url": "https://github.com/advisories/GHSA-aaaa-bbbb-cccc",
+          "severity": "high",
+          "range": "<=1.3.0"
+        }
+      ],
+      "effects": [],
+      "range": "<=1.3.0",
+      "nodes": ["node_modules/left-pad"],
+      "fixAvailable": true
+    }
+  },
+  "metadata": {
+    "vulnerabilities": { "info": 0, "low": 0, "moderate": 0, "high": 2, "critical": 0, "total": 2 },
+    "dependencies": { "prod": 323, "dev": 389, "optional": 68, "peer": 12, "peerOptional": 0, "total": 790 }
+  }
+}

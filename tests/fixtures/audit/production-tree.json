@@ -1,0 +1,59 @@
+{
+  "name": "cited",
+  "version": "0.1.0",
+  "dependencies": {
+    "@libsql/client": {
+      "version": "0.18.0",
+      "dependencies": {
+        "@libsql/core": {
+          "version": "0.18.0",
+          "dependencies": {
+            "js-base64": { "version": "3.7.8" }
+          }
+        }
+      }
+    },
+    "mammoth": {
+      "version": "1.13.0",
+      "dependencies": {
+        "argparse": {
+          "version": "1.0.10",
+          "dependencies": {
+            "sprintf-js": { "version": "1.0.3" }
+          }
+        }
+      }
+    },
+    "next": {
+      "version": "16.4.0",
+      "dependencies": {
+        "@next/env": { "version": "16.4.0" },
+        "postcss": {
+          "version": "8.5.23",
+          "dependencies": {
+            "nanoid": { "version": "3.3.12" },
+            "source-map-js": { "version": "1.2.2" }
+          }
+        },
+        "sharp": {
+          "version": "0.35.5",
+          "dependencies": {
+            "@img/sharp-wasm32": {
+              "version": "0.35.5",
+              "dependencies": {
+                "@emnapi/runtime": { "version": "1.11.3" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "react": {
+      "version": "19.3.0",
+      "dependencies": {
+        "scheduler": { "version": "0.27.0" }
+      }
+    }
+  },
+  "problems": ["missing: @emnapi/runtime@^1.11.3, required by @img/sharp-wasm32@0.35.5"]
+}

@@ -1,0 +1,49 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "sprintf-js": {
+      "name": "sprintf-js",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1111901,
+          "name": "sprintf-js",
+          "dependency": "sprintf-js",
+          "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+          "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+          "severity": "moderate",
+          "range": "<1.1.1"
+        }
+      ],
+      "effects": ["argparse"],
+      "range": "<1.1.1",
+      "nodes": ["node_modules/sprintf-js"],
+      "fixAvailable": false
+    },
+    "argparse": {
+      "name": "argparse",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": ["sprintf-js"],
+      "effects": ["mammoth"],
+      "range": "1.0.0 - 1.0.10",
+      "nodes": ["node_modules/mammoth/node_modules/argparse"],
+      "fixAvailable": false
+    },
+    "mammoth": {
+      "name": "mammoth",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": ["argparse"],
+      "effects": [],
+      "range": "1.4.0 - 1.13.0",
+      "nodes": ["node_modules/mammoth"],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": { "info": 0, "low": 0, "moderate": 3, "high": 0, "critical": 0, "total": 3 },
+    "dependencies": { "prod": 322, "dev": 0, "optional": 62, "peer": 12, "peerOptional": 0, "total": 396 }
+  }
+}
