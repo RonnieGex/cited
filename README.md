@@ -146,8 +146,15 @@ Two read-only tools are exposed. `cited_search` returns the passages with their 
 and their text, and it never calls a model, so a search spends nothing. `cited_ask` walks the same pipeline as the
 public chat and answers with numbered citations, or with the refusal.
 
-`docs/mcp.md` carries the exact configuration for DeepSeek Harness, Claude Code, Codex, Cursor and `curl`, written as
-documented. The token travels in the `Authorization: Bearer` header, and the server is off until you declare it.
+| Agent | Verified on 2026-10-09 against a local Cited |
+|---|---|
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | end to end: it connected, listed the tools, called `cited_search` and answered with the citation |
+| [Claude Code](https://docs.claude.com/en/docs/claude-code) | it connected and listed the tools |
+| [Codex](https://github.com/openai/codex) | it connected and listed the tools |
+| Cursor and any other client of Streamable HTTP | configuration documented, not tested yet |
+
+`docs/mcp.md` carries the exact configuration for each one and for `curl`. The token travels in the
+`Authorization: Bearer` header, and the server is off until you declare it.
 
 ## Quick start
 

@@ -63,26 +63,40 @@ leaves it.
 
 ## 4. DeepSeek Harness
 
-The MCP client is the plugin `@deepseek-ai/dsh-mcp-client`, one entry per server:
+The MCP client is the plugin `@deepseek-ai/dsh-mcp-client`, one row per server. A row goes inside an `insert` patch:
 
 ```yaml
-- id: mcp-cited
-  name: '@deepseek-ai/dsh-mcp-client'
-  config:
-    serverName: cited
-    transport: streamable-http
-    url: https://<the host of the installation>/api/mcp
-    headers:
-      Authorization: !!js '`Bearer ${process.env.CITED_MCP_TOKEN}`'
+- insert:
+    - id: mcp-cited
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: cited
+        transport: streamable-http
+        url: https://<the host of the installation>/api/mcp
+        headers:
+          Authorization: !!js '`Bearer ${process.env.CITED_MCP_TOKEN}`'
 ```
 
-The tools appear as `mcp__cited__cited_search` and `mcp__cited__cited_ask`.
+Save it as a file and pass it for one run with `dsh --patch <file>`, or merge the `insert` into the patch layer of a
+profile (`$DSH_HOME/profiles/<name>/cordis.patch.yml`) or of the machine (`$DSH_HOME/cordis.patch.yml`) to keep it.
+Do not overwrite an existing patch file: add the row to it. The `!!js` line reads the token from the environment of the
+process that starts DeepSeek Harness, so declare `CITED_MCP_TOKEN` there (a user environment variable for the desktop
+app) instead of writing the token in the file.
+
+The tools appear as `mcp__cited__cited_search` and `mcp__cited__cited_ask`. Verified on 2026-10-09 with the headless
+profile and the DeepSeek model: the client connected, listed both tools, called `cited_search` and answered with the
+citation. The client first tries the `server/discover` method of a newer protocol revision, receives `400` and goes on
+with `2025-06-18`, which is the expected negotiation.
 
 ## 5. Claude Code
 
 ```bash
 claude mcp add --transport http cited https://<the host of the installation>/api/mcp --header "Authorization: Bearer <token>"
 ```
+
+`claude mcp get cited` should then say `Connected`. Verified on 2026-10-09 with Claude Code 2.1: the client connected and
+listed both tools (it also tries a `GET` for an event stream, receives `405` and goes on, as the transport allows). The
+tool call itself was not run from Claude Code that day; it is the same `tools/call` that DeepSeek Harness and `curl` ran.
 
 ## 6. Codex
 
@@ -93,6 +107,10 @@ In `config.toml`:
 url = "https://<the host of the installation>/api/mcp"
 bearer_token_env_var = "CITED_MCP_TOKEN"
 ```
+
+Codex reads the token from the environment variable it names, so declare `CITED_MCP_TOKEN` before starting it. Verified
+on 2026-10-09 with Codex 0.157: the client connected and listed both tools. The tool call itself was not run from Codex
+that day.
 
 ## 7. Cursor
 

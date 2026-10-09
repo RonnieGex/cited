@@ -90,5 +90,6 @@ commit of the code it verified.
 - [x] 10.2 Every `[x]` of this file travels in the commit that carries its evidence
 - [x] 10.3 `LOOP_STATE.md` with `STATUS: DONE` or `STATUS: BLOCKED` and the cause, and
       `katalis-dev/tasks/entrega-cited-mcp-server.md` in Mexican Spanish
-- [ ] 10.4 Fable reviews the branch, connects each client and marks as verified only the ones that work; the review and
-      the archive of the change are not mine
+- [x] 10.4 Fable reviews the branch, connects each client and marks as verified only the ones that work; the review and
+      the archive of the change are not mine (`reports/2026-10-09-step-10-4-review-and-clients.md`: DeepSeek Harness end
+      to end, Claude Code and Codex connected with the tool list, Cursor documented and not tested)
