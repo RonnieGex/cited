@@ -35,12 +35,33 @@ returns today, and the answer with its numbered citations has been available sin
 
 ## 2. The graphics
 
-`scripts/render-readme-graphics.mjs` renders the seven graphics in **both themes** and the social preview, and writes
+`scripts/render-readme-graphics.mjs` renders the eight graphics in **both themes** and the social preview, and writes
 `docs/images/readme-graphics.json`.
 
 ```
 node scripts/render-readme-graphics.mjs
 ```
+
+To regenerate only the agent graphic and the status board:
+
+```
+npx -y -p node@24 node scripts/render-readme-graphics.mjs agents roadmap
+```
+
+A selective render updates only those PNGs and their entries in the record. It updates the roadmap rows when
+`roadmap` is selected. It runs ingestion, search and ask and updates the README quick-start blocks only when
+`demo` is selected, including a full render. Unknown graphic names fail before any output is written.
+
+The agent graphic is a summary of the
+[archived client verification](../openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md),
+not a terminal capture. DeepSeek Harness searched and answered with a citation in a headless MCP run. Claude Code
+and Codex connected and listed both tools; their tool calls were not verified. Cursor has documented configuration
+and was not tested. The 380-peso result comes from `samples/cafe-la-horquilla.md`. A fresh curl check tests the
+endpoint only and does not change these client labels.
+
+`agents.html` uses local Outfit, flat ink `#171717` and paper `#FAFAF9`, lime `#DDF469` on the citation, thin rules
+and square corners. The English graphic is shared by both READMEs; Spanish alt text and the adjacent table preserve
+the same information without requiring the image.
 
 What it does, in order:
 
@@ -65,6 +86,7 @@ five dark variants once came out painted white.
 
 | Graphic | Size | What it shows |
 |---|---|---|
+| `agents-{dark,light}.png` | 1280 × 640 | verified client results, distinguishing a cited answer, tool discovery and untested configuration |
 | `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited`, with its benefit headline |
 | `reason-citations-{dark,light}.png` | 400 × 300 | the second reason |
 | `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with its benefit headline |
@@ -73,11 +95,10 @@ five dark variants once came out painted white.
 | `roadmap-{dark,light}.png` | 1280 × 720 | the status table as a board, `Next` on the planned column |
 | `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice: the real Orb of the panel (`docs/images/voice/orb.png`, captured by `scripts/render-readme-orb.mjs`), one click in the panel and ElevenLabs carries the voice |
 
-The roadmap is the only graphic whose layout is a little denser than the page of the others (`.roadmap` of the render
-script): the change `elevenlabs-voice-agent` moved the voice row from the planned column to the available one, and
-every available row of the status table has to fit inside the 720 px of decision 11 without going below the 16 px of
-the smallest text.
 | `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` with the flame of the maker to its left |
+
+The roadmap uses thin rules and a wider available column to fit the added MCP server row within 720 px without
+reducing any text below 16 px. Its reference labels use Outfit, keeping monospace inside terminal blocks.
 
 One image of the README is not drawn by that script: the real capture of the public chat with an answer and its open
 citation, written by

@@ -47,6 +47,11 @@ is missing. Without it, a commit with a secret is not scanned.
 
 Every one of these commands is blocking in the pipeline, except `dev`, `test:watch` and `hooks:install`.
 
+For README graphics, `npx -y -p node@24 node scripts/render-readme-graphics.mjs agents roadmap` regenerates the agent
+compatibility image and status board in both themes without running the quick-start demo. See
+[README assets](readme-assets.md) for provenance, image limits and the full render command. Run
+`npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/readme.test.ts` after changing these assets.
+
 Three more commands belong to the MCP server (`docs/mcp.md`):
 
 | Command | What it does |

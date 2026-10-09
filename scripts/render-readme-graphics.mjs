@@ -485,11 +485,21 @@ const styles = `
   gap: 18px;
 }
 .roadmap .column {
-  gap: 7px;
+  gap: 4px;
+}
+.roadmap .column:first-child {
+  flex: 1.4;
 }
 .roadmap .row {
-  padding: 6px 14px;
+  padding: 4px 0;
   gap: 2px;
+  border: 0;
+  border-top: 1px solid var(--card-border);
+  border-radius: 0;
+  background: transparent;
+}
+.roadmap .row-reference {
+  line-height: 1.1;
 }
 .roadmap .row-capability {
   line-height: 1.2;
@@ -500,7 +510,7 @@ const styles = `
   gap: 10px;
 }
 .row-reference {
-  font-family: "Cascadia Mono", "Consolas", "DejaVu Sans Mono", monospace;
+  font-family: Outfit, sans-serif;
   font-size: 16px;
   color: var(--muted);
 }
@@ -696,8 +706,11 @@ function escapeLines(text) {
     .join("\n");
 }
 
-function html(content, theme, width, height) {
-  const values = themes[theme];
+function html(content, theme, width, height, flat = false) {
+  const values = flat
+    ? { ...themes[theme], BACKGROUND: theme === "dark" ? tokens.ink : "#FAFAF9",
+        TEXT: theme === "dark" ? "#FAFAF9" : tokens.ink, GLOW: "none" }
+    : themes[theme];
   const page = fill(base, {
     ...values,
     NEXT_BORDER: values.NEXT_BORDER,
@@ -987,9 +1000,9 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
     viewport: { width: graphic.width, height: graphic.height },
     deviceScaleFactor: 1,
   });
-  const background = `${theme}:${graphic.width}x${graphic.height}`;
+  const background = `${theme}:${graphic.width}x${graphic.height}:${graphic.flat ?? false}`;
 
-  await page.setContent(html(content, theme, graphic.width, graphic.height), { waitUntil: "load" });
+  await page.setContent(html(content, theme, graphic.width, graphic.height, graphic.flat), { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
 
   const loaded = await page.evaluate(() => document.fonts.check('700 44px "Outfit"'));
@@ -1018,7 +1031,7 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
         deviceScaleFactor: 1,
       });
 
-      await plain.setContent(html("", theme, graphic.width, graphic.height), {
+      await plain.setContent(html("", theme, graphic.width, graphic.height, graphic.flat), {
         waitUntil: "load",
       });
       backgrounds.set(background, await plain.screenshot({ type: "png" }));
@@ -1072,6 +1085,13 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
 
 const asked = process.argv.slice(2);
 const wanted = (name) => asked.length === 0 || asked.includes(name);
+const unknown = asked.filter((name) => ![...graphics, social].some((graphic) => graphic.name === name));
+
+if (unknown.length > 0) {
+  throw new Error(`Unknown graphics: ${unknown.join(", ")}`);
+}
+
+const previous = asked.length > 0 ? JSON.parse(readFileSync(absolute(recordPath), "utf8")) : null;
 const banner = JSON.parse(readFileSync(absolute(bannerRecordPath), "utf8"));
 const templatesOf = new Map(
   await Promise.all(
@@ -1084,9 +1104,15 @@ const templatesOf = new Map(
 
 reportContrast();
 
-const ingest = withoutNpmNoise(run("npm", ["run", "ingest", "--", "samples/"]));
-const search = withoutNpmNoise(run("npm", ["run", "search", "--", searchQuestion]));
-const ask = withoutNpmNoise(run("npm", ["run", "ask", "--", searchQuestion]));
+const ingest = wanted("demo")
+  ? withoutNpmNoise(run("npm", ["run", "ingest", "--", "samples/"]))
+  : previous.demo.ingest.output;
+const search = wanted("demo")
+  ? withoutNpmNoise(run("npm", ["run", "search", "--", searchQuestion]))
+  : previous.demo.search.output;
+const ask = wanted("demo")
+  ? withoutNpmNoise(run("npm", ["run", "ask", "--", searchQuestion]))
+  : previous.demo.ask.output;
 const askLines = ask.split("\n");
 const askStatus = askLines.find((line) => line.startsWith("status:")) ?? "";
 const askAnswer = askLines.find((line) => line.startsWith("answer:")) ?? "";
@@ -1142,7 +1168,7 @@ const contents = new Map(
 const browser = await chromium.launch();
 const backgrounds = new Map();
 const written = [];
-let terminalBox = null;
+let terminalBox = previous?.demo.terminal ?? null;
 
 try {
   for (const graphic of graphics) {
@@ -1174,6 +1200,7 @@ try {
       shows: graphic.shows,
       label: graphic.label,
       alt: graphic.alt,
+      ...(graphic.flat ? { palette: { ink: tokens.ink, paper: "#FAFAF9", lime: tokens.lime }, flat: true } : {}),
     });
   }
 
@@ -1184,8 +1211,41 @@ try {
   await browser.close();
 }
 
+const demoRecord = {
+  exitCode: 0,
+  terminal: terminalBox,
+  ingest: { command: ingestCommand, output: ingest },
+  search: { command: searchCommand, output: search },
+  ask: { command: askCommand, output: ask },
+  drawn: {
+    ingest: drawn.ingest.drawn.split("\n"),
+    search: drawn.search.drawn.split("\n"),
+    ask: drawn.ask.drawn.split("\n"),
+  },
+};
+
 if (asked.length > 0) {
-  console.log(`rendered only ${asked.join(", ")}: the record is left as it is.`);
+  previous.graphics = graphics.map((graphic) =>
+    written.find((entry) => entry.name === graphic.name) ??
+    previous.graphics.find((entry) => entry.name === graphic.name),
+  ).filter(Boolean);
+
+  if (wanted("roadmap")) {
+    previous.roadmap = roadmap;
+    previous.planned = roadmap.filter((row) => row.state === "Planned").map((row) => row.reference);
+  }
+
+  if (wanted("demo")) {
+    previous.demo = demoRecord;
+  }
+
+  if (wanted(social.name)) {
+    previous.flame = flame;
+  }
+
+  assertHonestRecord(previous, recordPath);
+  await writeFile(absolute(recordPath), `${JSON.stringify(previous, null, 2)}\n`);
+  console.log(`rendered only ${asked.join(", ")}: updated their record entries.`);
 } else {
   const record = {
     width: social.width,
@@ -1224,18 +1284,7 @@ if (asked.length > 0) {
       ask: askCommand,
       provider: "EMBEDDINGS_PROVIDER=fake",
     },
-    demo: {
-      exitCode: 0,
-      terminal: terminalBox,
-      ingest: { command: ingestCommand, output: ingest },
-      search: { command: searchCommand, output: search },
-      ask: { command: askCommand, output: ask },
-      drawn: {
-        ingest: drawn.ingest.drawn.split("\n"),
-        search: drawn.search.drawn.split("\n"),
-        ask: drawn.ask.drawn.split("\n"),
-      },
-    },
+    demo: demoRecord,
   };
 
   assertHonestRecord(record, recordPath);
@@ -1244,7 +1293,7 @@ if (asked.length > 0) {
   console.log(`wrote ${recordPath}`);
 }
 
-for (const readme of ["README.md", "README.es.md"]) {
+for (const readme of wanted("demo") ? ["README.md", "README.es.md"] : []) {
   const patched = patchReadmeQuickStart(readFileSync(absolute(readme), "utf8"), drawn);
 
   await writeFile(absolute(readme), patched.text);

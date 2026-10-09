@@ -57,6 +57,11 @@
       "reference": "openspec/specs/voice-agent/spec.md"
     },
     {
+      "capability": "MCP server",
+      "state": "Available",
+      "reference": "openspec/specs/mcp-server/spec.md"
+    },
+    {
       "capability": "Shared design system",
       "state": "Planned",
       "reference": "design-system-shared"
@@ -73,6 +78,24 @@
     }
   ],
   "graphics": [
+    {
+      "name": "agents",
+      "dark": "docs/images/agents-dark.png",
+      "light": "docs/images/agents-light.png",
+      "width": 1280,
+      "height": 640,
+      "headline": "Your documents. Your agent.",
+      "copy": "Verified locally on 2026-10-09. Each result has its own scope.",
+      "shows": "Available",
+      "label": null,
+      "alt": "DeepSeek Harness searched and answered with a citation; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
+      "palette": {
+        "ink": "#171717",
+        "paper": "#FAFAF9",
+        "lime": "#DDF469"
+      },
+      "flat": true
+    },
     {
       "name": "reason-sources",
       "dark": "docs/images/reason-sources-dark.png",
@@ -143,7 +166,13 @@
       "copy": null,
       "shows": "Planned",
       "label": "Next",
-      "alt": "The roadmap of Cited: what is available today and what each next change adds"
+      "alt": "The roadmap of Cited: what is available today and what each next change adds",
+      "palette": {
+        "ink": "#171717",
+        "paper": "#FAFAF9",
+        "lime": "#DDF469"
+      },
+      "flat": true
     },
     {
       "name": "voice-teaser",

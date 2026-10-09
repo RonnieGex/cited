@@ -56,6 +56,11 @@ const banner = {
   light: `${imagesDirectory}/readme-banner-light.png`,
 };
 const graphics = {
+  agents: {
+    dark: `${imagesDirectory}/agents-dark.png`,
+    light: `${imagesDirectory}/agents-light.png`,
+    planned: false,
+  },
   "reason-sources": {
     dark: `${imagesDirectory}/reason-sources-dark.png`,
     light: `${imagesDirectory}/reason-sources-light.png`,
@@ -119,6 +124,8 @@ const artDirection = {
   terminalMaximum: 0.3,
   maximumRoadmapHeight: 720,
   canvases: [
+    "agents-dark.png",
+    "agents-light.png",
     "readme-banner-dark.png",
     "readme-banner-light.png",
     "chat-page.png",
@@ -139,6 +146,7 @@ const artDirection = {
     "social-preview.png",
   ],
   darkCanvases: [
+    "agents-dark.png",
     "readme-banner-dark.png",
     "reason-sources-dark.png",
     "reason-citations-dark.png",
@@ -150,6 +158,7 @@ const artDirection = {
     "social-preview.png",
   ],
   lightCanvases: [
+    "agents-light.png",
     "readme-banner-light.png",
     "chat-page.png",
     "reason-sources-light.png",
@@ -667,6 +676,15 @@ describe("README, the promise and the maturity", () => {
 });
 
 describe("README, the status table", () => {
+  it("lists the available MCP server in both languages", () => {
+    for (const path of ["README.md", "README.es.md"]) {
+      const row = statusRows(readText(path)).find((entry) => entry.reference.includes("mcp-server/spec.md"));
+
+      expect(row, path).toBeDefined();
+      expect(row?.state, path).toBe("Available");
+    }
+  });
+
   it("marks every row Available or Planned, with the spec or the change that delivers it", () => {
     const rows = statusRows(readText("README.md"));
 
@@ -1139,6 +1157,26 @@ describe("README, its links and its images", () => {
 });
 
 describe("README, its graphics", () => {
+  it("preserves the scope and provenance of the verified agent results", () => {
+    const template = readText("scripts/readme-graphics/agents.html");
+    const evidence = "openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md";
+
+    expect(template).toContain("Called cited_search.");
+    expect(template).toContain("Answered with a source citation.");
+    expect(template.match(/Tool call not verified\./g)).toHaveLength(2);
+    expect(template).toContain("Configuration documented. Not tested.");
+    expect(template).toContain("2026-10-09");
+    expect(readText(evidence)).toContain("tools/call cited_search");
+
+    for (const [file, heading] of [["README.md", "Works with your agent"], ["README.es.md", "Funciona con tu agente"]] as const) {
+      const section = bodyOf(readText(file), heading);
+
+      expect(section).toContain(evidence);
+      expect(section).toContain(graphics.agents.dark);
+      expect(section).toContain(graphics.agents.light);
+    }
+  });
+
   const themedMappings: Array<[string, string]> = [
     [banner.dark, banner.light],
     ...Object.values(graphics).map(

@@ -70,6 +70,11 @@ export const statusRows = [
     reference: "openspec/specs/voice-agent/spec.md",
   },
   {
+    capability: "MCP server",
+    state: "Available",
+    reference: "openspec/specs/mcp-server/spec.md",
+  },
+  {
     capability: "Shared design system",
     state: "Planned",
     reference: "design-system-shared",

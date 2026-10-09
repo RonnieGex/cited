@@ -2,6 +2,20 @@ const reason = { width: 400, height: 300 };
 
 export const graphics = [
   {
+    name: "agents",
+    flat: true,
+    template: "agents.html",
+    width: 1280,
+    height: 640,
+    dark: "docs/images/agents-dark.png",
+    light: "docs/images/agents-light.png",
+    headline: "Your documents. Your agent.",
+    copy: "Verified locally on 2026-10-09. Each result has its own scope.",
+    shows: "Available",
+    label: null,
+    alt: "DeepSeek Harness searched and answered with a citation; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
+  },
+  {
     name: "reason-sources",
     template: "reason-sources.html",
     ...reason,
@@ -65,6 +79,7 @@ export const graphics = [
   },
   {
     name: "roadmap",
+    flat: true,
     template: "roadmap.html",
     width: 1280,
     height: 720,

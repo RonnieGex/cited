@@ -1,0 +1,49 @@
+<style>
+  .agents { padding: 40px 52px 30px; gap: 24px; }
+  .agents .eyebrow { letter-spacing: 0.16em; }
+  .agents-head { display: flex; justify-content: space-between; align-items: center; }
+  .agents-protocol { font-size: 18px; }
+  .agents .headline { font-size: 56px; }
+  .agents-body { display: grid; grid-template-columns: 1.2fr 1fr; gap: 52px; flex: 1; }
+  .agents-proof { border-top: 1px solid var(--hairline); padding-top: 22px; }
+  .agents-client { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+  .agents-result { font-size: 20px; line-height: 1.45; }
+  .agents-answer { margin: 22px 0 16px; font-size: 38px; line-height: 1.16; font-weight: 600; }
+  .agents-citation { background: #DDF469; color: #171717; padding: 0 7px; }
+  .agents-source { font-size: 18px; line-height: 1.5; }
+  .agents-clients { border-top: 1px solid var(--hairline); }
+  .agents-client-row { padding: 18px 0; border-bottom: 1px solid var(--hairline); }
+  .agents-client-row .agents-client { font-size: 24px; margin-bottom: 4px; }
+  .agents-client-row:last-child { border-bottom: 0; }
+  .agents-footer { border-top: 1px solid var(--hairline); padding-top: 16px; font-size: 18px; }
+</style>
+<div class="page agents">
+  <div class="agents-head">
+    <div class="eyebrow">Works with your agent</div>
+    <div class="agents-protocol">Cited / MCP</div>
+  </div>
+  <div class="headline">Your documents. Your agent.</div>
+  <div class="agents-body">
+    <div class="agents-proof">
+      <div class="agents-client">DeepSeek Harness</div>
+      <div class="agents-result">Called cited_search.<br>Answered with a source citation.</div>
+      <div class="agents-answer">A bike tune-up:<br>380 pesos <span class="agents-citation">[1]</span></div>
+      <div class="agents-source">cafe-la-horquilla.md / Precios<br>Headless run with the DeepSeek model</div>
+    </div>
+    <div class="agents-clients">
+      <div class="agents-client-row">
+        <div class="agents-client">Claude Code</div>
+        <div class="agents-result">Connected. Listed both tools.<br>Tool call not verified.</div>
+      </div>
+      <div class="agents-client-row">
+        <div class="agents-client">Codex</div>
+        <div class="agents-result">Connected. Listed both tools.<br>Tool call not verified.</div>
+      </div>
+      <div class="agents-client-row">
+        <div class="agents-client">Cursor</div>
+        <div class="agents-result">Configuration documented. Not tested.</div>
+      </div>
+    </div>
+  </div>
+  <div class="agents-footer">Verified locally on 2026-10-09. Each result has its own scope.</div>
+</div>
