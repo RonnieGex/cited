@@ -133,6 +133,31 @@ compilación del SDK de pruebas, que es la que maneja la suite de navegador:
 
 <img src="docs/images/voice/panel.png" alt="El panel de voz de Cited: el Orb, el estado Respondiendo, la transcripción con una pregunta y su respuesta, y dos fichas de fuentes" width="860">
 
+## Funciona con tu agente
+
+**Tu agente lee tus documentos, con las citas.**
+
+Cited también es un servidor del Model Context Protocol, así que el agente que ya usas puede buscar en los documentos
+del negocio y responder con ellos, con la misma negativa honesta cuando no tienen la respuesta.
+
+```
+CITED_MCP_TOKEN=<un token largo y aleatorio> npm start
+```
+
+Expone dos herramientas de solo lectura. `cited_search` devuelve los pasajes con su documento, su sección, su posición
+y su texto, y nunca llama a un modelo, así que una búsqueda no cuesta nada. `cited_ask` recorre el mismo camino que el
+chat público y responde con citas numeradas, o con la negativa.
+
+| Agente | Verificado el 2026-10-09 contra un Cited local |
+|---|---|
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | de punta a punta, de dos formas: pega `https://github.com/RonnieGex/dsh-cited` en **Plugins → Add plugin** (el plugin nativo, probado en la app de escritorio 0.2), o agrega la fila MCP de `docs/mcp.md`. Las dos llamaron a `cited_search` y respondieron con la cita |
+| [Claude Code](https://docs.claude.com/en/docs/claude-code) | se conectó y listó las herramientas |
+| [Codex](https://github.com/openai/codex) | se conectó y listó las herramientas |
+| Cursor y cualquier otro cliente de Streamable HTTP | configuración documentada, todavía sin probar |
+
+`docs/mcp.md` trae la configuración exacta de cada uno y de `curl`. El token viaja en la cabecera
+`Authorization: Bearer`, y el servidor está apagado hasta que lo declaras.
+
 ## Arranque rápido
 
 Dos comandos preparan el corpus y uno pide una respuesta. No hace falta ninguna llave: los proveedores deterministas

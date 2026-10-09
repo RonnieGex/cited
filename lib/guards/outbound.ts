@@ -39,12 +39,43 @@ export function sanitizeOutbound(text: string): string {
 // out of the route the browser of a visitor talks to. The route of the answers passes every sentence through here.
 export const VARIABLE_NAME = /[A-Z][A-Z0-9]*_[A-Z0-9_]+/;
 
+// The same question as `VARIABLE_NAME.test(text)`, answered in one pass. The regular expression backtracks
+// quadratically on a long run of capitals with no underscore (CodeQL js/polynomial-redos), and the MCP endpoint lets
+// outside text reach `publicMessage()`. A name exists when an underscore that is not the last character of its run of
+// `[A-Z0-9_]` follows a capital letter with no underscore in between.
+export function containsVariableName(text: string): boolean {
+  let capitalSinceUnderscore = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    const capital = code >= 65 && code <= 90;
+    const digit = code >= 48 && code <= 57;
+
+    if (code === 95) {
+      const next = index + 1 < text.length ? text.charCodeAt(index + 1) : -1;
+      const continues = (next >= 65 && next <= 90) || (next >= 48 && next <= 57) || next === 95;
+
+      if (capitalSinceUnderscore && continues) {
+        return true;
+      }
+
+      capitalSinceUnderscore = false;
+    } else if (capital) {
+      capitalSinceUnderscore = true;
+    } else if (digit === false) {
+      capitalSinceUnderscore = false;
+    }
+  }
+
+  return false;
+}
+
 // The text of a message that may leave the server: no shape of a key, no name of a variable, one line, and never
 // more than a screenful. An empty answer means the caller writes its own sentence.
 export function publicMessage(text: string): string {
   const clean = sanitizeOutbound(text).replace(/\s+/g, " ").trim();
 
-  if (clean.length === 0 || clean === REDACTED || VARIABLE_NAME.test(clean)) {
+  if (clean.length === 0 || clean === REDACTED || containsVariableName(clean)) {
     return "";
   }
 

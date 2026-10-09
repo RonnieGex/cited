@@ -15,6 +15,7 @@ the API balance of the owner.
 | Environment files never enter the history | Done | `.gitignore` (`.env*` except `.env.example`) |
 | No key has a value in the repository | Done | `.env.example` with empty values |
 | A key the owner pastes in the panel is encrypted and never returns to the browser | Done | `lib/secrets/` (AES-256-GCM under `ENCRYPTION_KEY`), the table `provider_settings` and the routes of `/api/admin/providers` |
+| The MCP endpoint is off without its token and answers only behind a constant-time bearer | Done | `app/api/mcp/route.ts`, `lib/mcp/auth.ts` (`CITED_MCP_TOKEN`, `WWW-Authenticate: Bearer`, `403` for an `Origin` that is not the host of the request) |
 | Dependency vulnerabilities above the high level stop the pipeline | Done | `.github/workflows/ci.yml` calls `npm run audit:high`, the guard of `scripts/audit-high.mjs`: the production tree audits clean and accepts no exception, and the whole tree audits clean except the advisories of `security/audit-exceptions.json`, whose entries carry their evidence and expire within 30 days |
 | Static analysis of the code in the pipeline | Done | `.github/workflows/codeql.yml` (JavaScript and TypeScript) runs on every push to `main`, on every pull request and on a weekly schedule while the repository is public; while it is private the analysis job is skipped, not failed, because GitHub accepts code scanning uploads from a private repository only with a paid plan |
 | Dependency updates reviewed | Done | `.github/dependabot.yml` |
@@ -75,6 +76,10 @@ The API key belongs to the person who forks the project, so an abuse spends thei
   calls and in `elevenlabs-voice-agent` for the voice minutes: a session reserves five minutes of the UTC day before
   the signed URL is asked for, and the day answers `429` when the cap of `DAILY_VOICE_MINUTE_LIMIT` is reached.
 - A cap of tokens per answer. **Done** in `pluggable-models-and-ask`.
+- A limit of tool calls per hour for the MCP endpoint, counted by token and not by address, with
+  `MCP_RATE_LIMIT_PER_HOUR` (120 by default). **Done** in `mcp-server`: `lib/mcp/limits.ts` holds the window of the
+  process, and a call over the limit is a tool error with a public sentence; the daily cap of model calls still applies
+  to `cited_ask`.
 - The panel tests a key before saving it and never shows it again, only its last four characters. **Done** in
   `provider-keys-in-panel`; the panel of `admin-panel-and-onboarding` shows whether a key of the environment is set
   and never its value.

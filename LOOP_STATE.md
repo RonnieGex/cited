@@ -1,57 +1,75 @@
-# LOOP_STATE · Cited
+# LOOP_STATE · Cited, change `mcp-server`
 
 STATUS: DONE
-CHANGE: audit-exceptions (OpenSpec)
-BRANCH: feature/next-16-4
-BASE: f644f85 (origin/main); 4b9b038 raises next and eslint-config-next to 16.4.0
-AGENT: DeepSeek (implementer), contract by Fable
-DATE: 2026-10-09
+CHANGE: mcp-server (OpenSpec), new capability `mcp-server`
+BRANCH: feature/mcp-server
+BASE: f644f85 (`origin/main`, the close of launch-hygiene)
+VERIFIED COMMIT: 1788899 (`Serve the documents of Cited over MCP: the route, the two tools and the gate`)
+AGENT: DeepSeek (implementer); every step of section 10.4 is Fable's
+DATE: 2026-10-08
+RUNTIME: Node v24.21.0
 
 ## Objective
 
-Fix the mandatory check `Dependency audit`, red in `main` and in every branch, without weakening it: raise
-`source-map-js` to 1.2.2, keep the production tree clean with no exception possible, and record the one advisory that
-has no published fix (`braces`, GHSA-vfj7-8cjw-p6xm) as an exception that expires on 2026-11-08. The guard
-`scripts/audit-high.mjs` is what `npm run audit:high` runs, and the job `Dependency audit` of
-`.github/workflows/ci.yml` keeps calling `npm run audit:high`.
+Cited as an MCP server: `app/api/mcp/route.ts`, the stateless Streamable HTTP transport, the two read-only tools
+(`cited_search`, `cited_ask`), the token, the limits and the documentation, until `scripts/gate-mcp.mjs` prints
+`GATE: GREEN`.
+
+## Result
+
+`node scripts/gate-mcp.mjs` ends with `GATE: GREEN`, exit 0, on the commit `1788899`: typecheck, lint, 1129 cases of the
+suite over 94 files, `next build` (with `/api/mcp` among the routes), `openspec validate --all --strict` 14 of 14,
+`gitleaks git` with no leak over 639 commits, and every assertion of the endpoint against a production server on port
+3230 with the token and on port 3231 without it. The one line that is not green is `audit:high`, which is red for the
+same 7 high findings on the base `f644f85` (the two manifests are byte-identical, this change adds no dependency): the
+gate names it in its own line and the delivery lists it as BROKEN, because fixing it means upgrading `next`.
+
+## Phase
+
+Closed. The delivery Franc reads is `katalis-dev/tasks/entrega-cited-mcp-server.md`, in Mexican Spanish, with the table
+of the gate, the manual verification with `curl` and the `## Issues`. The review, the connection of each client and the
+archive of the change are the step 10.4 of `tasks.md`, and they are Fable's.
 
 ## Progress
 
-- **Step 0**: the branch `feature/next-16-4` of Fable at `f644f85` carries the commit `4b9b038`, the bump of `next` and
-  `eslint-config-next` to 16.4.0 exactly that came uncommitted in the worktree
-  (`reports/2026-10-09-step-0-branch.md`).
-- **Step 1**: the measured base with `next@16.4.0`: two high advisories of the tree (`source-map-js` through
-  `postcss`, `braces` through `eslint-config-next`), the production tree with the `source-map-js` chain at the high
-  level, and the registry answering 1.2.2 for `source-map-js` and 3.0.3 for `braces`
-  (`reports/2026-10-09-step-1-base.md`).
-- **Step 2**: `tests/fixtures/audit/` with the saved payloads of the day and `tests/audit-high.test.ts` with one case
-  per scenario of the delta; the red is the suite without the guard and the guard against the payload of the base
-  (`reports/2026-10-09-step-2-red.md`).
-- **Step 3**: `overrides` raises `source-map-js` to 1.2.2, `security/audit-exceptions.json` carries the one entry, and
-  `scripts/audit-high.mjs` is the guard (`reports/2026-10-09-step-3-implementation.md`).
-- **Steps 4 to 8**: the existing suite stays green, the checks pass, the guard was verified by hand against every
-  fixture, the change has no frontend, and `SECURITY.md` and `docs/` carry the rule
-  (`reports/2026-10-09-step-5-checks.md`, `reports/2026-10-09-step-6-manual.md`).
-- **Step 9**: `scripts/gate-audit.mjs` printed `GATE: GREEN` with exit 0 on the tree of `6ec38a4`, with the `## Issues`
-  of the round in `reports/2026-10-09-step-9-gate.md`.
+- **Spec** (`80e411e`): `openspec/changes/mcp-server/` with `proposal.md`, `design.md` (the fifteen decisions and the
+  sections of the MCP specification 2025-06-18 that are followed), `tasks.md` and the capability; `openspec validate
+  mcp-server --strict` exit 0. Report `reports/2026-10-08-step-1-spec.md`.
+- **Tests first** (`3f4a9c6`): `tests/mcp-protocol.test.ts`, `tests/mcp-tools.test.ts`, `tests/mcp-route.test.ts` and
+  `tests/mcp-helpers.ts`, red because the modules did not exist. Report `reports/2026-10-08-step-2-red.md`.
+- **Implementation** (`1788899`): `lib/mcp/` (protocol, server, tools, auth, limits), `app/api/mcp/route.ts`,
+  `lib/guards/bearer.ts` with `lib/voice/secret.ts` re-exporting it, and the `quota` input of `lib/answer/ask.ts`. The
+  three files of step 2 green with 49 cases. Reports of the steps 3 to 10 in the same folder.
+- **Documentation** (`1788899`): `docs/mcp.md`, the bilingual section of both READMEs with the map of the twin updated,
+  `.env.example`, `docs/development-guide.md` and `docs/security.md`.
 
-Step 9.5 of the contract (Fable pushes, an independent review, Franc accepts) is not mine and stays open.
+## Evidence
 
-## Gate
+- `scripts/gate-mcp.mjs`, `GATE: GREEN`: the full list of its assertions is in
+  `reports/2026-10-08-step-7-gate.md`; the checks of the repository and the audit are in
+  `reports/2026-10-08-step-5-checks.md`.
+- The manual verification of `reports/2026-10-08-step-6-manual.md` ran a real server of the build: `401` with
+  `WWW-Authenticate`, `403` of a foreign origin, `202` without a body, `-32601`, `405`, `400` of the version header,
+  `404` without the token, and the passage of `samples/cafe-la-horquilla.md` with its 380 pesos.
+- `scripts/mcp-smoke.mjs` ended in `SMOKE: GREEN` against that server.
+- `scripts/mcp-seed.ts` filled the store of the manual run with the four documents of `samples/` in keyword mode.
 
-`node scripts/gate-audit.mjs --shim <the preload of the sandbox>` on `6ec38a4`, with the fixtures of the day:
-`GATE: GREEN`, exit 0. Every statement passed: typecheck, lint, 1091 tests of 92 files, build, 14 of 14 specs, the
-secret scan over 643 commits, `npm run audit:high`, `npm audit --omit=dev --audit-level=high`, the contract of the fix
-and the nine red fixtures.
+## The sandbox of this machine
 
-## Environment notes
+Two facts of this Windows sandbox, both measured by the gate and named in its lines and in the delivery: a child
+process with piped stdio is refused (`EPERM`), and the suite ends with the access violation of the platform
+(`0xC0000005`) in about one of twenty processes of the threads pool. The gate adapts to the first with two shims
+installed only when it measures the refusal (the pipes become temporary files; the production build sends the workers
+of Next.js to the thread pool) and to the second by running the files in chunks of five and repeating a chunk whose
+process ended that way. On a machine that allows pipes the gate runs every command untouched.
 
-- The sandbox of this session denies a child process whose stdio carries a pipe (spawn EPERM). Vitest runs with
-  `--pool=threads`, the suite in groups of sixteen files, and a local preload that replaces the pipe with a temporary
-  file (`<workspace>/.dsh-sandbox-shim.cjs`, never versioned). The repository is not touched by it.
-- The build of Next.js runs with the same preload, because it starts the TypeScript check and its page-data workers
-  with a pipe.
-- `npx -y -p node@24` cannot run here for the same reason, so the suite runs with the Node 24 of the PATH
-  (v24.11.0); every report names it.
-- The local hook `.githooks/pre-commit` cannot run here either (`sh.exe` dies with a CreateFileMapping error); the
-  control that did run is `npm run secrets:scan` over the whole history.
+## Hard rules respected
+
+- No `.env` with secrets was opened and none exists in the worktree; no push, no remote, no commit on `main`, no
+  archive; `MEMORY.md` is in no commit; the other worktrees of the suite were not touched and no process of another
+  session was stopped.
+- No personal path in a versioned file (the reports write `<worktree>`, `<temp>` and `<token>`); the literal token of
+  the manual run was replaced by `<token>` and the commit was amended so the history carries no such value
+  (`gitleaks git` over 639 commits: no leak).
+- Commits in English, small, one per step of the contract with its evidence; the code, the specs, the tests and this
+  file are in English; the delivery Franc reads is in Mexican Spanish.
