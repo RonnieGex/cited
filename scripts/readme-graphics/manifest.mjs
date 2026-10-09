@@ -6,7 +6,7 @@ export const graphics = [
     flat: true,
     template: "agents.html",
     width: 1280,
-    height: 640,
+    height: 680,
     dark: "docs/images/agents-dark.png",
     light: "docs/images/agents-light.png",
     headline: "Four clients, checked on 2026-10-09",

@@ -136,18 +136,14 @@ compilación del SDK de pruebas, que es la que maneja la suite de navegador:
 
 ## Funciona con tu agente
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="DeepSeek Harness eligió cited_ask y respondió 380 pesos [1], citando cafe-la-horquilla.md; Claude Code y Codex se conectaron y listaron ambas herramientas; Cursor está documentado, sin probar" width="1280"></picture>
-
-El gráfico cita el primer párrafo exacto de la respuesta de la [corrida natural del plugin](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) en su español original, con el pasaje devuelto por su propia llamada a `cited_ask`, y resume la [verificación registrada de los clientes](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). La misma corrida también llamó a `cited_search`; la transcripción conserva todas las llamadas y la respuesta final completa. Markdown renderizado; el enlace a la transcripción conserva la salida cruda.
-
-**2 de 3 preguntas naturales recibieron el precio con una cita sustentada**, con búsqueda por palabras clave sin embeddings; una pregunta en inglés sobre documentos en español puede no encontrar el pasaje, como ocurrió en esta ronda. Tras la negativa inglesa, el agente afirmó falsamente que no existía el precio. [Los tres resultados](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json). El agente de Harness usó `deepseek-official / deepseek-v4-flash`; Cited respondió con `deepseek / deepseek-v4-flash`, verificado desde la configuración de arranque del servidor de captura.
-
 Cited también es un servidor del Model Context Protocol, así que el agente que ya usas puede buscar en los documentos
 del negocio y responder con ellos, con la misma negativa honesta cuando no tienen la respuesta.
 
 ```
 CITED_MCP_TOKEN=<un token largo y aleatorio> npm start
 ```
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="DeepSeek Harness eligió cited_ask y respondió 380 pesos [1], citando cafe-la-horquilla.md; Claude Code y Codex se conectaron y listaron ambas herramientas; Cursor está documentado, sin probar" width="1280"></picture>
 
 Expone dos herramientas de solo lectura. `cited_search` devuelve los pasajes con su documento, su sección, su posición
 y su texto, y nunca llama a un modelo, así que una búsqueda no cuesta nada. `cited_ask` recorre el mismo camino que el
@@ -165,6 +161,8 @@ Instala el [plugin nativo](https://github.com/RonnieGex/dsh-cited) con `dsh plug
 
 `docs/mcp.md` trae la configuración exacta de cada uno y de `curl`. El token viaja en la cabecera
 `Authorization: Bearer`, y el servidor está apagado hasta que lo declaras.
+
+El gráfico cita el primer párrafo exacto de la respuesta en español y su propia fuente de `cited_ask`. El gráfico muestra el Markdown con formato; la transcripción conserva el original. La [transcripción](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) conserva el Markdown crudo, todas las llamadas y la respuesta completa. **2 de 3 preguntas naturales recibieron el precio con una cita sustentada**, con búsqueda por palabras clave sin embeddings. La pregunta inglesa no encontró el pasaje en español; Cited se negó a responder y el agente afirmó sin razón que no existía el precio. [Los resultados](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json) y la [verificación](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md) documentan modelos y límites.
 
 ## Arranque rápido
 

@@ -86,7 +86,7 @@ five dark variants once came out painted white.
 
 | Graphic | Size | What it shows |
 |---|---|---|
-| `agents-{dark,light}.png` | 1280 × 640 | verified client results, distinguishing a cited answer, tool discovery and untested configuration |
+| `agents-{dark,light}.png` | 1280 × 680 | verified client results, distinguishing a cited answer, tool discovery and untested configuration |
 | `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited`, with its benefit headline |
 | `reason-citations-{dark,light}.png` | 400 × 300 | the second reason |
 | `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with its benefit headline |
@@ -197,11 +197,11 @@ for the social preview, 0.80 or more for every light variant except `demo-light.
 inside its own area), and the roadmap is 1280 px wide and 720 px high at most, which the render enforces, so a graphic
 that forgets to paint its theme or a roadmap that grows past the limit fails the test even if it is small.
 
-## Agent evidence, round three
+## Agent evidence, round four
 
-`npx -y -p node@24 node scripts/render-readme-graphics.mjs agents` renders only the two agents PNGs at 1280×640. Legacy graphics and roadmap stay intact. The canonical JSON/TXT and all three attempts are copied byte-for-byte from dsh-cited into `docs/evidence/agents/`; the outcome summary is 2/3. English was refused and the agent falsely claimed the price was absent. Do not count an irrelevant cited refusal as a supported price answer.
+`npx -y -p node@24 node scripts/render-readme-graphics.mjs agents` renders only the two agents PNGs at 1280×680. Legacy graphics and roadmap stay intact. The canonical JSON/TXT and all three attempts are copied byte-for-byte from dsh-cited into `docs/evidence/agents/`; the outcome summary is 2/3. English was refused and the agent falsely claimed the price was absent. Do not count an irrelevant cited refusal as a supported price answer.
 
-The graphic quotes only the first paragraph of the complete Spanish final answer, explicitly labeled as an answer excerpt. The question is complete. Passage 1 is returned by cited_ask in that same run, with document, section and position. The run also called cited_search; downloads preserve all calls and the complete final answer. Markdown is escaped before rendering emphasis/code and citation chips. The shared evidence validator rejects duplicate, orphaned, truncated and out-of-order events.
+The graphic quotes only the first paragraph of the complete Spanish final answer, explicitly labeled as an answer excerpt. The question is complete. The TOOL RESULT excerpt is derived from cited_ask in that same run, with Sources, its citation chip, document, section and position. The lime price highlight stays inside that result; no separate source panel or Markdown note is drawn. The legend has at least 36px of bottom clearance, checked by Playwright. The run also called cited_search; downloads preserve all calls and the complete final answer. Markdown is escaped before rendering emphasis/code and citation chips. The shared evidence validator rejects duplicate, orphaned, truncated and out-of-order events.
 
 Harness used deepseek-official/deepseek-v4-flash; Cited used deepseek/deepseek-v4-flash from the actual isolated server startup configuration. The plugin was installed from its local built checkout, with matching installed/source SHA-256. Historical GitHub installation is separately documented by the plugin. This repository changes no Cited runtime.
 

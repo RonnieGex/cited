@@ -1,8 +1,5 @@
-# agent-evidence-r3 Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change agent-evidence-r3. Update Purpose after archive.
-## Requirements
 ### Requirement: Canonical evidence and retrieval limitations
 The bilingual READMEs and agents graphic SHALL use the same verified round-three evidence as the plugin, disclose all three natural-question outcomes and link exact model attribution in compatibility evidence.
 
@@ -30,21 +27,9 @@ The bilingual READMEs and agents graphic SHALL use the same verified round-three
 - **WHEN** new evidence lacks a verified complete answer-and-passage record
 - **THEN** canonical attempt-2 remains unchanged and no presentation edit fabricates provenance.
 
-### Requirement: Distinct verification levels
-The agents graphic SHALL reuse roadmap SVG marks and distinguish called-and-answered, connected-and-listed and documented-only clients in text and legend.
-
-#### Scenario: Connected client
-- **WHEN** Claude Code or Codex appears in the graphic
-- **THEN** its outlined SVG and label claim connection and tool listing only, without implying an answer test.
-
-#### Scenario: DeepSeek routes
-- **WHEN** the compatibility table renders
-- **THEN** MCP configuration and native plugin have separate rows and separate concrete evidence links, with installation below the table.
-
 ### Requirement: Transparent Markdown presentation
 The graphic SHALL render answer Markdown safely in Outfit and the README SHALL explain in a complete sentence that the linked transcript retains raw output.
 
 #### Scenario: Styled quotation
 - **WHEN** the exact answer contains Markdown emphasis or code
 - **THEN** the graphic renders those styles without treating raw model HTML as markup, the README explains the transformation, and no unlinked transcript note appears inside the graphic.
-

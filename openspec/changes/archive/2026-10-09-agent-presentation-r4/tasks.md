@@ -1,0 +1,18 @@
+# Tasks
+
+Approved authority: Fable's tasks/encargo-codex-agentes-r4.md and the complete round-three art/UX critiques in the parent workspace. Independent contracts agent authors this specification; separate agents implement and review. Preserve canonical attempt-2, all raw exchanges and the two-of-three supported-price denominator. No fresh model calls, desktop Harness access, desktop profile changes, merge or deployment.
+Check tasks only with executed command and result in reports/2026-10-09-step-N-name.md.
+
+- [x] 0. Record baseline, Node 24 and archived predecessors. The standard feature/agent-presentation-r4 branch-creation step is superseded by explicit R4 reuse of docs/agents-readme and PR #18. Evidence: reports/2026-10-09-step-0-baseline.md.
+- [x] 1. TDD: add failing guards for source placement, no separate Passage 1, 1280x680 canvas, legend margin, labels and README order/closing provenance; save red output in reports/2026-10-09-step-1-tdd.md. Evidence: reports/2026-10-09-step-1-tdd.md.
+- [x] 2. Implement TOOL RESULT excerpt, in-result highlighting, labels and 36px minimum bottom margin; remove the in-image Markdown note. Evidence: reports/2026-10-09-step-2-implementation.md.
+- [x] 3. Reorder bilingual README sections and consolidate closing provenance with complete Markdown sentence and linked model attribution. Evidence: reports/2026-10-09-step-2-implementation.md.
+- [x] 4. Review and update existing README/renderer regressions; preserve verification marks, compatibility rows, source fidelity and unrelated assets. Evidence: reports/2026-10-09-step-2-implementation.md.
+- [x] 5. Run unit tests under Node 24 and compare public-sample database tables/counts/hashes before and after using the read-only helper in ../dsh-cited/scripts/lib/database-snapshot.mjs against .data/katalis.sqlite; retain actual state in reports/2026-10-09-step-5-validation.md. Evidence: reports/2026-10-09-step-5-validation.md.
+- [x] 6. Execute sanitized authenticated/unauthenticated MCP curl and concrete local/remote evidence HTTP checks; record statuses and existing merge dependency in reports/2026-10-09-step-6-curl.md. Evidence: reports/2026-10-09-step-6-curl.md.
+- [x] 7. Run node scripts/render-readme-graphics.mjs agents, inspect both themed images, and run Playwright/E2E checks for exact canvas, >=36px footer clearance, local fonts and no overflow; retain existing frontend E2E/CI results in reports/2026-10-09-step-7-browser.md. Evidence: reports/2026-10-09-step-7-browser.md.
+- [x] 8. Update docs/readme-assets.md and docs/development-guide.md with reproduction, selection rules and merge order. Evidence: reports/2026-10-09-step-8-documentation.md.
+- [x] 9. /verify: strict OpenSpec validation and requirement/evidence reconciliation in reports/2026-10-09-step-9-verify.md. Evidence: reports/2026-10-09-step-9-verify.md.
+- [x] 10. /adversarial-review: independent reviewer records evidence, Blocker/Major/Minor and PASS/PASS WITH GAPS/FAIL in reports/2026-10-09-step-10-adversarial-review.md; independently review corrections. Executed independent review: PASS, zero open Blocker/Major/Minor; reports/2026-10-09-step-10-adversarial-review.md.
+- [x] 11. /archive: resolve Blockers and Majors, sync specification deltas and archive all reports. Executed `openspec archive agent-presentation-r4 --yes` -> exit 0, deltas synced and reports archived.
+- [ ] 12. /commit: automated tests, CI and gitleaks before commit; push existing PR #18, require green checks and retain its PR #1 merge dependency. No merge/deployment. Add SHA, defect mapping and classified Issues to the Spanish shared R4 delivery.

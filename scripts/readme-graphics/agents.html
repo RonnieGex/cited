@@ -1,5 +1,5 @@
 <style>
-  .agents { padding: 28px 52px 24px; gap: 14px; }
+  .agents { padding: 28px 52px 36px; gap: 14px; }
   .agents .eyebrow { letter-spacing: 0.16em; }
   .agents-head { display: flex; justify-content: space-between; align-items: center; }
   .agents-protocol { font-size: 18px; }
@@ -11,12 +11,11 @@
   .agents-answer { margin: 12px 0 12px; font-size: 27px; line-height: 1.3; font-weight: 500; }
   .agents-answer .source-line { display: block; margin-top: 12px; font-size: 18px; }
   .agents-citation { background: #DDF469; color: #171717; display: inline-grid; place-items: center; width: 1.15em; height: 1.15em; font-weight: 700; }
-  .agents-source { font-size: 18px; line-height: 1.4; border: 1px solid var(--hairline); padding: 12px 14px; }
+  .agents-tool-result { border-top: 1px solid var(--hairline); padding-top: 10px; }
+  .agents-tool-result pre { font: 16px/1.35 Outfit, sans-serif; white-space: pre-wrap; margin: 6px 0 0; }
   .agents-highlight { background: #DDF469; color: #171717; padding: 0 3px; }
-  .agents-source small { font-size: 16px; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.14em; }
   .agents-answer strong { font-weight: 600; }
   .agents-answer code { font: inherit; font-weight: 600; }
-  .agents-markdown { font-size: 16px; }
   .agents-status { display: inline-grid; place-items: center; width: 24px; height: 24px; font-size: 19px; font-weight: 700; flex-shrink: 0; }
   .agents-status.called circle { fill: #DDF469; }
   .agents-status.called .check-stroke { stroke: #171717; }
@@ -40,11 +39,11 @@
   <div class="agents-body">
     <div class="agents-proof">
       <div class="agents-client"><svg class="agents-status called" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10"/><path class="check-stroke" d="M6 11.5l3.6 3.6L16.2 8"/></svg>DeepSeek Harness</div>
-      <div class="agents-result">Selected cited_ask.<br>Answered with a source citation.</div>
-      <div class="agents-result" lang="es" style="margin-top:14px">¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?</div>
-      <div class="eyebrow" style="font-size:16px;margin-top:12px">Answer excerpt · original Spanish</div>
+      <div class="eyebrow" style="font-size:16px;margin-top:12px">Question · original Spanish</div>
+      <div class="agents-result" lang="es" style="margin-top:6px">¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?</div>
+      <div class="eyebrow" style="font-size:16px;margin-top:12px">Answer excerpt</div>
       <div class="agents-answer" lang="es">{{AGENT_ANSWER}}</div>
-      <div class="agents-source"><small>Passage 1 · returned with this answer</small>cafe-la-horquilla.md · Precios · position 2<br><span class="agents-citation">1</span> <span class="agents-highlight" lang="es">Afinación de bicicleta: 380 pesos.</span></div>
+      <div class="agents-tool-result"><div class="eyebrow" style="font-size:16px">Tool result · cited_ask excerpt</div><pre lang="es">{{AGENT_RESULT}}</pre></div>
     </div>
     <div class="agents-clients">
       <div class="agents-client-row">
@@ -61,6 +60,5 @@
       </div>
     </div>
   </div>
-  <p class="agents-markdown">Markdown rendered; the transcript link has the raw output.</p>
   <div class="agents-footer"><span><svg class="agents-status called" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10"/><path class="check-stroke" d="M6 11.5l3.6 3.6L16.2 8"/></svg>Called and answered</span><span><svg class="agents-status listed" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="10"/><path class="check-stroke" d="M6 11.5l3.6 3.6L16.2 8"/></svg>Connected, tools listed</span><span><span class="agents-status documented"></span>Documented, not tested</span></div>
 </div>

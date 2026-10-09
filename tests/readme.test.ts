@@ -1174,11 +1174,14 @@ describe("README, its graphics", () => {
     const template = readText("scripts/readme-graphics/agents.html");
     const evidence = "openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md";
 
-    expect(template).toContain("Selected cited_ask.");
-    expect(template).toContain("Answered with a source citation.");
+    expect(template).toContain("Tool result · cited_ask excerpt");
+    expect(template).toContain("Question · original Spanish");
+    expect(template).not.toContain("Passage 1");
+    expect(template).not.toContain("Markdown rendered");
+    expect(template).toContain("{{AGENT_RESULT}}");
     expect(template.match(/class="agents-result">Connected, tools listed/g)).toHaveLength(2);
     expect(template).toContain("Documented");
-    expect(template).toContain("Afinación de bicicleta: 380 pesos.");
+    expect(readText("scripts/render-readme-graphics.mjs")).toContain("Afinación de bicicleta: 380 pesos.");
     expect(template).toContain("{{AGENT_ANSWER}}");
     expect(template).toContain("2026-10-09");
     expect(readText(evidence)).toContain("tools/call cited_search");
@@ -1192,6 +1195,9 @@ describe("README, its graphics", () => {
       expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md");
       expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt");
       expect(section).toContain("Markdown");
+      expect(section.trimStart()).toMatch(/^Cited /);
+      expect(section).not.toContain("deepseek-v4-flash");
+      expect(section).not.toContain("Markdown rendered;");
     }
   });
 

@@ -1013,6 +1013,18 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
   }
 
   const audit_ = await audit(page, graphic, theme);
+  if (graphic.name === "agents") {
+    const proof = await page.evaluate(() => ({
+      footerClearance: 680 - document.querySelector('.agents-footer').getBoundingClientRect().bottom,
+      result: document.querySelector('.agents-tool-result pre').textContent,
+      highlights: document.querySelectorAll('.agents-tool-result .agents-highlight').length,
+      chips: document.querySelectorAll('.agents-tool-result .source-chip').length,
+    }));
+    const call = agentRecord.events.find((event) => event.type === 'tool_call' && event.tool === 'cited_ask');
+    const result = agentRecord.events.find((event) => event.type === 'tool_result' && event.callId === call.callId).result;
+    if (proof.footerClearance < 36 || proof.result !== `Sources:\n${result.split('\n\nSources:\n')[1]}` || proof.highlights !== 1 || proof.chips !== 1) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
+    audit_.agentProof = proof;
+  }
 
   if (graphic.name === social.name) {
     flame.rendered = await auditFlame(page, graphic, theme);
@@ -1148,11 +1160,16 @@ if (agentRecord.exitCode !== 0 || agentRecord.transcript !== transcriptOf(agentR
 const agentAnswer = escapeHtml(agentRecord.events.findLast((event) => event.type === "final").text.split("\n\n")[0])
   .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*([^*]+)\*/g, '<em>$1</em>')
   .replace(/\[1\]/g, '<span class="agents-citation">1</span>').replace(/\n\n(.+)$/, '<span class="source-line">$1</span>');
+const agentCall = agentRecord.events.find((event) => event.type === "tool_call" && event.tool === "cited_ask");
+const agentResult = escapeHtml(agentRecord.events.find((event) => event.type === "tool_result" && event.callId === agentCall.callId).result.split("\n\nSources:\n")[1])
+  .replace(/^1\./, '<span class="agents-citation source-chip">1</span>.')
+  .replace('Afinación de bicicleta: 380 pesos.', '<span class="agents-highlight">Afinación de bicicleta: 380 pesos.</span>');
 const contents = new Map(
   [...graphics, social].map((graphic) => [
     graphic.name,
     fill(templatesOf.get(graphic.name), {
       AGENT_ANSWER: agentAnswer,
+      AGENT_RESULT: `Sources:\n${agentResult}`,
       INGEST_COMMAND: escapeHtml(ingestCommand),
       INGEST_OUTPUT: escapeLines(drawn.ingest.drawn),
       SEARCH_COMMAND: escapeHtml(searchCommand),
