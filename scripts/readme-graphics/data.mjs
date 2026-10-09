@@ -70,7 +70,7 @@ export const statusRows = [
     reference: "openspec/specs/voice-agent/spec.md",
   },
   {
-    capability: "MCP server",
+    capability: "Search and cited answers from your own agent, over MCP with a token",
     state: "Available",
     reference: "openspec/specs/mcp-server/spec.md",
   },

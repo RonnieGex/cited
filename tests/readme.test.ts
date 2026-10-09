@@ -1161,10 +1161,12 @@ describe("README, its graphics", () => {
     const template = readText("scripts/readme-graphics/agents.html");
     const evidence = "openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md";
 
-    expect(template).toContain("Called cited_search.");
+    expect(template).toContain("Selected cited_ask.");
     expect(template).toContain("Answered with a source citation.");
-    expect(template.match(/Tool call not verified\./g)).toHaveLength(2);
-    expect(template).toContain("Configuration documented. Not tested.");
+    expect(template.match(/class="agents-result">Connected, tools listed/g)).toHaveLength(2);
+    expect(template).toContain("Documented");
+    expect(template).toContain("Afinación de bicicleta: 380 pesos.");
+    expect(template).toContain("{{AGENT_ANSWER}}");
     expect(template).toContain("2026-10-09");
     expect(readText(evidence)).toContain("tools/call cited_search");
 
@@ -1174,6 +1176,7 @@ describe("README, its graphics", () => {
       expect(section).toContain(evidence);
       expect(section).toContain(graphics.agents.dark);
       expect(section).toContain(graphics.agents.light);
+      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence");
     }
   });
 

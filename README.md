@@ -49,7 +49,7 @@ Every row is either available today or planned, and each planned row names the c
 | The guided setup: from zero to a published answer in four steps | Available | [owner-setup](openspec/specs/owner-setup/spec.md) |
 | Public chat of the business, with the widget any site can embed | Available | [public-chat](openspec/specs/public-chat/spec.md) |
 | Voice agent with ElevenLabs, created in one click | Available | [voice-agent](openspec/specs/voice-agent/spec.md) |
-| MCP server | Available | [mcp-server](openspec/specs/mcp-server/spec.md) |
+| Search and cited answers from your own agent, over MCP with a token | Available | [mcp-server](openspec/specs/mcp-server/spec.md) |
 | Shared design system | Planned | `design-system-shared` |
 | Security hardening and abuse tests | Planned | `security-hardening` |
 | Deployed in one click, with a Docker image and bilingual docs | Planned | `docs-deploy-and-launch` |
@@ -134,12 +134,11 @@ build of the test SDK, which is the build the browser suite drives:
 
 ## Works with your agent
 
-**Your documents. Your agent.**
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested" width="1280"></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="DeepSeek Harness searched and answered with a citation; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested" width="1280"></picture>
+The graphic quotes the [natural plugin run](https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence) in its original Spanish; its highlighted passage comes from the separate recorded search.
 
 The graphic summarizes the [recorded client verification](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md).
-The 380-peso example comes from the sample corpus. Connection and tool discovery do not verify a tool call.
 
 Cited is also a server of the Model Context Protocol, so the agent you already use can search the documents of the
 business and answer from them, with the same honest refusal when they do not hold the answer.
@@ -154,7 +153,7 @@ public chat and answers with numbered citations, or with the refusal.
 
 | Agent | Verified on 2026-10-09 against a local Cited |
 |---|---|
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | called `cited_search` and answered with a citation in a headless MCP run with the DeepSeek model. For setup, paste `https://github.com/RonnieGex/dsh-cited` in **Plugins → Add plugin**, or use the MCP configuration in `docs/mcp.md` |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | called `cited_search` and answered with a citation through the [MCP configuration](docs/mcp.md), verified in [step-10-4](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). The [native plugin](https://github.com/RonnieGex/dsh-cited) independently selected `cited_ask` for a natural question and answered with a citation; [plugin evidence](https://github.com/RonnieGex/dsh-cited/tree/main/docs/evidence). Install with `dsh plugin add github:RonnieGex/dsh-cited`. |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | it connected and listed the tools |
 | [Codex](https://github.com/openai/codex) | it connected and listed the tools |
 | Cursor and any other client of Streamable HTTP | configuration documented, not tested yet |

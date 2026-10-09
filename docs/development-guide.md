@@ -155,3 +155,9 @@ by its content and skips a binary file, and the scan behaves the same on Linux, 
 6. Verify the running application with `curl.exe`.
 7. Leave the evidence in `openspec/changes/<change>/reports/YYYY-MM-DD-step-N-<name>.md`.
 8. Update `docs/` and the `README.md` when what the project is changes.
+
+## Agent evidence, round two
+
+`node scripts/render-readme-graphics.mjs agents roadmap` renders only the agent proof and the status roadmap. The agent answer is derived from the complete natural plugin run in `docs/evidence/agents/headless-answer.json`; its supportingEvidence file contains the separate natural search that returned the highlighted price. These are unchanged copies of the public dsh-cited sample records. The small transcript validator was ported from that public plugin and reviewed here; there is no runtime dependency on another checkout. Both records are checked against their events before rendering.
+
+The glyphs distinguish a called tool and cited answer from connection/tool discovery and documented-only setup. The MCP configuration report remains a separate provenance path. Fable must merge dsh-cited PR #1 before Cited PR #18 so the main-branch evidence links resolve. Legacy rounded/glowing graphics remain outside this correction. All display wording is evidence-derived; only Markdown formatting and citation chips are typeset.

@@ -1,0 +1,27 @@
+{
+  "exitCode": 0,
+  "method": "tools/call cited_search",
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Cited found 1 passage(s) for \"afinación de bicicleta\". Cite each one by its number, like [1].\n\n1. cafe-la-horquilla.md · Precios\nPrecios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos."
+        }
+      ],
+      "structuredContent": {
+        "passages": [
+          {
+            "n": 1,
+            "document": "cafe-la-horquilla.md",
+            "heading": "Precios",
+            "position": 2,
+            "excerpt": "Precios\n- Espresso: 35 pesos.\n- Café de olla: 45 pesos.\n- Pan dulce del día: 30 pesos.\n- Afinación de bicicleta: 380 pesos.\n- Cambio de cámara: 120 pesos."
+          }
+        ]
+      }
+    }
+  }
+}

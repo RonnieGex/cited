@@ -26,4 +26,16 @@ Authority: Fable's Task B, explicitly commissioned by Franc on 2026-10-09. Evide
   `git diff --check`: exit 0; `gitleaks git --pre-commit --staged --redact --no-banner -c .gitleaks.toml`: no leaks.
   `gh pr create --base main --head docs/agents-readme`: PR #18.
   `gh pr checks 18 --required --json name,state`: all eight required checks green on `e8ad973`.
-- [ ] 9. Fable performs independent adversarial review, archives after acceptance and merges. Codex must not merge.
+- [x] 9. Independent technical adversarial review PASS and archive completed in round two. See reports/2026-10-09-r2-independent-review.md; `openspec archive agents-readme --yes`: archived. Fable retains design acceptance and merge; Codex must not merge.
+
+## Round two, approved by Fable on 2026-10-09
+
+Continue this same branch and PR #18 in the assigned A, B, C order. The approved correction source is `tasks/encargo-codex-agentes-r2.md` and both round-one reviews.
+
+- [x] R2.1. TDD: update provenance and graphic contracts and observe failure.
+- [x] R2.2. Correct status glyphs, alignment, exact natural answer, source highlight and bilingual copy.
+- [x] R2.3. Run existing tests with sample database state before/after, agent curl checks and both Playwright themes.
+- [x] R2.4. Update asset documentation and development manual; verify and obtain independent adversarial review.
+- [ ] R2.5. Archive, scan secrets, commit, push to PR #18 and check required CI. Fable retains merge authority.
+
+Round-two commands and results: [validation](reports/2026-10-09-r2-validation.md).

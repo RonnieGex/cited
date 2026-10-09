@@ -1,0 +1,19 @@
+store: <repository>\.data\agents-readme.sqlite
+exists: true
+bytes: 139264
+tables: 15 (plus the 5 of the full-text index)
+  documents rows=4
+  passages rows=11
+  passages_fts rows=11
+  rate_limits rows=0
+  model_calls rows=0
+  voice_minutes rows=0
+  voice_agent rows=0
+  conversations rows=0
+  login_attempts rows=0
+  business rows=0
+  provider_settings rows=0 (added by this change)
+  provider_tests rows=0 (added by this change)
+  document_index rows=4 (added by this change)
+  setup_flags rows=0
+rows of the tables this change added: 4

@@ -196,3 +196,9 @@ keep their gradients. The PNG of a graphic is also measured against the luminanc
 for the social preview, 0.80 or more for every light variant except `demo-light.png`, whose dark terminal is measured
 inside its own area), and the roadmap is 1280 px wide and 720 px high at most, which the render enforces, so a graphic
 that forgets to paint its theme or a roadmap that grows past the limit fails the test even if it is small.
+
+## Agent evidence, round two
+
+`node scripts/render-readme-graphics.mjs agents roadmap` renders only the agent proof and the status roadmap. The agent answer is derived from the complete natural plugin run in `docs/evidence/agents/headless-answer.json`; its supportingEvidence file contains the separate natural search that returned the highlighted price. These are unchanged copies of the public dsh-cited sample records. The small transcript validator was ported from that public plugin and reviewed here; there is no runtime dependency on another checkout. Both records are checked against their events before rendering.
+
+The glyphs distinguish a called tool and cited answer from connection/tool discovery and documented-only setup. The MCP configuration report remains a separate provenance path. Fable must merge dsh-cited PR #1 before Cited PR #18 so the main-branch evidence links resolve. Legacy rounded/glowing graphics remain outside this correction. All display wording is evidence-derived; only Markdown formatting and citation chips are typeset.

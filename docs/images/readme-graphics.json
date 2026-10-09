@@ -57,7 +57,7 @@
       "reference": "openspec/specs/voice-agent/spec.md"
     },
     {
-      "capability": "MCP server",
+      "capability": "Search and cited answers from your own agent, over MCP with a token",
       "state": "Available",
       "reference": "openspec/specs/mcp-server/spec.md"
     },
@@ -84,11 +84,11 @@
       "light": "docs/images/agents-light.png",
       "width": 1280,
       "height": 640,
-      "headline": "Your documents. Your agent.",
-      "copy": "Verified locally on 2026-10-09. Each result has its own scope.",
+      "headline": "Four clients, checked on 2026-10-09",
+      "copy": "Called and answered; connected and listed; documented only.",
       "shows": "Available",
       "label": null,
-      "alt": "DeepSeek Harness searched and answered with a citation; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
+      "alt": "Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
       "palette": {
         "ink": "#171717",
         "paper": "#FAFAF9",

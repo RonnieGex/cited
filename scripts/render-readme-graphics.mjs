@@ -1,3 +1,4 @@
+import { transcriptOf } from './readme-graphics/agent-evidence.mjs';
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
@@ -1141,10 +1142,17 @@ const searchLines = drawn.search.drawn.split("\n");
 const hit = searchLines.findIndex((line) => /^\d+\. /.test(line));
 const before = hit === -1 ? searchLines : searchLines.slice(0, hit);
 const after = hit === -1 ? [] : searchLines.slice(hit + 1);
+const agentRecord = JSON.parse(readFileSync(absolute("docs/evidence/agents/headless-answer.json"), "utf8"));
+const agentSource = JSON.parse(readFileSync(absolute(`docs/evidence/agents/${agentRecord.supportingEvidence}`), "utf8"));
+if (agentRecord.exitCode !== 0 || agentRecord.transcript !== transcriptOf(agentRecord.events, agentRecord.prompt) || agentSource.exitCode !== 0 || agentSource.transcript !== transcriptOf(agentSource.events, agentSource.prompt) || !agentSource.events.some((event) => event.type === "tool_result" && event.status === "completed" && event.result?.includes("Afinación de bicicleta: 380 pesos.") && agentSource.events.some((call) => call.type === "tool_call" && call.tool === "cited_search" && call.callId === event.callId))) throw new Error("Agent evidence mismatch");
+const agentAnswer = escapeHtml(agentRecord.events.findLast((event) => event.type === "final").text)
+  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '$1').replace(/\*([^*]+)\*/g, '$1')
+  .replace(/\[1\]/g, '<span class="agents-citation">1</span>').replace(/\n\n(.+)$/, '<span class="source-line">$1</span>');
 const contents = new Map(
   [...graphics, social].map((graphic) => [
     graphic.name,
     fill(templatesOf.get(graphic.name), {
+      AGENT_ANSWER: agentAnswer,
       INGEST_COMMAND: escapeHtml(ingestCommand),
       INGEST_OUTPUT: escapeLines(drawn.ingest.drawn),
       SEARCH_COMMAND: escapeHtml(searchCommand),

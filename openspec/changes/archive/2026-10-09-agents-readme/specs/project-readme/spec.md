@@ -18,3 +18,10 @@ The graphic SHALL distinguish verified search and citation from connection and t
 - **AND** its accessible text and adjacent table describe DeepSeek Harness search with a cited answer,
   Claude Code and Codex connection with tool discovery, and Cursor configuration without testing
 - **AND** the existing renderer and manifest reproduce both graphics with local Outfit and the assigned brand colors
+
+#### Scenario: Round-two correction approved by Fable
+- **WHEN** the agent graphic and section are rendered
+- **THEN** status glyphs distinguish called-and-answered, connected-and-listed, and documented-only clients
+- **AND** the exact natural plugin answer and highlighted supporting passage match saved evidence
+- **AND** both README tables distinguish the MCP configuration verified by step-10-4 from the native plugin evidence linked on main
+- **AND** redundant headings and caveats are removed, while legacy rounded/glowing graphics remain unchanged; the roadmap follows the corrected MCP capability row
