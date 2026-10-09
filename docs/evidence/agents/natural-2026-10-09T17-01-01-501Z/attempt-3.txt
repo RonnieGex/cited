@@ -1,0 +1,50 @@
+Question
+¿Qué precio tiene afinar una bicicleta en Café La Horquilla?
+
+Tool call
+cited_ask {"question":"¿Qué precio tiene afinar una bicicleta en Café La Horquilla?"}
+
+Tool result
+La afinación de bicicleta cuesta 380 pesos [1].
+
+Sources:
+1. cafe-la-horquilla.md · Precios (position 2)
+Precios
+- Espresso: 35 pesos.
+- Café de olla: 45 pesos.
+- Pan dulce del día: 30 pesos.
+- Afinación de bicicleta: 380 pesos.
+- Cambio de cámara: 120 pesos.
+
+Tool call
+cited_search {"query":"afinar bicicleta precio"}
+
+Passages
+Cited found 2 passage(s) for "afinar bicicleta precio". Cite each one by its number, like [1].
+
+1. cafe-la-horquilla.md · Precios
+Precios
+- Espresso: 35 pesos.
+- Café de olla: 45 pesos.
+- Pan dulce del día: 30 pesos.
+- Afinación de bicicleta: 380 pesos.
+- Cambio de cámara: 120 pesos.
+2. notas-del-negocio.txt
+Café La Horquilla — notas del negocio Dirección: avenida central, frente al parque. Sin estacionamiento propio, pero hay uno público a media cuadra. Formas de pago: efectivo, tarjeta de débito y crédito. No aceptamos cheques ni transferencias para consumos menores a 200 pesos. Facturación: pedimos el RFC el mismo día de la compra. Las facturas del taller se emiten al terminar la reparación. Mascotas: bienvenidas en la terraza. Dentro del local solo si van en transportadora. Accesibilidad: la entrada tiene rampa y el baño es amplio. El taller está en planta baja. Contacto: mostrador, teléfono del local y correo del negocio. No damos precios por mensaje para trabajos que requieren revisar la bicicleta.
+
+Answer
+**380 pesos** por la afinación de bicicleta [1].
+
+En la lista de precios de Café La Horquilla aparece así:
+
+- Espresso: 35 pesos
+- Café de olla: 45 pesos
+- Pan dulce del día: 30 pesos
+- **Afinación de bicicleta: 380 pesos**
+- Cambio de cámara: 120 pesos
+
+[1] cafe-la-horquilla.md · Precios
+
+Un detalle útil: las notas del negocio aclaran que **no dan precios por mensaje para trabajos que requieren revisar la bicicleta**, así que la afinación estándar son 380 pesos, pero cualquier cosa que necesite diagnóstico previo se cotiza en el local [2].
+
+[2] notas-del-negocio.txt · Notas del negocio

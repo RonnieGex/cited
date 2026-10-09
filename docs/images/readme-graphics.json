@@ -57,6 +57,11 @@
       "reference": "openspec/specs/voice-agent/spec.md"
     },
     {
+      "capability": "Search and cited answers from your own agent, over MCP with a token",
+      "state": "Available",
+      "reference": "openspec/specs/mcp-server/spec.md"
+    },
+    {
       "capability": "Shared design system",
       "state": "Planned",
       "reference": "design-system-shared"
@@ -73,6 +78,24 @@
     }
   ],
   "graphics": [
+    {
+      "name": "agents",
+      "dark": "docs/images/agents-dark.png",
+      "light": "docs/images/agents-light.png",
+      "width": 1280,
+      "height": 680,
+      "headline": "Four clients, checked on 2026-10-09",
+      "copy": "Called and answered; connected and listed; documented only.",
+      "shows": "Available",
+      "label": null,
+      "alt": "Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
+      "palette": {
+        "ink": "#171717",
+        "paper": "#FAFAF9",
+        "lime": "#DDF469"
+      },
+      "flat": true
+    },
     {
       "name": "reason-sources",
       "dark": "docs/images/reason-sources-dark.png",
@@ -143,7 +166,13 @@
       "copy": null,
       "shows": "Planned",
       "label": "Next",
-      "alt": "The roadmap of Cited: what is available today and what each next change adds"
+      "alt": "The roadmap of Cited: what is available today and what each next change adds",
+      "palette": {
+        "ink": "#171717",
+        "paper": "#FAFAF9",
+        "lime": "#DDF469"
+      },
+      "flat": true
     },
     {
       "name": "voice-teaser",

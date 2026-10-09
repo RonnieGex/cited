@@ -2,6 +2,20 @@ const reason = { width: 400, height: 300 };
 
 export const graphics = [
   {
+    name: "agents",
+    flat: true,
+    template: "agents.html",
+    width: 1280,
+    height: 680,
+    dark: "docs/images/agents-dark.png",
+    light: "docs/images/agents-light.png",
+    headline: "Four clients, checked on 2026-10-09",
+    copy: "Called and answered; connected and listed; documented only.",
+    shows: "Available",
+    label: null,
+    alt: "Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested",
+  },
+  {
     name: "reason-sources",
     template: "reason-sources.html",
     ...reason,
@@ -65,6 +79,7 @@ export const graphics = [
   },
   {
     name: "roadmap",
+    flat: true,
     template: "roadmap.html",
     width: 1280,
     height: 720,

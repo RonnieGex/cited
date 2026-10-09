@@ -49,3 +49,7 @@ The fixed set is 3100 and 3210 to 3217. No spec opens a port outside it.
 `playwright.config.ts` says the same in the comment over the projects, and it is the file to edit when a suite needs a
 port: the set is fixed so that a run never collides with the services of a machine (PostgreSQL on 5432, the store of the
 CRM on 5433, Postiz on 5434, its Redis on 6380 and Temporal on 7233).
+
+## Agent README maintenance
+
+The agent graphics use saved public sample evidence, not a live model call during rendering. Run `node scripts/render-readme-graphics.mjs agents` under Node24, then `npm test` and the normal lint/type/E2E checks. See [readme-assets.md](readme-assets.md) for canonical selection, exact excerpts, model attribution and the PR1-before-PR18 merge order. Never substitute a cited refusal for a supported price answer in the published count.

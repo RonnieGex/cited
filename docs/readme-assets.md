@@ -35,12 +35,33 @@ returns today, and the answer with its numbered citations has been available sin
 
 ## 2. The graphics
 
-`scripts/render-readme-graphics.mjs` renders the seven graphics in **both themes** and the social preview, and writes
+`scripts/render-readme-graphics.mjs` renders the eight graphics in **both themes** and the social preview, and writes
 `docs/images/readme-graphics.json`.
 
 ```
 node scripts/render-readme-graphics.mjs
 ```
+
+To regenerate only the agent graphic and the status board:
+
+```
+npx -y -p node@24 node scripts/render-readme-graphics.mjs agents roadmap
+```
+
+A selective render updates only those PNGs and their entries in the record. It updates the roadmap rows when
+`roadmap` is selected. It runs ingestion, search and ask and updates the README quick-start blocks only when
+`demo` is selected, including a full render. Unknown graphic names fail before any output is written.
+
+The agent graphic is a summary of the
+[archived client verification](../openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md),
+not a terminal capture. DeepSeek Harness searched and answered with a citation in a headless MCP run. Claude Code
+and Codex connected and listed both tools; their tool calls were not verified. Cursor has documented configuration
+and was not tested. The 380-peso result comes from `samples/cafe-la-horquilla.md`. A fresh curl check tests the
+endpoint only and does not change these client labels.
+
+`agents.html` uses local Outfit, flat ink `#171717` and paper `#FAFAF9`, lime `#DDF469` on the citation, thin rules
+and square corners. The English graphic is shared by both READMEs; Spanish alt text and the adjacent table preserve
+the same information without requiring the image.
 
 What it does, in order:
 
@@ -65,6 +86,7 @@ five dark variants once came out painted white.
 
 | Graphic | Size | What it shows |
 |---|---|---|
+| `agents-{dark,light}.png` | 1280 × 680 | verified client results, distinguishing a cited answer, tool discovery and untested configuration |
 | `reason-sources-{dark,light}.png` | 400 × 300 | the first reason of `Why Cited`, with its benefit headline |
 | `reason-citations-{dark,light}.png` | 400 × 300 | the second reason |
 | `reason-voice-{dark,light}.png` | 400 × 300 | the third reason, with its benefit headline |
@@ -73,11 +95,10 @@ five dark variants once came out painted white.
 | `roadmap-{dark,light}.png` | 1280 × 720 | the status table as a board, `Next` on the planned column |
 | `voice-teaser-{dark,light}.png` | 1280 × 360 | the voice: the real Orb of the panel (`docs/images/voice/orb.png`, captured by `scripts/render-readme-orb.mjs`), one click in the panel and ElevenLabs carries the voice |
 
-The roadmap is the only graphic whose layout is a little denser than the page of the others (`.roadmap` of the render
-script): the change `elevenlabs-voice-agent` moved the voice row from the planned column to the available one, and
-every available row of the status table has to fit inside the 720 px of decision 11 without going below the 16 px of
-the smallest text.
 | `social-preview.png` | 1280 × 640 | the preview of the repository: the name, the tagline and `by Katalis` with the flame of the maker to its left |
+
+The roadmap uses thin rules and a wider available column to fit the added MCP server row within 720 px without
+reducing any text below 16 px. Its reference labels use Outfit, keeping monospace inside terminal blocks.
 
 One image of the README is not drawn by that script: the real capture of the public chat with an answer and its open
 citation, written by
@@ -164,14 +185,28 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 
 | | |
 |---|---|
-| Files in `docs/images/` | 18 PNG and 2 JSON |
-| Weight of the PNGs | 0.70 MB |
-| Weight of the images the README uses | about 0.70 MB |
+| Files directly in `docs/images/` | 20 PNG and 2 JSON |
+| Weight of those 20 PNGs | 830816 bytes |
+| Unique local PNGs referenced by `README.md` | 24 files, 1005719 bytes |
 | Budget | 3 MB |
 
-The banner is the heaviest single file at about 100 KB. When a graphic is added, keep it under the budget and prefer
+These counts were measured on 2026-10-09 after adding the agents graphic. When a graphic is added, keep it under the budget and prefer
 flat colors and text: the palette of 256 colors of `sharp` is what keeps the set small while the lime glow and the orb
 keep their gradients. The PNG of a graphic is also measured against the luminance bounds of decision 10 (0.30 or less for a dark variant and
 for the social preview, 0.80 or more for every light variant except `demo-light.png`, whose dark terminal is measured
 inside its own area), and the roadmap is 1280 px wide and 720 px high at most, which the render enforces, so a graphic
 that forgets to paint its theme or a roadmap that grows past the limit fails the test even if it is small.
+
+## Agent evidence, round four
+
+`npx -y -p node@24 node scripts/render-readme-graphics.mjs agents` renders only the two agents PNGs at 1280×680. Legacy graphics and roadmap stay intact. The canonical JSON/TXT and all three attempts are copied byte-for-byte from dsh-cited into `docs/evidence/agents/`; the outcome summary is 2/3. English was refused and the agent falsely claimed the price was absent. Do not count an irrelevant cited refusal as a supported price answer.
+
+The graphic quotes only the first paragraph of the complete Spanish final answer, explicitly labeled as an answer excerpt. The question is complete. The TOOL RESULT excerpt is derived from cited_ask in that same run, with Sources, its citation chip, document, section and position. The lime price highlight stays inside that result; no separate source panel or Markdown note is drawn. The legend has at least 36px of bottom clearance, checked by Playwright. The run also called cited_search; downloads preserve all calls and the complete final answer. Markdown is escaped before rendering emphasis/code and citation chips. The shared evidence validator rejects duplicate, orphaned, truncated and out-of-order events.
+
+Harness used deepseek-official/deepseek-v4-flash; Cited used deepseek/deepseek-v4-flash from the actual isolated server startup configuration. The plugin was installed from its local built checkout, with matching installed/source SHA-256. Historical GitHub installation is separately documented by the plugin. This repository changes no Cited runtime.
+
+The roadmap SVG distinguishes called-and-answered from outlined connected/tools-listed; a hollow circle means documented only. Both tables split native plugin and MCP configuration. Fable must merge dsh-cited PR #1 before Cited PR #18 so headless-answer.txt, natural-summary.json and compatibility.md links on main resolve.
+
+## Agent excerpt, round five
+
+Run `node scripts/render-readme-graphics.mjs agents` under Node 24.21.0. The tool-result excerpt now shows only its source line with chip 1 and the returned tune-up price at 20px, without the raw list period, Sources label, standalone heading or other prices. It is derived from the canonical result; the full transcript remains unchanged. Each proof eyebrow has a 22px top margin, proof padding is 22px, the extra tool-result hairline is removed, and every right row has 24px vertical padding. Browser assertions require two unwrapped lines, column content ends within 70px and 36px below the legend in both themes. Only the two agents PNGs change.

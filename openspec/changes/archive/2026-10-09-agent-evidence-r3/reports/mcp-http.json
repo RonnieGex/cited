@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-09T17:01:22.543Z",
+  "command": "node scripts/check-readme-http.mjs",
+  "transport": "curl --config - (authorization supplied over stdin)",
+  "results": [
+    {
+      "authorized": true,
+      "status": 200,
+      "tools": [
+        "cited_ask",
+        "cited_search"
+      ]
+    },
+    {
+      "authorized": false,
+      "status": 401,
+      "tools": []
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+docs/development-guide.md           |   2 ++
+ docs/images/agents-dark.png         | Bin 37071 -> 33445 bytes
+ docs/images/agents-light.png        | Bin 36459 -> 33034 bytes
+ docs/readme-assets.md               |   4 ++++
+ scripts/readme-graphics/agents.html |  15 +++++++--------
+ scripts/render-readme-graphics.mjs  |  20 ++++++++++++++++----
+ tests/readme.test.ts                |   6 ++++++
+ 7 files changed, 35 insertions(+), 12 deletions(-)

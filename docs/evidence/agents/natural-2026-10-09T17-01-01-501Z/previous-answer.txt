@@ -1,0 +1,16 @@
+Question
+¿Qué precio tiene afinar una bicicleta en Café La Horquilla?
+
+Tool call
+cited_ask {"question":"¿Qué precio tiene afinar una bicicleta en Café La Horquilla?"}
+
+Tool result
+La afinación de bicicleta cuesta 380 pesos [1].
+
+Sources:
+1. cafe-la-horquilla.md · Precios (position 2)
+
+Answer
+Según los documentos, **afinar una bicicleta en Café La Horquilla cuesta 380 pesos** [1].
+
+Fuente: `cafe-la-horquilla.md`, sección *Precios* [1].

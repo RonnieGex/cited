@@ -1,0 +1,238 @@
+{
+  "capturedAt": "2026-10-09T16:18:37.933Z",
+  "platform": "win32",
+  "node": "v24.21.0",
+  "harnessVersion": "0.1.6-alpha.2",
+  "pluginVersion": "0.1.0",
+  "profile": "headless",
+  "provider": "deepseek-official",
+  "model": "deepseek-v4-flash",
+  "exitCode": 0,
+  "promptKind": "natural",
+  "validationError": null,
+  "command": "npx -y -p node@24 node scripts/capture-readme-evidence.mjs",
+  "installCommand": "dsh plugin --profile headless add github:RonnieGex/dsh-cited",
+  "installOutput": "Progress: resolved 0, reused 1, downloaded 0, added 0\n WARN  Issues with peer dependencies found\n.\n└─┬ dsh-cited 0.1.0\n  ├── ✕ missing peer @deepseek-ai/cordis@^4.0.2\n  ├── ✕ missing peer @deepseek-ai/dsh-tools@\">=0.1.6-alpha.2 <0.3.0-0 || >=0.2.0-rc.0 <0.3.0-0\"\n  └── ✕ missing peer @deepseek-ai/schemastery@^3.18.2\nPeer dependencies that should be installed:\n  @deepseek-ai/cordis@^4.0.2\n  @deepseek-ai/dsh-tools@\">=0.1.6-alpha.2 <0.3.0-0 || >=0.2.0-rc.0 <0.3.0-0\"\n  @deepseek-ai/schemastery@^3.18.2\n\ndependencies:\n+ dsh-cited github:RonnieGex/dsh-cited\n\nPackages: +1\n+\nProgress: resolved 1, reused 1, downloaded 0, added 1, done\nDone in 2s using pnpm v10.18.3\n",
+  "data": "Public Cited samples, keyword search; no embedding provider",
+  "prompt": "¿Qué precio tiene afinar una bicicleta en Café La Horquilla?",
+  "events": [
+    {
+      "type": "tool_call",
+      "callId": "call_00_6qgdt85xfJto2hpkxVR62881",
+      "tool": "cited_ask",
+      "input": {
+        "question": "¿Qué precio tiene afinar una bicicleta en Café La Horquilla?"
+      }
+    },
+    {
+      "type": "tool_result",
+      "callId": "call_00_6qgdt85xfJto2hpkxVR62881",
+      "status": "completed",
+      "result": "La afinación de bicicleta cuesta 380 pesos [1].\n\nSources:\n1. cafe-la-horquilla.md · Precios (position 2)"
+    },
+    {
+      "type": "final",
+      "text": "Según los documentos, **afinar una bicicleta en Café La Horquilla cuesta 380 pesos** [1].\n\nFuente: `cafe-la-horquilla.md`, sección *Precios* [1]."
+    }
+  ],
+  "transcript": "Question\n¿Qué precio tiene afinar una bicicleta en Café La Horquilla?\n\nTool call\ncited_ask {\"question\":\"¿Qué precio tiene afinar una bicicleta en Café La Horquilla?\"}\n\nTool result\nLa afinación de bicicleta cuesta 380 pesos [1].\n\nSources:\n1. cafe-la-horquilla.md · Precios (position 2)\n\nAnswer\nSegún los documentos, **afinar una bicicleta en Café La Horquilla cuesta 380 pesos** [1].\n\nFuente: `cafe-la-horquilla.md`, sección *Precios* [1].",
+  "database": {
+    "before": [
+      {
+        "table": "business",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "conversations",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "document_index",
+        "rows": 4,
+        "sha256": "1b821f8adee807c0f8d3d103c758162ec57a0e1aee9bf1fd105ed6429edab37c"
+      },
+      {
+        "table": "documents",
+        "rows": 4,
+        "sha256": "8d35cc350667bb5581cabcc0bce7c8d6ca5c6e9fd4f9c18c4327508f66e21e97"
+      },
+      {
+        "table": "login_attempts",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "model_calls",
+        "rows": 1,
+        "sha256": "f20fd22c9d73e6e14388b33d80bd229e351f98e291c9fa1e5c24e4a1719f9b61"
+      },
+      {
+        "table": "passages",
+        "rows": 11,
+        "sha256": "7de4a907ffd2982ea58a4be9bf164ba85169d1c47b76abe605ea5f64e29b3fc8"
+      },
+      {
+        "table": "passages_fts",
+        "rows": 11,
+        "sha256": "18f8f5e4793b37adf65b81b28705fd29a7a8183c9aa8dfaa344a3f05221973d4"
+      },
+      {
+        "table": "passages_fts_config",
+        "rows": 1,
+        "sha256": "4945fb8d99df85eeac6c4d75ea07951e558a62b92841c65d155ee9bd8c4bda92"
+      },
+      {
+        "table": "passages_fts_content",
+        "rows": 11,
+        "sha256": "5fd3ef6fe26e7b7aeedd93c78fffa00b8a70be0be7c6f357e08e18192ae20c81"
+      },
+      {
+        "table": "passages_fts_data",
+        "rows": 6,
+        "sha256": "a69f400c6a1fbf77653c2c801364ab5149343bb399412657121ac3e89638eae8"
+      },
+      {
+        "table": "passages_fts_docsize",
+        "rows": 11,
+        "sha256": "9a7d02395d4422ec00ac2d991073fa2f285bc9df096fec6ee5f5a0c2a70cc8b4"
+      },
+      {
+        "table": "passages_fts_idx",
+        "rows": 4,
+        "sha256": "5893d4d0fcfbe74ee18b9c073a341088cea4a827c5cded54d115b27463969504"
+      },
+      {
+        "table": "provider_settings",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "provider_tests",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "rate_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "setup_flags",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "voice_agent",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "voice_minutes",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "after": [
+      {
+        "table": "business",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "conversations",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "document_index",
+        "rows": 4,
+        "sha256": "1b821f8adee807c0f8d3d103c758162ec57a0e1aee9bf1fd105ed6429edab37c"
+      },
+      {
+        "table": "documents",
+        "rows": 4,
+        "sha256": "8d35cc350667bb5581cabcc0bce7c8d6ca5c6e9fd4f9c18c4327508f66e21e97"
+      },
+      {
+        "table": "login_attempts",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "model_calls",
+        "rows": 1,
+        "sha256": "9284ff9e68ed326f2f3d55f5b4aab3fb37e73295dfd0e32ed8a3482b28fdaea5"
+      },
+      {
+        "table": "passages",
+        "rows": 11,
+        "sha256": "7de4a907ffd2982ea58a4be9bf164ba85169d1c47b76abe605ea5f64e29b3fc8"
+      },
+      {
+        "table": "passages_fts",
+        "rows": 11,
+        "sha256": "18f8f5e4793b37adf65b81b28705fd29a7a8183c9aa8dfaa344a3f05221973d4"
+      },
+      {
+        "table": "passages_fts_config",
+        "rows": 1,
+        "sha256": "4945fb8d99df85eeac6c4d75ea07951e558a62b92841c65d155ee9bd8c4bda92"
+      },
+      {
+        "table": "passages_fts_content",
+        "rows": 11,
+        "sha256": "5fd3ef6fe26e7b7aeedd93c78fffa00b8a70be0be7c6f357e08e18192ae20c81"
+      },
+      {
+        "table": "passages_fts_data",
+        "rows": 6,
+        "sha256": "a69f400c6a1fbf77653c2c801364ab5149343bb399412657121ac3e89638eae8"
+      },
+      {
+        "table": "passages_fts_docsize",
+        "rows": 11,
+        "sha256": "9a7d02395d4422ec00ac2d991073fa2f285bc9df096fec6ee5f5a0c2a70cc8b4"
+      },
+      {
+        "table": "passages_fts_idx",
+        "rows": 4,
+        "sha256": "5893d4d0fcfbe74ee18b9c073a341088cea4a827c5cded54d115b27463969504"
+      },
+      {
+        "table": "provider_settings",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "provider_tests",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "rate_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "setup_flags",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "voice_agent",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "voice_minutes",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "unchanged": false
+  },
+  "supportingEvidence": "natural-2026-10-09T16-18-26-546Z/attempt-2.json",
+  "language": "es"
+}

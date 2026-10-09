@@ -1,0 +1,42 @@
+
+> cited@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.2 <workspace>/community-readme
+
+node.exe : (node:45432) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS
+connections and HTTPS requests insecure by disabling certificate verification.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:45432) Wa...e verification.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28148) Warning: AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28148) Warning: AI SDK Warning (deepseek.chat / deepseek-flash): The feature "temperature" is not supported.
+temperature has no effect when DeepSeek thinking is enabled. Set providerOptions.deepseek.thinking.type to 'disabled'
+to use temperature.
+Not implemented: navigation to another Document
+file:///<workspace>/community-readme/scripts/sync-agents.mjs:66
+      throw new Error(`${copy} falls outside ${root}`);
+            ^
+
+Error: .claude/agents falls outside <user-home>\AppData\Local\Temp\katalis-agent-copies-bFclql
+    at sync (file:///<workspace>/community-readme/scripts/sync-agents.mjs:66:13)
+    at file:///<workspace>/community-readme/scripts/sync-agents.mjs:82:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.21.0
+
+ Test Files  96 passed (96)
+      Tests  1167 passed (1167)
+   Start at  14:55:06
+   Duration  99.32s (tests 71%, environment 15%, import 7%, setup 4%, transform 2%)
+
+    Isolate  96 workers spawned · ~1.61s startup each (spawn + environment, per file)
+             at least ~8.69s faster with isolate: false — reuses workers across files instead of one per file

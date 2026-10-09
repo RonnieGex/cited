@@ -56,6 +56,11 @@ const banner = {
   light: `${imagesDirectory}/readme-banner-light.png`,
 };
 const graphics = {
+  agents: {
+    dark: `${imagesDirectory}/agents-dark.png`,
+    light: `${imagesDirectory}/agents-light.png`,
+    planned: false,
+  },
   "reason-sources": {
     dark: `${imagesDirectory}/reason-sources-dark.png`,
     light: `${imagesDirectory}/reason-sources-light.png`,
@@ -119,6 +124,8 @@ const artDirection = {
   terminalMaximum: 0.3,
   maximumRoadmapHeight: 720,
   canvases: [
+    "agents-dark.png",
+    "agents-light.png",
     "readme-banner-dark.png",
     "readme-banner-light.png",
     "chat-page.png",
@@ -139,6 +146,7 @@ const artDirection = {
     "social-preview.png",
   ],
   darkCanvases: [
+    "agents-dark.png",
     "readme-banner-dark.png",
     "reason-sources-dark.png",
     "reason-citations-dark.png",
@@ -150,6 +158,7 @@ const artDirection = {
     "social-preview.png",
   ],
   lightCanvases: [
+    "agents-light.png",
     "readme-banner-light.png",
     "chat-page.png",
     "reason-sources-light.png",
@@ -667,6 +676,15 @@ describe("README, the promise and the maturity", () => {
 });
 
 describe("README, the status table", () => {
+  it("lists the available MCP server in both languages", () => {
+    for (const path of ["README.md", "README.es.md"]) {
+      const row = statusRows(readText(path)).find((entry) => entry.reference.includes("mcp-server/spec.md"));
+
+      expect(row, path).toBeDefined();
+      expect(row?.state, path).toBe("Available");
+    }
+  });
+
   it("marks every row Available or Planned, with the spec or the change that delivers it", () => {
     const rows = statusRows(readText("README.md"));
 
@@ -1139,6 +1157,56 @@ describe("README, its links and its images", () => {
 });
 
 describe("README, its graphics", () => {
+  it("uses the same own-source canonical run and counts supported answers", () => {
+    const record = JSON.parse(readText("docs/evidence/agents/headless-answer.json"));
+    const summary = JSON.parse(readText("docs/evidence/agents/natural-summary.json"));
+    const attempts = summary.attempts.map((attempt: { artifact: string }) => JSON.parse(readText(`docs/evidence/agents/${attempt.artifact}`)));
+    expect(attempts).toHaveLength(3);
+    expect(summary.answeredWithCitation).toBe(2);
+    expect(summary.attempts.map((attempt: { answeredWithCitation: boolean }) => attempt.answeredWithCitation)).toEqual([false, true, true]);
+    expect(record.events).toEqual(attempts[1].events);
+    expect(record.artifact).toBe(summary.canonical);
+    expect(record.supportingEvidence).toBeUndefined();
+    expect(record.events.find((event: { type: string; result?: string }) => event.type === "tool_result").result).toContain("1. cafe-la-horquilla.md · Precios (position 2)\n");
+    expect(record.events.find((event: { type: string; result?: string }) => event.type === "tool_result").result).toContain("Afinación de bicicleta: 380 pesos.");
+  });
+  it("preserves the scope and provenance of the verified agent results", () => {
+    const template = readText("scripts/readme-graphics/agents.html");
+    const evidence = "openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md";
+
+    expect(template).toContain("Tool result · cited_ask excerpt");
+    expect(template).toContain("Question · original Spanish");
+    expect(template).not.toContain("Passage 1");
+    expect(template).not.toContain("Markdown rendered");
+    expect(template).toContain("{{AGENT_RESULT}}");
+    expect(template).toContain("font: 20px/1.35 Outfit");
+    expect(template).toContain(".agents-proof .eyebrow { font-size: 16px; margin-top: 22px; }");
+    expect(template).not.toMatch(/\.agents-tool-result\s*\{[^}]*border-top/);
+    expect(template).toContain(".agents-client-row { padding: 24px 0;");
+    expect(template).not.toContain(".agents-client-row:first-child");
+    expect(readText("scripts/render-readme-graphics.mjs")).not.toMatch(/source-chip">1<\/span>\./);
+    expect(template.match(/class="agents-result">Connected, tools listed/g)).toHaveLength(2);
+    expect(template).toContain("Documented");
+    expect(readText("scripts/render-readme-graphics.mjs")).toContain("Afinación de bicicleta: 380 pesos.");
+    expect(template).toContain("{{AGENT_ANSWER}}");
+    expect(template).toContain("2026-10-09");
+    expect(readText(evidence)).toContain("tools/call cited_search");
+
+    for (const [file, heading] of [["README.md", "Works with your agent"], ["README.es.md", "Funciona con tu agente"]] as const) {
+      const section = bodyOf(readText(file), heading);
+
+      expect(section).toContain(evidence);
+      expect(section).toContain(graphics.agents.dark);
+      expect(section).toContain(graphics.agents.light);
+      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md");
+      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt");
+      expect(section).toContain("Markdown");
+      expect(section.trimStart()).toMatch(/^Cited /);
+      expect(section).not.toContain("deepseek-v4-flash");
+      expect(section).not.toContain("Markdown rendered;");
+    }
+  });
+
   const themedMappings: Array<[string, string]> = [
     [banner.dark, banner.light],
     ...Object.values(graphics).map(

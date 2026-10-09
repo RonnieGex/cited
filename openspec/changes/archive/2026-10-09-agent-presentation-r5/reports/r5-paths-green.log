@@ -1,0 +1,8 @@
+
+ RUN  v5.0.2 <workspace>/community-readme
+
+
+ Test Files  2 passed (2)
+      Tests  53 passed (53)
+   Start at  15:09:56
+   Duration  2.39s (environment 45%, tests 32%, import 11%, setup 7%, transform 4%, worker 1%)

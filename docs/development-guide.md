@@ -47,6 +47,11 @@ is missing. Without it, a commit with a secret is not scanned.
 
 Every one of these commands is blocking in the pipeline, except `dev`, `test:watch` and `hooks:install`.
 
+For README graphics, `npx -y -p node@24 node scripts/render-readme-graphics.mjs agents roadmap` regenerates the agent
+compatibility image and status board in both themes without running the quick-start demo. See
+[README assets](readme-assets.md) for provenance, image limits and the full render command. Run
+`npx -y -p node@24 node node_modules/vitest/vitest.mjs run tests/readme.test.ts` after changing these assets.
+
 Three more commands belong to the MCP server (`docs/mcp.md`):
 
 | Command | What it does |
@@ -150,3 +155,15 @@ by its content and skips a binary file, and the scan behaves the same on Linux, 
 6. Verify the running application with `curl.exe`.
 7. Leave the evidence in `openspec/changes/<change>/reports/YYYY-MM-DD-step-N-<name>.md`.
 8. Update `docs/` and the `README.md` when what the project is changes.
+
+## Agent evidence, round two
+
+`node scripts/render-readme-graphics.mjs agents roadmap` renders only the agent proof and the status roadmap. The agent answer is derived from the complete natural plugin run in `docs/evidence/agents/headless-answer.json`; its supportingEvidence file contains the separate natural search that returned the highlighted price. These are unchanged copies of the public dsh-cited sample records. The small transcript validator was ported from that public plugin and reviewed here; there is no runtime dependency on another checkout. Both records are checked against their events before rendering.
+
+The glyphs distinguish a called tool and cited answer from connection/tool discovery and documented-only setup. The MCP configuration report remains a separate provenance path. Fable must merge dsh-cited PR #1 before Cited PR #18 so the main-branch evidence links resolve. Legacy rounded/glowing graphics remain outside this correction. All display wording is evidence-derived; only Markdown formatting and citation chips are typeset.
+
+## Agent README presentation
+
+Render only `agents` with `node scripts/render-readme-graphics.mjs agents` under Node 24. The 1280x680 graphic derives its TOOL RESULT excerpt from canonical cited_ask evidence, highlights the returned price once and preserves at least 36px below the legend. The renderer checks exact source text and footer clearance. The README introduces MCP before setup and evidence, and ends with one provenance paragraph. Models and hashes belong in linked compatibility evidence. Merge dsh-cited PR #1 before PR #18. This presentation change does not alter the application runtime.
+
+Round five narrows that excerpt to the source line and highlighted price, both at 20px, and removes only the source chip's raw numbering period. The renderer verifies 22px proof-eyebrow margins, 24px right-row padding, no tool-result hairline, two unwrapped lines and at most 70px between column content ends. Use Node 24.21.0 and the same agents-only render command; preserve the raw evidence and unrelated graphics.

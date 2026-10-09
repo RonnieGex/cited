@@ -1,0 +1,25 @@
+node.exe : - Validating...
+En <user-home>\AppData\Roaming\npm\openspec.ps1: 24 Carácter: 5
++     & "node$exe"  "$basedir/node_modules/@fission-ai/openspec/bin/ope ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (- Validating...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+✓ spec/admin-panel
+✓ spec/agent-evidence-r3
+✓ spec/agent-presentation-r4
+✓ change/agent-presentation-r5
+✓ spec/answering
+✓ spec/app-skeleton
+✓ spec/design-system
+✓ spec/knowledge-search
+✓ spec/mcp-server
+✓ spec/owner-setup
+✓ spec/product-identity
+✓ spec/project-readme
+✓ spec/provider-settings
+✓ spec/public-chat
+✓ spec/repository-bootstrap
+✓ spec/supply-chain-security
+✓ spec/voice-agent
+Totals: 17 passed, 0 failed (17 items)

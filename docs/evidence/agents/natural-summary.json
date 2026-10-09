@@ -1,0 +1,40 @@
+{
+  "capturedAt": "2026-10-09T17:01:22.410Z",
+  "total": 3,
+  "answeredWithCitation": 2,
+  "canonical": "natural-2026-10-09T17-01-01-501Z/attempt-2.json",
+  "attempts": [
+    {
+      "artifact": "natural-2026-10-09T17-01-01-501Z/attempt-1.json",
+      "language": "en",
+      "prompt": "How much does a bicycle tune-up cost at Café La Horquilla?",
+      "tools": [
+        "cited_search",
+        "cited_search",
+        "cited_ask"
+      ],
+      "answeredWithCitation": false
+    },
+    {
+      "artifact": "natural-2026-10-09T17-01-01-501Z/attempt-2.json",
+      "language": "es",
+      "prompt": "¿Cuánto cuesta la afinación de bicicleta en Café La Horquilla?",
+      "tools": [
+        "cited_ask",
+        "cited_search"
+      ],
+      "answeredWithCitation": true
+    },
+    {
+      "artifact": "natural-2026-10-09T17-01-01-501Z/attempt-3.json",
+      "language": "es",
+      "prompt": "¿Qué precio tiene afinar una bicicleta en Café La Horquilla?",
+      "tools": [
+        "cited_ask",
+        "cited_search"
+      ],
+      "answeredWithCitation": true
+    }
+  ],
+  "validationNote": "Revalidated original events: cited refusal is not an answered price question; no extra model runs."
+}

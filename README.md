@@ -49,6 +49,7 @@ Every row is either available today or planned, and each planned row names the c
 | The guided setup: from zero to a published answer in four steps | Available | [owner-setup](openspec/specs/owner-setup/spec.md) |
 | Public chat of the business, with the widget any site can embed | Available | [public-chat](openspec/specs/public-chat/spec.md) |
 | Voice agent with ElevenLabs, created in one click | Available | [voice-agent](openspec/specs/voice-agent/spec.md) |
+| Search and cited answers from your own agent, over MCP with a token | Available | [mcp-server](openspec/specs/mcp-server/spec.md) |
 | Shared design system | Planned | `design-system-shared` |
 | Security hardening and abuse tests | Planned | `security-hardening` |
 | Deployed in one click, with a Docker image and bilingual docs | Planned | `docs-deploy-and-launch` |
@@ -133,8 +134,6 @@ build of the test SDK, which is the build the browser suite drives:
 
 ## Works with your agent
 
-**Your agent reads your documents, with the citations.**
-
 Cited is also a server of the Model Context Protocol, so the agent you already use can search the documents of the
 business and answer from them, with the same honest refusal when they do not hold the answer.
 
@@ -142,19 +141,26 @@ business and answer from them, with the same honest refusal when they do not hol
 CITED_MCP_TOKEN=<a long random token> npm start
 ```
 
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="Four clients, checked on 2026-10-09. DeepSeek Harness selected cited_ask and answered 380 pesos [1], citing cafe-la-horquilla.md; Claude Code and Codex connected and listed both tools; Cursor is documented, not tested" width="1280"></picture>
+
 Two read-only tools are exposed. `cited_search` returns the passages with their document, their section, their position
 and their text, and it never calls a model, so a search spends nothing. `cited_ask` walks the same pipeline as the
 public chat and answers with numbered citations, or with the refusal.
 
 | Agent | Verified on 2026-10-09 against a local Cited |
 |---|---|
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | end to end, two ways: paste `https://github.com/RonnieGex/dsh-cited` in **Plugins → Add plugin** (the native plugin, tested on the 0.2 desktop app), or add the MCP row of `docs/mcp.md`. Both called `cited_search` and answered with the citation |
+| DeepSeek Harness (MCP configuration) | Called `cited_search` and answered with a citation; [configuration](docs/mcp.md), [step-10-4 evidence](openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md). |
+| DeepSeek Harness (native plugin) | Selected `cited_ask` for a natural Spanish question and answered with its own cited passage; [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt), [compatibility evidence](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md). |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | it connected and listed the tools |
 | [Codex](https://github.com/openai/codex) | it connected and listed the tools |
 | Cursor and any other client of Streamable HTTP | configuration documented, not tested yet |
 
+Install the [native plugin](https://github.com/RonnieGex/dsh-cited) with `dsh plugin add github:RonnieGex/dsh-cited`.
+
 `docs/mcp.md` carries the exact configuration for each one and for `curl`. The token travels in the
 `Authorization: Bearer` header, and the server is off until you declare it.
+
+The graphic quotes the exact first Spanish answer paragraph and its own `cited_ask` source. The graphic renders the Markdown; the transcript keeps it raw. The [transcript](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) keeps the raw Markdown, every call and the complete answer. **2 of 3 natural questions received a supported price citation**, using keyword search without embeddings. The English question missed the Spanish passage; Cited refused and the agent wrongly claimed the price was absent. [All outcomes](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json) and [verification details](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md) document the models and limits.
 
 ## Quick start
 
