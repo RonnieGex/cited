@@ -45,6 +45,18 @@ Dependencies are updated deliberately. A vulnerable transitive dependency is rep
 A pull request that bumps it is welcome, and the report says what the exposure is: a flaw in a development tool and a
 flaw in the request path do not deserve the same urgency.
 
+`npm run audit:high` is the gate of that rule, and it runs in the pipeline on every push and every pull request. The
+production tree has to audit clean and it accepts no exception: a production dependency is raised or the pipeline
+stops. The whole tree has to audit clean except the advisories listed in `security/audit-exceptions.json`, and every
+entry of that file carries the identifier of the advisory (GHSA), the package it reaches, the reason, the evidence
+that no fixed version is published and an expiry date of 30 days at most. An advisory of the high level or above that
+no entry lists, an expired entry, an entry that asks for more than 30 days and an entry whose package is installed in
+production each stop the pipeline.
+
+To add or to renew an entry, edit that file with those five fields and let the guard pass: a renewal is a new expiry
+date next to the evidence that is still true. Raising the dependency is always the better answer, and the entry is the
+record of a temporary exception with a date, never a decision.
+
 ## Never in this repository
 
 No key, no customer data and no commercially licensed font file. A commit that carries a secret is refused by the

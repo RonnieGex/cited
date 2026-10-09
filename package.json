@@ -27,10 +27,13 @@
     "search": "node --env-file-if-exists=.env scripts/search.ts",
     "ask": "node --env-file-if-exists=.env scripts/ask.ts",
     "store:state": "node --env-file-if-exists=.env scripts/store-state.ts",
-    "audit:high": "npm audit --audit-level=high",
+    "audit:high": "node scripts/audit-high.mjs",
     "secrets:scan": "gitleaks git --redact --no-banner",
     "hooks:install": "node scripts/install-hooks.mjs",
     "openspec:validate": "openspec validate --all --strict"
+  },
+  "overrides": {
+    "source-map-js": "1.2.2"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.68",
@@ -45,7 +48,7 @@
     "@react-three/fiber": "^9.8.1",
     "ai": "^7.0.122",
     "mammoth": "^1.13.0",
-    "next": "16.3.6",
+    "next": "16.4.0",
     "pdf-parse": "^2.4.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -64,7 +67,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.3.6",
+    "eslint-config-next": "16.4.0",
     "jsdom": "^30.1.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",

@@ -1,0 +1,10 @@
+{
+  "exceptions": [
+    {
+      "id": "GHSA-XX",
+      "package": "",
+      "reason": "",
+      "expires": "2026-11-31"
+    }
+  ]
+}
