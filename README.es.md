@@ -150,7 +150,7 @@ chat público y responde con citas numeradas, o con la negativa.
 
 | Agente | Verificado el 2026-10-09 contra un Cited local |
 |---|---|
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | de punta a punta: se conectó, listó las herramientas, llamó a `cited_search` y respondió con la cita |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | de punta a punta, de dos formas: pega `https://github.com/RonnieGex/dsh-cited` en **Plugins → Add plugin** (el plugin nativo, probado en la app de escritorio 0.2), o agrega la fila MCP de `docs/mcp.md`. Las dos llamaron a `cited_search` y respondieron con la cita |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | se conectó y listó las herramientas |
 | [Codex](https://github.com/openai/codex) | se conectó y listó las herramientas |
 | Cursor y cualquier otro cliente de Streamable HTTP | configuración documentada, todavía sin probar |

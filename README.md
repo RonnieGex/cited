@@ -148,7 +148,7 @@ public chat and answers with numbered citations, or with the refusal.
 
 | Agent | Verified on 2026-10-09 against a local Cited |
 |---|---|
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | end to end: it connected, listed the tools, called `cited_search` and answered with the citation |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | end to end, two ways: paste `https://github.com/RonnieGex/dsh-cited` in **Plugins → Add plugin** (the native plugin, tested on the 0.2 desktop app), or add the MCP row of `docs/mcp.md`. Both called `cited_search` and answered with the citation |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | it connected and listed the tools |
 | [Codex](https://github.com/openai/codex) | it connected and listed the tools |
 | Cursor and any other client of Streamable HTTP | configuration documented, not tested yet |

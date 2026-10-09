@@ -63,7 +63,13 @@ leaves it.
 
 ## 4. DeepSeek Harness
 
-The MCP client is the plugin `@deepseek-ai/dsh-mcp-client`, one row per server. A row goes inside an `insert` patch:
+**The short way: the native plugin.** In DeepSeek Harness, open **Plugins → Add plugin**, paste
+`https://github.com/RonnieGex/dsh-cited` and install; then write the URL of the installation and the token in the card
+of the plugin. It exposes the same two tools and calls this endpoint. Verified on 2026-10-09 with the desktop app
+0.2.0-rc.2. Its repository explains the rest: https://github.com/RonnieGex/dsh-cited
+
+**The MCP way.** The MCP client is the plugin `@deepseek-ai/dsh-mcp-client`, one row per server. A row goes inside an
+`insert` patch:
 
 ```yaml
 - insert:
