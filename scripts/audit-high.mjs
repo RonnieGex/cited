@@ -3,7 +3,7 @@
 // exception possible, the whole tree audits clean except the advisories listed in `security/audit-exceptions.json`,
 // every entry carries its evidence and expires within 30 days, and an audit that cannot run fails.
 import { spawnSync } from "node:child_process";
-import { closeSync, existsSync, mkdtempSync, openSync, readFileSync, rmSync } from "node:fs";
+import { closeSync, existsSync, fstatSync, mkdtempSync, openSync, readFileSync, readSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -278,21 +278,41 @@ function npmCommandLine() {
   throw new Error("the npm command line was not found next to the running node");
 }
 
+// Reads what a child process wrote through `descriptor`, from the start, through the same descriptor that was opened:
+// the path is never opened twice, so the file cannot change between a check and the read (CodeQL js/file-system-race).
+function readDescriptor(descriptor) {
+  const size = fstatSync(descriptor).size;
+  const buffer = Buffer.alloc(size);
+  let offset = 0;
+
+  while (offset < size) {
+    const read = readSync(descriptor, buffer, offset, size - offset, offset);
+
+    if (read === 0) {
+      break;
+    }
+
+    offset += read;
+  }
+
+  return buffer.subarray(0, offset).toString("utf8");
+}
+
 function npmPayload(args, label) {
   const directory = mkdtempSync(join(tmpdir(), "audit-high-"));
   const payloadFile = join(directory, "payload.json");
-  const descriptor = openSync(payloadFile, "w");
+  const descriptor = openSync(payloadFile, "w+");
+  let text;
 
   try {
     spawnSync(process.execPath, [npmCommandLine(), ...args], {
       cwd: ROOT,
       stdio: ["ignore", descriptor, "inherit"],
     });
+    text = readDescriptor(descriptor);
   } finally {
     closeSync(descriptor);
   }
-
-  const text = readFileSync(payloadFile, "utf8");
 
   rmSync(directory, { recursive: true, force: true });
 
