@@ -79,11 +79,28 @@ flat palette per graphic. Asset and development documentation explain the genera
 |---|---|
 | Correctness | Both scenarios of the one added requirement are implemented and covered by README guards |
 | Coherence | Existing renderer, manifest, local font, brand palette and archived client evidence reused |
-| Completeness | Local implementation and verification complete; PR checks and Fable's independent review remain separate closure steps |
+| Completeness | 9 of 10 tasks verified, including PR checks; Fable's independent review, archive and merge remain separate closure steps |
+
+## CI and pull request
+
+PR: https://github.com/RonnieGex/cited/pull/18
+
+Verified commit: `e8ad97355e289fa9eca0223a8c07be560f3365dc`.
+`gh pr checks 18 --required --json name,state,link` reports SUCCESS for Types, Lint, Unit tests, Build,
+End to end, Dependency audit, Secret scan and OpenSpec validation. Both push and pull-request runs passed.
+
+Pull-request CI: https://github.com/RonnieGex/cited/actions/runs/37952831180
+
+`gh run view 37952831180 --log` reports 96 unit files passed, 1164 tests passed and 2 existing design-system tests
+skipped by the CI environment; the local suite ran all 1166. `npm run test:e2e` passed 96 tests in 1.9 minutes.
+CodeQL also passed: https://github.com/RonnieGex/cited/actions/runs/37952832571
+
+`gitleaks git --pre-commit --staged --redact --no-banner -c .gitleaks.toml` and the commit hook both found no leaks
+before the implementation commit. The follow-up documentation commit records these already-executed checks;
+its own final CI result is recorded in Franc's delivery file.
 
 ## Issues
 
-- NOT DONE: CI results are recorded in the delivery once the requested PR runs all required checks.
 - NOT DONE: Fable's independent adversarial review, archive and merge. Do not interpret this implementer report as
   PASS from an independent reviewer. The assignment explicitly reserves the review and merge for Fable.
 - UNKNOWN: A real tool call from Claude Code or Codex, and Cursor compatibility. The graphics preserve these limits.

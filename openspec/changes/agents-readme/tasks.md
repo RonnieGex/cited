@@ -17,8 +17,13 @@ Authority: Fable's Task B, explicitly commissioned by Franc on 2026-10-09. Evide
 - [x] 5. Execute curl MCP checks without exposing the token.
   `curl.exe --silent --show-error --fail-with-body --config - http://127.0.0.1:3240/api/mcp --data-binary @<request-file>`:
   initialize, tools/list and cited_search returned HTTP 200. Sanitized JSON is in `reports/`.
-- [ ] 6. Render and inspect both themes with Playwright; run the required frontend E2E check in CI.
+- [x] 6. Render and inspect both themes with Playwright; run the required frontend E2E check in CI.
+  `npx -y -p node@24 node scripts/render-readme-graphics.mjs agents roadmap`: four PNGs inspected.
+  `gh run view 37952831180 --log`: `npm run test:e2e`, 96 passed in 1.9 minutes.
 - [x] 7. Update the asset documentation and development manual.
   `git diff -- docs/readme-assets.md docs/development-guide.md`: generation, provenance and validation documented.
-- [ ] 8. Verify the diff, run the secret scan and submit the requested PR with required checks green.
+- [x] 8. Verify the diff, run the secret scan and submit the requested PR with required checks green.
+  `git diff --check`: exit 0; `gitleaks git --pre-commit --staged --redact --no-banner -c .gitleaks.toml`: no leaks.
+  `gh pr create --base main --head docs/agents-readme`: PR #18.
+  `gh pr checks 18 --required --json name,state`: all eight required checks green on `e8ad973`.
 - [ ] 9. Fable performs independent adversarial review, archives after acceptance and merges. Codex must not merge.

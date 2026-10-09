@@ -185,12 +185,12 @@ The images of the README weigh **3 MB or less together**, and a test fails above
 
 | | |
 |---|---|
-| Files in `docs/images/` | 18 PNG and 2 JSON |
-| Weight of the PNGs | 0.70 MB |
-| Weight of the images the README uses | about 0.70 MB |
+| Files directly in `docs/images/` | 20 PNG and 2 JSON |
+| Weight of those 20 PNGs | 814728 bytes |
+| Unique local PNGs referenced by `README.md` | 24 files, 989631 bytes |
 | Budget | 3 MB |
 
-The banner is the heaviest single file at about 100 KB. When a graphic is added, keep it under the budget and prefer
+These counts were measured on 2026-10-09 after adding the agents graphic. When a graphic is added, keep it under the budget and prefer
 flat colors and text: the palette of 256 colors of `sharp` is what keeps the set small while the lime glow and the orb
 keep their gradients. The PNG of a graphic is also measured against the luminance bounds of decision 10 (0.30 or less for a dark variant and
 for the social preview, 0.80 or more for every light variant except `demo-light.png`, whose dark terminal is measured
