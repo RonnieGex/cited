@@ -27,10 +27,13 @@
     "search": "node --env-file-if-exists=.env scripts/search.ts",
     "ask": "node --env-file-if-exists=.env scripts/ask.ts",
     "store:state": "node --env-file-if-exists=.env scripts/store-state.ts",
-    "audit:high": "npm audit --audit-level=high",
+    "audit:high": "node scripts/audit-high.mjs",
     "secrets:scan": "gitleaks git --redact --no-banner",
     "hooks:install": "node scripts/install-hooks.mjs",
     "openspec:validate": "openspec validate --all --strict"
+  },
+  "overrides": {
+    "source-map-js": "1.2.2"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.68",
