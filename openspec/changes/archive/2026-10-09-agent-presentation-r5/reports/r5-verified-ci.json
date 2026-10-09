@@ -1,0 +1,185 @@
+{
+  "headRefOid": "1c6fbb41807fc719eafc938eed22d0de2fbddb17",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:32Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064292",
+      "name": "Types",
+      "startedAt": "2026-10-09T21:11:51Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:25Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028049004",
+      "name": "Types",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:13:13Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935868/job/114028064109",
+      "name": "Analyze JavaScript and TypeScript",
+      "startedAt": "2026-10-09T21:11:50Z",
+      "status": "COMPLETED",
+      "workflowName": "CodeQL"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:33Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064252",
+      "name": "Lint",
+      "startedAt": "2026-10-09T21:11:51Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:33Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028048951",
+      "name": "Lint",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:13:08Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064318",
+      "name": "Unit tests",
+      "startedAt": "2026-10-09T21:11:51Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:13:01Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028048991",
+      "name": "Unit tests",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:42Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064362",
+      "name": "Build",
+      "startedAt": "2026-10-09T21:11:50Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:36Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028048882",
+      "name": "Build",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:14:57Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064282",
+      "name": "End to end",
+      "startedAt": "2026-10-09T21:11:50Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:14:34Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028048649",
+      "name": "End to end",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:12Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064034",
+      "name": "Dependency audit",
+      "startedAt": "2026-10-09T21:11:50Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:23Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028049054",
+      "name": "Dependency audit",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:11:58Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064330",
+      "name": "Secret scan",
+      "startedAt": "2026-10-09T21:11:51Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:11:56Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028048893",
+      "name": "Secret scan",
+      "startedAt": "2026-10-09T21:11:48Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:00Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991935834/job/114028064299",
+      "name": "OpenSpec validation",
+      "startedAt": "2026-10-09T21:11:50Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:12:00Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/actions/runs/37991931285/job/114028048974",
+      "name": "OpenSpec validation",
+      "startedAt": "2026-10-09T21:11:49Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-09T21:13:06Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/RonnieGex/cited/runs/114028516292",
+      "name": "CodeQL",
+      "startedAt": "2026-10-09T21:13:03Z",
+      "status": "COMPLETED",
+      "workflowName": ""
+    }
+  ]
+}
