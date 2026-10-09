@@ -5,7 +5,7 @@
 //     node scripts/gate-audit.mjs
 //     node scripts/gate-audit.mjs --shim <file>   (a sandbox of Windows that forbids a pipe in the stdio of a child)
 import { spawnSync } from "node:child_process";
-import { closeSync, existsSync, mkdtempSync, openSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { closeSync, existsSync, fstatSync, mkdtempSync, openSync, readFileSync, readSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,19 +37,39 @@ function say(state, message) {
   statements.push({ state, message });
 }
 
+// Reads what a child process wrote through `descriptor`, from the start, through the same descriptor that was opened:
+// the path is never opened twice, so the file cannot change between a check and the read (CodeQL js/file-system-race).
+function readDescriptor(descriptor) {
+  const size = fstatSync(descriptor).size;
+  const buffer = Buffer.alloc(size);
+  let offset = 0;
+
+  while (offset < size) {
+    const read = readSync(descriptor, buffer, offset, size - offset, offset);
+
+    if (read === 0) {
+      break;
+    }
+
+    offset += read;
+  }
+
+  return buffer.subarray(0, offset).toString("utf8");
+}
+
 function captured(command, args) {
   const directory = mkdtempSync(join(tmpdir(), "gate-audit-"));
   const file = join(directory, "output.txt");
-  const descriptor = openSync(file, "w");
+  const descriptor = openSync(file, "w+");
   let ran;
+  let output;
 
   try {
     ran = spawnSync(command, args, { cwd: ROOT, env: process.env, stdio: ["ignore", descriptor, descriptor] });
+    output = readDescriptor(descriptor);
   } finally {
     closeSync(descriptor);
   }
-
-  const output = readFileSync(file, "utf8");
 
   rmSync(directory, { recursive: true, force: true });
 
@@ -135,12 +155,12 @@ function vitest(reportFile, extra, preload) {
   const ran = inherited(process.execPath, args);
   let report = null;
 
-  if (existsSync(reportFile)) {
-    try {
-      report = JSON.parse(readFileSync(reportFile, "utf8"));
-    } catch {
-      report = null;
-    }
+  // Read without checking first: a missing or partial report is the same null, and there is no window between a check
+  // and the read for the file to change (CodeQL js/file-system-race).
+  try {
+    report = JSON.parse(readFileSync(reportFile, "utf8"));
+  } catch {
+    report = null;
   }
 
   return { status: ran.status, report };
