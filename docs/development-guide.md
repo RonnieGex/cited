@@ -165,3 +165,5 @@ The glyphs distinguish a called tool and cited answer from connection/tool disco
 ## Agent README presentation
 
 Render only `agents` with `node scripts/render-readme-graphics.mjs agents` under Node 24. The 1280x680 graphic derives its TOOL RESULT excerpt from canonical cited_ask evidence, highlights the returned price once and preserves at least 36px below the legend. The renderer checks exact source text and footer clearance. The README introduces MCP before setup and evidence, and ends with one provenance paragraph. Models and hashes belong in linked compatibility evidence. Merge dsh-cited PR #1 before PR #18. This presentation change does not alter the application runtime.
+
+Round five narrows that excerpt to the source line and highlighted price, both at 20px, and removes only the source chip's raw numbering period. The renderer verifies 22px proof-eyebrow margins, 24px right-row padding, no tool-result hairline, two unwrapped lines and at most 70px between column content ends. Use Node 24.21.0 and the same agents-only render command; preserve the raw evidence and unrelated graphics.

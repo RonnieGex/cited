@@ -1,0 +1,52 @@
+contrast of the dark theme:
+  7.24:1  the body text on the page
+  5.98:1  the muted text on the page
+  4.63:1  the muted text on a card
+  5.53:1  the body text on a card
+  5.17:1  the index of a step on its card
+  6.76:1  the Next tag on the page
+  6.76:1  the Next tag on its surface
+  5.40:1  the commands on the terminal
+  5.78:1  the output on the terminal
+  4.64:1  the title bar on the terminal
+  6.76:1  the ink of a lime shape
+contrast of the light theme:
+  7.24:1  the body text on the page
+  4.81:1  the muted text on the page
+  4.89:1  the muted text on a card
+  7.49:1  the body text on a card
+  7.49:1  the index of a step on its card
+  7.24:1  the Next tag on the page
+  7.24:1  the Next tag on its surface
+  6.76:1  the commands on the terminal
+  7.24:1  the output on the terminal
+  5.53:1  the title bar on the terminal
+  6.76:1  the ink of a lime shape
+node : file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/render-readme-graphics.mjs:1035
+En línea: 3 Carácter: 1
++ node scripts/render-readme-graphics.mjs agents *> openspec/changes/ag ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (file:///C:/User...aphics.mjs:1035:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 ||
+proof.fontSize !== '20px' || proof.excerptHeight !== 2 * Number.parseFloat(proof.lineHeight) ||
+proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding
+!== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !==
+'24px')) || proof.columnDifference > 70) throw new Error(`Agent proof layout or source changed:
+${JSON.stringify(proof)}`);
+
+
+
+
+         ^
+
+Error: Agent proof layout or source changed: {"footerClearance":36,"result":"1 · cafe-la-horquilla.md · Precios
+(position 2)\n","highlights":0,"chips":1,"fontSize":"20px","lineHeight":"27px","excerptHeight":27,"eyebrowMargins":["22
+px","22px","22px"],"proofPadding":"22px","resultBorder":"0px","rowPadding":[["24px","24px"],["24px","24px"],["24px","24
+px"]],"columnDifference":20.59375}
+    at render
+(file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/render-readme-graphics.mjs:1035:486)
+    at async file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/render-readme-graphics.mjs:1217:24
+
+Node.js v24.21.0

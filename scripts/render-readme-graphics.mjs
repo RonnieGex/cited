@@ -1019,10 +1019,21 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
       result: document.querySelector('.agents-tool-result pre').textContent,
       highlights: document.querySelectorAll('.agents-tool-result .agents-highlight').length,
       chips: document.querySelectorAll('.agents-tool-result .source-chip').length,
+      fontSize: getComputedStyle(document.querySelector('.agents-tool-result pre')).fontSize,
+      lineHeight: getComputedStyle(document.querySelector('.agents-tool-result pre')).lineHeight,
+      excerptHeight: document.querySelector('.agents-tool-result pre').getBoundingClientRect().height,
+      eyebrowMargins: [...document.querySelectorAll('.agents-proof .eyebrow')].map((node) => getComputedStyle(node).marginTop),
+      proofPadding: getComputedStyle(document.querySelector('.agents-proof')).paddingTop,
+      resultBorder: getComputedStyle(document.querySelector('.agents-tool-result')).borderTopWidth,
+      rowPadding: [...document.querySelectorAll('.agents-client-row')].map((node) => [getComputedStyle(node).paddingTop, getComputedStyle(node).paddingBottom]),
+      columnDifference: Math.abs(document.querySelector('.agents-tool-result pre').getBoundingClientRect().bottom - document.querySelector('.agents-client-row:last-child .agents-result').getBoundingClientRect().bottom),
     }));
     const call = agentRecord.events.find((event) => event.type === 'tool_call' && event.tool === 'cited_ask');
     const result = agentRecord.events.find((event) => event.type === 'tool_result' && event.callId === call.callId).result;
-    if (proof.footerClearance < 36 || proof.result !== `Sources:\n${result.split('\n\nSources:\n')[1]}` || proof.highlights !== 1 || proof.chips !== 1) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
+    const sourceLines = result.split('\n\nSources:\n')[1].split('\n');
+    const excerpt = `${sourceLines[0].replace(/^1\./, '1 ·')}\n${sourceLines.find((line) => line === '- Afinación de bicicleta: 380 pesos.').slice(2)}`;
+    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || proof.excerptHeight !== 2 * Number.parseFloat(proof.lineHeight) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '24px')) || proof.columnDifference > 70) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
+    console.log(`AGENT PROOF ${theme}: ${JSON.stringify(proof)}`);
     audit_.agentProof = proof;
   }
 
@@ -1161,15 +1172,16 @@ const agentAnswer = escapeHtml(agentRecord.events.findLast((event) => event.type
   .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*([^*]+)\*/g, '<em>$1</em>')
   .replace(/\[1\]/g, '<span class="agents-citation">1</span>').replace(/\n\n(.+)$/, '<span class="source-line">$1</span>');
 const agentCall = agentRecord.events.find((event) => event.type === "tool_call" && event.tool === "cited_ask");
-const agentResult = escapeHtml(agentRecord.events.find((event) => event.type === "tool_result" && event.callId === agentCall.callId).result.split("\n\nSources:\n")[1])
-  .replace(/^1\./, '<span class="agents-citation source-chip">1</span>.')
+const agentSourceLines = agentRecord.events.find((event) => event.type === "tool_result" && event.callId === agentCall.callId).result.split("\n\nSources:\n")[1].split('\n');
+const agentResult = escapeHtml([agentSourceLines[0], agentSourceLines.find((line) => line === '- Afinación de bicicleta: 380 pesos.').slice(2)].join('\n'))
+  .replace(/^1\./, '<span class="agents-citation source-chip">1</span> ·')
   .replace('Afinación de bicicleta: 380 pesos.', '<span class="agents-highlight">Afinación de bicicleta: 380 pesos.</span>');
 const contents = new Map(
   [...graphics, social].map((graphic) => [
     graphic.name,
     fill(templatesOf.get(graphic.name), {
       AGENT_ANSWER: agentAnswer,
-      AGENT_RESULT: `Sources:\n${agentResult}`,
+      AGENT_RESULT: agentResult,
       INGEST_COMMAND: escapeHtml(ingestCommand),
       INGEST_OUTPUT: escapeLines(drawn.ingest.drawn),
       SEARCH_COMMAND: escapeHtml(searchCommand),

@@ -206,3 +206,7 @@ The graphic quotes only the first paragraph of the complete Spanish final answer
 Harness used deepseek-official/deepseek-v4-flash; Cited used deepseek/deepseek-v4-flash from the actual isolated server startup configuration. The plugin was installed from its local built checkout, with matching installed/source SHA-256. Historical GitHub installation is separately documented by the plugin. This repository changes no Cited runtime.
 
 The roadmap SVG distinguishes called-and-answered from outlined connected/tools-listed; a hollow circle means documented only. Both tables split native plugin and MCP configuration. Fable must merge dsh-cited PR #1 before Cited PR #18 so headless-answer.txt, natural-summary.json and compatibility.md links on main resolve.
+
+## Agent excerpt, round five
+
+Run `node scripts/render-readme-graphics.mjs agents` under Node 24.21.0. The tool-result excerpt now shows only its source line with chip 1 and the returned tune-up price at 20px, without the raw list period, Sources label, standalone heading or other prices. It is derived from the canonical result; the full transcript remains unchanged. Each proof eyebrow has a 22px top margin, proof padding is 22px, the extra tool-result hairline is removed, and every right row has 24px vertical padding. Browser assertions require two unwrapped lines, column content ends within 70px and 36px below the legend in both themes. Only the two agents PNGs change.

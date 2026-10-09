@@ -1179,6 +1179,12 @@ describe("README, its graphics", () => {
     expect(template).not.toContain("Passage 1");
     expect(template).not.toContain("Markdown rendered");
     expect(template).toContain("{{AGENT_RESULT}}");
+    expect(template).toContain("font: 20px/1.35 Outfit");
+    expect(template).toContain(".agents-proof .eyebrow { font-size: 16px; margin-top: 22px; }");
+    expect(template).not.toMatch(/\.agents-tool-result\s*\{[^}]*border-top/);
+    expect(template).toContain(".agents-client-row { padding: 24px 0;");
+    expect(template).not.toContain(".agents-client-row:first-child");
+    expect(readText("scripts/render-readme-graphics.mjs")).not.toMatch(/source-chip">1<\/span>\./);
     expect(template.match(/class="agents-result">Connected, tools listed/g)).toHaveLength(2);
     expect(template).toContain("Documented");
     expect(readText("scripts/render-readme-graphics.mjs")).toContain("Afinación de bicicleta: 380 pesos.");

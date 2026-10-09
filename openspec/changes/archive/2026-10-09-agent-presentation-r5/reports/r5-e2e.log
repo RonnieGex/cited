@@ -1,0 +1,442 @@
+
+> cited@0.1.0 test:e2e
+> npm run build:e2e && playwright test
+
+
+> cited@0.1.0 build:e2e
+> node scripts/build-e2e.mjs
+
+▲ Next.js 16.4.0 (Turbopack)
+✓ Running next.config.ts took 146ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.4s
+  Running TypeScript ...
+  Finished TypeScript in 7.4s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/31) ...
+  Generating static pages using 15 workers (7/31)
+  Generating static pages using 15 workers (15/31)
+  Generating static pages using 15 workers (23/31)
+✓ Generating static pages using 15 workers (31/31) in 885ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /admin
+├ ƒ /admin/ai
+├ ƒ /admin/business
+├ ƒ /admin/conversations
+├ ƒ /admin/documents
+├ ƒ /admin/home
+├ ƒ /admin/information
+├ ƒ /admin/information/[id]
+├ ƒ /admin/publish
+├ ƒ /admin/settings
+├ ƒ /admin/try
+├ ƒ /api/admin/business
+├ ƒ /api/admin/business/logo
+├ ƒ /api/admin/conversations
+├ ƒ /api/admin/conversations/delete
+├ ƒ /api/admin/documents
+├ ƒ /api/admin/documents/delete
+├ ƒ /api/admin/documents/reingest
+├ ƒ /api/admin/login
+├ ƒ /api/admin/logout
+├ ƒ /api/admin/providers
+├ ƒ /api/admin/providers/reindex
+├ ƒ /api/admin/providers/save
+├ ƒ /api/admin/providers/test
+├ ƒ /api/admin/samples
+├ ƒ /api/admin/setup
+├ ƒ /api/admin/setup/flags
+├ ƒ /api/admin/setup/test
+├ ƒ /api/admin/try/verify
+├ ƒ /api/admin/voice
+├ ƒ /api/ask
+├ ƒ /api/brand/logo
+├ ƒ /api/mcp
+├ ƒ /api/voice/signed-url
+├ ƒ /api/voice/tool
+├ ƒ /embed
+├ ƒ /kit
+└ ƒ /privacy
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+verify-no-test-sdk: mode=test-build roots=.next, .next\static, .next\server
+OK: the test SDK is in the browser output (2 file(s)) and the real package is not.
+node.exe : [WebServer] (node:45804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:47392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:50440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] .env not found. Continuing without it.
+[WebServer] (node:43012) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of
+file:///C:/Users/Franc/Documents/katalis-dev/community-readme/scripts/ingest.ts is not specified and it doesn't parse
+as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to
+\\?\C:\Users\Franc\Documents\katalis-dev\community-readme\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:43012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:50288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:38484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:41224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:19952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:50640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:48264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:49484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:48388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 96 tests using 1 worker
+
+(node:36900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+the navigation column: {"x":0,"y":0,"width":240,"height":900}
+a "Cited1" at 20px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+span "1" at 14.4px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+a "1Home" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "1" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+a "2Information" at 15px: rgb(255, 255, 255) over rgb(46, 46, 46) = 13.58:1 (asks 4.5:1)
+span "2" at 10.8px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+a "3Try it" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "3" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+a "4Conversations" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "4" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+a "5Look and publish" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "5" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+a "6AI and keys" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "6" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+a "7Settings" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "7" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+button "English" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+span "|" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+button "Español" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+a "For the installer" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+button "Sign out" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+span "Built by Katalis" at 12px: oklab(0.999994 0.0000455677 0.0000200868 / 0.7) over rgb(23, 23, 23) = 9.14:1 (asks 4.5:1)
+/admin/information at 1440: axe 0 violations, 27 rules passed
+  ok  1 [panel] › e2e\admin-brand.spec.ts:186:5 › the navigation at 1440 px: an ink column with the numbered sections, the current one marked, every text at 4.5:1 (2.0s)
+the navigation bar: {"x":0,"y":0,"width":375,"height":237.5625}
+375: the wordmark target {"x":24,"y":8,"width":70.515625,"height":45.5625}
+375: link 1 focused at {"x":24,"y":57.5625,"width":92.671875,"height":44}
+375: link 2 focused at {"x":120.671875,"y":57.5625,"width":133.78125,"height":44}
+375: link 3 focused at {"x":258.453125,"y":57.5625,"width":86.6875,"height":44}
+375: link 4 focused at {"x":201.140625,"y":57.5625,"width":149.75,"height":44}
+horizontal size of the page: {"document":375,"body":375,"viewport":375}
+/admin/information at 375: axe 0 violations, 27 rules passed
+  ok  2 [panel] › e2e\admin-brand.spec.ts:286:5 › the navigation at 375 px: a top bar that scrolls sideways, with no horizontal scroll on the page (1.3s)
+1440: the wordmark target {"x":24,"y":28,"width":70.515625,"height":29.5625}
+1440: link 1 focused at {"x":24,"y":93.5625,"width":192,"height":38.5}
+1440: link 2 focused at {"x":24,"y":136.0625,"width":192,"height":38.5}
+1440: link 3 focused at {"x":24,"y":178.5625,"width":192,"height":38.5}
+1440: link 4 focused at {"x":24,"y":221.0625,"width":192,"height":38.5}
+320: the wordmark target {"x":24,"y":8,"width":70.515625,"height":45.5625}
+320: link 1 focused at {"x":24,"y":57.5625,"width":88.1875,"height":44}
+320: link 2 focused at {"x":116.1875,"y":57.5625,"width":135.328125,"height":44}
+320: link 3 focused at {"x":182.515625,"y":57.5625,"width":113.59375,"height":44}
+320: link 4 focused at {"x":80.109375,"y":57.5625,"width":159.421875,"height":44}
+  ok  3 [panel] › e2e\admin-brand.spec.ts:360:5 › the keyboard starts at the wordmark at 1440 px and walks the bar whole at 320 px, in Spanish (896ms)
+375: Todos los documentos at {"x":24,"y":453.5625,"width":138.046875,"height":44} inside {"x":0,"y":237.5625,"width":375,"height":644.1875}
+375: Quitar at {"x":49,"y":762.75,"width":114.546875,"height":46} inside {"x":0,"y":237.5625,"width":375,"height":644.1875}
+320: Todos los documentos at {"x":24,"y":453.5625,"width":138.046875,"height":44} inside {"x":0,"y":237.5625,"width":320,"height":644.1875}
+320: Quitar at {"x":49,"y":762.75,"width":114.546875,"height":46} inside {"x":0,"y":237.5625,"width":320,"height":644.1875}
+/admin/information/[id] at 320 in Spanish: axe 0 violations, 24 rules passed
+  ok  4 [panel] › e2e\admin-brand.spec.ts:386:5 › the document page at 375 and 320 px keeps every control whole, on one line, inside the box and the screen (1.7s)
+the date of the turn: dateTime="2026-10-09T20:57:02.517Z", text="10 oct 2026, 10:57"
+/admin/conversations in Spanish: axe 0 violations, 26 rules passed
+  ok  5 [panel] › e2e\admin-brand.spec.ts:463:7 › a reader in another zone › the conversations in Spanish print each date as a time an owner reads, with the stored value in dateTime (1.4s)
+the flame in en: en / public (1), en /embed public (0), en /kit public (0), en /admin signed out (1), en /admin signed in (1), en /admin/home signed in (1), en /admin/information signed in (1), en /admin/try signed in (1), en /admin/publish signed in (1), en /admin/settings signed in (1), en /admin/conversations signed in (1), en /admin/ai signed in (1)
+  ok  6 [panel] › e2e\admin-brand.spec.ts:579:7 › in en every signature of Katalis carries the real flame, on every page of the product (1.9s)
+the flame in es: es / public (1), es /embed public (0), es /kit public (0), es /admin signed out (1), es /admin signed in (1), es /admin/home signed in (1), es /admin/information signed in (1), es /admin/try signed in (1), es /admin/publish signed in (1), es /admin/settings signed in (1), es /admin/conversations signed in (1), es /admin/ai signed in (1)
+  ok  7 [panel] › e2e\admin-brand.spec.ts:579:7 › in es every signature of Katalis carries the real flame, on every page of the product (2.0s)
+the highlighted words of the tagline: "de dónde salió."
+/admin signed out, in Spanish: axe 0 violations, 24 rules passed
+  ok  8 [panel] › e2e\admin-brand.spec.ts:640:7 › the sign-in › in Spanish it shows the tagline with its last words highlighted, keeps its form and passes axe (1.1s)
+  ok  9 [panel] › e2e\admin-brand.spec.ts:690:7 › the sign-in › at 375 px the two halves stack, ink first, and nothing scrolls sideways (304ms)
+  ok 10 [panel] › e2e\admin.spec.ts:40:5 › the panel opens in English and signs the owner in (1.4s)
+  ok 11 [panel] › e2e\admin.spec.ts:59:5 › the sixth attempt of one address is locked (1.7s)
+  ok 12 [panel] › e2e\admin.spec.ts:81:5 › For the installer lists the variables without their values and tests a provider (2.5s)
+  ok 13 [panel] › e2e\admin.spec.ts:109:5 › the business form is saved in Look and publish and the panel speaks Spanish (2.7s)
+  ok 14 [panel] › e2e\admin.spec.ts:131:5 › an SVG logo is refused and a document is uploaded, opened and removed with its undo (2.8s)
+  ok 15 [panel] › e2e\admin.spec.ts:164:5 › the conversations are listed and deleted (2.3s)
+(node:39476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+/kit: axe 0 violations, 22 rules passed
+  ok 16 [public] › e2e\brand.spec.ts:231:5 › the kit renders the wordmark, the citation mark and the highlighter next to the six markers, and passes axe (2.0s)
+/kit p "Sistema de diseño" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h1 "El kit de Cited" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "Los cinco componentes con los que se construyen " at 18px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Logotipo" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "La palabra Cited con una marca de cita en lima. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit span "Cited1" at 20px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit span "1" at 14.4px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+/kit span "Cited1" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+/kit span "Cited1" at 56px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit span "1" at 40.32px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+/kit span "Cited1" at 36px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 3:1)
+/kit span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+/kit p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Marca de cita" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "Un cuadrado de lima con el número de la fuente d" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit p "La afinación pide cita previa 1 y el taller cier" at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit span "1" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+/kit span "2" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+/kit span "En reposo" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit span "3" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+/kit span "Abierta" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit span "3" at 12.96px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+/kit p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Marcatextos" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "Lima pintada detrás de las palabras que importan" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit p "Cada respuesta enseña de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit span "de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) and rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+/kit span "Abrimos de martes a domingo." at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) and rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+/kit p "Acciones" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Botones" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "El botón principal es la única acción principal " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit button "Buscar" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+/kit button "Ver los documentos" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit button "Cerrar" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit button "Cerrar sesión" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+/kit p "Idioma" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Selector de idioma" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "Inglés primero y español completo. Sobre papel s" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit button "English" at 11px: oklab(0.204625 0.00000931323 0.00000409782 / 0.6) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+/kit span "|" at 11px: oklab(0.204625 0.00000931323 0.00000409782 / 0.6) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+/kit button "Español" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit button "English" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+/kit span "|" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+/kit button "Español" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+/kit p "Entrada" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Campo de texto" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit label "Tu pregunta" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit placeholder "Escribe tu pregunta" at 16px: oklab(0.204625 0.00000931323 0.00000409782 / 0.6) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+/kit p "Estado" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Etiquetas" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "Una etiqueta nombra el estado de una capacidad. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit span "Disponible" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit span "Next · ElevenLabs" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+/kit p "Superficie" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+/kit h2 "Panel" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+/kit p "El panel agrupa una idea sobre el papel cálido d" at 16px: rgb(87, 83, 78) over rgb(250, 250, 249) = 7.30:1 (asks 4.5:1)
+  ok 17 [public] › e2e\brand.spec.ts:286:5 › every text of /kit reaches 4.5:1, the number inside a citation mark and the words in the highlighter included (972ms)
+/ under reduced motion: {"animated":[],"running":[],"highlights":[{"text":"with its sources.","size":"100% 100%"}]}
+  ok 18 [public] › e2e\brand.spec.ts:305:9 › reduced motion › /: no element carries an animation and the highlighter is painted at once (372ms)
+/kit under reduced motion: {"animated":[],"running":[],"highlights":[{"text":"de dónde salió.","size":"100% 100%"},{"text":"Abrimos de martes a domingo.","size":"100% 100%"}]}
+  ok 19 [public] › e2e\brand.spec.ts:305:9 › reduced motion › /kit: no element carries an animation and the highlighter is painted at once (392ms)
+  ok 20 [public] › e2e\brand.spec.ts:343:7 › reduced motion › an open citation keeps its passage in the highlighter, painted at once, with nothing moving (816ms)
+  ok 21 [public] › e2e\brand.spec.ts:368:5 › with motion allowed the welcome headline does animate, so the reduced-motion scenario measures something (407ms)
+  ok 22 [public] › e2e\brand.spec.ts:402:7 › in en the footer of / reads "Built by Katalis" beside the flame of Katalis (535ms)
+  ok 23 [public] › e2e\brand.spec.ts:402:7 › in es the footer of / reads "Hecho por Katalis" beside the flame of Katalis (649ms)
+the band without a business span "Cited1" at 56px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 3:1)
+the band without a business span "1" at 40.32px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+the band without a business button "English" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+the band without a business span "|" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+the band without a business button "Español" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+  ok 24 [public] › e2e\brand.spec.ts:443:5 › no business yet: the band is ink, shows the wordmark, and the question box is there (966ms)
+the page is 2017px tall on a 812px viewport
+  ok 25 [public] › e2e\brand.spec.ts:470:5 › four questions on a 375 x 812 viewport keep the ask form in reach, and every answer keeps its markers (1.6s)
+  ok 26 [public] › e2e\brand.spec.ts:524:5 › the marks of an answer: lime buttons named Citation n, the sources beside it, the passage in the highlighter (2.0s)
+the switch over the band of the business button "English" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+the switch over the band of the business span "|" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+the switch over the band of the business button "Español" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+the band of the business h1 "Taller Rueda Libre" at 40px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 3:1)
+the band of the business button "English" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+the band of the business span "|" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+the band of the business button "Español" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+the branded public page: axe 0 violations, 26 rules passed
+  ok 27 [public] › e2e\brand.spec.ts:729:7 › a business is configured › the band wears the color of the business, its name is the only h1 and the switch reads at 4.5:1 (2.4s)
+  ok 28 [public] › e2e\brand.spec.ts:773:7 › a business is configured › the band follows the language of the visitor and the ask form still answers (1.0s)
+the date of the conversation: datetime="2026-10-09T20:57:45.603Z", shown "9 oct 2026, 14:57", es formats it "9 oct 2026, 14:57"
+  ok 29 [public] › e2e\brand.spec.ts:790:7 › a business is configured › in Spanish the date of a conversation is a time element with the stored ISO value and a date an owner reads (2.4s)
+computed font-family: {"html":"Outfit, system-ui, sans-serif","body":"Outfit, system-ui, sans-serif","paragraph":"Outfit, system-ui, sans-serif"}
+requests of the page: ["http://127.0.0.1:3100/kit","http://127.0.0.1:3100/fonts/outfit/outfit-latin.woff2","http://127.0.0.1:3100/_next/static/chunks/3_cq3ysyp1mkq.css","http://127.0.0.1:3100/_next/static/chunks/1ckvzn7sfprko.js","http://127.0.0.1:3100/_next/static/chunks/2r4s4h5xul1n-.js","http://127.0.0.1:3100/_next/static/chunks/0s7mvllxht1mo.js","http://127.0.0.1:3100/_next/static/chunks/0rm4bmi_uaeqm.js","http://127.0.0.1:3100/_next/static/chunks/turbopack-2c3mg3r-05n1w.js","http://127.0.0.1:3100/_next/static/chunks/0umf92h1sb77c.js","http://127.0.0.1:3100/_next/static/chunks/1ay0k8oz60_8r.js"]
+  ok 30 [public] › e2e\design-system.spec.ts:90:5 › every text of the app is Outfit, served by the app (563ms)
+focus of the primary button: {"visible":true,"width":"2px","style":"solid","color":"rgb(23, 23, 23)"}
+axe: 0 violations, 22 rules passed
+  ok 31 [public] › e2e\design-system.spec.ts:134:5 › the kit renders every component, answers 200 and passes axe (2.7s)
+the hairline of the controls: --border resolves to color(srgb 0.545098 0.545098 0.545098) = rgb(139, 139, 139) on the ground of the page
+Input: the border is color(srgb 0.545098 0.545098 0.545098) = rgb(139, 139, 139) over the ground rgb(255, 255, 255), 3.41:1 at 1px (the scenario asks 3:1)
+the rendered frame of Input: rgb(255, 255, 255) x54, rgb(139, 139, 139) x10; the hairline is painted 10 times
+the secondary Button: the border is color(srgb 0.545098 0.545098 0.545098) = rgb(139, 139, 139) over the ground rgb(255, 255, 255), 3.41:1 at 1px (the scenario asks 3:1)
+the rendered frame of the secondary Button: rgb(23, 23, 23) x15, rgb(221, 244, 105) x24, rgb(139, 139, 139) x9, rgb(255, 255, 255) x16; the hairline is painted 9 times
+Panel: the border rgb(226, 226, 225) is 1.30:1 and the fill rgb(250, 250, 249) is 1.04:1: decorative and exempt
+Chip: the border rgb(209, 209, 209) is 1.53:1 and the fill rgb(255, 255, 255) is 1.00:1: decorative and exempt
+p "Sistema de diseño" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h1 "El kit de Cited" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "Los cinco componentes con los que se construyen " at 18px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Logotipo" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "La palabra Cited con una marca de cita en lima. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+span "Cited1" at 20px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+span "1" at 14.4px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+span "Cited1" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+span "Cited1" at 56px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+span "1" at 40.32px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+span "Cited1" at 36px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 3:1)
+span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Marca de cita" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "Un cuadrado de lima con el número de la fuente d" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+p "La afinación pide cita previa 1 y el taller cier" at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+span "1" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+span "2" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+span "En reposo" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+span "3" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+span "Abierta" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+span "3" at 12.96px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Marcatextos" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "Lima pintada detrás de las palabras que importan" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+p "Cada respuesta enseña de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+span "de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+span "Abrimos de martes a domingo." at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+p "Acciones" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Botones" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "El botón principal es la única acción principal " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+button "Buscar" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+button "Ver los documentos" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+button "Cerrar" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+button "Cerrar sesión" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+p "Idioma" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Selector de idioma" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "Inglés primero y español completo. Sobre papel s" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+button "English" at 11px: rgb(116, 116, 116) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+span "|" at 11px: rgb(116, 116, 116) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+button "Español" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+button "English" at 11px: rgb(209, 209, 209) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+span "|" at 11px: rgb(162, 162, 162) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+button "Español" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+p "Entrada" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Campo de texto" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+label "Tu pregunta" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+p "Estado" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Etiquetas" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "Una etiqueta nombra el estado de una capacidad. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+span "Disponible" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+span "Next · ElevenLabs" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+p "Superficie" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+h2 "Panel" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+p "El panel agrupa una idea sobre el papel cálido d" at 16px: rgb(87, 83, 78) over rgb(250, 250, 249) = 7.30:1 (asks 4.5:1)
+the value of the field "" at 16px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+the placeholder of the field "" at 16px: rgb(116, 116, 116) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+the focus of [data-kit="input"]: the outline rgb(23, 23, 23) of 2px is 17.93:1, and the edge that the design pairs with it (rgb(221, 244, 105) of 2px) is 1.22:1 (the indicator asks 3:1)
+the focus of [data-kit="button-secondary"]: the outline rgb(23, 23, 23) of 2px is 17.93:1, and the edge that the design pairs with it (rgb(221, 244, 105) of 2px) is 1.22:1 (the indicator asks 3:1)
+  ok 32 [public] › e2e\design-system.spec.ts:189:5 › the controls can be seen: 3:1 of the border and of the focus, 4.5:1 of every text (2.0s)
+  ok 33 [public] › e2e\home.spec.ts:3:5 › home page answers with the product name (358ms)
+  ok 34 [public] › e2e\home.spec.ts:17:9 › / in en: every Katalis signature carries the flame (314ms)
+  ok 35 [public] › e2e\home.spec.ts:17:9 › /embed in en: every Katalis signature carries the flame (301ms)
+  ok 36 [public] › e2e\home.spec.ts:17:9 › / in es: every Katalis signature carries the flame (310ms)
+  ok 37 [public] › e2e\home.spec.ts:17:9 › /embed in es: every Katalis signature carries the flame (284ms)
+  ok 38 [public] › e2e\passage-display.spec.ts:38:5 › the heading of the cited passage is shown once and its list is a list of five items (901ms)
+  ok 39 [public] › e2e\passage-display.spec.ts:65:5 › the passage of the public page speaks Spanish too (913ms)
+  ok 40 [public] › e2e\passage-display.spec.ts:85:5 › the words a passage repeats are muted and outside the highlighter, on the page and in the widget (589ms)
+  ok 41 [public] › e2e\passage-display.spec.ts:128:5 › the highlighter is inline and starts on the first line of its item, at 1440 px and at 375 px (562ms)
+  ok 42 [public] › e2e\passage-display.spec.ts:166:5 › the widget opens the same passage (394ms)
+  ok 43 [public] › e2e\public-chat.spec.ts:19:5 › an answer with its sources: the chip opens the excerpt, the document and the heading (786ms)
+  ok 44 [public] › e2e\public-chat.spec.ts:41:5 › a refusal: the message is styled as such and carries no citation chip (318ms)
+  ok 45 [public] › e2e\public-chat.spec.ts:53:5 › the answer is rendered safely: injected HTML reaches no element of the DOM (317ms)
+  ok 46 [public] › e2e\public-chat.spec.ts:89:5 › a follow-up keeps its thread in the tab and a new tab starts clean (864ms)
+/: --primary is #ddf469, the ask button is rgb(221, 244, 105) with the text rgb(23, 23, 23), and with a business color rgb(29, 78, 216) with the text rgb(255, 255, 255)
+/embed: --primary is #ddf469, the ask button is rgb(221, 244, 105) with the text rgb(23, 23, 23), and with a business color rgb(29, 78, 216) with the text rgb(255, 255, 255)
+  ok 47 [public] › e2e\public-chat.spec.ts:133:5 › the color reaches the page: the ask button is painted with the primary color of the settings (1.8s)
+the opener tab carries 1efa10c0-a6c2-44e5-a0c8-aef8f3ebc835; the tab it opened carries 1898c6c1-e661-4307-81e8-8a803d5372ea and asked with 1898c6c1-e661-4307-81e8-8a803d5372ea
+  ok 48 [public] › e2e\public-chat.spec.ts:193:5 › a tab opened from the page starts its own conversation (940ms)
+  ok 49 [public] › e2e\public-chat.spec.ts:245:7 › the public page speaks English first › opens in English although the browser prefers Spanish, and answers in Spanish (733ms)
+  ok 50 [public] › e2e\public-chat.spec.ts:276:5 › a four-answer thread at 375 x 812: the focus is never under the ask box and a closed passage returns it (1.1s)
+  ok 51 [public] › e2e\public-chat.spec.ts:421:9 › a four-answer thread at 512 x 384 on /: the last answer sits above a box that does not stick (675ms)
+  ok 52 [public] › e2e\public-chat.spec.ts:421:9 › a four-answer thread at 512 x 384 on /embed: the last answer sits above a box that does not stick (739ms)
+  ok 53 [public] › e2e\public-chat.spec.ts:421:9 › a four-answer thread at 320 x 256 on /: the last answer sits above a box that does not stick (786ms)
+  ok 54 [public] › e2e\public-chat.spec.ts:421:9 › a four-answer thread at 320 x 256 on /embed: the last answer sits above a box that does not stick (845ms)
+/: axe 0 violations, 26 rules passed
+/embed: axe 0 violations, 25 rules passed
+  ok 55 [public] › e2e\public-chat.spec.ts:483:5 › the public page and the embed pass axe at level A and AA (2.2s)
+  ok 56 [public] › e2e\widget.spec.ts:46:5 › an allowed site: the widget loads the chat and the chat answers (875ms)
+  ok 57 [public] › e2e\widget.spec.ts:68:5 › Escape inside the iframe closes the widget and returns the focus to its button (846ms)
+the frame-ancestors of /embed: default-src 'self'; script-src 'self' 'nonce-YmYzYjlmOTYtMTdmYS00MzJkLWI5MmYtMDMwNzY4ODZhNTAy' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' wss://api.elevenlabs.io; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'self'; frame-ancestors 'self' http://127.0.0.1:3210 http://127.0.0.1:3212
+  ok 58 [public] › e2e\widget.spec.ts:92:5 › a site that is not allowed cannot embed the chat (598ms)
+(node:47440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+the texture of the Orb: before the panel opens false, after it true, in 9 scripts
+  ok 59 [public] › e2e\voice.spec.ts:85:5 › the microphone button opens the panel and the Orb arrives on demand (1.8s)
+  ok 60 [public] › e2e\voice.spec.ts:112:5 › the panel shows the four states in words (1.2s)
+  ok 61 [public] › e2e\voice.spec.ts:137:5 › a written question is echoed once (767ms)
+  ok 62 [public] › e2e\voice.spec.ts:148:5 › the chips are named by section and somebody else's page is dropped (989ms)
+  ok 63 [public] › e2e\voice.spec.ts:173:5 › the widget offers the same microphone (1.0s)
+the browser saw 8 scripts, 530358 characters of them
+  ok 64 [public] › e2e\voice.spec.ts:181:5 › the signed URL of the server answers a code and the browser never gets the key (677ms)
+the worklets: /voice/worklets/raw-audio-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/audio-concat-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/libsamplerate.worklet.js 200 application/javascript; charset=UTF-8; /voice/worklets/raw-audio-processor.js: loaded; /voice/worklets/audio-concat-processor.js: loaded; /voice/worklets/libsamplerate.worklet.js: loaded
+  ok 65 [public] › e2e\voice.spec.ts:215:5 › the audio worklets are served by this origin and load under the policy of the page (726ms)
+the voice panel: axe 0 violations, 26 rules passed
+  ok 66 [public] › e2e\voice.spec.ts:272:5 › the voice panel passes axe at level A and AA (1.9s)
+(node:51828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 67 [keys] › e2e\providers.spec.ts:106:5 › the page of AI and keys lists the providers with one honest line and a link (4.3s)
+  ok 68 [keys] › e2e\providers.spec.ts:126:5 › the affiliate switch is off, the links are plain and the hosted offer is shown (2.0s)
+  ok 69 [keys] › e2e\providers.spec.ts:152:5 › a rejected key is said in words and nothing is saved (1.7s)
+  ok 70 [keys] › e2e\providers.spec.ts:173:5 › a chat provider is connected through its double and only its last four characters show (1.5s)
+  ok 71 [keys] › e2e\providers.spec.ts:198:5 › keyword search is connected without a key and says it searches by words (1.2s)
+  ok 72 [keys] › e2e\providers.spec.ts:214:5 › the panel server shows its own provider as set by the server, read only (2.7s)
+  ok 73 [keys] › e2e\providers.spec.ts:228:5 › the page speaks Spanish completely (1.4s)
+(node:41152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 74 [affiliate] › e2e\affiliate.spec.ts:94:5 › the affiliate link is labelled before the click and the plain link is nowhere (2.2s)
+[WebServer] the voice agent is not configured: the environment of the server is missing VOICE_TOOL_SECRET
+  ok 75 [affiliate] › e2e\affiliate.spec.ts:121:5 › the key is tested, saved, and never comes back in any response nor in the store (3.2s)
+(node:47500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 76 [setup] › e2e\setup.spec.ts:157:5 › a first visit shows one sentence of value, four steps and a start button (6.0s)
+from zero to an answer: 4.4 s ai connected 0.6 s · step 1 verified 0.8 s · step 2 verified 1.7 s · answer marked right 4.3 s · step 3 verified 4.4 s
+  ok 77 [setup] › e2e\setup.spec.ts:194:5 › from zero to an answer, timed (6.1s)
+  ok 78 [setup] › e2e\setup.spec.ts:301:5 › a scanned PDF is said in words while the other file is read (2.2s)
+  ok 79 [setup] › e2e\setup.spec.ts:319:5 › a PDF and a DOCX are read by their content, even renamed (2.6s)
+  ok 80 [setup] › e2e\setup.spec.ts:344:5 › a picture renamed to a text extension is refused as a type (2.0s)
+  ok 81 [setup] › e2e\setup.spec.ts:362:5 › a ZIP renamed to a Word name is refused as a type (2.0s)
+  ok 82 [setup] › e2e\setup.spec.ts:378:5 › a file above the size limit is refused with the limit in words (8.2s)
+  ok 83 [setup] › e2e\setup.spec.ts:398:5 › a name with a parent folder is stored by its base name (2.1s)
+  ok 84 [setup] › e2e\setup.spec.ts:422:5 › a document page lists its headings in reading order (2.9s)
+  ok 85 [setup] › e2e\setup.spec.ts:448:5 › the page of a document highlights the passage a citation opened (3.1s)
+  ok 86 [setup] › e2e\setup.spec.ts:466:5 › a refusal says the documents do not say it and suggests adding one (1.7s)
+  ok 87 [setup] › e2e\setup.spec.ts:477:5 › the publish step paints the color in the preview and verifies the step (2.6s)
+  ok 88 [setup] › e2e\setup.spec.ts:503:5 › the public page and the widget are honest about AI and link the privacy page (3.3s)
+  ok 89 [setup] › e2e\setup.spec.ts:535:5 › every page of the round passes axe in English and in Spanish (16.5s)
+  ok 90 [setup] › e2e\setup.spec.ts:581:5 › the lead of a passage reads outside the highlighter in Try it and on the page of its document (2.9s)
+  ok 91 [setup] › e2e\setup.spec.ts:738:7 › the chat set by the server › step 1 asks for the search and the sample waits for it, in both languages (7.3s)
+(node:45024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 92 [setup-es] › e2e\setup-es.spec.ts:123:5 › la primera visita en español muestra el saludo y los cuatro pasos (4.5s)
+de cero a una respuesta en español: 3.4 s ia conectada 0.6 s · paso 1 verificado 0.8 s · paso 2 verificado 1.8 s · respuesta marcada como correcta 3.2 s · paso 3 verificado 3.4 s
+  ok 93 [setup-es] › e2e\setup-es.spec.ts:143:5 › de cero a una respuesta, en español, cronometrado (5.9s)
+  ok 94 [setup-es] › e2e\setup-es.spec.ts:241:5 › la página del documento resalta el pasaje que abrió una cita (3.6s)
+  ok 95 [setup-es] › e2e\setup-es.spec.ts:260:5 › el paso de publicar en español cierra la configuración (5.4s)
+  ok 96 [setup-es] › e2e\setup-es.spec.ts:277:5 › la guía de un pasaje se lee fuera del resaltador en Prueba y en la página de su documento (3.4s)
+
+  96 passed (4.1m)
