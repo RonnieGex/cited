@@ -15,6 +15,6 @@ Authority: Fable's approved round-three assignment. Author: independent contract
 - [x] 9. `/verify`: run strict OpenSpec validation and requirement/evidence reconciliation in `reports/2026-10-09-step-9-verify.md`.
 - [x] 10. `/adversarial-review`: independent reviewer records evidence, Blocker/Major/Minor findings and PASS/PASS WITH GAPS/FAIL; independently review corrections in `reports/2026-10-09-step-10-adversarial-review.md`.
 - [x] 11. `/archive`: archive only with Blockers and Majors resolved; preserve all reports.
-- [ ] 12. `/commit`: run automated checks and gitleaks before committing; push PR #18, require all checks green, set `Merge after RonnieGex/dsh-cited#1` in its description and never merge or deploy. Add actual outcomes and classified Issues to the shared Spanish delivery.
+- [x] 12. `/commit`: run automated checks and gitleaks before committing; push PR #18, require all checks green, set `Merge after RonnieGex/dsh-cited#1` in its description and never merge or deploy. Add actual outcomes and classified Issues to the shared Spanish delivery. Evidence: `reports/2026-10-09-step-12-closure.md`.
 
 Archive evidence: `openspec archive agent-evidence-r3 --yes`: succeeded after independent PASS WITH GAPS, no open Blocker/Major. `openspec validate --all --strict`: 15/15 valid.
