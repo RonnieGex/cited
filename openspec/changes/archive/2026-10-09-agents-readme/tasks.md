@@ -36,6 +36,8 @@ Continue this same branch and PR #18 in the assigned A, B, C order. The approved
 - [x] R2.2. Correct status glyphs, alignment, exact natural answer, source highlight and bilingual copy.
 - [x] R2.3. Run existing tests with sample database state before/after, agent curl checks and both Playwright themes.
 - [x] R2.4. Update asset documentation and development manual; verify and obtain independent adversarial review.
-- [ ] R2.5. Archive, scan secrets, commit, push to PR #18 and check required CI. Fable retains merge authority.
+- [x] R2.5. Archive, scan secrets, commit, push to PR #18 and check required CI. Fable retains merge authority.
 
 Round-two commands and results: [validation](reports/2026-10-09-r2-validation.md).
+
+Round-two closure: independent review PASS; `openspec archive agents-readme --yes` succeeded; staged gitleaks reported no leaks; commit 7fcc3109fd84bd34c8c31fb0daa0246d0241672a pushed to PR #18. `gh pr checks 18 --required --json name,state,link` confirmed every required job SUCCESS at that SHA. `gh run view 37959973698 --log` records 96 E2E tests passed in 1.9m. No merge or deployment performed.
