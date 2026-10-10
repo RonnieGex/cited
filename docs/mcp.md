@@ -210,8 +210,8 @@ refusal, and the consistency record of those turns verified its internal consist
 `python -m hermes_cited.verify_log` run from the installed plugin. No route grants the seal with this host;
 only the capability point turned on in a fixture proves what a future host would activate. The evidence is
 durable in the plugin repository:
-[the gate](https://github.com/RonnieGex/hermes-cited/blob/main/openspec/changes/hermes-plugin-r4/reports/2026-10-10-step-12-gate.md)
-and [the end-to-end transcripts](https://github.com/RonnieGex/hermes-cited/blob/main/openspec/changes/hermes-plugin-r4/reports/2026-10-10-step-5-e2e.md).
+[the gate](https://github.com/RonnieGex/hermes-cited/blob/main/openspec/changes/archive/2026-10-10-hermes-plugin-r4/reports/2026-10-10-step-12-gate.md)
+and [the end-to-end transcripts](https://github.com/RonnieGex/hermes-cited/blob/main/openspec/changes/archive/2026-10-10-hermes-plugin-r4/reports/2026-10-10-step-5-e2e.md).
 The round 4 gate also ran the real host finalizer and recorded three declared incompatibilities: Hermes never
 calls the hook when the model's answer is empty (`agent/turn_finalizer.py:501`), no plugin can retain the
 drafts a streaming surface already delivered, and the host can append its own text after the hook (the
