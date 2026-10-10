@@ -263,9 +263,10 @@ function openChangeSpecs(capability: string): string[] {
 // The headers a delta adds, requirement and scenario alike, compared without case and without runs of spaces, so a hand copy with a
 // reworded case or spacing is still caught (finding 43 of the third review).
 function requirementHeaders(text: string): string[] {
-  return (
-    text.match(/^#{3,4} (?:Requirement|Scenario): .+$/gm)?.map((header) => header.trim().toLowerCase().replace(/\s+/g, " ")) ?? []
-  );
+  return text.split(/^## /m)
+    .filter((section) => /^ADDED Requirements\r?\n/.test(section))
+    .flatMap((section) => section.match(/^#{3,4} (?:Requirement|Scenario): .+$/gm) ?? [])
+    .map((header) => header.trim().toLowerCase().replace(/\s+/g, " "));
 }
 
 function specIsDelivered(link: string): boolean {
