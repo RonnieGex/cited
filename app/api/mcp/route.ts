@@ -6,6 +6,7 @@
  */
 
 import { bearerOf, mcpToken, originAllowed, tokenMatches } from "../../../lib/mcp/auth.ts";
+import { BodyLimitError, readMcpBody } from "../../../lib/mcp/body.ts";
 import { INVALID_REQUEST, PARSE_ERROR, type JsonRpcResponse, failure, isSupportedVersion } from "../../../lib/mcp/protocol.ts";
 import { handleMessage } from "../../../lib/mcp/server.ts";
 
@@ -53,6 +54,23 @@ function guard(request: Request): Response | string {
   return token;
 }
 
+function isInitialize(body: unknown): boolean {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    return false;
+  }
+
+  const message = body as Record<string, unknown>;
+  const id = message["id"];
+  const params = message["params"];
+
+  return message["jsonrpc"] === "2.0" && message["method"] === "initialize"
+    && Object.hasOwn(message, "id")
+    && (typeof id === "string" || (typeof id === "number" && Number.isFinite(id) && Number.isInteger(id)))
+    && typeof params === "object" && params !== null && !Array.isArray(params)
+    && typeof (params as Record<string, unknown>)["protocolVersion"] === "string"
+    && ((params as Record<string, unknown>)["protocolVersion"] as string).length > 0;
+}
+
 export async function POST(request: Request): Promise<Response> {
   const guarded = guard(request);
 
@@ -60,18 +78,24 @@ export async function POST(request: Request): Promise<Response> {
     return guarded;
   }
 
-  const version = request.headers.get("mcp-protocol-version")?.trim() ?? "";
-
-  if (version.length > 0 && isSupportedVersion(version) === false) {
-    return json(failure(null, INVALID_REQUEST, `the protocol version ${version} is not supported`), 400);
-  }
-
   let body: unknown;
 
   try {
-    body = await request.json();
-  } catch {
+    body = await readMcpBody(request);
+  } catch (error) {
+    if (error instanceof BodyLimitError) {
+      return plain(`${error.message}\n`, error.status);
+    }
+
     return json(failure(null, PARSE_ERROR, "the body is not valid JSON"), 400);
+  }
+
+  // The header belongs to the requests that follow initialization (MCP transport, "Protocol Version Header"): an
+  // `initialize` is negotiated by its body, so a client that seeds a newer header still receives our latest version.
+  const version = request.headers.get("mcp-protocol-version")?.trim() ?? "";
+
+  if (version.length > 0 && isSupportedVersion(version) === false && isInitialize(body) === false) {
+    return json(failure(null, INVALID_REQUEST, `the protocol version ${version} is not supported`), 400);
   }
 
   const outcome = await handleMessage(body, { environment: process.env, token: guarded });

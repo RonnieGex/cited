@@ -51,15 +51,24 @@ The endpoint speaks the **Streamable HTTP** transport of MCP, in its revision `2
   endpoint never opens a stream of events.
 - A notification (`notifications/initialized`) answers `202` with no body.
 - `GET` and `DELETE` answer `405`.
-- A request that carries an `MCP-Protocol-Version` the server does not speak answers `400`.
+- A valid individual `initialize` negotiates using `params.protocolVersion` in its body, even when its
+  `MCP-Protocol-Version` header names an unsupported version. The server returns the requested version when supported,
+  otherwise `2025-06-18`. The exception requires a JSON-RPC 2.0 object with a string or finite integer `id` and object
+  `params` containing a non-empty string `protocolVersion`; notifications, malformed envelopes and arrays do not qualify.
+- Subsequent messages use the negotiated `MCP-Protocol-Version` header. Unsupported headers on any message other than
+  a valid individual `initialize`, including tools and notifications, answer `400` without running tools.
+- Every POST body is limited to **1 MiB (1,048,576 bytes)** and **10 seconds total reading time**. Declared oversized
+  `Content-Length` answers `413` without reading; actual bytes are counted even when that header is missing or wrong.
+  Overflow cancels the reader and answers `413`; reaching the total deadline cancels it and answers `408`.
 - A request without `Authorization: Bearer <token>`, or with a token that does not match, answers `401` with
   `WWW-Authenticate: Bearer`.
 - A request whose `Origin` names a host that is not the host of the installation answers `403`. A request with no
   `Origin`, which is the case of a client of the command line, is served.
 
-Every failure is a JSON-RPC error (`-32700`, `-32600`, `-32601`, `-32602`) or a tool result with `isError: true`; no
-failure is a server error of the route, and no text of a provider and no name of a variable of the environment ever
-leaves it.
+The disabled endpoint (`404`), origin (`403`) and bearer (`401`) checks run in that order before body reading or size
+checks. Access and body-limit failures are HTTP responses; malformed JSON answers `400` with JSON-RPC error `-32700`.
+Protocol failures use JSON-RPC errors (`-32600`, `-32601`, `-32602`) and tool failures use `isError: true`.
+Provider error text and environment variable names are not exposed.
 
 ## 4. DeepSeek Harness
 

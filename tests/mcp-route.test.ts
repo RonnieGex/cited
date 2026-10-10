@@ -188,6 +188,32 @@ describe("the transport of the endpoint", () => {
     }
   });
 
+  it("negotiates an initialize whose header names a newer version", async () => {
+    const path = await keywordStore();
+
+    setEnvironment({ DATABASE_URL: path, CITED_MCP_TOKEN: TOKEN });
+    await closeSharedStores();
+
+    for (const version of ["2025-11-25", "2024-11-05"]) {
+      const response = await POST(
+        request(
+          {
+            jsonrpc: "2.0",
+            id: 1,
+            method: "initialize",
+            params: { protocolVersion: version, capabilities: {}, clientInfo: { name: "hermes-agent", version: "0" } },
+          },
+          authorized({ "mcp-protocol-version": version }),
+        ),
+      );
+
+      expect(response.status, version).toBe(200);
+      expect(((await answerOf(response))["result"] as Record<string, unknown>)["protocolVersion"], version).toBe(
+        "2025-06-18",
+      );
+    }
+  });
+
   it("answers 405 to GET and DELETE", async () => {
     const path = await keywordStore();
 
