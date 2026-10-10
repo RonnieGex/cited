@@ -105,17 +105,37 @@ with `2025-06-18`, which is the expected negotiation.
 
 ## 5. Hermes Agent
 
-**The short way: the native plugin.** The plugin of this repository installs in one step and turns both tools into
-native Hermes tools:
+**The short way: the native plugin.** The plugin lives in its own repository,
+[`RonnieGex/hermes-cited`](https://github.com/RonnieGex/hermes-cited), and installs in one step, turning both
+tools into native Hermes tools:
 
 ```bash
 hermes plugins install RonnieGex/hermes-cited --enable
 ```
 
-Declare `CITED_URL` and `CITED_MCP_TOKEN` in `$HERMES_HOME/.env` and the agent gets `cited_search` and `cited_ask`
-without an MCP configuration, plus the `/cited` and `/dot` conversation modes, a deterministic verifier that replaces
-an answer whose numbers no passage of the turn contains, and the hash-chained log of
-`$HERMES_HOME/cited/audit.jsonl`. Its repository explains the rest: https://github.com/RonnieGex/hermes-cited
+Declare `CITED_URL` and `CITED_MCP_TOKEN` in `$HERMES_HOME/.env` and the agent gets `cited_search` and
+`cited_ask` without an MCP configuration, plus the `/cited` and `/dot` conversation modes, a deterministic
+verifier and the hash-chained log of `$HERMES_HOME/cited/audit.jsonl`. Those four things belong to the
+plugin: the MCP route below has the same two tools but no modes, no verifier and no log.
+
+In cited mode the verifier is **extractive**: a sentence or line that carries a number, a price, a unit, a
+date or a code is accepted only when the reader-visible line, written between `« »` to quote it, appears
+verbatim inside a passage or citation excerpt Cited returned in that same turn. The query, the generated
+`cited_ask` answer, the headings and the counts are never evidence, and free text may not carry a datum.
+`Verified by Cited` describes the **final answer** only: Hermes hands text deltas to the surface before the
+verdict runs, so the seal is not a promise that no draft was visible. The plugin says so and withholds the
+seal on a messaging platform whose streaming is on (`streaming.enabled: false`, or
+`display.platforms.<platform>.streaming: false`). The repository explains the rest, with the exact
+configuration and the pending host-side proposal: https://github.com/RonnieGex/hermes-cited
+
+The log is anchored: after every append the plugin rewrites an HMAC-authenticated checkpoint of the entry
+count and the final hash, with a key outside `HERMES_HOME`
+(`%APPDATA%\Katalis\hermes-cited\audit.key`). Verify it from the installed plugin:
+
+```powershell
+Push-Location (Join-Path $env:HERMES_HOME 'plugins/hermes-cited')
+try { python -m hermes_cited.verify_log (Join-Path $env:HERMES_HOME 'cited/audit.jsonl') } finally { Pop-Location }
+```
 
 **The MCP way.** The same two tools with nothing installed. In `$HERMES_HOME/config.yaml`:
 
@@ -136,16 +156,22 @@ web, `hermes_cited/skills/cited/SKILL.md` of the plugin, to `$HERMES_HOME/skills
 
 **This route needs a Cited with the `initialize` fix.** Hermes sends `MCP-Protocol-Version: 2025-11-25` from
 `initialize`. An installation that rejects that header answers `400` and the connection fails with `the protocol
-version 2025-11-25 is not supported`; the fix is [RonnieGex/cited#21](https://github.com/RonnieGex/cited/pull/21).
+version 2025-11-25 is not supported`; the fix is [RonnieGex/cited#21](https://github.com/RonnieGex/cited/pull/21),
+merged into `main` as `ef11f88`.
 
-Verified on 2026-10-09 with Hermes Agent v0.21.6+387 (commit `dce1e9b`) on Windows, against a local Cited on
-`127.0.0.1:3246` seeded from `samples/`, in a temporary `HERMES_HOME`: `hermes mcp test cited` connected and listed both
-tools, and a natural question in the MCP route called `mcp__cited__cited_search` and answered 380 pesos with the
-citation of `cafe-la-horquilla.md · Precios`. The native plugin was installed with `hermes plugins install
-"file:///C:/absolute/path/to/hermes-cited" --enable --yes-deps`; in cited mode the same question called the native
-`cited_search` and no web tool, answered 380 pesos and ended with the seal `Verified by Cited`, the English guarantee
-question answered 90 days, a question the samples do not answer was refused without inventing a price, and the chain of
-the log of those turns verified with `python -m hermes_cited.verify_log`.
+Verified on 2026-10-09 (MCP route) and re-verified on 2026-10-10 (native plugin) with Hermes Agent v0.21.6+387
+(commit `dce1e9b`) on Windows, against a Cited built from `origin/main` (`ef11f88`) on `127.0.0.1:3246` seeded
+from `samples/`, in a temporary `HERMES_HOME`: `hermes mcp test cited` connected and listed both tools, and a
+natural question in the MCP route called `mcp__cited__cited_search` and answered 380 pesos with the citation of
+`cafe-la-horquilla.md · Precios`. The native plugin was installed with `hermes plugins install
+"file:///C:/absolute/path/to/hermes-cited" --enable --yes-deps`; in cited mode the same question called the
+native `cited_search` with no other tool before it, answered 380 pesos with its citation and its final answer
+ended with the seal `Verified by Cited`, the English guarantee question answered 90 days, a question the
+samples do not answer was refused, and the chain and checkpoint of the log of those turns verified with
+`python -m hermes_cited.verify_log` run from the installed plugin. The evidence is durable in the plugin
+repository: [the gate](https://github.com/RonnieGex/hermes-cited/blob/main/openspec/changes/hermes-plugin-r2/reports/2026-10-10-step-12-gate.md)
+and [the end-to-end transcripts](https://github.com/RonnieGex/hermes-cited/blob/main/openspec/changes/hermes-plugin-r2/reports/2026-10-10-step-5-e2e.md).
+This documents one verified run, not a general guarantee of the verifier.
 
 ## 6. Claude Code
 
