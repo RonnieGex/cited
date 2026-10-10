@@ -1,0 +1,177 @@
+{
+  "head": "4f0d9a2d1f47a1a384928a5d68d9c7055084f432",
+  "checks": [
+    {
+      "link": "https://github.com/RonnieGex/cited/runs/114095683353",
+      "name": "CodeQL",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480472",
+      "name": "Dependency audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480475",
+      "name": "Lint",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480497",
+      "name": "Unit tests",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480466",
+      "name": "OpenSpec validation",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480385",
+      "name": "Types",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480517",
+      "name": "Secret scan",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525086/job/114095480263",
+      "name": "Analyze JavaScript and TypeScript",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480520",
+      "name": "Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480531",
+      "name": "End to end",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446711",
+      "name": "OpenSpec validation",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446472",
+      "name": "Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446621",
+      "name": "Dependency audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446668",
+      "name": "End to end",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446700",
+      "name": "Secret scan",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446557",
+      "name": "Unit tests",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446602",
+      "name": "Lint",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446676",
+      "name": "Types",
+      "state": "SUCCESS"
+    }
+  ],
+  "required": [
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480472",
+      "name": "Dependency audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480475",
+      "name": "Lint",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480497",
+      "name": "Unit tests",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480466",
+      "name": "OpenSpec validation",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480385",
+      "name": "Types",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480517",
+      "name": "Secret scan",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480520",
+      "name": "Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012525069/job/114095480531",
+      "name": "End to end",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446711",
+      "name": "OpenSpec validation",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446472",
+      "name": "Build",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446621",
+      "name": "Dependency audit",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446668",
+      "name": "End to end",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446700",
+      "name": "Secret scan",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446557",
+      "name": "Unit tests",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446602",
+      "name": "Lint",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/RonnieGex/cited/actions/runs/38012513949/job/114095446676",
+      "name": "Types",
+      "state": "SUCCESS"
+    }
+  ]
+}

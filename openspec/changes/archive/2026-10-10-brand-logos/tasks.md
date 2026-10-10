@@ -45,8 +45,8 @@ Reports: `reports/YYYY-MM-DD-step-N-name.md` inside this change. Every checked t
 - [x] 8.1 Run `openspec validate brand-logos --strict`, `git diff --check`, the repository's existing CI-equivalent commands and `gitleaks dir . --redact --no-banner`. Execute /verify with a requirement-to-evidence report.
 - [x] 8.2 Obtain /adversarial-review from an author who neither specified nor implemented this change. Record evidence, Blocker/Major/Minor findings and PASS/PASS WITH GAPS/FAIL. Resolve all Blockers and Majors under the same author-separation rule, then independently re-review corrections.
 - [x] 8.3 After acceptable review, execute /archive, preserving reports with the change and synchronizing the new capability spec. Run strict validation of archived specifications.
-- [ ] 8.4 Re-run the secret scan immediately before /commit, commit only authorized files with an English message and no Co-Authored-By. Push docs/brand-logos and open a PR against main. Record the PR URL, commit SHA and required-check results. Wait for required checks to pass without merging.
-- [ ] 8.5 Contribute exact commands/results, changed paths, logo sources, commit/PR references and actual BROKEN/RISK/NOT DONE/UNKNOWN issues to the parent delivery `tasks/entrega-codex-agentes-r7.md`; do not report unverified work complete.
+- [x] 8.4 Re-run the secret scan immediately before /commit, commit only authorized files with an English message and no Co-Authored-By. Push docs/brand-logos and open a PR against main. Record the PR URL, commit SHA and required-check results. Wait for required checks to pass without merging.
+- [x] 8.5 Contribute exact commands/results, changed paths, logo sources, commit/PR references and actual BROKEN/RISK/NOT DONE/UNKNOWN issues to the parent delivery `tasks/entrega-codex-agentes-r7.md`; do not report unverified work complete.
 
 Implementation verification evidence: reports/2026-10-09-step-1-tdd.md and reports/2026-10-09-step-8-verify.md. Each executed command and its actual result is recorded there. Closure tasks remain with the independent parent/reviewer.
 
