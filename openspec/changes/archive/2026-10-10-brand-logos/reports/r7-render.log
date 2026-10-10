@@ -1,0 +1,42 @@
+contrast of the dark theme:
+  7.24:1  the body text on the page
+  5.98:1  the muted text on the page
+  4.63:1  the muted text on a card
+  5.53:1  the body text on a card
+  5.17:1  the index of a step on its card
+  6.76:1  the Next tag on the page
+  6.76:1  the Next tag on its surface
+  5.40:1  the commands on the terminal
+  5.78:1  the output on the terminal
+  4.64:1  the title bar on the terminal
+  6.76:1  the ink of a lime shape
+contrast of the light theme:
+  7.24:1  the body text on the page
+  4.81:1  the muted text on the page
+  4.89:1  the muted text on a card
+  7.49:1  the body text on a card
+  7.49:1  the index of a step on its card
+  7.24:1  the Next tag on the page
+  7.24:1  the Next tag on its surface
+  6.76:1  the commands on the terminal
+  7.24:1  the output on the terminal
+  5.53:1  the title bar on the terminal
+  6.76:1  the ink of a lime shape
+AGENT PROOF dark: {"footerClearance":36,"result":"1 · bike-workshop-policies.md · Guarantee (position 4)\nEvery repair carries a 90 day guarantee on the work.","highlights":1,"chips":1,"fontSize":"20px","lineHeight":"27px","excerptHeight":54,"eyebrowMargins":["22px","22px","22px"],"proofPadding":"22px","resultBorder":"0px","rowPadding":[["24px","24px"],["24px","24px"],["24px","24px"]],"columnDifference":8.09375,"answerFontSize":"22px","answerFontFamily":"Outfit, \"Segoe UI\", Arial, sans-serif","clientsDisplay":"flex","clientsDirection":"column","clientsJustification":"space-between"}
+rendered docs/images/agents-dark.png (40397 bytes, smallest text 16px, 1 headlines, empty band 43px of 170px)
+AGENT PROOF dark: {"footerClearance":36,"result":"1 · cafe-la-horquilla.md · Precios (position 2)\nAfinación de bicicleta: 380 pesos.","highlights":1,"chips":1,"fontSize":"20px","lineHeight":"27px","excerptHeight":54,"eyebrowMargins":["22px","22px","22px"],"proofPadding":"22px","resultBorder":"0px","rowPadding":[["24px","24px"],["24px","24px"],["24px","24px"]],"columnDifference":69.59375,"answerFontSize":"27px","answerFontFamily":"Outfit, \"Segoe UI\", Arial, sans-serif","clientsDisplay":"block","clientsDirection":"row","clientsJustification":"normal"}
+rendered docs/images/agents-es-dark.png (34093 bytes, smallest text 16px, 1 headlines, empty band 91px of 170px)
+AGENT PROOF light: {"footerClearance":36,"result":"1 · bike-workshop-policies.md · Guarantee (position 4)\nEvery repair carries a 90 day guarantee on the work.","highlights":1,"chips":1,"fontSize":"20px","lineHeight":"27px","excerptHeight":54,"eyebrowMargins":["22px","22px","22px"],"proofPadding":"22px","resultBorder":"0px","rowPadding":[["24px","24px"],["24px","24px"],["24px","24px"]],"columnDifference":8.09375,"answerFontSize":"22px","answerFontFamily":"Outfit, \"Segoe UI\", Arial, sans-serif","clientsDisplay":"flex","clientsDirection":"column","clientsJustification":"space-between"}
+rendered docs/images/agents-light.png (40282 bytes, smallest text 16px, 1 headlines, empty band 43px of 170px)
+AGENT PROOF light: {"footerClearance":36,"result":"1 · cafe-la-horquilla.md · Precios (position 2)\nAfinación de bicicleta: 380 pesos.","highlights":1,"chips":1,"fontSize":"20px","lineHeight":"27px","excerptHeight":54,"eyebrowMargins":["22px","22px","22px"],"proofPadding":"22px","resultBorder":"0px","rowPadding":[["24px","24px"],["24px","24px"],["24px","24px"]],"columnDifference":69.59375,"answerFontSize":"27px","answerFontFamily":"Outfit, \"Segoe UI\", Arial, sans-serif","clientsDisplay":"block","clientsDirection":"row","clientsJustification":"normal"}
+rendered docs/images/agents-es-light.png (33836 bytes, smallest text 16px, 1 headlines, empty band 91px of 170px)
+rendered docs/images/reason-voice-dark.png (21761 bytes, smallest text 17px, 1 headlines, empty band 14px of 75px, illustration 41% of the card)
+rendered docs/images/reason-voice-light.png (12086 bytes, smallest text 17px, 1 headlines, empty band 14px of 75px, illustration 41% of the card)
+rendered docs/images/how-it-works-dark.png (35690 bytes, smallest text 16px, 1 headlines, empty band 53px of 120px)
+rendered docs/images/how-it-works-light.png (32888 bytes, smallest text 16px, 1 headlines, empty band 53px of 120px)
+rendered docs/images/roadmap-dark.png (56501 bytes, smallest text 16px, 1 headlines, empty band 32px of 180px)
+rendered docs/images/roadmap-light.png (56519 bytes, smallest text 16px, 1 headlines, empty band 32px of 180px)
+rendered docs/images/voice-teaser-dark.png (35152 bytes, smallest text 16px, 1 headlines, empty band 50px of 90px)
+rendered docs/images/voice-teaser-light.png (37489 bytes, smallest text 16px, 1 headlines, empty band 50px of 90px)
+rendered only agents, reason-voice, voice-teaser, how-it-works, roadmap: updated their record entries.
+the store of the run lives in .data/katalis.sqlite, which git ignores

@@ -174,3 +174,11 @@ Use Node 24.21.0 and `npm ci`. Reproduce the agent graphics offline with `node s
 The evidence was captured once in dsh-cited, with GitHub main installed in a temporary headless profile and a public-sample server on port 3246. This repository does not run new real-model captures. Copy complete validated JSON/TXT and all referenced attempts byte for byte; keep the historic Spanish set unchanged. English scored 3/3; the earlier Spanish-example batch remains 2/3 and included one English cross-language failure. The matched source highlight belongs inside TOOL RESULT.
 
 Run `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run audit:high`, `npm run openspec:validate`, and `npm run test:e2e`; preserve read-only sample database fingerprints before/after. Stage reports before running the tracked-file path guard. Merge the plugin English-example PR before the Cited English-example PR. Runtime, API and data model are unchanged. Historical round notes above remain provenance, not the current locale selection rule.
+
+## Official brand marks
+
+Round seven uses vendored official marks beside authored product names and keeps compatibility status as separate text. See [brand sources and maintenance](brand-logos.md). The renderer preserves full SVG geometry and audits visible brand coverage. Runtime, API, data model and saved evidence contracts are unchanged.
+
+```sh
+node scripts/render-readme-graphics.mjs agents reason-voice voice-teaser how-it-works roadmap
+```

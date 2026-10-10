@@ -1,0 +1,12 @@
+
+ RUN  v5.0.2 <workspace>/community-brand-logos
+
+ ✓ tests/brand-logos.test.ts > brand assets retain published geometry and accessible presentation 18ms
+ ✓ tests/brand-logos.test.ts > agent brand positions use real marks and separate textual verification levels 1ms
+ ✓ tests/brand-logos.test.ts > source files match independently pinned publication hashes 2ms
+ ✓ tests/brand-logos.test.ts > Docker roadmap regression detects an isolated pre-amendment source inventory and preserves Planned 103ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:08:29
+   Duration  600ms (setup 51%, tests 29%, transform 13%, import 3%, worker 3%)

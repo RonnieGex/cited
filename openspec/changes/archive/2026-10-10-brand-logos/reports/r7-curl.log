@@ -1,0 +1,29 @@
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/claude.svg
+exit 0; 200 image/svg+xml 1921
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/codex_dark.svg
+exit 0; 200 image/svg+xml 1360
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/deepseek.svg
+exit 0; 200 image/svg+xml 2086
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/cursor.svg
+exit 0; 200 image/svg+xml 454
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/elevenlabs.svg
+exit 0; 200 image/svg+xml 158
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/libsql.svg
+exit 0; 200 image/svg+xml 1566
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/turso.svg
+exit 0; 200 image/svg+xml 922
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/ollama.svg
+exit 0; 200 image/svg+xml 4769
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/brand/logos/docker.svg
+exit 0; 200 image/svg+xml 1765
+
+$ curl.exe --fail --silent --show-error --output NUL --write-out %{http_code} %{content_type} %{size_download} http://127.0.0.1:4178/images/agents-dark.png
+exit 0; 200 image/png 40397
