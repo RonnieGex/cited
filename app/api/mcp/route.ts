@@ -53,17 +53,15 @@ function guard(request: Request): Response | string {
   return token;
 }
 
+function isInitialize(body: unknown): boolean {
+  return typeof body === "object" && body !== null && (body as Record<string, unknown>)["method"] === "initialize";
+}
+
 export async function POST(request: Request): Promise<Response> {
   const guarded = guard(request);
 
   if (guarded instanceof Response) {
     return guarded;
-  }
-
-  const version = request.headers.get("mcp-protocol-version")?.trim() ?? "";
-
-  if (version.length > 0 && isSupportedVersion(version) === false) {
-    return json(failure(null, INVALID_REQUEST, `the protocol version ${version} is not supported`), 400);
   }
 
   let body: unknown;
@@ -72,6 +70,14 @@ export async function POST(request: Request): Promise<Response> {
     body = await request.json();
   } catch {
     return json(failure(null, PARSE_ERROR, "the body is not valid JSON"), 400);
+  }
+
+  // The header belongs to the requests that follow initialization (MCP transport, "Protocol Version Header"): an
+  // `initialize` is negotiated by its body, so a client that seeds a newer header still receives our latest version.
+  const version = request.headers.get("mcp-protocol-version")?.trim() ?? "";
+
+  if (version.length > 0 && isSupportedVersion(version) === false && isInitialize(body) === false) {
+    return json(failure(null, INVALID_REQUEST, `the protocol version ${version} is not supported`), 400);
   }
 
   const outcome = await handleMessage(body, { environment: process.env, token: guarded });
