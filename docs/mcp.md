@@ -135,7 +135,8 @@ not, the mark is retained and the answer says so. A passage without line breaks 
 `No está en los documentos.` (`It is not in the documents.`), and a refusal anywhere in the turn blocks every
 selection of that turn, before or after it.
 
-`Verified by Cited` describes the **final message** only. Hermes hands text deltas to the surface before the
+`Verified by Cited` would describe the plugin's composition of the turn only. Hermes hands text deltas to the
+surface before the
 verdict runs, so the plugin takes a snapshot of the effective delivery configuration at the start of the turn.
 The snapshot separates the readable surface from the accreditation the host does not give: `api_server` (the
 SSE route of the desktop app), the desktop app, a messaging platform whose `streaming` is on, interim
@@ -143,17 +144,20 @@ assistant commentary (`display.interim_assistant_messages`), streaming text to s
 unknown platform and a configuration it cannot read (a `FailedConfigRead` included) leave the readable surface
 **not clear**; and on **every** route, including a quiet one, the seal is retained because the host exposes
 neither a per-turn policy of the effective receivers nor the guarantee that the terminal message is the
-plugin's composition. The withheld note names the surface and the switch, or the missing accreditation. The
-answer of a cited turn
-is always exactly one of three: the render, the fixed localized refusal, or a fixed localized operational
-refusal with an incident code; any exception of reading the configuration, resolving, rendering or persisting
-produces the third, with no error detail in the answer, and the incident code itself never raises — a failure
-of the entropy source uses a constant reserve code. The record states in the entry that it registers the
-plugin's composition and is not a record of the terminal message. The repository explains the rest, with the
-exact configuration and the two pending host-side contracts:
+plugin's composition. The withheld note names the surface and the switch, or the missing accreditation. For a
+cited turn that reaches the hook, the plugin's composition is the documentary render, the fixed refusal or the
+operational refusal; the host may add text afterwards. Any exception of reading the configuration, resolving,
+rendering or persisting produces the operational refusal, with no error detail in the answer, and the incident
+code itself never raises — a failure of the entropy source uses a constant reserve code. The record states in
+the entry that it registers the plugin's composition when the append succeeds — a persistence refusal writes no
+row — and that it is not a record of the terminal message. The repository explains the rest, with the exact
+configuration and the three pending host-side contracts: **synchronous retention of the delivery**, **a final
+composition step even when the model's response is empty** and **a final composition boundary after the host's
+own footer**:
 https://github.com/RonnieGex/hermes-cited
 
-The log is a **consistency record**, not custody: one hash-chained JSONL line per delivered answer, with an
+The log is a **consistency record**, not custody: one hash-chained JSONL line per plugin composition whose
+append succeeds, with an
 inter-process lock and a full validation of the chain before one byte is written, so a broken chain refuses
 the append and a failed append makes the answer the operational refusal without a seal. It serves to review
 and reproduce each answer, and it is **not** tamper-proof against whoever controls the PC: someone who
