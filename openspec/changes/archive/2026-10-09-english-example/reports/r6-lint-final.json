@@ -1,0 +1,6 @@
+{
+  "command": "npm run lint",
+  "node": "v24.21.0",
+  "exitCode": 0,
+  "output": "\n> cited@0.1.0 lint\n> eslint .\n\n"
+}

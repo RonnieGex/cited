@@ -1,0 +1,78 @@
+{
+  "command": "node tasks/check-agents-r6-http.mjs",
+  "curl": "curl.exe --silent --show-error --max-time 20 --output <temporary-response> --write-out %{http_code} <url>",
+  "results": [
+    {
+      "url": "http://127.0.0.1:4186/agents-light.png",
+      "file": "community-english-example/docs/images/agents-light.png",
+      "status": 200,
+      "sha256": "383a7c3a11aac3a233015a70c77f5c60992ed993514725a99430a3a4a8168678"
+    },
+    {
+      "url": "http://127.0.0.1:4186/agents-dark.png",
+      "file": "community-english-example/docs/images/agents-dark.png",
+      "status": 200,
+      "sha256": "95c2a0bc6d3146289829d1c6e4c3bc388cff348c5a432d1a09b523b839c8880f"
+    },
+    {
+      "url": "http://127.0.0.1:4186/agents-es-light.png",
+      "file": "community-english-example/docs/images/agents-es-light.png",
+      "status": 200,
+      "sha256": "9e6aa3f17d0f7c15d2942154b99bf6ccb6b823be77840888f8d6a04ed1c1e910"
+    },
+    {
+      "url": "http://127.0.0.1:4186/agents-es-dark.png",
+      "file": "community-english-example/docs/images/agents-es-dark.png",
+      "status": 200,
+      "sha256": "6049f51d744b7ff3f2b540906de3e614d62c1c1e110d19d624015cff51b52e0d"
+    },
+    {
+      "url": "http://127.0.0.1:4186/headless-answer-en.txt",
+      "file": "community-english-example/docs/evidence/agents/headless-answer-en.txt",
+      "status": 200,
+      "sha256": "fba0e05241a9cd329351d6a4e580b52a1dd21225b72a5a34eda3b7b0595cfadb"
+    },
+    {
+      "url": "http://127.0.0.1:4186/headless-answer.txt",
+      "file": "community-english-example/docs/evidence/agents/headless-answer.txt",
+      "status": 200,
+      "sha256": "49909a7c806ce03db15634aca064c3db6e6889e713f4cf764491d36548462cba"
+    },
+    {
+      "url": "http://localhost:4176/",
+      "file": "cited-landing/dist/index.html",
+      "status": 200,
+      "sha256": "497efcc01d1cde8910698666414041f616cef084f71039ebcb88e1357d51b6a0"
+    },
+    {
+      "url": "http://localhost:4176/es/",
+      "file": "cited-landing/dist/es/index.html",
+      "status": 200,
+      "sha256": "a1e6fdf3934133c5d7a68b7e8bde907810dcfdd4b2c9c047b08d7f4aa60f0cda"
+    },
+    {
+      "url": "http://localhost:4176/assets/evidence/headless-answer-en.txt",
+      "file": "cited-landing/dist/assets/evidence/headless-answer-en.txt",
+      "status": 200,
+      "sha256": "fba0e05241a9cd329351d6a4e580b52a1dd21225b72a5a34eda3b7b0595cfadb"
+    },
+    {
+      "url": "http://localhost:4176/assets/evidence/headless-answer.txt",
+      "file": "cited-landing/dist/assets/evidence/headless-answer.txt",
+      "status": 200,
+      "sha256": "49909a7c806ce03db15634aca064c3db6e6889e713f4cf764491d36548462cba"
+    },
+    {
+      "url": "http://localhost:4176/assets/evidence/headless-answer-en.json",
+      "file": "cited-landing/dist/assets/evidence/headless-answer-en.json",
+      "status": 200,
+      "sha256": "a17e3f791e0014e1cff798470fa9b7a385da94131e4d7438b5bde4b5dd0e4d85"
+    },
+    {
+      "url": "http://localhost:4176/assets/evidence/headless-answer.json",
+      "file": "cited-landing/dist/assets/evidence/headless-answer.json",
+      "status": 200,
+      "sha256": "44ee610d1af52edefe36e21a7e0db0fbdfb0333fe06123183b2107c94a055673"
+    }
+  ]
+}

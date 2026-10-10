@@ -1,0 +1,6 @@
+﻿{
+    "command":  "Get-NetTCPConnection -State Listen | Where-Object LocalPort -In 4176,4186,3240,3243,3246",
+    "listeners":  [
+
+                  ]
+}

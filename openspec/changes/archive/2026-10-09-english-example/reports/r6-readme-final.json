@@ -1,0 +1,6 @@
+{
+  "command": "npm exec vitest run tests/readme.test.ts tests/personal-paths.test.ts",
+  "node": "v24.21.0",
+  "exitCode": 0,
+  "output": "\n RUN  v5.0.2 <workspace>/Documents/katalis-dev/community-english-example\n\n\n Test Files  2 passed (2)\n      Tests  54 passed (54)\n   Start at  16:12:15\n   Duration  3.52s (environment 48%, tests 32%, import 9%, setup 7%, transform 3%, worker 1%)\n\n"
+}

@@ -1,0 +1,423 @@
+﻿End to end	End-to-end tests	﻿2026-10-09T22:19:45.6778198Z ##[group]Run npm run test:e2e
+End to end	End-to-end tests	2026-10-09T22:19:45.6778553Z [36;1mnpm run test:e2e[0m
+End to end	End-to-end tests	2026-10-09T22:19:45.6814795Z shell: /usr/bin/bash -e {0}
+End to end	End-to-end tests	2026-10-09T22:19:45.6815135Z ##[endgroup]
+End to end	End-to-end tests	2026-10-09T22:19:45.7570610Z 
+End to end	End-to-end tests	2026-10-09T22:19:45.7571172Z > cited@0.1.0 test:e2e
+End to end	End-to-end tests	2026-10-09T22:19:45.7571662Z > npm run build:e2e && playwright test
+End to end	End-to-end tests	2026-10-09T22:19:45.7572009Z 
+End to end	End-to-end tests	2026-10-09T22:19:45.8267735Z 
+End to end	End-to-end tests	2026-10-09T22:19:45.8268491Z > cited@0.1.0 build:e2e
+End to end	End-to-end tests	2026-10-09T22:19:45.8268887Z > node scripts/build-e2e.mjs
+End to end	End-to-end tests	2026-10-09T22:19:45.8269103Z 
+End to end	End-to-end tests	2026-10-09T22:19:46.1299453Z ▲ Next.js 16.4.0 (Turbopack)
+End to end	End-to-end tests	2026-10-09T22:19:46.1540385Z ✓ Running next.config.ts took 24ms
+End to end	End-to-end tests	2026-10-09T22:19:46.1541752Z ⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+End to end	End-to-end tests	2026-10-09T22:19:46.1586123Z Attention: Next.js now collects completely anonymous telemetry regarding usage.
+End to end	End-to-end tests	2026-10-09T22:19:46.1587074Z This information is used to shape Next.js' roadmap and prioritize features.
+End to end	End-to-end tests	2026-10-09T22:19:46.1588364Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+End to end	End-to-end tests	2026-10-09T22:19:46.1589406Z https://nextjs.org/telemetry
+End to end	End-to-end tests	2026-10-09T22:19:46.1589690Z 
+End to end	End-to-end tests	2026-10-09T22:19:46.1765061Z 
+End to end	End-to-end tests	2026-10-09T22:19:46.1995767Z   Creating an optimized production build ...
+End to end	End-to-end tests	2026-10-09T22:19:52.3371212Z ✓ Compiled successfully in 6.1s
+End to end	End-to-end tests	2026-10-09T22:19:52.3407360Z   Running TypeScript ...
+End to end	End-to-end tests	2026-10-09T22:19:58.1211022Z   Finished TypeScript in 5.8s ...
+End to end	End-to-end tests	2026-10-09T22:19:58.1228314Z   Collecting page data using 3 workers ...
+End to end	End-to-end tests	2026-10-09T22:19:59.0362847Z   Generating static pages using 3 workers (0/31) ...
+End to end	End-to-end tests	2026-10-09T22:19:59.0598094Z   Generating static pages using 3 workers (7/31) 
+End to end	End-to-end tests	2026-10-09T22:19:59.0918213Z   Generating static pages using 3 workers (15/31) 
+End to end	End-to-end tests	2026-10-09T22:19:59.1481657Z   Generating static pages using 3 workers (23/31) 
+End to end	End-to-end tests	2026-10-09T22:19:59.1584848Z ✓ Generating static pages using 3 workers (31/31) in 122ms
+End to end	End-to-end tests	2026-10-09T22:19:59.1612795Z   Finalizing page optimization ...
+End to end	End-to-end tests	2026-10-09T22:19:59.1665615Z 
+End to end	End-to-end tests	2026-10-09T22:19:59.1685619Z Route (app)
+End to end	End-to-end tests	2026-10-09T22:19:59.1686451Z ┌ ƒ /
+End to end	End-to-end tests	2026-10-09T22:19:59.1686813Z ├ ƒ /_not-found
+End to end	End-to-end tests	2026-10-09T22:19:59.1687235Z ├ ƒ /admin
+End to end	End-to-end tests	2026-10-09T22:19:59.1687540Z ├ ƒ /admin/ai
+End to end	End-to-end tests	2026-10-09T22:19:59.1687936Z ├ ƒ /admin/business
+End to end	End-to-end tests	2026-10-09T22:19:59.1688295Z ├ ƒ /admin/conversations
+End to end	End-to-end tests	2026-10-09T22:19:59.1688837Z ├ ƒ /admin/documents
+End to end	End-to-end tests	2026-10-09T22:19:59.1689209Z ├ ƒ /admin/home
+End to end	End-to-end tests	2026-10-09T22:19:59.1689554Z ├ ƒ /admin/information
+End to end	End-to-end tests	2026-10-09T22:19:59.1689990Z ├ ƒ /admin/information/[id]
+End to end	End-to-end tests	2026-10-09T22:19:59.1690314Z ├ ƒ /admin/publish
+End to end	End-to-end tests	2026-10-09T22:19:59.1690737Z ├ ƒ /admin/settings
+End to end	End-to-end tests	2026-10-09T22:19:59.1691123Z ├ ƒ /admin/try
+End to end	End-to-end tests	2026-10-09T22:19:59.1691523Z ├ ƒ /api/admin/business
+End to end	End-to-end tests	2026-10-09T22:19:59.1691903Z ├ ƒ /api/admin/business/logo
+End to end	End-to-end tests	2026-10-09T22:19:59.1692283Z ├ ƒ /api/admin/conversations
+End to end	End-to-end tests	2026-10-09T22:19:59.1692791Z ├ ƒ /api/admin/conversations/delete
+End to end	End-to-end tests	2026-10-09T22:19:59.1693208Z ├ ƒ /api/admin/documents
+End to end	End-to-end tests	2026-10-09T22:19:59.1693674Z ├ ƒ /api/admin/documents/delete
+End to end	End-to-end tests	2026-10-09T22:19:59.1694194Z ├ ƒ /api/admin/documents/reingest
+End to end	End-to-end tests	2026-10-09T22:19:59.1694575Z ├ ƒ /api/admin/login
+End to end	End-to-end tests	2026-10-09T22:19:59.1694967Z ├ ƒ /api/admin/logout
+End to end	End-to-end tests	2026-10-09T22:19:59.1695341Z ├ ƒ /api/admin/providers
+End to end	End-to-end tests	2026-10-09T22:19:59.1695787Z ├ ƒ /api/admin/providers/reindex
+End to end	End-to-end tests	2026-10-09T22:19:59.1696362Z ├ ƒ /api/admin/providers/save
+End to end	End-to-end tests	2026-10-09T22:19:59.1696811Z ├ ƒ /api/admin/providers/test
+End to end	End-to-end tests	2026-10-09T22:19:59.1697163Z ├ ƒ /api/admin/samples
+End to end	End-to-end tests	2026-10-09T22:19:59.1697554Z ├ ƒ /api/admin/setup
+End to end	End-to-end tests	2026-10-09T22:19:59.1698078Z ├ ƒ /api/admin/setup/flags
+End to end	End-to-end tests	2026-10-09T22:19:59.1698461Z ├ ƒ /api/admin/setup/test
+End to end	End-to-end tests	2026-10-09T22:19:59.1698876Z ├ ƒ /api/admin/try/verify
+End to end	End-to-end tests	2026-10-09T22:19:59.1699328Z ├ ƒ /api/admin/voice
+End to end	End-to-end tests	2026-10-09T22:19:59.1699701Z ├ ƒ /api/ask
+End to end	End-to-end tests	2026-10-09T22:19:59.1700094Z ├ ƒ /api/brand/logo
+End to end	End-to-end tests	2026-10-09T22:19:59.1700429Z ├ ƒ /api/mcp
+End to end	End-to-end tests	2026-10-09T22:19:59.1700800Z ├ ƒ /api/voice/signed-url
+End to end	End-to-end tests	2026-10-09T22:19:59.1701143Z ├ ƒ /api/voice/tool
+End to end	End-to-end tests	2026-10-09T22:19:59.1701743Z ├ ƒ /embed
+End to end	End-to-end tests	2026-10-09T22:19:59.1702148Z ├ ƒ /kit
+End to end	End-to-end tests	2026-10-09T22:19:59.1702441Z └ ƒ /privacy
+End to end	End-to-end tests	2026-10-09T22:19:59.1702647Z 
+End to end	End-to-end tests	2026-10-09T22:19:59.1702697Z 
+End to end	End-to-end tests	2026-10-09T22:19:59.1702912Z ƒ Proxy (Middleware)
+End to end	End-to-end tests	2026-10-09T22:19:59.1703150Z 
+End to end	End-to-end tests	2026-10-09T22:19:59.1703395Z ƒ  (Dynamic)  server-rendered on demand
+End to end	End-to-end tests	2026-10-09T22:19:59.1703611Z 
+End to end	End-to-end tests	2026-10-09T22:19:59.7757467Z verify-no-test-sdk: mode=test-build roots=.next, .next/static, .next/server
+End to end	End-to-end tests	2026-10-09T22:19:59.7758415Z OK: the test SDK is in the browser output (2 file(s)) and the real package is not.
+End to end	End-to-end tests	2026-10-09T22:20:01.0392840Z [WebServer] .env not found. Continuing without it.
+End to end	End-to-end tests	2026-10-09T22:20:01.2322957Z [WebServer] (node:3051) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/cited/cited/scripts/ingest.ts is not specified and it doesn't parse as CommonJS.
+End to end	End-to-end tests	2026-10-09T22:20:01.2324343Z [WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+End to end	End-to-end tests	2026-10-09T22:20:01.2325206Z [WebServer] To eliminate this warning, add "type": "module" to /home/runner/work/cited/cited/package.json.
+End to end	End-to-end tests	2026-10-09T22:20:01.2325902Z [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+End to end	End-to-end tests	2026-10-09T22:20:04.8144272Z 
+End to end	End-to-end tests	2026-10-09T22:20:04.8144999Z Running 96 tests using 1 worker
+End to end	End-to-end tests	2026-10-09T22:20:06.1321299Z the navigation column: {"x":0,"y":0,"width":240,"height":900}
+End to end	End-to-end tests	2026-10-09T22:20:06.2708061Z a "Cited1" at 20px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2710404Z span "1" at 14.4px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2713087Z a "1Home" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2717287Z span "1" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2720233Z a "2Information" at 15px: rgb(255, 255, 255) over rgb(46, 46, 46) = 13.58:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2723213Z span "2" at 10.8px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2726883Z a "3Try it" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2730990Z span "3" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2733898Z a "4Conversations" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2735753Z span "4" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2739252Z a "5Look and publish" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2741206Z span "5" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2745754Z a "6AI and keys" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2747306Z span "6" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2749738Z a "7Settings" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2751936Z span "7" at 10.8px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2754248Z button "English" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2756667Z span "|" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2759762Z button "Español" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2760980Z a "For the installer" at 15px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2763370Z button "Sign out" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.2765774Z span "Built by Katalis" at 12px: oklab(0.999994 0.0000455677 0.0000200868 / 0.7) over rgb(23, 23, 23) = 9.14:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:06.6830220Z /admin/information at 1440: axe 0 violations, 27 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:06.9472826Z ·the navigation bar: {"x":0,"y":0,"width":375,"height":237.5625}
+End to end	End-to-end tests	2026-10-09T22:20:06.9821463Z 375: the wordmark target {"x":24,"y":8,"width":71,"height":45.5625}
+End to end	End-to-end tests	2026-10-09T22:20:07.0080234Z 375: link 1 focused at {"x":24,"y":57.5625,"width":93.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.0246864Z 375: link 2 focused at {"x":121.1875,"y":57.5625,"width":135.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.0417322Z 375: link 3 focused at {"x":260.375,"y":57.5625,"width":88.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.0592389Z 375: link 4 focused at {"x":111.5625,"y":57.5625,"width":152.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.0633098Z horizontal size of the page: {"document":375,"body":375,"viewport":375}
+End to end	End-to-end tests	2026-10-09T22:20:07.4722379Z /admin/information at 375: axe 0 violations, 27 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:07.7349781Z ·1440: the wordmark target {"x":24,"y":28,"width":71,"height":29.5625}
+End to end	End-to-end tests	2026-10-09T22:20:07.7571305Z 1440: link 1 focused at {"x":24,"y":93.5625,"width":192,"height":38.5}
+End to end	End-to-end tests	2026-10-09T22:20:07.7737859Z 1440: link 2 focused at {"x":24,"y":136.0625,"width":192,"height":38.5}
+End to end	End-to-end tests	2026-10-09T22:20:07.7905961Z 1440: link 3 focused at {"x":24,"y":178.5625,"width":192,"height":38.5}
+End to end	End-to-end tests	2026-10-09T22:20:07.8072370Z 1440: link 4 focused at {"x":24,"y":221.0625,"width":192,"height":38.5}
+End to end	End-to-end tests	2026-10-09T22:20:07.8945648Z 320: the wordmark target {"x":24,"y":8,"width":71,"height":45.5625}
+End to end	End-to-end tests	2026-10-09T22:20:07.9071038Z 320: link 1 focused at {"x":24,"y":57.5625,"width":88.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.9235345Z 320: link 2 focused at {"x":116.1875,"y":57.5625,"width":136.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.9437373Z 320: link 3 focused at {"x":180.375,"y":57.5625,"width":115.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:07.9607702Z 320: link 4 focused at {"x":79.5625,"y":57.5625,"width":161.1875,"height":44}
+End to end	End-to-end tests	2026-10-09T22:20:08.3201143Z ·375: Todos los documentos at {"x":24,"y":453.5625,"width":137,"height":44} inside {"x":0,"y":237.5625,"width":375,"height":644.1875}
+End to end	End-to-end tests	2026-10-09T22:20:08.3273416Z 375: Quitar at {"x":49,"y":762.75,"width":114.203125,"height":46} inside {"x":0,"y":237.5625,"width":375,"height":644.1875}
+End to end	End-to-end tests	2026-10-09T22:20:08.4272575Z 320: Todos los documentos at {"x":24,"y":453.5625,"width":137,"height":44} inside {"x":0,"y":237.5625,"width":320,"height":644.1875}
+End to end	End-to-end tests	2026-10-09T22:20:08.4335046Z 320: Quitar at {"x":49,"y":762.75,"width":114.203125,"height":46} inside {"x":0,"y":237.5625,"width":320,"height":644.1875}
+End to end	End-to-end tests	2026-10-09T22:20:08.8255191Z /admin/information/[id] at 320 in Spanish: axe 0 violations, 24 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:09.2118761Z ·the date of the turn: dateTime="2026-10-09T22:20:09.045Z", text="10 oct 2026, 12:20"
+End to end	End-to-end tests	2026-10-09T22:20:09.6128051Z /admin/conversations in Spanish: axe 0 violations, 26 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:11.1669052Z ·the flame in en: en / public (1), en /embed public (0), en /kit public (0), en /admin signed out (1), en /admin signed in (1), en /admin/home signed in (1), en /admin/information signed in (1), en /admin/try signed in (1), en /admin/publish signed in (1), en /admin/settings signed in (1), en /admin/conversations signed in (1), en /admin/ai signed in (1)
+End to end	End-to-end tests	2026-10-09T22:20:12.2412810Z ·the flame in es: es / public (1), es /embed public (0), es /kit public (0), es /admin signed out (1), es /admin signed in (1), es /admin/home signed in (1), es /admin/information signed in (1), es /admin/try signed in (1), es /admin/publish signed in (1), es /admin/settings signed in (1), es /admin/conversations signed in (1), es /admin/ai signed in (1)
+End to end	End-to-end tests	2026-10-09T22:20:12.4057149Z ·the highlighted words of the tagline: "de dónde salió."
+End to end	End-to-end tests	2026-10-09T22:20:12.8460860Z /admin signed out, in Spanish: axe 0 violations, 24 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:21.1668567Z ········/kit: axe 0 violations, 22 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:21.9197293Z ·/kit p "Sistema de diseño" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9198529Z /kit h1 "El kit de Cited" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9203672Z /kit p "Los cinco componentes con los que se construyen " at 18px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9205955Z /kit p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9208853Z /kit h2 "Logotipo" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9212034Z /kit p "La palabra Cited con una marca de cita en lima. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9214475Z /kit span "Cited1" at 20px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9218160Z /kit span "1" at 14.4px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9220856Z /kit span "Cited1" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9223516Z /kit span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9225966Z /kit span "Cited1" at 56px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9232274Z /kit span "1" at 40.32px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9234996Z /kit span "Cited1" at 36px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9237469Z /kit span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9240785Z /kit p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9243738Z /kit h2 "Marca de cita" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9246971Z /kit p "Un cuadrado de lima con el número de la fuente d" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9248821Z /kit p "La afinación pide cita previa 1 y el taller cier" at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9251780Z /kit span "1" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9255008Z /kit span "2" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9256740Z /kit span "En reposo" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9258669Z /kit span "3" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9262070Z /kit span "Abierta" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9269354Z /kit span "3" at 12.96px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9271815Z /kit p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9272714Z /kit h2 "Marcatextos" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9273983Z /kit p "Lima pintada detrás de las palabras que importan" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9275189Z /kit p "Cada respuesta enseña de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9277793Z /kit span "de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) and rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9280531Z /kit span "Abrimos de martes a domingo." at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) and rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9283819Z /kit p "Acciones" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9286828Z /kit h2 "Botones" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9288313Z /kit p "El botón principal es la única acción principal " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9289150Z /kit button "Buscar" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9291134Z /kit button "Ver los documentos" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9293006Z /kit button "Cerrar" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9294557Z /kit button "Cerrar sesión" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9295998Z /kit p "Idioma" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9298538Z /kit h2 "Selector de idioma" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9300537Z /kit p "Inglés primero y español completo. Sobre papel s" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9301745Z /kit button "English" at 11px: oklab(0.204625 0.00000931323 0.00000409782 / 0.6) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9303620Z /kit span "|" at 11px: oklab(0.204625 0.00000931323 0.00000409782 / 0.6) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9305252Z /kit button "Español" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9307038Z /kit button "English" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9308815Z /kit span "|" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9310693Z /kit button "Español" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9312379Z /kit p "Entrada" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9314136Z /kit h2 "Campo de texto" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9315869Z /kit label "Tu pregunta" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9318214Z /kit placeholder "Escribe tu pregunta" at 16px: oklab(0.204625 0.00000931323 0.00000409782 / 0.6) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9320238Z /kit p "Estado" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9322399Z /kit h2 "Etiquetas" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9324890Z /kit p "Una etiqueta nombra el estado de una capacidad. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9327015Z /kit span "Disponible" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9329640Z /kit span "Next · ElevenLabs" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9333836Z /kit p "Superficie" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9335302Z /kit h2 "Panel" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:21.9337653Z /kit p "El panel agrupa una idea sobre el papel cálido d" at 16px: rgb(87, 83, 78) over rgb(250, 250, 249) = 7.30:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:22.0802769Z ·/ under reduced motion: {"animated":[],"running":[],"highlights":[{"text":"with its sources.","size":"100% 100%"}]}
+End to end	End-to-end tests	2026-10-09T22:20:22.2089617Z ·/kit under reduced motion: {"animated":[],"running":[],"highlights":[{"text":"de dónde salió.","size":"100% 100%"},{"text":"Abrimos de martes a domingo.","size":"100% 100%"}]}
+End to end	End-to-end tests	2026-10-09T22:20:23.7069809Z ·····the band without a business span "Cited1" at 56px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:23.7071418Z the band without a business span "1" at 40.32px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:23.7073034Z the band without a business button "English" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:23.7075568Z the band without a business span "|" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.6) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:23.7078397Z the band without a business button "Español" at 11px: oklab(0.999994 0.0000455677 0.0000200868 / 0.8) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:24.3532906Z ·the page is 2043px tall on a 812px viewport
+End to end	End-to-end tests	2026-10-09T22:20:27.4903880Z ··the switch over the band of the business button "English" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.4904798Z the switch over the band of the business span "|" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.4905769Z the switch over the band of the business button "Español" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.4954009Z the band of the business h1 "Taller Rueda Libre" at 40px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.4956768Z the band of the business button "English" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.4958117Z the band of the business span "|" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.4960321Z the band of the business button "Español" at 11px: rgb(255, 255, 255) over rgb(29, 78, 216) = 6.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:27.8410723Z the branded public page: axe 0 violations, 26 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:28.5544278Z ··the date of the conversation: datetime="2026-10-09T22:20:28.394Z", shown "9 oct 2026, 22:20", es formats it "9 oct 2026, 22:20"
+End to end	End-to-end tests	2026-10-09T22:20:28.7044125Z ·computed font-family: {"html":"Outfit, system-ui, sans-serif","body":"Outfit, system-ui, sans-serif","paragraph":"Outfit, system-ui, sans-serif"}
+End to end	End-to-end tests	2026-10-09T22:20:28.7047428Z requests of the page: ["http://127.0.0.1:3100/kit","http://127.0.0.1:3100/fonts/outfit/outfit-latin.woff2","http://127.0.0.1:3100/_next/static/chunks/3_cq3ysyp1mkq.css","http://127.0.0.1:3100/_next/static/chunks/1ckvzn7sfprko.js","http://127.0.0.1:3100/_next/static/chunks/2r4s4h5xul1n-.js","http://127.0.0.1:3100/_next/static/chunks/0s7mvllxht1mo.js","http://127.0.0.1:3100/_next/static/chunks/0rm4bmi_uaeqm.js","http://127.0.0.1:3100/_next/static/chunks/turbopack-2c3mg3r-05n1w.js","http://127.0.0.1:3100/_next/static/chunks/0umf92h1sb77c.js","http://127.0.0.1:3100/_next/static/chunks/1ay0k8oz60_8r.js"]
+End to end	End-to-end tests	2026-10-09T22:20:29.4660374Z ·focus of the primary button: {"visible":true,"width":"2px","style":"solid","color":"rgb(23, 23, 23)"}
+End to end	End-to-end tests	2026-10-09T22:20:29.8550427Z axe: 0 violations, 22 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:31.1982483Z ·the hairline of the controls: --border resolves to color(srgb 0.545098 0.545098 0.545098) = rgb(139, 139, 139) on the ground of the page
+End to end	End-to-end tests	2026-10-09T22:20:31.1983760Z Input: the border is color(srgb 0.545098 0.545098 0.545098) = rgb(139, 139, 139) over the ground rgb(255, 255, 255), 3.41:1 at 1px (the scenario asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.2714719Z the rendered frame of Input: rgb(255, 255, 255) x54, rgb(139, 139, 139) x10; the hairline is painted 10 times
+End to end	End-to-end tests	2026-10-09T22:20:31.2717822Z the secondary Button: the border is color(srgb 0.545098 0.545098 0.545098) = rgb(139, 139, 139) over the ground rgb(255, 255, 255), 3.41:1 at 1px (the scenario asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3374123Z the rendered frame of the secondary Button: rgb(23, 23, 23) x8, rgb(221, 244, 105) x26, rgb(139, 139, 139) x10, rgb(255, 255, 255) x20; the hairline is painted 10 times
+End to end	End-to-end tests	2026-10-09T22:20:31.3376412Z Panel: the border rgb(226, 226, 225) is 1.30:1 and the fill rgb(250, 250, 249) is 1.04:1: decorative and exempt
+End to end	End-to-end tests	2026-10-09T22:20:31.3377348Z Chip: the border rgb(209, 209, 209) is 1.53:1 and the fill rgb(255, 255, 255) is 1.00:1: decorative and exempt
+End to end	End-to-end tests	2026-10-09T22:20:31.3379529Z p "Sistema de diseño" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3381523Z h1 "El kit de Cited" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3385200Z p "Los cinco componentes con los que se construyen " at 18px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3388002Z p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3389678Z h2 "Logotipo" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3392212Z p "La palabra Cited con una marca de cita en lima. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3394143Z span "Cited1" at 20px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3396498Z span "1" at 14.4px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3398531Z span "Cited1" at 36px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3400607Z span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3402771Z span "Cited1" at 56px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3404715Z span "1" at 40.32px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3406911Z span "Cited1" at 36px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3409590Z span "1" at 25.92px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3412241Z p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3415703Z h2 "Marca de cita" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3418630Z p "Un cuadrado de lima con el número de la fuente d" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3421301Z p "La afinación pide cita previa 1 y el taller cier" at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3423726Z span "1" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3426378Z span "2" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3428974Z span "En reposo" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3431586Z span "3" at 12.96px: rgb(23, 23, 23) over rgb(221, 244, 105) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3434124Z span "Abierta" at 14px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3436699Z span "3" at 12.96px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3439491Z p "Identidad" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3442119Z h2 "Marcatextos" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3446703Z p "Lima pintada detrás de las palabras que importan" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3450425Z p "Cada respuesta enseña de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3454460Z span "de dónde salió." at 28px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3457891Z span "Abrimos de martes a domingo." at 18px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3460324Z p "Acciones" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3462911Z h2 "Botones" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3465892Z p "El botón principal es la única acción principal " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3469791Z button "Buscar" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3473758Z button "Ver los documentos" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3476555Z button "Cerrar" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3479259Z button "Cerrar sesión" at 14px: rgb(255, 255, 255) over rgb(23, 23, 23) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3481646Z p "Idioma" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3484228Z h2 "Selector de idioma" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3486954Z p "Inglés primero y español completo. Sobre papel s" at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3489436Z button "English" at 11px: rgb(116, 116, 116) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3491836Z span "|" at 11px: rgb(116, 116, 116) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3494415Z button "Español" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3499608Z button "English" at 11px: rgb(209, 209, 209) over rgb(23, 23, 23) = 11.74:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3503207Z span "|" at 11px: rgb(162, 162, 162) over rgb(23, 23, 23) = 7.02:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3505975Z button "Español" at 11px: rgb(221, 244, 105) over rgb(23, 23, 23) = 14.70:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3508725Z p "Entrada" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3517147Z h2 "Campo de texto" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3518406Z label "Tu pregunta" at 14px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3521251Z p "Estado" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3523655Z h2 "Etiquetas" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3527041Z p "Una etiqueta nombra el estado de una capacidad. " at 16px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3530204Z span "Disponible" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3534073Z span "Next · ElevenLabs" at 11px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3536725Z p "Superficie" at 11px: rgb(87, 83, 78) over rgb(255, 255, 255) = 7.63:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3539893Z h2 "Panel" at 24px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3544395Z p "El panel agrupa una idea sobre el papel cálido d" at 16px: rgb(87, 83, 78) over rgb(250, 250, 249) = 7.30:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3549577Z the value of the field "" at 16px: rgb(23, 23, 23) over rgb(255, 255, 255) = 17.93:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3552199Z the placeholder of the field "" at 16px: rgb(116, 116, 116) over rgb(255, 255, 255) = 4.67:1 (asks 4.5:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3556986Z the focus of [data-kit="input"]: the outline rgb(23, 23, 23) of 2px is 17.93:1, and the edge that the design pairs with it (rgb(221, 244, 105) of 2px) is 1.22:1 (the indicator asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:31.3594318Z the focus of [data-kit="button-secondary"]: the outline rgb(23, 23, 23) of 2px is 17.93:1, and the edge that the design pairs with it (rgb(221, 244, 105) of 2px) is 1.22:1 (the indicator asks 3:1)
+End to end	End-to-end tests	2026-10-09T22:20:36.7099012Z ···············/: --primary is #ddf469, the ask button is rgb(221, 244, 105) with the text rgb(23, 23, 23), and with a business color rgb(29, 78, 216) with the text rgb(255, 255, 255)
+End to end	End-to-end tests	2026-10-09T22:20:37.4783289Z /embed: --primary is #ddf469, the ask button is rgb(221, 244, 105) with the text rgb(23, 23, 23), and with a business color rgb(29, 78, 216) with the text rgb(255, 255, 255)
+End to end	End-to-end tests	2026-10-09T22:20:37.8371837Z ·the opener tab carries c05eb5be-fe66-4827-8565-5edc9ad83cea; the tab it opened carries f74fbda6-3541-4410-a6eb-430438a21215 and asked with f74fbda6-3541-4410-a6eb-430438a21215
+End to end	End-to-end tests	2026-10-09T22:20:41.1102637Z ·······/: axe 0 violations, 26 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:41.4408390Z /embed: axe 0 violations, 25 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:42.0446829Z ···the frame-ancestors of /embed: default-src 'self'; script-src 'self' 'nonce-NzA2NTViNDgtMzdkYS00ODQyLTgzMWUtMmRhNjAwZGFmMWFk' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' wss://api.elevenlabs.io; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'self'; frame-ancestors 'self' http://127.0.0.1:3210 http://127.0.0.1:3212
+End to end	End-to-end tests	2026-10-09T22:20:43.4372044Z ·the texture of the Orb: before the panel opens false, after it true, in 9 scripts
+End to end	End-to-end tests	2026-10-09T22:20:44.9909092Z ·····the browser saw 8 scripts, 530358 characters of them
+End to end	End-to-end tests	2026-10-09T22:20:45.2862000Z ·the worklets: /voice/worklets/raw-audio-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/audio-concat-processor.js 200 application/javascript; charset=UTF-8; /voice/worklets/libsamplerate.worklet.js 200 application/javascript; charset=UTF-8; /voice/worklets/raw-audio-processor.js: loaded; /voice/worklets/audio-concat-processor.js: loaded; /voice/worklets/libsamplerate.worklet.js: loaded
+End to end	End-to-end tests	2026-10-09T22:20:45.9253697Z ·the voice panel: axe 0 violations, 26 rules passed
+End to end	End-to-end tests	2026-10-09T22:20:52.8972139Z [WebServer] the voice agent is not configured: the environment of the server is missing ELEVENLABS_API_KEY, VOICE_TOOL_SECRET
+End to end	End-to-end tests	2026-10-09T22:20:56.2878811Z ··········×°°°°
+End to end	End-to-end tests	2026-10-09T22:21:03.1121452Z °°°°°°°°°°°F
+End to end	End-to-end tests	2026-10-09T22:21:03.1155630Z ##[error]  1) [setup] › e2e/setup.spec.ts:157:5 › a first visit shows one sentence of value, four steps and a start button 
+End to end	End-to-end tests	    Error: expect(received).toEqual(expected) // deep equality
+End to end	End-to-end tests	
+End to end	End-to-end tests	    - Expected  - 1
+End to end	End-to-end tests	    + Received  + 3
+End to end	End-to-end tests	
+End to end	End-to-end tests	    - Array []
+End to end	End-to-end tests	    + Array [
+End to end	End-to-end tests	    +   "document-title (serious): 1 nodes",
+End to end	End-to-end tests	    + ]
+End to end	End-to-end tests	
+End to end	End-to-end tests	      111 |       (violation) => `${violation.id} (${violation.impact}): ${violation.nodes.length} nodes`,
+End to end	End-to-end tests	      112 |     ),
+End to end	End-to-end tests	    > 113 |   ).toEqual([]);
+End to end	End-to-end tests	          |     ^
+End to end	End-to-end tests	      114 | }
+End to end	End-to-end tests	      115 |
+End to end	End-to-end tests	      116 | async function signIn(page: Page, path = "/admin"): Promise<void> {
+End to end	End-to-end tests	        at axe (/home/runner/work/cited/cited/e2e/setup.spec.ts:113:5)
+End to end	End-to-end tests	        at /home/runner/work/cited/cited/e2e/setup.spec.ts:188:3
+End to end	End-to-end tests	2026-10-09T22:21:03.1169744Z ##[error]  1) [setup] › e2e/setup.spec.ts:157:5 › a first visit shows one sentence of value, four steps and a start button 
+End to end	End-to-end tests	
+End to end	End-to-end tests	    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+End to end	End-to-end tests	    Error: expect(locator).toContainText(expected) failed
+End to end	End-to-end tests	
+End to end	End-to-end tests	    Locator: getByRole('heading', { level: 1 })
+End to end	End-to-end tests	    Expected substring: "Your documents answer your customers"
+End to end	End-to-end tests	    Received string:    "Your setup"
+End to end	End-to-end tests	    Timeout: 5000ms
+End to end	End-to-end tests	
+End to end	End-to-end tests	    Call log:
+End to end	End-to-end tests	      - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 5000ms
+End to end	End-to-end tests	      - waiting for getByRole('heading', { level: 1 })
+End to end	End-to-end tests	        14 × locator resolved to <h1 class="font-bold tracking-[-0.02em] text-ink text-4xl">Your setup</h1>
+End to end	End-to-end tests	           - unexpected value "Your setup"
+End to end	End-to-end tests	
+End to end	End-to-end tests	
+End to end	End-to-end tests	      170 |   await signIn(page);
+End to end	End-to-end tests	      171 |
+End to end	End-to-end tests	    > 172 |   await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupWelcomeTitle);
+End to end	End-to-end tests	          |                                                         ^
+End to end	End-to-end tests	      173 |   await expect(page.getByText(english.setupWelcomeBody)).toBeVisible();
+End to end	End-to-end tests	      174 |   await expect(page.getByText(english.setupMinutes)).toBeVisible();
+End to end	End-to-end tests	      175 |   await expect(page.getByRole("button", { name: english.setupStart })).toBeVisible();
+End to end	End-to-end tests	        at /home/runner/work/cited/cited/e2e/setup.spec.ts:172:57
+End to end	End-to-end tests	2026-10-09T22:21:07.6062828Z °°°°°°°°°°°°°°°·de cero a una respuesta en español: 1.1 s ia conectada 0.2 s · paso 1 verificado 0.4 s · paso 2 verificado 0.6 s · respuesta marcada como correcta 1.1 s · paso 3 verificado 1.1 s
+End to end	End-to-end tests	2026-10-09T22:21:13.3729451Z ····
+End to end	End-to-end tests	2026-10-09T22:21:13.3731400Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3740239Z   1) [setup] › e2e/setup.spec.ts:157:5 › a first visit shows one sentence of value, four steps and a start button 
+End to end	End-to-end tests	2026-10-09T22:21:13.3741089Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3741493Z     Error: expect(received).toEqual(expected) // deep equality
+End to end	End-to-end tests	2026-10-09T22:21:13.3741732Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3741862Z     - Expected  - 1
+End to end	End-to-end tests	2026-10-09T22:21:13.3742160Z     + Received  + 3
+End to end	End-to-end tests	2026-10-09T22:21:13.3742426Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3742533Z     - Array []
+End to end	End-to-end tests	2026-10-09T22:21:13.3742803Z     + Array [
+End to end	End-to-end tests	2026-10-09T22:21:13.3743069Z     +   "document-title (serious): 1 nodes",
+End to end	End-to-end tests	2026-10-09T22:21:13.3743333Z     + ]
+End to end	End-to-end tests	2026-10-09T22:21:13.3743576Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3743909Z       111 |       (violation) => `${violation.id} (${violation.impact}): ${violation.nodes.length} nodes`,
+End to end	End-to-end tests	2026-10-09T22:21:13.3744423Z       112 |     ),
+End to end	End-to-end tests	2026-10-09T22:21:13.3744874Z     > 113 |   ).toEqual([]);
+End to end	End-to-end tests	2026-10-09T22:21:13.3745298Z           |     ^
+End to end	End-to-end tests	2026-10-09T22:21:13.3745732Z       114 | }
+End to end	End-to-end tests	2026-10-09T22:21:13.3746033Z       115 |
+End to end	End-to-end tests	2026-10-09T22:21:13.3746876Z       116 | async function signIn(page: Page, path = "/admin"): Promise<void> {
+End to end	End-to-end tests	2026-10-09T22:21:13.3747411Z         at axe (/home/runner/work/cited/cited/e2e/setup.spec.ts:113:5)
+End to end	End-to-end tests	2026-10-09T22:21:13.3747993Z         at /home/runner/work/cited/cited/e2e/setup.spec.ts:188:3
+End to end	End-to-end tests	2026-10-09T22:21:13.3748248Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3748697Z     Error Context: test-results/setup-a-first-visit-shows--31709-ur-steps-and-a-start-button-setup/error-context.md
+End to end	End-to-end tests	2026-10-09T22:21:13.3749210Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3749661Z     Error Context: test-results/setup-a-first-visit-shows--31709-ur-steps-and-a-start-button-setup/error-context.md
+End to end	End-to-end tests	2026-10-09T22:21:13.3750054Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3750425Z     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+End to end	End-to-end tests	2026-10-09T22:21:13.3750652Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3750809Z     Error: expect(locator).toContainText(expected) failed
+End to end	End-to-end tests	2026-10-09T22:21:13.3751061Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3751215Z     Locator: getByRole('heading', { level: 1 })
+End to end	End-to-end tests	2026-10-09T22:21:13.3751629Z     Expected substring: "Your documents answer your customers"
+End to end	End-to-end tests	2026-10-09T22:21:13.3752093Z     Received string:    "Your setup"
+End to end	End-to-end tests	2026-10-09T22:21:13.3752367Z     Timeout: 5000ms
+End to end	End-to-end tests	2026-10-09T22:21:13.3752518Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3752625Z     Call log:
+End to end	End-to-end tests	2026-10-09T22:21:13.3752990Z       - Expect "toContainText" getByRole('heading', { level: 1 }) with timeout 5000ms
+End to end	End-to-end tests	2026-10-09T22:21:13.3753390Z       - waiting for getByRole('heading', { level: 1 })
+End to end	End-to-end tests	2026-10-09T22:21:13.3754030Z         14 × locator resolved to <h1 class="font-bold tracking-[-0.02em] text-ink text-4xl">Your setup</h1>
+End to end	End-to-end tests	2026-10-09T22:21:13.3754573Z            - unexpected value "Your setup"
+End to end	End-to-end tests	2026-10-09T22:21:13.3755407Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3755416Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3755579Z       170 |   await signIn(page);
+End to end	End-to-end tests	2026-10-09T22:21:13.3755828Z       171 |
+End to end	End-to-end tests	2026-10-09T22:21:13.3756899Z     > 172 |   await expect(page.getByRole("heading", { level: 1 })).toContainText(english.setupWelcomeTitle);
+End to end	End-to-end tests	2026-10-09T22:21:13.3757527Z           |                                                         ^
+End to end	End-to-end tests	2026-10-09T22:21:13.3758088Z       173 |   await expect(page.getByText(english.setupWelcomeBody)).toBeVisible();
+End to end	End-to-end tests	2026-10-09T22:21:13.3758663Z       174 |   await expect(page.getByText(english.setupMinutes)).toBeVisible();
+End to end	End-to-end tests	2026-10-09T22:21:13.3759331Z       175 |   await expect(page.getByRole("button", { name: english.setupStart })).toBeVisible();
+End to end	End-to-end tests	2026-10-09T22:21:13.3760042Z         at /home/runner/work/cited/cited/e2e/setup.spec.ts:172:57
+End to end	End-to-end tests	2026-10-09T22:21:13.3760266Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3760649Z     Error Context: test-results/setup-a-first-visit-shows--31709-ur-steps-and-a-start-button-setup-retry1/error-context.md
+End to end	End-to-end tests	2026-10-09T22:21:13.3761046Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3761448Z     Error Context: test-results/setup-a-first-visit-shows--31709-ur-steps-and-a-start-button-setup-retry1/error-context.md
+End to end	End-to-end tests	2026-10-09T22:21:13.3761799Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3764352Z     attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+End to end	End-to-end tests	2026-10-09T22:21:13.3765230Z     test-results/setup-a-first-visit-shows--31709-ur-steps-and-a-start-button-setup-retry1/trace.zip
+End to end	End-to-end tests	2026-10-09T22:21:13.3766000Z     Usage:
+End to end	End-to-end tests	2026-10-09T22:21:13.3766118Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3766779Z         npx playwright show-trace test-results/setup-a-first-visit-shows--31709-ur-steps-and-a-start-button-setup-retry1/trace.zip
+End to end	End-to-end tests	2026-10-09T22:21:13.3767262Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3767679Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+End to end	End-to-end tests	2026-10-09T22:21:13.3767933Z 
+End to end	End-to-end tests	2026-10-09T22:21:13.3768056Z   1 failed
+End to end	End-to-end tests	2026-10-09T22:21:13.3768628Z     [setup] › e2e/setup.spec.ts:157:5 › a first visit shows one sentence of value, four steps and a start button 
+End to end	End-to-end tests	2026-10-09T22:21:13.3769154Z   15 did not run
+End to end	End-to-end tests	2026-10-09T22:21:13.3769397Z   80 passed (1.2m)
+End to end	End-to-end tests	2026-10-09T22:21:13.3772762Z ##[notice]  1 failed
+End to end	End-to-end tests	    [setup] › e2e/setup.spec.ts:157:5 › a first visit shows one sentence of value, four steps and a start button 
+End to end	End-to-end tests	  15 did not run
+End to end	End-to-end tests	  80 passed (1.2m)
+End to end	End-to-end tests	2026-10-09T22:21:13.3944976Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,36 @@
+
+ RUN  v5.0.2 <workspace>/community-english-example
+
+ ❯ tests/readme.test.ts (47 tests | 1 failed) 810ms
+   ❯ README, its graphics (13)
+     × uses English evidence in the primary README and a preserved Spanish graphic in its twin 14ms
+node.exe : 
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/readme.test.ts > README, its graphics > uses English evidence in the primary README and a preserved 
+Spanish graphic in its twin
+Error: ENOENT: no such file or directory, open 
+'<workspace>\community-english-example\docs\evidence\agents\headless-answer-en.json'
+ ❯ readText tests/readme.test.ts:198:10
+    196|
+    197| function readText(path: string): string {
+    198|   return readFileSync(resolve(repositoryRoot, path), "utf8");
+       |          ^
+    199| }
+    200|
+ ❯ tests/readme.test.ts:1161:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 46 passed (47)
+   Start at  15:55:33
+   Duration  4.15s (environment 45%, tests 20%, import 20%, setup 9%, transform 5%)
+

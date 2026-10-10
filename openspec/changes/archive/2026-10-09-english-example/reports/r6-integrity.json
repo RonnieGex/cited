@@ -1,0 +1,76 @@
+{
+  "command": "node tasks/verify-agents-r6.mjs",
+  "node": "v24.21.0",
+  "base": "b4e749f539399637d763a1ebaf6da55e729fdfd5",
+  "branch": "docs/english-example",
+  "preserved": [
+    {
+      "file": "docs/evidence/agents/headless-answer.json",
+      "sha256": "44ee610d1af52edefe36e21a7e0db0fbdfb0333fe06123183b2107c94a055673"
+    },
+    {
+      "file": "docs/evidence/agents/headless-answer.txt",
+      "sha256": "49909a7c806ce03db15634aca064c3db6e6889e713f4cf764491d36548462cba"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T16-18-26-546Z/attempt-2.json",
+      "sha256": "4493d65f86dfbe79b2a085e3658cc8b61172e852c0276a7815acdce7596f9082"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/attempt-1.json",
+      "sha256": "b0e75751f6625bfa9ac32cd2345c8304e9f74168533631aab517d416cb7445d7"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/attempt-1.txt",
+      "sha256": "e49780d6540f7d2a62a1ca5c332b675f803a71f37df5e0610abedf09308fbd22"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/attempt-2.json",
+      "sha256": "01eec4db2b35288dad731bbc804c86a71b35a8a847578b3c234a0244be6c9f54"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/attempt-2.txt",
+      "sha256": "49909a7c806ce03db15634aca064c3db6e6889e713f4cf764491d36548462cba"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/attempt-3.json",
+      "sha256": "b02b997a04d210cd7f9044b9a56e3dc567dd279dd8786b4fb000f60ae745c55d"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/attempt-3.txt",
+      "sha256": "8ed11f3233ec196346a3850ddafea5a31f4b8840ba1e802bc05f5f1330f1aafd"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/previous-answer.json",
+      "sha256": "4b7d5327d5dbb6b49785f750b3912dd5a579af936de2fee09e510aca869c73ab"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/previous-answer.txt",
+      "sha256": "09e07f19ce78efbf2d287c9d9bfd32bba392b601258c6a3c6b24ffd5b835253d"
+    },
+    {
+      "file": "docs/evidence/agents/natural-2026-10-09T17-01-01-501Z/summary.json",
+      "sha256": "da1896d62aaee3f060198ace502fbbb899e481f86e69e9e7eeda9a067c9016b2"
+    },
+    {
+      "file": "docs/evidence/agents/natural-summary.json",
+      "sha256": "da1896d62aaee3f060198ace502fbbb899e481f86e69e9e7eeda9a067c9016b2"
+    }
+  ],
+  "identicalEnglishFiles": 16,
+  "runtimeBoundary": "unchanged",
+  "changed": [
+    "README.es.md",
+    "README.md",
+    "docs/development-guide.md",
+    "docs/images/agents-dark.png",
+    "docs/images/agents-light.png",
+    "docs/images/readme-graphics.json",
+    "docs/readme-assets.md",
+    "scripts/readme-graphics/agent-evidence.mjs",
+    "scripts/readme-graphics/agents.html",
+    "scripts/readme-graphics/manifest.mjs",
+    "scripts/render-readme-graphics.mjs",
+    "tests/readme.test.ts"
+  ]
+}

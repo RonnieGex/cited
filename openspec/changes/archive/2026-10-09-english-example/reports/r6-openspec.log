@@ -1,0 +1,19 @@
+- Validating...
+✓ spec/admin-panel
+✓ spec/agent-evidence-r3
+✓ spec/agent-presentation-r4
+✓ spec/answering
+✓ spec/app-skeleton
+✓ spec/design-system
+✓ change/english-example
+✓ spec/knowledge-search
+✓ spec/mcp-server
+✓ spec/owner-setup
+✓ spec/product-identity
+✓ spec/project-readme
+✓ spec/provider-settings
+✓ spec/public-chat
+✓ spec/repository-bootstrap
+✓ spec/supply-chain-security
+✓ spec/voice-agent
+Totals: 17 passed, 0 failed (17 items)

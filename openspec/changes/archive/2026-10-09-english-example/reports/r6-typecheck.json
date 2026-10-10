@@ -1,0 +1,6 @@
+{
+  "command": "npm run typecheck",
+  "node": "v24.21.0",
+  "exitCode": 0,
+  "output": "\n> cited@0.1.0 typecheck\n> next typegen && tsc --noEmit\n\nGenerating route types...\n✓ Types generated successfully\n"
+}

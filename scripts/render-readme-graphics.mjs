@@ -1,4 +1,4 @@
-import { transcriptOf, hasOwnPassage } from './readme-graphics/agent-evidence.mjs';
+import { transcriptOf, hasOwnPassage, supportedExchangeOf } from './readme-graphics/agent-evidence.mjs';
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
@@ -996,7 +996,7 @@ async function meanInside(buffer, box, width, height) {
   return total / count;
 }
 
-async function render(browser, graphic, content, theme, target, backgrounds) {
+async function render(browser, graphic, content, theme, target, backgrounds, evidenceLanguage = 'en') {
   const page = await browser.newPage({
     viewport: { width: graphic.width, height: graphic.height },
     deviceScaleFactor: 1,
@@ -1027,12 +1027,23 @@ async function render(browser, graphic, content, theme, target, backgrounds) {
       resultBorder: getComputedStyle(document.querySelector('.agents-tool-result')).borderTopWidth,
       rowPadding: [...document.querySelectorAll('.agents-client-row')].map((node) => [getComputedStyle(node).paddingTop, getComputedStyle(node).paddingBottom]),
       columnDifference: Math.abs(document.querySelector('.agents-tool-result pre').getBoundingClientRect().bottom - document.querySelector('.agents-client-row:last-child .agents-result').getBoundingClientRect().bottom),
+      answerFontSize: getComputedStyle(document.querySelector('.agents-answer')).fontSize,
+      answerFontFamily: getComputedStyle(document.querySelector('.agents-answer')).fontFamily,
+      clientsDisplay: getComputedStyle(document.querySelector('.agents-clients')).display,
+      clientsDirection: getComputedStyle(document.querySelector('.agents-clients')).flexDirection,
+      clientsJustification: getComputedStyle(document.querySelector('.agents-clients')).justifyContent,
     }));
-    const call = agentRecord.events.find((event) => event.type === 'tool_call' && event.tool === 'cited_ask');
-    const result = agentRecord.events.find((event) => event.type === 'tool_result' && event.callId === call.callId).result;
-    const sourceLines = result.split('\n\nSources:\n')[1].split('\n');
-    const excerpt = `${sourceLines[0].replace(/^1\./, '1 ·')}\n${sourceLines.find((line) => line === '- Afinación de bicicleta: 380 pesos.').slice(2)}`;
-    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || proof.excerptHeight !== 2 * Number.parseFloat(proof.lineHeight) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '24px')) || proof.columnDifference > 70) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
+    const { record, exchange } = agentEvidence[evidenceLanguage];
+    const excerpt = `${exchange.sourceLine.replace(/^1\./, '1 ·')}\n${exchange.highlight}`;
+    const visibleAnswer = await page.locator('.agents-answer').evaluate((node) => {
+      const raw = node.cloneNode(true);
+      raw.querySelectorAll('.agents-citation').forEach((chip) => { chip.textContent = `[${chip.textContent}]`; });
+      return raw.textContent;
+    });
+    if (visibleAnswer !== record.events.findLast((event) => event.type === 'final').text.split('\n\n')[0].replace(/\*\*|`/g, '').replace(/\*([^*]+)\*/g, '$1') || await page.locator('.agents-proof .agents-result').textContent() !== record.prompt) throw new Error('Displayed answer or question differs from evidence');
+    const lines = proof.excerptHeight / Number.parseFloat(proof.lineHeight);
+    if (!proof.answerFontFamily.includes('Outfit') || proof.answerFontSize !== (evidenceLanguage === 'en' ? '22px' : '27px') || evidenceLanguage === 'en' && (proof.clientsDisplay !== 'flex' || proof.clientsDirection !== 'column' || proof.clientsJustification !== 'space-between')) throw new Error(`Agent answer layout changed: ${JSON.stringify(proof)}`);
+    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || lines < 2 || lines > (evidenceLanguage === 'en' ? 4 : 2) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '24px')) || proof.columnDifference > 70) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
     console.log(`AGENT PROOF ${theme}: ${JSON.stringify(proof)}`);
     audit_.agentProof = proof;
   }
@@ -1165,23 +1176,31 @@ const searchLines = drawn.search.drawn.split("\n");
 const hit = searchLines.findIndex((line) => /^\d+\. /.test(line));
 const before = hit === -1 ? searchLines : searchLines.slice(0, hit);
 const after = hit === -1 ? [] : searchLines.slice(hit + 1);
-const agentRecord = JSON.parse(readFileSync(absolute("docs/evidence/agents/headless-answer.json"), "utf8"));
-const agentSource = JSON.parse(readFileSync(absolute(`docs/evidence/agents/${agentRecord.supportingEvidence ?? "headless-answer.json"}`), "utf8"));
-if (agentRecord.exitCode !== 0 || agentRecord.transcript !== transcriptOf(agentRecord.events, agentRecord.prompt) || !hasOwnPassage(agentSource)) throw new Error("Agent evidence mismatch");
-const agentAnswer = escapeHtml(agentRecord.events.findLast((event) => event.type === "final").text.split("\n\n")[0])
-  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*([^*]+)\*/g, '<em>$1</em>')
-  .replace(/\[1\]/g, '<span class="agents-citation">1</span>').replace(/\n\n(.+)$/, '<span class="source-line">$1</span>');
-const agentCall = agentRecord.events.find((event) => event.type === "tool_call" && event.tool === "cited_ask");
-const agentSourceLines = agentRecord.events.find((event) => event.type === "tool_result" && event.callId === agentCall.callId).result.split("\n\nSources:\n")[1].split('\n');
-const agentResult = escapeHtml([agentSourceLines[0], agentSourceLines.find((line) => line === '- Afinación de bicicleta: 380 pesos.').slice(2)].join('\n'))
-  .replace(/^1\./, '<span class="agents-citation source-chip">1</span> ·')
-  .replace('Afinación de bicicleta: 380 pesos.', '<span class="agents-highlight">Afinación de bicicleta: 380 pesos.</span>');
+const agentEvidence = Object.fromEntries(['en', 'es'].map((lang) => {
+  const name = `headless-answer${lang === 'en' ? '-en' : ''}`;
+  const record = JSON.parse(readFileSync(absolute(`docs/evidence/agents/${name}.json`), 'utf8'));
+  if (record.language !== lang || record.transcript !== transcriptOf(record.events, record.prompt) || readFileSync(absolute(`docs/evidence/agents/${name}.txt`), 'utf8') !== `${record.transcript}\n` || !hasOwnPassage(record)) throw new Error('Agent evidence mismatch');
+  const exchange = supportedExchangeOf(record, 'cited_ask') ?? supportedExchangeOf(record, 'cited_search');
+  return [lang, { record, exchange }];
+}));
+function agentFields(lang) {
+  const { record, exchange } = agentEvidence[lang];
+  return {
+    AGENT_LANGUAGE: lang, AGENT_LANGUAGE_NAME: lang === 'en' ? 'English' : 'Spanish',
+    AGENT_TOOL: exchange.call.tool, AGENT_QUESTION: escapeHtml(record.prompt),
+    AGENT_ANSWER: escapeHtml(exchange.final.text.split('\n\n')[0])
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\[1\]/g, '<span class="agents-citation">1</span>'),
+    AGENT_RESULT: escapeHtml(`${exchange.sourceLine}\n${exchange.highlight}`)
+      .replace(/^1\./, '<span class="agents-citation source-chip">1</span> ·')
+      .replace(escapeHtml(exchange.highlight), `<span class="agents-highlight">${escapeHtml(exchange.highlight)}</span>`),
+  };
+}
 const contents = new Map(
   [...graphics, social].map((graphic) => [
     graphic.name,
     fill(templatesOf.get(graphic.name), {
-      AGENT_ANSWER: agentAnswer,
-      AGENT_RESULT: agentResult,
+      ...agentFields('en'),
       INGEST_COMMAND: escapeHtml(ingestCommand),
       INGEST_OUTPUT: escapeLines(drawn.ingest.drawn),
       SEARCH_COMMAND: escapeHtml(searchCommand),
@@ -1224,6 +1243,9 @@ try {
       );
 
       terminalBox = measured.terminal ?? terminalBox;
+      if (graphic.name === 'agents') {
+        await render(browser, graphic, fill(templatesOf.get('agents'), agentFields('es')), theme, graphic.spanish[theme], backgrounds, 'es');
+      }
     }
 
     written.push({
@@ -1237,6 +1259,7 @@ try {
       shows: graphic.shows,
       label: graphic.label,
       alt: graphic.alt,
+      ...(graphic.spanish ? { spanish: graphic.spanish } : {}),
       ...(graphic.flat ? { palette: { ink: tokens.ink, paper: "#FAFAF9", lime: tokens.lime }, flat: true } : {}),
     });
   }

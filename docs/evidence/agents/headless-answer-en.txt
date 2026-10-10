@@ -1,0 +1,17 @@
+Question
+Is there a guarantee on repairs at the bike workshop?
+
+Tool call
+cited_ask {"question":"Is there a guarantee on repairs at the bike workshop?"}
+
+Tool result
+Yes. Every repair carries a 90 day guarantee on the work, while parts carry the guarantee of their maker [1]. To claim it, bring the ticket, although without it the repair can still be looked up by the frame number [1].
+
+Sources:
+1. bike-workshop-policies.md · Guarantee (position 4)
+Guarantee Every repair carries a 90 day guarantee on the work. Parts carry the guarantee of their maker. Bring the ticket; without it we can still look up the repair by the frame number.
+
+Answer
+Yes. Every repair carries a **90-day guarantee on the work**, and parts carry the guarantee of their maker [1]. To claim it, bring the ticket — though if you don't have it, the repair can still be looked up by the frame number [1].
+
+Source: bike-workshop-policies.md · Guarantee (position 4)

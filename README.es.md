@@ -143,7 +143,7 @@ del negocio y responder con ellos, con la misma negativa honesta cuando no tiene
 CITED_MCP_TOKEN=<un token largo y aleatorio> npm start
 ```
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-dark.png"><img src="docs/images/agents-light.png" alt="DeepSeek Harness eligió cited_ask y respondió 380 pesos [1], citando cafe-la-horquilla.md; Claude Code y Codex se conectaron y listaron ambas herramientas; Cursor está documentado, sin probar" width="1280"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/agents-es-dark.png"><img src="docs/images/agents-es-light.png" alt="DeepSeek Harness eligió cited_ask y respondió 380 pesos [1], citando cafe-la-horquilla.md; Claude Code y Codex se conectaron y listaron ambas herramientas; Cursor está documentado, sin probar" width="1280"></picture>
 
 Expone dos herramientas de solo lectura. `cited_search` devuelve los pasajes con su documento, su sección, su posición
 y su texto, y nunca llama a un modelo, así que una búsqueda no cuesta nada. `cited_ask` recorre el mismo camino que el
@@ -162,7 +162,7 @@ Instala el [plugin nativo](https://github.com/RonnieGex/dsh-cited) con `dsh plug
 `docs/mcp.md` trae la configuración exacta de cada uno y de `curl`. El token viaja en la cabecera
 `Authorization: Bearer`, y el servidor está apagado hasta que lo declaras.
 
-El gráfico cita el primer párrafo exacto de la respuesta en español y su propia fuente de `cited_ask`. El gráfico muestra el Markdown con formato; la transcripción conserva el original. La [transcripción](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) conserva el Markdown crudo, todas las llamadas y la respuesta completa. **2 de 3 preguntas naturales recibieron el precio con una cita sustentada**, con búsqueda por palabras clave sin embeddings. La pregunta inglesa no encontró el pasaje en español; Cited se negó a responder y el agente afirmó sin razón que no existía el precio. [Los resultados](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json) y la [verificación](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md) documentan modelos y límites.
+El gráfico conserva el primer párrafo exacto de la respuesta española y su fuente de `cited_ask`. El Markdown se muestra con formato; la [transcripción](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt) conserva todas las llamadas y la respuesta original completa. **De tres preguntas naturales sobre la lista de precios, las dos en español recibieron el precio con su cita**; la de inglés no encontró el pasaje, Cited se negó a responder y el agente afirmó, sin razón, que no existía el precio. Con el documento en inglés, 3 de 3 preguntas en inglés recibieron su cita. La búsqueda por palabras clave, sin embeddings, puede no encontrar un pasaje español al preguntar en inglés. Los [resultados ingleses](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary-en.json), los [del ejemplo español](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/natural-summary.json) y la [verificación](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md) documentan evidencia y límites.
 
 ## Arranque rápido
 

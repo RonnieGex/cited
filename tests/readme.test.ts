@@ -126,6 +126,8 @@ const artDirection = {
   canvases: [
     "agents-dark.png",
     "agents-light.png",
+    "agents-es-dark.png",
+    "agents-es-light.png",
     "readme-banner-dark.png",
     "readme-banner-light.png",
     "chat-page.png",
@@ -147,6 +149,7 @@ const artDirection = {
   ],
   darkCanvases: [
     "agents-dark.png",
+    "agents-es-dark.png",
     "readme-banner-dark.png",
     "reason-sources-dark.png",
     "reason-citations-dark.png",
@@ -159,6 +162,7 @@ const artDirection = {
   ],
   lightCanvases: [
     "agents-light.png",
+    "agents-es-light.png",
     "readme-banner-light.png",
     "chat-page.png",
     "reason-sources-light.png",
@@ -1157,6 +1161,16 @@ describe("README, its links and its images", () => {
 });
 
 describe("README, its graphics", () => {
+  it("uses English evidence in the primary README and a preserved Spanish graphic in its twin", () => {
+    const record = JSON.parse(readText("docs/evidence/agents/headless-answer-en.json"));
+    expect(record.language).toBe("en");
+    expect(record.transcript).toContain("bike-workshop-policies.md · Guarantee");
+    expect(record.transcript).toContain("Every repair carries a 90 day guarantee on the work.");
+    expect(readText("README.md")).toContain("headless-answer-en.txt");
+    expect(readText("README.es.md")).toContain("docs/images/agents-es-light.png");
+    expect(readText("README.es.md")).toContain("docs/images/agents-es-dark.png");
+    expect(readText("README.es.md")).toContain("headless-answer.txt");
+  });
   it("uses the same own-source canonical run and counts supported answers", () => {
     const record = JSON.parse(readText("docs/evidence/agents/headless-answer.json"));
     const summary = JSON.parse(readText("docs/evidence/agents/natural-summary.json"));
@@ -1174,8 +1188,8 @@ describe("README, its graphics", () => {
     const template = readText("scripts/readme-graphics/agents.html");
     const evidence = "openspec/changes/archive/2026-10-09-mcp-server/reports/2026-10-09-step-10-4-review-and-clients.md";
 
-    expect(template).toContain("Tool result · cited_ask excerpt");
-    expect(template).toContain("Question · original Spanish");
+    expect(template).toContain("Tool result · {{AGENT_TOOL}} excerpt");
+    expect(template).toContain("Question · original {{AGENT_LANGUAGE_NAME}}");
     expect(template).not.toContain("Passage 1");
     expect(template).not.toContain("Markdown rendered");
     expect(template).toContain("{{AGENT_RESULT}}");
@@ -1187,7 +1201,7 @@ describe("README, its graphics", () => {
     expect(readText("scripts/render-readme-graphics.mjs")).not.toMatch(/source-chip">1<\/span>\./);
     expect(template.match(/class="agents-result">Connected, tools listed/g)).toHaveLength(2);
     expect(template).toContain("Documented");
-    expect(readText("scripts/render-readme-graphics.mjs")).toContain("Afinación de bicicleta: 380 pesos.");
+    expect(readText("scripts/readme-graphics/agent-evidence.mjs")).toContain("Afinación de bicicleta: 380 pesos.");
     expect(template).toContain("{{AGENT_ANSWER}}");
     expect(template).toContain("2026-10-09");
     expect(readText(evidence)).toContain("tools/call cited_search");
@@ -1196,10 +1210,10 @@ describe("README, its graphics", () => {
       const section = bodyOf(readText(file), heading);
 
       expect(section).toContain(evidence);
-      expect(section).toContain(graphics.agents.dark);
-      expect(section).toContain(graphics.agents.light);
+      expect(section).toContain(file === "README.es.md" ? "docs/images/agents-es-dark.png" : graphics.agents.dark);
+      expect(section).toContain(file === "README.es.md" ? "docs/images/agents-es-light.png" : graphics.agents.light);
       expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md");
-      expect(section).toContain("https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt");
+      expect(section).toContain(`https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer${file === "README.md" ? "-en" : ""}.txt`);
       expect(section).toContain("Markdown");
       expect(section.trimStart()).toMatch(/^Cited /);
       expect(section).not.toContain("deepseek-v4-flash");

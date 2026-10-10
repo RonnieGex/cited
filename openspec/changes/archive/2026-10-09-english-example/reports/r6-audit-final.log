@@ -1,0 +1,7 @@
+
+> cited@0.1.0 audit:high
+> node scripts/audit-high.mjs
+
+PASS  production audit: no finding of the high level or above in the production tree
+PASS  full audit: 1 advisories of the high level or above, 1 entries, 1 in force
+AUDIT: PASS (1 entries in force, the nearest expiry 2026-11-08)

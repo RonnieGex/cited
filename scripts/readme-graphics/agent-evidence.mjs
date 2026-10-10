@@ -14,15 +14,43 @@ export function transcriptOf(events, prompt) {
   return `Question\n${prompt}\n\n${exchanges}\n\nAnswer\n${final.text}`
 }
 
+export function evidenceContractOf(record) {
+  return record.language === 'en'
+    ? { document: 'bike-workshop-policies.md', source: /^1\. bike-workshop-policies\.md · Guarantee(?: \(position \d+\))?\n([\s\S]*?)(?=^\d+\. |$(?![\s\S]))/m, highlight: 'Every repair carries a 90 day guarantee on the work.', answer: /\b90[ -]+day(?:s)?\b/i }
+    : { document: 'cafe-la-horquilla.md', source: /^1\. cafe-la-horquilla\.md · Precios(?: \(position 2\))?\n([\s\S]*?)(?=^\d+\. |$(?![\s\S]))/m, highlight: 'Afinación de bicicleta: 380 pesos.', answer: /380/ }
+}
+
+function affirmsGuarantee(text) {
+  const answer = text.split(/\n\s*\n/)[0]
+  return (answer.match(/[^.!?\n]+[.!?]?/g) ?? []).some((sentence) =>
+    /\b90[ -]+days?\b/i.test(sentence) && /\bguarantee\b/i.test(sentence) && /\b(?:repairs?|work)\b/i.test(sentence)
+    && /\b(?:carries|carry|has|have|is|are|applies|covers)\b/i.test(sentence)
+    && !/\?|\b(?:source|cannot|can't|not|no|never|unable|uncertain|unconfirmed|unknown|without|refuse|refused|may|might|could|would|perhaps|possibly|maybe|assume|suppose|think)\b/i.test(sentence))
+}
+
+export function supportedExchangeOf(record, tool) {
+  if (record.exitCode !== 0 || record.validationError) return undefined
+  try { transcriptOf(record.events, record.prompt) } catch { return undefined }
+  const contract = evidenceContractOf(record)
+  const final = record.events.findLast((event) => event.type === 'final')
+  const answer = final.text.replace(/\*\*|`/g, '')
+  if (!/\[1\]/.test(answer) || !contract.answer.test(answer)) return undefined
+  if (record.language === 'en' && !affirmsGuarantee(answer)) return undefined
+  for (const call of record.events.filter((event) => event.type === 'tool_call' && (!tool || event.tool === tool))) {
+    const result = record.events.find((event) => event.type === 'tool_result' && event.callId === call.callId)
+    const source = result.result.match(contract.source)
+    if (!source?.[1].includes(contract.highlight)) continue
+    if (record.language === 'en' && call.tool === 'cited_ask') {
+      const toolAnswer = result.result.split('\n\nSources:\n')[0].replace(/\*\*|`/g, '')
+      if (!affirmsGuarantee(toolAnswer) || !/\[1\]/.test(toolAnswer)) continue
+    }
+    return { call, result, final, sourceLine: source[0].split('\n')[0], highlight: contract.highlight }
+  }
+  return undefined
+}
+
 export function hasOwnPassage(record, tool) {
-  if (record.exitCode !== 0 || record.validationError) return false
-  try { transcriptOf(record.events, record.prompt) } catch { return false }
-  return record.events.some((call) => call.type === 'tool_call' && (!tool || call.tool === tool) && record.events.some((result) => {
-    if (result.type !== 'tool_result' || result.callId !== call.callId || result.status !== 'completed' || result.truncated) return false
-    const source = result.result?.match(/^1\. cafe-la-horquilla\.md · Precios(?: \(position 2\))?\n([\s\S]*?)(?=^\d+\. |$(?![\s\S]))/m)
-    const answer = record.events.findLast((event) => event.type === 'final')?.text ?? ''
-    return source?.[1].includes('Afinación de bicicleta: 380 pesos.') && /\[1\]/.test(answer) && /380/.test(answer)
-  }))
+  return Boolean(supportedExchangeOf(record, tool))
 }
 
 export function captureEvents(stdout) {
@@ -42,8 +70,7 @@ export function canonicalOf(records) {
 }
 
 export function displayTranscriptOf(record) {
-  const call = record.events.find((event) => event.type === 'tool_call' && event.tool === 'cited_ask')
-  if (!call || !hasOwnPassage(record, 'cited_ask')) return transcriptOf(record.events, record.prompt)
-  const result = record.events.find((event) => event.type === 'tool_result' && event.callId === call.callId)
-  return transcriptOf([call, result, record.events.findLast((event) => event.type === 'final')], record.prompt)
+  const exchange = supportedExchangeOf(record, 'cited_ask') ?? supportedExchangeOf(record, 'cited_search')
+  if (!exchange) return transcriptOf(record.events, record.prompt)
+  return transcriptOf([exchange.call, exchange.result, exchange.final], record.prompt)
 }
