@@ -1,3 +1,5 @@
+import { auditBrandLogos } from "./readme-graphics/audit-brand-logos.mjs";
+import { logo, brandText } from "./readme-graphics/brand-logos.mjs";
 import { transcriptOf, hasOwnPassage, supportedExchangeOf } from './readme-graphics/agent-evidence.mjs';
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
@@ -220,6 +222,11 @@ function reportContrast() {
 }
 
 const styles = `
+.brand-logo { width: 1.05em; height: 1.05em; flex: none; display: inline-block; vertical-align: -0.15em; }
+.brand-name { display: inline-flex; align-items: center; gap: 0.22em; white-space: nowrap; }
+body[data-theme="dark"] { --brand-background: #171717; }
+body[data-theme="light"] { --brand-background: #FAFAF9; }
+
 .page {
   position: relative;
   width: 100%;
@@ -778,9 +785,7 @@ function rowsOf(state) {
           ? `<span class="row-reference">${escapeHtml(row.reference)}</span>`
           : `<span class="next">Next</span><span class="row-reference">${escapeHtml(row.reference)}</span>`;
 
-      return `<div class="row"><span class="row-capability">${escapeHtml(
-        row.capability,
-      )}</span><span class="row-detail">${detail}</span></div>`;
+      return `<div class="row"><span class="row-capability">${brandText(escapeHtml(row.capability))}</span><span class="row-detail">${detail}</span></div>`;
     })
     .join("\n      ");
 }
@@ -1013,9 +1018,15 @@ async function render(browser, graphic, content, theme, target, backgrounds, evi
   }
 
   const audit_ = await audit(page, graphic, theme);
+  const expectedBrands = { agents: ["deepseek", "claude", "codex", "cursor"], "reason-voice": ["elevenlabs"], "voice-teaser": ["elevenlabs"], "how-it-works": ["libsql", "elevenlabs"], roadmap: ["libsql", "turso", "ollama", "elevenlabs", "docker"] };
+  if (expectedBrands[graphic.name]) audit_.brands = await auditBrandLogos(page, expectedBrands[graphic.name]);
   if (graphic.name === "agents") {
     const proof = await page.evaluate(() => ({
-      footerClearance: 680 - document.querySelector('.agents-footer').getBoundingClientRect().bottom,
+      footerClearance: 680 - document.querySelector('.agents-body').getBoundingClientRect().bottom,
+      rowHeights: [...document.querySelectorAll('.agents-client-row')].map((node) => node.getBoundingClientRect().height),
+      rowTops: [...document.querySelectorAll('.agents-client-row')].map((node) => node.getBoundingClientRect().top),
+      columnTopDifference: Math.abs(document.querySelector('.agents-proof').getBoundingClientRect().top - document.querySelector('.agents-clients').getBoundingClientRect().top),
+      legendCount: document.querySelectorAll('.agents-footer').length,
       result: document.querySelector('.agents-tool-result pre').textContent,
       highlights: document.querySelectorAll('.agents-tool-result .agents-highlight').length,
       chips: document.querySelectorAll('.agents-tool-result .source-chip').length,
@@ -1026,7 +1037,7 @@ async function render(browser, graphic, content, theme, target, backgrounds, evi
       proofPadding: getComputedStyle(document.querySelector('.agents-proof')).paddingTop,
       resultBorder: getComputedStyle(document.querySelector('.agents-tool-result')).borderTopWidth,
       rowPadding: [...document.querySelectorAll('.agents-client-row')].map((node) => [getComputedStyle(node).paddingTop, getComputedStyle(node).paddingBottom]),
-      columnDifference: Math.abs(document.querySelector('.agents-tool-result pre').getBoundingClientRect().bottom - document.querySelector('.agents-client-row:last-child .agents-result').getBoundingClientRect().bottom),
+      columnDifference: Math.abs(document.querySelector('.agents-proof').getBoundingClientRect().bottom - document.querySelector('.agents-clients').getBoundingClientRect().bottom),
       answerFontSize: getComputedStyle(document.querySelector('.agents-answer')).fontSize,
       answerFontFamily: getComputedStyle(document.querySelector('.agents-answer')).fontFamily,
       clientsDisplay: getComputedStyle(document.querySelector('.agents-clients')).display,
@@ -1042,8 +1053,8 @@ async function render(browser, graphic, content, theme, target, backgrounds, evi
     });
     if (visibleAnswer !== record.events.findLast((event) => event.type === 'final').text.split('\n\n')[0].replace(/\*\*|`/g, '').replace(/\*([^*]+)\*/g, '$1') || await page.locator('.agents-proof .agents-result').textContent() !== record.prompt) throw new Error('Displayed answer or question differs from evidence');
     const lines = proof.excerptHeight / Number.parseFloat(proof.lineHeight);
-    if (!proof.answerFontFamily.includes('Outfit') || proof.answerFontSize !== (evidenceLanguage === 'en' ? '22px' : '27px') || evidenceLanguage === 'en' && (proof.clientsDisplay !== 'flex' || proof.clientsDirection !== 'column' || proof.clientsJustification !== 'space-between')) throw new Error(`Agent answer layout changed: ${JSON.stringify(proof)}`);
-    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || lines < 2 || lines > (evidenceLanguage === 'en' ? 4 : 2) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '24px')) || proof.columnDifference > 70) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
+    if (!proof.answerFontFamily.includes('Outfit') || proof.answerFontSize !== (evidenceLanguage === 'en' ? '22px' : '27px') || proof.clientsDisplay !== 'grid' || proof.legendCount !== 0 || Math.max(...proof.rowHeights) - Math.min(...proof.rowHeights) > 1 || Math.abs((proof.rowTops[1] - proof.rowTops[0]) - (proof.rowTops[2] - proof.rowTops[1])) > 1 || proof.columnTopDifference > 1) throw new Error(`Agent answer layout changed: ${JSON.stringify(proof)}`);
+    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || lines < 2 || lines > (evidenceLanguage === 'en' ? 4 : 2) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '22px')) || proof.columnDifference > 1) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
     console.log(`AGENT PROOF ${theme}: ${JSON.stringify(proof)}`);
     audit_.agentProof = proof;
   }
@@ -1183,9 +1194,13 @@ const agentEvidence = Object.fromEntries(['en', 'es'].map((lang) => {
   const exchange = supportedExchangeOf(record, 'cited_ask') ?? supportedExchangeOf(record, 'cited_search');
   return [lang, { record, exchange }];
 }));
+function brandFields() {
+  return Object.fromEntries(["deepseek", "claude", "codex", "cursor", "elevenlabs", "libsql"].map((name) => [`LOGO_${name.toUpperCase()}`, logo(name)]));
+}
 function agentFields(lang) {
   const { record, exchange } = agentEvidence[lang];
   return {
+    ...brandFields(),
     AGENT_LANGUAGE: lang, AGENT_LANGUAGE_NAME: lang === 'en' ? 'English' : 'Spanish',
     AGENT_TOOL: exchange.call.tool, AGENT_QUESTION: escapeHtml(record.prompt),
     AGENT_ANSWER: escapeHtml(exchange.final.text.split('\n\n')[0])

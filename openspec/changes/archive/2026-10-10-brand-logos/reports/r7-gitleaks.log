@@ -1,0 +1,8 @@
+gitleaks : 7:08PM INF scanned ~8965525 bytes (8.97 MB) in 1.52s
+En línea: 2 Carácter: 59
++ ... ff --check; gitleaks dir . --redact --no-banner --report-path openspe ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (7:08PM INF scan...97 MB) in 1.52s:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+7:08PM INF no leaks found

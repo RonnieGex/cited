@@ -1,0 +1,39 @@
+
+ RUN  v5.0.2 <workspace>/community-brand-logos
+
+ ❯ tests/brand-logos.test.ts (0 test)
+node.exe :
+En línea: 2 Carácter: 1
++ & '<user-home>/AppData/Local/npm-cache/_npx/538786c08bcb9442/node_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/brand-logos.test.ts [ tests/brand-logos.test.ts ]
+Error: Failed to resolve import "../scripts/readme-graphics/brand-logos.mjs" from "tests/brand-logos.test.ts". Does
+the file exist?
+  Plugin: vite:import-analysis
+  File: <workspace>/community-brand-logos/tests/brand-logos.test.ts:7:43
+  5  |  const read = (file) => readFileSync(new URL("../" + file, import.meta.url), "utf8");
+  6  |  test("brand assets retain published geometry and accessible presentation", async () => {
+  7  |  	const { logo, brandText } = await import("../scripts/readme-graphics/brand-logos.mjs");
+     |                                            ^
+  8  |  	const manifest = JSON.parse(read("docs/brand/logos/" + "sources.json"));
+  9  |  	for (const [name, record] of Object.entries(manifest)) {
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:8736:39
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:8733:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/node.js:26423:18
+ ❯ node_modules/vite/dist/node/chunks/node.js:26493:30
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:26459:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:8515:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:19998:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  47 passed (47)
+   Start at  18:59:26
+   Duration  1.88s (environment 59%, import 14%, tests 11%, setup 9%, transform 6%, worker 1%)

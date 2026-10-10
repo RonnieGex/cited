@@ -1,0 +1,65 @@
+
+> cited@0.1.0 build
+> next build
+
+▲ Next.js 16.4.0 (Turbopack)
+✓ Running next.config.ts took 52ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.7s
+  Running TypeScript ...
+  Finished TypeScript in 8.6s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/31) ...
+  Generating static pages using 15 workers (7/31)
+  Generating static pages using 15 workers (15/31)
+  Generating static pages using 15 workers (23/31)
+✓ Generating static pages using 15 workers (31/31) in 558ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /admin
+├ ƒ /admin/ai
+├ ƒ /admin/business
+├ ƒ /admin/conversations
+├ ƒ /admin/documents
+├ ƒ /admin/home
+├ ƒ /admin/information
+├ ƒ /admin/information/[id]
+├ ƒ /admin/publish
+├ ƒ /admin/settings
+├ ƒ /admin/try
+├ ƒ /api/admin/business
+├ ƒ /api/admin/business/logo
+├ ƒ /api/admin/conversations
+├ ƒ /api/admin/conversations/delete
+├ ƒ /api/admin/documents
+├ ƒ /api/admin/documents/delete
+├ ƒ /api/admin/documents/reingest
+├ ƒ /api/admin/login
+├ ƒ /api/admin/logout
+├ ƒ /api/admin/providers
+├ ƒ /api/admin/providers/reindex
+├ ƒ /api/admin/providers/save
+├ ƒ /api/admin/providers/test
+├ ƒ /api/admin/samples
+├ ƒ /api/admin/setup
+├ ƒ /api/admin/setup/flags
+├ ƒ /api/admin/setup/test
+├ ƒ /api/admin/try/verify
+├ ƒ /api/admin/voice
+├ ƒ /api/ask
+├ ƒ /api/brand/logo
+├ ƒ /api/mcp
+├ ƒ /api/voice/signed-url
+├ ƒ /api/voice/tool
+├ ƒ /embed
+├ ƒ /kit
+└ ƒ /privacy
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand

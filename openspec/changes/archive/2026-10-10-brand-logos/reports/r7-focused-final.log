@@ -1,0 +1,42 @@
+
+ RUN  v5.0.2 <workspace>/community-brand-logos
+
+··································stdout | tests/readme.test.ts > README, its graphics > keeps the terminal of the demo dark in both themes
+docs/images/demo-dark.png: the terminal is 63.5% of the canvas at 0.176
+docs/images/demo-light.png: the terminal is 63.5% of the canvas at 0.142
+
+stdout | tests/readme.test.ts > README, the art direction of its graphics > keeps every canvas in the luminance bounds of the second art direction
+The luminance of every PNG of docs/images:
+agents-dark.png luminance 0.150 transparent 0.000
+agents-es-dark.png luminance 0.139 transparent 0.000
+agents-es-light.png luminance 0.940 transparent 0.000
+agents-light.png luminance 0.934 transparent 0.000
+chat-page.png luminance 0.888 transparent 0.000
+demo-dark.png luminance 0.165 transparent 0.000
+demo-light.png luminance 0.427 transparent 0.000
+how-it-works-dark.png luminance 0.150 transparent 0.000
+how-it-works-light.png luminance 0.938 transparent 0.000
+readme-banner-dark.png luminance 0.162 transparent 0.000
+readme-banner-light.png luminance 0.921 transparent 0.000
+reason-citations-dark.png luminance 0.252 transparent 0.000
+reason-citations-light.png luminance 0.908 transparent 0.000
+reason-sources-dark.png luminance 0.243 transparent 0.000
+reason-sources-light.png luminance 0.913 transparent 0.000
+reason-voice-dark.png luminance 0.209 transparent 0.000
+reason-voice-light.png luminance 0.948 transparent 0.000
+roadmap-dark.png luminance 0.147 transparent 0.000
+roadmap-light.png luminance 0.931 transparent 0.000
+social-preview.png luminance 0.152 transparent 0.000
+voice-teaser-dark.png luminance 0.182 transparent 0.000
+voice-teaser-light.png luminance 0.912 transparent 0.000
+The transparency of the flame: public/brand/katalis-flame-192.png 0.721, public/brand/katalis-flame-ink-192.png 0.748
+
+stdout | tests/readme.test.ts > README, the art direction of its graphics > measures the terminal area of every exempt canvas
+demo-light.png: the terminal measures 0.142
+
+·················
+
+ Test Files  2 passed (2)
+      Tests  51 passed (51)
+   Start at  19:09:46
+   Duration  3.06s (environment 53%, tests 17%, import 15%, setup 10%, transform 4%, worker 1%)

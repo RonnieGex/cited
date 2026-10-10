@@ -1,0 +1,31 @@
+{
+  "repo": "community-brand-logos",
+  "databases": [
+    {
+      "file": ".data\\katalis.sqlite",
+      "sha256": "f05a454c0b1638fe9aabaf81081534e146015bee4ac87268c58b00432ede7a90",
+      "rows": {
+        "business": 0,
+        "conversations": 0,
+        "document_index": 0,
+        "documents": 0,
+        "login_attempts": 0,
+        "model_calls": 0,
+        "passages": 0,
+        "passages_fts": 0,
+        "passages_fts_config": 1,
+        "passages_fts_content": 0,
+        "passages_fts_data": 2,
+        "passages_fts_docsize": 0,
+        "passages_fts_idx": 0,
+        "provider_settings": 0,
+        "provider_tests": 0,
+        "rate_limits": 0,
+        "setup_flags": 0,
+        "sqlite_sequence": 0,
+        "voice_agent": 0,
+        "voice_minutes": 0
+      }
+    }
+  ]
+}

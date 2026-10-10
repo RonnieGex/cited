@@ -219,3 +219,11 @@ The English batch scored 3/3 and its own cited_ask result contains the Guarantee
 The validator requires a supported guarantee statement, rejects refusals/unrelated durations and selects the matching callId. Both renderings keep the exact first final-answer paragraph and source excerpt. English uses 22px answer text and distributes the client rows through the column; Spanish keeps its previous 27px answer and layout. Source text remains 20px, proof margins 22px, row padding 24px, at least 36px below the legend and at most 70px between column ends. Browser checks validate the complete answer, question, source, font, clipping and local requests. Original quoted model punctuation is preserved; authored text has no em dashes.
 
 The English-example plugin PR must merge before this consumer PR so new main evidence URLs resolve. This change has no application/runtime, API or data-model effect. Earlier sections above describe historical art/capture rounds.
+
+## Official brand marks
+
+Round seven uses vendored official marks beside authored product names and keeps compatibility status as separate text. See [brand sources and maintenance](brand-logos.md). The renderer preserves full SVG geometry and audits visible brand coverage. Runtime, API, data model and saved evidence contracts are unchanged.
+
+```sh
+node scripts/render-readme-graphics.mjs agents reason-voice voice-teaser how-it-works roadmap
+```
