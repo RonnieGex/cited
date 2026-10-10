@@ -1022,7 +1022,11 @@ async function render(browser, graphic, content, theme, target, backgrounds, evi
   if (expectedBrands[graphic.name]) audit_.brands = await auditBrandLogos(page, expectedBrands[graphic.name]);
   if (graphic.name === "agents") {
     const proof = await page.evaluate(() => ({
-      footerClearance: 680 - document.querySelector('.agents-footer').getBoundingClientRect().bottom,
+      footerClearance: 680 - document.querySelector('.agents-body').getBoundingClientRect().bottom,
+      rowHeights: [...document.querySelectorAll('.agents-client-row')].map((node) => node.getBoundingClientRect().height),
+      rowTops: [...document.querySelectorAll('.agents-client-row')].map((node) => node.getBoundingClientRect().top),
+      columnTopDifference: Math.abs(document.querySelector('.agents-proof').getBoundingClientRect().top - document.querySelector('.agents-clients').getBoundingClientRect().top),
+      legendCount: document.querySelectorAll('.agents-footer').length,
       result: document.querySelector('.agents-tool-result pre').textContent,
       highlights: document.querySelectorAll('.agents-tool-result .agents-highlight').length,
       chips: document.querySelectorAll('.agents-tool-result .source-chip').length,
@@ -1033,7 +1037,7 @@ async function render(browser, graphic, content, theme, target, backgrounds, evi
       proofPadding: getComputedStyle(document.querySelector('.agents-proof')).paddingTop,
       resultBorder: getComputedStyle(document.querySelector('.agents-tool-result')).borderTopWidth,
       rowPadding: [...document.querySelectorAll('.agents-client-row')].map((node) => [getComputedStyle(node).paddingTop, getComputedStyle(node).paddingBottom]),
-      columnDifference: Math.abs(document.querySelector('.agents-tool-result pre').getBoundingClientRect().bottom - document.querySelector('.agents-client-row:last-child .agents-result').getBoundingClientRect().bottom),
+      columnDifference: Math.abs(document.querySelector('.agents-proof').getBoundingClientRect().bottom - document.querySelector('.agents-clients').getBoundingClientRect().bottom),
       answerFontSize: getComputedStyle(document.querySelector('.agents-answer')).fontSize,
       answerFontFamily: getComputedStyle(document.querySelector('.agents-answer')).fontFamily,
       clientsDisplay: getComputedStyle(document.querySelector('.agents-clients')).display,
@@ -1049,8 +1053,8 @@ async function render(browser, graphic, content, theme, target, backgrounds, evi
     });
     if (visibleAnswer !== record.events.findLast((event) => event.type === 'final').text.split('\n\n')[0].replace(/\*\*|`/g, '').replace(/\*([^*]+)\*/g, '$1') || await page.locator('.agents-proof .agents-result').textContent() !== record.prompt) throw new Error('Displayed answer or question differs from evidence');
     const lines = proof.excerptHeight / Number.parseFloat(proof.lineHeight);
-    if (!proof.answerFontFamily.includes('Outfit') || proof.answerFontSize !== (evidenceLanguage === 'en' ? '22px' : '27px') || evidenceLanguage === 'en' && (proof.clientsDisplay !== 'flex' || proof.clientsDirection !== 'column' || proof.clientsJustification !== 'space-between')) throw new Error(`Agent answer layout changed: ${JSON.stringify(proof)}`);
-    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || lines < 2 || lines > (evidenceLanguage === 'en' ? 4 : 2) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '24px')) || proof.columnDifference > 70) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
+    if (!proof.answerFontFamily.includes('Outfit') || proof.answerFontSize !== (evidenceLanguage === 'en' ? '22px' : '27px') || proof.clientsDisplay !== 'grid' || proof.legendCount !== 0 || Math.max(...proof.rowHeights) - Math.min(...proof.rowHeights) > 1 || Math.abs((proof.rowTops[1] - proof.rowTops[0]) - (proof.rowTops[2] - proof.rowTops[1])) > 1 || proof.columnTopDifference > 1) throw new Error(`Agent answer layout changed: ${JSON.stringify(proof)}`);
+    if (proof.footerClearance < 36 || proof.result !== excerpt || proof.highlights !== 1 || proof.chips !== 1 || proof.fontSize !== '20px' || lines < 2 || lines > (evidenceLanguage === 'en' ? 4 : 2) || proof.eyebrowMargins.length !== 3 || proof.eyebrowMargins.some((margin) => margin !== '22px') || proof.proofPadding !== '22px' || proof.resultBorder !== '0px' || proof.rowPadding.some((padding) => padding.some((side) => side !== '22px')) || proof.columnDifference > 1) throw new Error(`Agent proof layout or source changed: ${JSON.stringify(proof)}`);
     console.log(`AGENT PROOF ${theme}: ${JSON.stringify(proof)}`);
     audit_.agentProof = proof;
   }

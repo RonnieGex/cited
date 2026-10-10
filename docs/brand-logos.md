@@ -31,3 +31,7 @@ node scripts/render-readme-graphics.mjs agents reason-voice voice-teaser how-it-
 ```
 
 Browser audits check every authored visible brand occurrence, expected mark inventory, readable SVG dimensions, distinct paints and unique local definition references. Source tests compare original geometry and pinned file hashes. Keep updated provenance and run the relevant unit/build/browser checks after changing marks. API contracts, runtime behavior, data models and canonical evidence are unchanged.
+
+## Round eight composition
+
+The agents graphic uses three equal grid rows in both languages and themes, aligned to the left proof column. Statuses appear below client names; the repeated footer legend is removed. `node scripts/render-readme-graphics.mjs agents` asserts equal row heights, equal intervals, aligned column bounds and preserved source evidence. The browser audit records geometry for all four variants.

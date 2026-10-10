@@ -9,6 +9,13 @@ import { statusRows } from "../scripts/readme-graphics/data.mjs";
 import { createHash } from "node:crypto";
 import { test } from "vitest";
 const read = (file: string) => readFileSync(new URL('../' + file, import.meta.url), "utf8");
+test("agent statuses appear once per client without a duplicated bottom legend", () => {
+  const html = read("scripts/readme-graphics/agents.html");
+  assert.doesNotMatch(html, /agents-footer/);
+  assert.equal((html.match(/Called and answered/g) ?? []).length, 1);
+  assert.equal((html.match(/Connected, tools listed/g) ?? []).length, 2);
+  assert.equal((html.match(/Documented, not tested/g) ?? []).length, 1);
+});
 test("brand assets retain published geometry and accessible presentation", async () => {
   const { logo, brandText } = await import('../scripts/readme-graphics/brand-logos.mjs');
   const manifest = JSON.parse(read('docs/brand/logos/' + "sources.json")) as Record<string, { file: string; sha256: string; url: string; version: string; license: string }>;

@@ -19,13 +19,10 @@
   .agents-highlight { background: #DDF469; color: #171717; padding: 0 3px; }
   .agents-answer strong { font-weight: 600; }
   .agents-answer code { font: inherit; font-weight: 600; }
-  .agents-clients { border-top: 1px solid var(--hairline); }
-  .agents[data-evidence-language="en"] .agents-clients { display: flex; flex-direction: column; justify-content: space-between; }
-  .agents-client-row { padding: 24px 0; border-bottom: 1px solid var(--hairline); }
+  .agents-clients { border-top: 1px solid var(--hairline); display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .agents-client-row { padding: 22px 0; border-bottom: 1px solid var(--hairline); display: flex; flex-direction: column; justify-content: center; }
   .agents-client-row .agents-client { margin-bottom: 4px; }
   .agents-client-row:last-child { border-bottom: 0; }
-  .agents-footer { border-top: 1px solid var(--hairline); padding-top: 16px; font-size: 18px; display: flex; align-items: center; gap: 22px; }
-  .agents-footer > span { display: flex; align-items: center; gap: 8px; }
 </style>
 <div class="page agents" data-evidence-language="{{AGENT_LANGUAGE}}">
   <div class="agents-head">
@@ -57,5 +54,4 @@
       </div>
     </div>
   </div>
-  <div class="agents-footer"><span>Called and answered</span><span>Connected, tools listed</span><span>Documented, not tested</span></div>
 </div>
