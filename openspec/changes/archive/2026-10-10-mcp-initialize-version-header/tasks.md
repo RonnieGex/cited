@@ -39,5 +39,5 @@ Round-1 red/build/Hermes claims are historical, not independently verified by Co
 - [x] 6.1 Update the MCP manual for body negotiation, subsequent headers, 400, 413 and 408. Evidence: [executed commands and results](reports/2026-10-09-step-6-verification.md).
 - [x] 6.2 Cite historical Hermes evidence and explicit independent-verification limits. Evidence: [executed commands and results](reports/2026-10-09-step-6-verification.md).
 - [x] 6.3 Verify artifact/implementation/test mapping and deliver with actual issues. Evidence: [verification](reports/2026-10-09-step-6-verification.md), [handoff](reports/2026-10-09-step-7-ci.md).
-- [ ] 6.4 Fable performs independent adversarial review; Codex does not review its own code.
-- [ ] 6.5 Archive after independent review. Round-2 commits and push precede that handoff as explicitly assigned.
+- [x] 6.4 Fable performs independent adversarial review; Codex does not review its own code. Evidence: [PASS](reports/2026-10-09-step-8-fable-review.md).
+- [x] 6.5 Archive after independent review. Round-2 commits and push precede that handoff as explicitly assigned. Evidence: `openspec archive mcp-initialize-version-header -y` and `openspec validate --all --strict`.
