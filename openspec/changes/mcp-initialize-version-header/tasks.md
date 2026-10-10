@@ -1,30 +1,43 @@
-## 0. Step 0: the branch
+# Round 2 tasks
 
-- [x] 0.1 `fix/mcp-initialize-version-header`, created from `origin/main` at `a044405`.
+Fable's 2026-10-09 assignment approves these corrections and retains PR #21. Reports belong in `reports/`.
+Round-1 red/build/Hermes claims are historical, not independently verified by Codex.
 
-## 1. Spec, before any code
+## 0. Branch
 
-- [x] 1.1 The delta of `mcp-server` with the new scenario. Evidence: `openspec validate --all --strict` prints
-      `Totals: 20 passed, 0 failed (20 items)`.
+- [x] 0.1 Verify assigned existing `fix/mcp-initialize-version-header` rather than create `feature/<change>`, per assignment. Evidence: [executed commands and results](reports/2026-10-09-step-2-tdd.md).
 
-## 2. Tests first
+## 1. Specification and TDD
 
-- [x] 2.1 `tests/mcp-route.test.ts`: an `initialize` with `MCP-Protocol-Version: 2025-11-25` (and `2024-11-05`) is
-      answered `200` with `protocolVersion` `2025-06-18`. Evidence before the fix: `Tests 1 failed | 14 passed (15)`,
-      `2025-11-25: expected 400 to be 200`.
-- [x] 2.2 The existing refusal of an unsupported header on `tools/list` still passes.
+- [x] 1.1 Record the two approved additional requirements, design and tasks; validate strictly before code. Evidence: [executed commands and results](reports/2026-10-09-step-2-tdd.md).
+- [x] 1.2 Add negative initialize and bounded-body regressions; run them red before implementation. Evidence: [executed commands and results](reports/2026-10-09-step-2-tdd.md).
 
-## 3. The fix
+## 2. Small implementation steps
 
-- [x] 3.1 `app/api/mcp/route.ts` reads the body first and checks the header only when the message is not
-      `initialize`.
+- [x] 2.1 Restrict the exception to valid individual initialize requests. Evidence: [executed commands and results](reports/2026-10-09-step-2-tdd.md).
+- [x] 2.2 Bound POST reads to 1 MiB and 10 seconds after guards, with cancellation and cleanup. Evidence: [executed commands and results](reports/2026-10-09-step-2-tdd.md).
 
-## 4. Verification
+## 3. Existing tests
 
-- [x] 4.1 `tests/mcp-route.test.ts`, `tests/mcp-protocol.test.ts` and `tests/mcp-tools.test.ts`: `Tests 50 passed (50)`;
-      `tsc --noEmit` exit 0; eslint on the two changed files clean; `next build` green.
-- [x] 4.2 Real client, Hermes Agent v0.21.6+387 (`dce1e9b`) on Windows, 2026-10-09: before the fix `hermes mcp test
-      cited` failed with "the protocol version 2025-11-25 is not supported"; after it, "Connected" and "Tools
-      discovered: 2". The Hermes desktop app then answered "380 pesos [1]" from `cafe-la-horquilla.md · Precios` and
-      produced a quote PDF whose every figure appears in the sample documents.
-- [ ] 4.3 Adversarial review by Codex before the merge.
+- [x] 3.1 Review and run route/protocol/tools cases, preserving supported negotiation and tool behavior. Evidence: [executed commands and results](reports/2026-10-09-step-2-tdd.md).
+- [x] 3.2 Correct the README test's delta parser to inspect only ADDED sections in mixed ADDED/MODIFIED deltas. Evidence: [executed commands and results](reports/2026-10-09-step-4-validation.md).
+      The full-suite red run incorrectly treats the existing modified transport requirement as newly added.
+
+## 4. Automated validation and database evidence
+
+- [x] 4.1 Verify seeded database state before and after real-handler calls using read-only queries; record results. Evidence: [executed commands and results](reports/2026-10-09-step-4-validation.md).
+- [x] 4.2 Run all unit tests, lint, types and strict OpenSpec validation under Node 24. Evidence: [executed commands and results](reports/2026-10-09-step-4-validation.md).
+- [x] 4.3 Build in a temporary worktree and remove it afterward; never build in the live worktree. Evidence: [build exit 0 and cleanup](reports/2026-10-09-step-4-validation.md).
+
+## 5. HTTP and browser validation
+
+- [x] 5.1 Execute curl checks for negotiation, rejection and limits against the isolated build. Evidence: [executed commands and results](reports/2026-10-09-step-5-http.md).
+- [ ] 5.2 Observe required PR CI checks, including existing Playwright E2E, on the pushed HEAD.
+
+## 6. Documentation and closure
+
+- [x] 6.1 Update the MCP manual for body negotiation, subsequent headers, 400, 413 and 408. Evidence: [executed commands and results](reports/2026-10-09-step-6-verification.md).
+- [x] 6.2 Cite historical Hermes evidence and explicit independent-verification limits. Evidence: [executed commands and results](reports/2026-10-09-step-6-verification.md).
+- [ ] 6.3 Verify artifact/implementation/test mapping and deliver with actual issues.
+- [ ] 6.4 Fable performs independent adversarial review; Codex does not review its own code.
+- [ ] 6.5 Archive after independent review. Round-2 commits and push precede that handoff as explicitly assigned.

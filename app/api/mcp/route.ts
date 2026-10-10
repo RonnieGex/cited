@@ -6,6 +6,7 @@
  */
 
 import { bearerOf, mcpToken, originAllowed, tokenMatches } from "../../../lib/mcp/auth.ts";
+import { BodyLimitError, readMcpBody } from "../../../lib/mcp/body.ts";
 import { INVALID_REQUEST, PARSE_ERROR, type JsonRpcResponse, failure, isSupportedVersion } from "../../../lib/mcp/protocol.ts";
 import { handleMessage } from "../../../lib/mcp/server.ts";
 
@@ -54,7 +55,20 @@ function guard(request: Request): Response | string {
 }
 
 function isInitialize(body: unknown): boolean {
-  return typeof body === "object" && body !== null && (body as Record<string, unknown>)["method"] === "initialize";
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    return false;
+  }
+
+  const message = body as Record<string, unknown>;
+  const id = message["id"];
+  const params = message["params"];
+
+  return message["jsonrpc"] === "2.0" && message["method"] === "initialize"
+    && Object.hasOwn(message, "id")
+    && (typeof id === "string" || (typeof id === "number" && Number.isFinite(id) && Number.isInteger(id)))
+    && typeof params === "object" && params !== null && !Array.isArray(params)
+    && typeof (params as Record<string, unknown>)["protocolVersion"] === "string"
+    && ((params as Record<string, unknown>)["protocolVersion"] as string).length > 0;
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -67,8 +81,12 @@ export async function POST(request: Request): Promise<Response> {
   let body: unknown;
 
   try {
-    body = await request.json();
-  } catch {
+    body = await readMcpBody(request);
+  } catch (error) {
+    if (error instanceof BodyLimitError) {
+      return plain(`${error.message}\n`, error.status);
+    }
+
     return json(failure(null, PARSE_ERROR, "the body is not valid JSON"), 400);
   }
 
