@@ -32,12 +32,12 @@ Round-1 red/build/Hermes claims are historical, not independently verified by Co
 ## 5. HTTP and browser validation
 
 - [x] 5.1 Execute curl checks for negotiation, rejection and limits against the isolated build. Evidence: [executed commands and results](reports/2026-10-09-step-5-http.md).
-- [ ] 5.2 Observe required PR CI checks, including existing Playwright E2E, on the pushed HEAD.
+- [x] 5.2 Observe required PR CI checks, including existing Playwright E2E, on the pushed implementation HEAD. Evidence: [16 required checks SUCCESS](reports/2026-10-09-step-7-ci.md); final handoff commit is checked again in the delivery.
 
 ## 6. Documentation and closure
 
 - [x] 6.1 Update the MCP manual for body negotiation, subsequent headers, 400, 413 and 408. Evidence: [executed commands and results](reports/2026-10-09-step-6-verification.md).
 - [x] 6.2 Cite historical Hermes evidence and explicit independent-verification limits. Evidence: [executed commands and results](reports/2026-10-09-step-6-verification.md).
-- [ ] 6.3 Verify artifact/implementation/test mapping and deliver with actual issues.
+- [x] 6.3 Verify artifact/implementation/test mapping and deliver with actual issues. Evidence: [verification](reports/2026-10-09-step-6-verification.md), [handoff](reports/2026-10-09-step-7-ci.md).
 - [ ] 6.4 Fable performs independent adversarial review; Codex does not review its own code.
 - [ ] 6.5 Archive after independent review. Round-2 commits and push precede that handoff as explicitly assigned.
