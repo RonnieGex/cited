@@ -10,15 +10,19 @@ will meet the same wall.
 
 ## What Changes
 
-- `app/api/mcp/route.ts` reads the body first and checks `MCP-Protocol-Version` only when the message is not
-  `initialize`. An `initialize` is negotiated by its body whatever header it carries, and receives `2025-06-18` when it
+- After access guards, `app/api/mcp/route.ts` reads a bounded body and checks `MCP-Protocol-Version` unless the message is
+  a valid individual `initialize`. That request is negotiated by its body whatever header it carries, and receives `2025-06-18` when it
   asks for a version Cited does not support.
 - Every other request with an unsupported header is still refused with `400`, as today.
 - The spec `mcp-server` states it, with a scenario for the `initialize` that carries a newer header.
+- Round 2 restricts the exception to the valid envelope and bounds every POST read to 1 MiB and 10 seconds total,
+  returning 413 on overflow and 408 on timeout with cancellation and cleanup. See `design.md` and the added requirements.
 
 Found by Fable while connecting Cited to Franc's Hermes ("ahorita pruébalo en mi hermes que ya tiene ia configurada,
 pero actualízalo"). Fable writes and implements this small fix as a recorded exception to the separation of roles;
-Codex reviews it adversarially before the merge.
+Codex reviewed round 1 and found two Majors and two Minors. Fable's round-2 assignment explicitly asks Codex to
+implement those corrections and assigns the subsequent independent review to Fable. The change remains open for that
+handoff; Codex does not independently approve its own implementation.
 
 ## Impact
 
