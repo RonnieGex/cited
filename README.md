@@ -317,7 +317,3 @@ notice.
   <picture><source media="(prefers-color-scheme: dark)" srcset="public/brand/katalis-flame-192.png"><img src="public/brand/katalis-flame-ink-192.png" alt="Katalis" height="48"></picture>
   <a href="https://katalis.dev">Built by Katalis</a>
 </p>
-
-## Round eight composition
-
-The agents graphic uses three equal grid rows in both languages and themes, aligned to the left proof column. Statuses appear below client names; the repeated footer legend is removed. `node scripts/render-readme-graphics.mjs agents` asserts equal row heights, equal intervals, aligned column bounds and preserved source evidence. The browser audit records geometry for all four variants.
