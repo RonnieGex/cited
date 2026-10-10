@@ -94,7 +94,51 @@ profile and the DeepSeek model: the client connected, listed both tools, called 
 citation. The client first tries the `server/discover` method of a newer protocol revision, receives `400` and goes on
 with `2025-06-18`, which is the expected negotiation.
 
-## 5. Claude Code
+## 5. Hermes Agent
+
+**The short way: the native plugin.** The plugin of this repository installs in one step and turns both tools into
+native Hermes tools:
+
+```bash
+hermes plugins install RonnieGex/hermes-cited --enable
+```
+
+Declare `CITED_URL` and `CITED_MCP_TOKEN` in `$HERMES_HOME/.env` and the agent gets `cited_search` and `cited_ask`
+without an MCP configuration, plus the `/cited` and `/dot` conversation modes, a deterministic verifier that replaces
+an answer whose numbers no passage of the turn contains, and the hash-chained log of
+`$HERMES_HOME/cited/audit.jsonl`. Its repository explains the rest: https://github.com/RonnieGex/hermes-cited
+
+**The MCP way.** The same two tools with nothing installed. In `$HERMES_HOME/config.yaml`:
+
+```yaml
+mcp_servers:
+  cited:
+    url: https://<the host of the installation>/api/mcp
+    headers:
+      Authorization: Bearer ${CITED_MCP_TOKEN}
+    enabled: true
+    trust: untrusted
+```
+
+`${CITED_MCP_TOKEN}` is read from `$HERMES_HOME/.env` or the environment, never written in the file. `trust:
+untrusted` lets the two tools, which are read-only, run without an approval prompt. They appear as
+`mcp__cited__cited_search` and `mcp__cited__cited_ask`. Copy the skill that makes the agent reach for Cited before the
+web, `hermes_cited/skills/cited/SKILL.md` of the plugin, to `$HERMES_HOME/skills/cited/SKILL.md`.
+
+**This route needs a Cited with the `initialize` fix.** Hermes sends `MCP-Protocol-Version: 2025-11-25` from
+`initialize`. An installation that rejects that header answers `400` and the connection fails with `the protocol
+version 2025-11-25 is not supported`; the fix is [RonnieGex/cited#21](https://github.com/RonnieGex/cited/pull/21).
+
+Verified on 2026-10-09 with Hermes Agent v0.21.6+387 (commit `dce1e9b`) on Windows, against a local Cited on
+`127.0.0.1:3246` seeded from `samples/`, in a temporary `HERMES_HOME`: `hermes mcp test cited` connected and listed both
+tools, and a natural question in the MCP route called `mcp__cited__cited_search` and answered 380 pesos with the
+citation of `cafe-la-horquilla.md · Precios`. The native plugin was installed with `hermes plugins install
+"file:///C:/absolute/path/to/hermes-cited" --enable --yes-deps`; in cited mode the same question called the native
+`cited_search` and no web tool, answered 380 pesos and ended with the seal `Verified by Cited`, the English guarantee
+question answered 90 days, a question the samples do not answer was refused without inventing a price, and the chain of
+the log of those turns verified with `python -m hermes_cited.verify_log`.
+
+## 6. Claude Code
 
 ```bash
 claude mcp add --transport http cited https://<the host of the installation>/api/mcp --header "Authorization: Bearer <token>"
@@ -104,7 +148,7 @@ claude mcp add --transport http cited https://<the host of the installation>/api
 listed both tools (it also tries a `GET` for an event stream, receives `405` and goes on, as the transport allows). The
 tool call itself was not run from Claude Code that day; it is the same `tools/call` that DeepSeek Harness and `curl` ran.
 
-## 6. Codex
+## 7. Codex
 
 In `config.toml`:
 
@@ -118,7 +162,7 @@ Codex reads the token from the environment variable it names, so declare `CITED_
 on 2026-10-09 with Codex 0.157: the client connected and listed both tools. The tool call itself was not run from Codex
 that day.
 
-## 7. Cursor
+## 8. Cursor
 
 In `mcp.json`:
 
@@ -133,7 +177,7 @@ In `mcp.json`:
 }
 ```
 
-## 8. curl
+## 9. curl
 
 ```bash
 curl.exe -sS https://<the host of the installation>/api/mcp -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
@@ -145,7 +189,7 @@ The same request against a local run, which is what the smoke script sends:
 curl.exe -sS http://127.0.0.1:3230/api/mcp -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"cited_search","arguments":{"query":"afinación de bicicleta"}}}'
 ```
 
-## 9. Limits and privacy
+## 10. Limits and privacy
 
 - `MCP_RATE_LIMIT_PER_HOUR` counts the tool calls of one token in the current hour, in the memory of the process, and
   answers a tool error with a public sentence when it is reached. `initialize`, `ping` and `tools/list` do not consume
@@ -159,7 +203,7 @@ curl.exe -sS http://127.0.0.1:3230/api/mcp -H "Authorization: Bearer <token>" -H
 - The token of an installation is the only credential of the endpoint. It is never returned, never stored and never
   written to a line of a log.
 
-## 10. The smoke script
+## 11. The smoke script
 
 `scripts/mcp-smoke.mjs` runs `initialize`, `tools/list`, `cited_search` and `cited_ask` against a live server and prints
 what each one answered:

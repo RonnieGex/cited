@@ -155,6 +155,8 @@ chat público y responde con citas numeradas, o con la negativa.
 | DeepSeek Harness (plugin nativo) | Eligió `cited_ask` ante una pregunta natural en español y respondió con su propio pasaje citado; [transcripción](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/headless-answer.txt), [evidencia de compatibilidad](https://github.com/RonnieGex/dsh-cited/blob/main/docs/evidence/compatibility.md). |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code) | se conectó y listó las herramientas |
 | [Codex](https://github.com/openai/codex) | se conectó y listó las herramientas |
+| [Hermes Agent](https://github.com/NousResearch/hermes-agent) (configuración MCP) | Llamó a `mcp__cited__cited_search` ante una pregunta natural y respondió 380 pesos con su cita; [configuración](docs/mcp.md), plugin en [hermes-cited](https://github.com/RonnieGex/hermes-cited). |
+| [Hermes Agent](https://github.com/NousResearch/hermes-agent) (plugin nativo) | En modo cited llamó a la `cited_search` nativa antes que a cualquier herramienta web, respondió 380 pesos con el sello `Verified by Cited`, respondió 90 days a la pregunta inglesa de la garantía, se negó ante una pregunta que las muestras no responden, y su bitácora encadenada por hash verificó. |
 | Cursor y cualquier otro cliente de Streamable HTTP | configuración documentada, todavía sin probar |
 
 Instala el [plugin nativo](https://github.com/RonnieGex/dsh-cited) con `dsh plugin add github:RonnieGex/dsh-cited`.
