@@ -98,11 +98,13 @@ async function expectEveryVectorToBeItsTexts(path: string, expected: number): Pr
   }
 }
 
+type ConsoleSpy = { mock: { calls: unknown[][] } };
+
 /** The first output of the console that mentions `value`, or `undefined` when nothing did. */
-function consoleMentions(spies: ReturnType<typeof vi.spyOn>[], value: string): string | undefined {
+function consoleMentions(spies: ConsoleSpy[], value: string): string | undefined {
   return spies
     .flatMap((spy) => spy.mock.calls)
-    .map((call) => call.map((argument) => String(argument)).join(" "))
+    .map((call) => call.map((argument: unknown) => String(argument)).join(" "))
     .find((line) => line.includes(value));
 }
 
