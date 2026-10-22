@@ -1,3 +1,4 @@
+import { resolveEmbeddingsBatch } from "../embeddings/batch.ts";
 import type { EmbeddingProvider } from "../embeddings/types.ts";
 import type { SourceType } from "../ingest/types.ts";
 import type { Store } from "../store/index.ts";
@@ -7,15 +8,14 @@ import type { Store } from "../store/index.ts";
 // so a re-index re-embeds the passages that are already in the store and writes the signature of the provider that made
 // the vectors. In keyword mode it writes the signature and stores no vector.
 
-const embeddingBatch = 32;
-
 export type ReindexReport = { documents: number; passages: number };
 
 async function embedAll(provider: EmbeddingProvider, texts: string[]): Promise<number[][]> {
+  const batch = resolveEmbeddingsBatch();
   const vectors: number[][] = [];
 
-  for (let index = 0; index < texts.length; index += embeddingBatch) {
-    vectors.push(...(await provider.embed(texts.slice(index, index + embeddingBatch))));
+  for (let index = 0; index < texts.length; index += batch) {
+    vectors.push(...(await provider.embed(texts.slice(index, index + batch))));
   }
 
   return vectors;

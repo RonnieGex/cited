@@ -92,6 +92,13 @@ The provider is chosen with environment variables only.
 | `ollama` | `OLLAMA_BASE_URL` (default `http://localhost:11434`), `EMBEDDINGS_MODEL`, optional `EMBEDDINGS_DIMENSIONS` | local models, no key |
 | `fake` | none | deterministic, offline, for tests and for a first run without a provider |
 
+The ingestion and the re-index send the passage texts in requests of `EMBEDDINGS_BATCH` texts, 32 by default and
+read by `lib/embeddings/batch.ts` at the moment of embedding. A provider that accepts fewer texts per request (Text
+Embeddings Inference accepts 16 texts and 4096 tokens) needs a smaller number; a value that is not a positive integer
+(empty, `0`, negative, fractional or non-numeric) keeps 32, like the limits of section 2 of `docs/backend-standards.md`.
+The number changes only how many texts travel together: the texts are sliced in order and each passage keeps the
+vector of its own text.
+
 `EMBEDDINGS_PROVIDER` is required and is one of `openai`, `ollama` or `fake`. A missing or empty variable stops the
 run with a message that names the variable:
 

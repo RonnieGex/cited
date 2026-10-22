@@ -252,6 +252,7 @@ The variables the owner sets, what each one is for, and whether the code reads i
 | `EMBEDDINGS_MODEL` | name of the embeddings model | yes |
 | `EMBEDDINGS_API_KEY` | key of the embeddings provider | yes |
 | `EMBEDDINGS_DIMENSIONS` | optional override of the vector size of the provider | yes |
+| `EMBEDDINGS_BATCH` | how many texts one request to the embeddings provider carries, 32 by default; lower it for a provider that accepts fewer, like 16. A value that is not a positive integer keeps 32 | yes |
 | `OLLAMA_BASE_URL` | base URL of a local Ollama, `http://localhost:11434` by default | yes |
 | `DATABASE_URL` | path of the local libSQL file, `.data/katalis.sqlite` by default | yes |
 | `TURSO_DATABASE_URL` | URL of a remote libSQL database; it wins over the local file | yes |
