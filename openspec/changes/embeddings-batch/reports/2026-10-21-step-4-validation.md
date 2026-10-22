@@ -23,7 +23,9 @@ The change writes no migration and touches no table. The state the spec cares ab
 | re-index of 40 passages with `EMBEDDINGS_BATCH=4`: `reindexStore` report | ingested with the fake provider | `{ documents: 1, passages: 40 }` |
 
 In every case the texts the provider received, concatenated in request order, equal the passages of the store in
-order (`getPassages({ name, limit: 100 })`), so the number of texts per request moves no vector to another passage.
+order (`getPassages({ name, limit: 100 })`). That proves the order of the requests, not where each vector was
+stored; the adversarial review (step 8) asked for the latter, and since then every case reads the stored vectors back
+from the file and compares each one with the embedding of its own text, for the ingestion and for the re-index.
 
 ## Not run locally
 

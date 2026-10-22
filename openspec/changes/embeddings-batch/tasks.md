@@ -34,6 +34,10 @@ A task is `[x]` only with evidence.
 - [x] 4.1 `npm run typecheck`, `npm run lint`, `npm test` (whole suite, with counts and runtime) and
       `npx --yes @fission-ai/openspec@1.1.1 validate --all --strict`. Evidence:
       [step 4](reports/2026-10-21-step-4-validation.md), 1235 passed, 20 specs valid.
+- [x] 4.2 The `Dependency audit` of the pipeline failed on the published advisories of `vite` 8.3.1, drift of the
+      registry since the last run of `main`; the lockfile moves `vite` to 8.3.5, regenerated on Linux, and the
+      audit, the suite, the types and the lint pass again. Evidence:
+      [step 6](reports/2026-10-21-step-6-pipeline-audit.md).
 
 ## 5. Manual verification
 
@@ -55,5 +59,7 @@ A task is `[x]` only with evidence.
 ## 8. Closure
 
 - [ ] 8.1 Pull request against `main`, with every required check green; record the run.
-- [ ] 8.2 Independent adversarial review recorded in `reports/`; Fable implemented, so Fable does not review.
+- [x] 8.2 Independent adversarial review recorded in `reports/`; Fable implemented, so Fable does not review.
+      Evidence: [step 8](reports/2026-10-21-step-8-adversarial-review.md), Codex `gpt-6-astra`: PASS WITH GAPS,
+      one Major and three Minors, every one resolved in `tests/embeddings-batch.test.ts` (25 cases).
 - [ ] 8.3 Merge and archive belong to Franc.
