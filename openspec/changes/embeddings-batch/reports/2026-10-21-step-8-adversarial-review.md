@@ -39,6 +39,26 @@ Test Files  1 passed (1)
 exit=0
 ```
 
+## The re-check of the reviewer
+
+The same reviewer (Codex, `gpt-6-astra`, `high`, `read-only`) was asked to re-check the four findings on
+`182e465` (`c8947c7` plus the type annotation of the console spies that `tsc` demanded, which the first pipeline run
+of `c8947c7` caught in Types, Build and End to end). A first attempt died with "Selected model is at capacity" after
+verifying the documentation block and the lockfile; the second attempt answered:
+
+**PASS**: "All four findings are addressed, including one recorded teardown deviation, and no new findings were
+identified."
+
+- 1 Major, resolved: the helper reads the persisted vectors and compares every component with the embedding of the
+  row's text; its read-only mutation probe rejected reversed batches, rotated batches and one-slot shifts (minimum
+  separation between fixtures `0.00246`, well above `1e-6`).
+- 2 Minor, resolved: the spies on `log`, `info`, `warn` and `error`, restored after each test.
+- 3 Minor, resolved: both README rows, the 32 and 16, the fallback wording and the template line.
+- 4 Minor, resolved with deviation: the bounded retries and the warning, with the Windows rationale recorded here.
+- Lockfile: all 20 changed entries belong to Vite's dependency tree, 8.3.1 to 8.3.5, no entry added or removed,
+  `package.json` and the `@emnapi/*` entries unchanged. `npm run lint`, `tsc --noEmit --incremental false` and
+  `git diff --check` passed in its sandbox; Vitest still could not start there (`EPERM` under `node_modules/.vite-temp`).
+
 ## What the reviewer could not run, and who ran it
 
 Codex's read-only sandbox refused the writes Vitest (`node_modules/.vite-temp`) and `next typegen`

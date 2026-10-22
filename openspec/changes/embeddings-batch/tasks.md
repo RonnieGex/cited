@@ -47,8 +47,8 @@ A task is `[x]` only with evidence.
 
 ## 6. End to end
 
-- [ ] 6.1 No frontend changes. The existing Playwright suite runs in the pull-request pipeline and is recorded
-      from it.
+- [x] 6.1 No frontend changes. The existing Playwright suite runs in the pull-request pipeline and is recorded
+      from it. Evidence: [step 7](reports/2026-10-21-step-7-ci.md), `End to end` green on `182e465`.
 
 ## 7. Documentation
 
@@ -58,7 +58,9 @@ A task is `[x]` only with evidence.
 
 ## 8. Closure
 
-- [ ] 8.1 Pull request against `main`, with every required check green; record the run.
+- [x] 8.1 Pull request against `main`, with every required check green; record the run. Evidence:
+      [step 7](reports/2026-10-21-step-7-ci.md): #26, every job green on `182e465` (runs `39706599172` and
+      `39706601971`).
 - [x] 8.2 Independent adversarial review recorded in `reports/`; Fable implemented, so Fable does not review.
       Evidence: [step 8](reports/2026-10-21-step-8-adversarial-review.md), Codex `gpt-6-astra`: PASS WITH GAPS,
       one Major and three Minors, every one resolved in `tests/embeddings-batch.test.ts` (25 cases).
