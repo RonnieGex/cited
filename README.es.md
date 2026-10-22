@@ -254,6 +254,7 @@ Las variables que el dueño define, para qué sirve cada una y si el código la 
 | `EMBEDDINGS_MODEL` | nombre del modelo de embeddings | sí |
 | `EMBEDDINGS_API_KEY` | llave del proveedor de embeddings | sí |
 | `EMBEDDINGS_DIMENSIONS` | ajuste opcional del tamaño del vector del proveedor | sí |
+| `EMBEDDINGS_BATCH` | cuántos textos lleva cada petición al proveedor de embeddings, 32 por defecto; bájalo para un proveedor que acepte menos, como 16. Un valor que no sea un entero positivo conserva 32 | sí |
 | `OLLAMA_BASE_URL` | URL base de un Ollama local, `http://localhost:11434` por defecto | sí |
 | `DATABASE_URL` | ruta del archivo libSQL local, `.data/katalis.sqlite` por defecto | sí |
 | `TURSO_DATABASE_URL` | URL de una base libSQL remota; gana sobre el archivo local | sí |

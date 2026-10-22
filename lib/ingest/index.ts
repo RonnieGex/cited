@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdir, stat } from "node:fs/promises";
 import { basename, join } from "node:path";
+import { resolveEmbeddingsBatch } from "../embeddings/batch.ts";
 import type { EmbeddingProvider } from "../embeddings/types.ts";
 import type { PassageInput } from "../store/types.ts";
 import { chunkText } from "./chunk.ts";
@@ -17,8 +18,6 @@ export type {
   ParsedDocument,
   SourceType,
 } from "./types.ts";
-
-const embeddingBatch = 32;
 
 function isAccepted(path: string): boolean {
   const lower = path.toLowerCase();
@@ -59,10 +58,11 @@ async function embedAll(provider: EmbeddingProvider | null, texts: string[]): Pr
     return [];
   }
 
+  const batch = resolveEmbeddingsBatch();
   const vectors: number[][] = [];
 
-  for (let index = 0; index < texts.length; index += embeddingBatch) {
-    vectors.push(...(await provider.embed(texts.slice(index, index + embeddingBatch))));
+  for (let index = 0; index < texts.length; index += batch) {
+    vectors.push(...(await provider.embed(texts.slice(index, index + batch))));
   }
 
   return vectors;
