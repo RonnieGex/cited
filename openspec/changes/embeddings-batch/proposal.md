@@ -6,7 +6,7 @@ embeddings services accept fewer texts per request: the service of the Hermes in
 Embeddings Inference) accepts 16 texts and 4096 tokens per request, and in practice it worked with 4. With 32 the
 ingestion fails for every document of more than 32 passages, and the owner has nothing to change but the code.
 
-The fix ran as a local patch on that installation on 2026-10-21 (`katalis-dev/tasks/hotfix-diffs/cited-embeddings-batch.diff`).
+The fix first ran as a local patch on that installation on 2026-10-21; this change is its formal version.
 This change makes it a formal one: a specification, a test and the documentation of the variable.
 
 ## What Changes
